@@ -3,6 +3,8 @@
 Stack: [HMTL, CSS, Javascript, P5.js]
 Paradigm: Mostly OOP (Object Orientet Programming)
 
+**[DEMO](https://tsourdox.github.io/puzzle/)**
+
 ### Readup!
 * https://dev.to/satansdeer/typescript-constructor-shorthand-3ibd
 * https://en.wikipedia.org/wiki/Instance_variable
