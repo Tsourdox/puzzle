@@ -5,6 +5,7 @@
 
 class Puzzle {
     constructor(x, y, image) {
+        this.fidelity = 1
         this.grid = [];
         this.size = { x, y };
         this.image = image;
