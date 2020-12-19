@@ -1,4 +1,5 @@
 class InputHandler {
+    private graph: IGraph;
     private selectedPieces: Piece[];
     private cellSize: p5.Vector;
     private prevMouseIsPressed: boolean;
@@ -9,7 +10,8 @@ class InputHandler {
     private scrollSensitivity: number;
 
 
-    constructor(cellSize: p5.Vector) {
+    constructor(graph: IGraph, cellSize: p5.Vector) {
+        this.graph = graph;
         this.selectedPieces = [];
         this.cellSize = cellSize;
         this.prevMouseIsPressed = false;
@@ -24,20 +26,11 @@ class InputHandler {
         this.handleMouseInput(pieces);
         this.handleKeyobardInput();
 
-        // todo: rotate pieces as group instead of individually
-
-        for (const piece of this.selectedPieces) {
-            if (piece.isSelected) {
-                piece.rotation += scrollDelta * 0.005 * this.scrollSensitivity;
-            }
-            if (mouseIsPressed) {
-                const movedX = mouseX - this.prevMouseX;
-                const movedY = mouseY - this.prevMouseY;
-                piece.translation.add(movedX, movedY);
-            }
-        }
-
         // Set previous values last in update!
+        this.setPreviousValues();
+    }
+
+    private setPreviousValues() {
         this.prevMouseIsPressed = mouseIsPressed;
         this.prevSpaceIsPressed = keyIsDown(SPACE);
         this.prevEnterIsPressed = keyIsDown(ENTER);
@@ -60,6 +53,18 @@ class InputHandler {
             }
             this.selectedPieces = pieces.filter(p => p.isSelected);
         }
+
+        // todo: rotate pieces as group instead of individually
+        for (const piece of this.selectedPieces) {
+            if (keyIsDown(ALT)) {
+                piece.rotation += scrollDelta * 0.005 * this.scrollSensitivity;
+            }
+            if (mouseIsPressed) {
+                const movedX = mouseX - this.prevMouseX;
+                const movedY = mouseY - this.prevMouseY;
+                piece.translation.add(movedX, movedY);
+            }
+        }
     }
 
     private handleKeyobardInput() {
@@ -78,10 +83,10 @@ class InputHandler {
         
         // Rotation
         const rotation = 5 / frameRate();
-        if (keyIsDown(COMMA)) {
+        if (keyIsDown(COMMA) || keyIsDown(KEY_Q)) {
             this.rotatePieces(-rotation);
         }
-        if (keyIsDown(DOT)) {
+        if (keyIsDown(DOT) || keyIsDown(KEY_E)) {
             this.rotatePieces(rotation);
         }
         // Translation

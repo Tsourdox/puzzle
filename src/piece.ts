@@ -1,7 +1,3 @@
-/**
- * All four sides of a puzzle piece,
- * represented as a series of points.
-*/
 interface Sides {
     top: p5.Vector[];
     right: p5.Vector[];
