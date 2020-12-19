@@ -25,8 +25,39 @@ function setup() {
 function draw() {
     background(20);
     // Separate logic (update) from ui (draw)!
-    puzzle.update();
-    puzzle.draw();
+
+    noFill();
+    stroke('green');
+    strokeWeight(5);
+    curveTightness(0);
+    strokeJoin(ROUND);
+    beginShape();
+    vertex(100, 100);
+    bezierVertex(110, 130, 90, 180, 100, 200);
+    bezierVertex(150, 240, 150, 240, 200, 200);
+    // curveVertex(100, 200);
+    // endShape();
+    // beginShape();
+    // curveVertex(100, 200);
+    // vertex(100, 200);
+    // vertex(200, 200);
+    // vertex(200, 200);
+    // endShape();
+    // beginShape();
+    // curveVertex(200, 200);
+    // curveVertex(200, 200);
+    // curveVertex(200, 100);
+    // curveVertex(200, 100);
+    // // endShape();
+    // // beginShape();
+    // curveVertex(200, 100);
+    // curveVertex(200, 100);
+    // curveVertex(100, 100);
+    // curveVertex(100, 100);
+    endShape();
+
+    // puzzle.update();
+    // puzzle.draw();
     scrollDelta = 0;
 }
 

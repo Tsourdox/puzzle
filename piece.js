@@ -118,7 +118,7 @@ class Piece {
         fill(`rgba(0,0,0,.7)`);
         this.isSelected ? stroke('red') : stroke('blue');
         strokeWeight(2);
-        curveTightness(1);
+        curveTightness(0);
         this.applyTranslation();
         this.applyRotation();
 

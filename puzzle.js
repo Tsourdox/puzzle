@@ -5,7 +5,7 @@
 
 class Puzzle {
     constructor(x, y, image) {
-        this.fidelity = 1
+        this.fidelity = 2;
         this.grid = [];
         this.size = { x, y };
         this.image = image;
@@ -63,14 +63,14 @@ class Puzzle {
                 // Create sides based on the corners
                 // todo: we need more points!! (ok for now)
                 const sides = {
-                    top: [origin, right],
-                    right: [right, diagonal],
-                    bottom: [diagonal, bottom],
-                    left: [bottom, origin],
+                    top: this.addPoints([origin, right]),
+                    right: this.addPoints([right, diagonal]),
+                    bottom: this.addPoints([diagonal, bottom]),
+                    left: this.addPoints([bottom, origin]),
                 };
 
                 // todo: just for testing...
-                if (this.pieces.length === 10) {
+                if (this.pieces.length === 1) {
                     return;
                 }
 
@@ -78,6 +78,41 @@ class Puzzle {
                 this.pieces.push(piece)
             }
         }
+    }
+
+    addPoints(array, depth = 0) {
+        if (depth >= this.fidelity) return array;
+        
+        const newPoints = [];
+        for (let i = 0; i < array.length - 1; i++) {
+            const a = array[i];
+            const b = array[i + 1];
+            
+            // create point
+            const midPoint = {
+                x: (a.x + b.x) / 2,
+                y: (a.y + b.y) / 2
+            }
+            
+            // offset point
+            const offsetX = (a.x - b.x) / 2
+            const offsetY = (a.y - b.y) / 2
+            if (offsetX < offsetY) {
+                midPoint.x += random(-offsetX, offsetX);
+            } else {
+                midPoint.y += random(-offsetY, offsetY);
+            }
+
+            newPoints.push(midPoint);
+        }
+        
+        const newArray = [];
+        for (let i = 0; i < newPoints.length; i++) {
+            newArray[i * 2] = array[i]
+            newArray[i * 2 + 1] = newPoints[i]
+        }
+        newArray.push(array[newPoints.length]);
+        return this.addPoints(newArray, depth + 1);
     }
 
     update() {
