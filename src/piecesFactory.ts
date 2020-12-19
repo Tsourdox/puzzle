@@ -36,9 +36,9 @@ class PiecesFactory {
                 };
 
                 // todo: just for testing...
-                if (pieces.length === 6) {
-                    return pieces;
-                }
+                // if (pieces.length === 6) {
+                //     return pieces;
+                // }
 
                 const piece = new Piece(sides);
                 pieces.push(piece)
@@ -81,9 +81,11 @@ class PiecesFactory {
 
     public draw() {
         this.drawBackground();
-        this.drawFixedGrid();
-        this.drawGrid();
-        this.drawPoints();
+        if (IS_DEV_MODE) {
+            this.drawFixedGrid();
+            this.drawGrid();
+            this.drawPoints();
+        }
     }
 
     private drawBackground() {

@@ -9,6 +9,7 @@ interface IImages {
 
 //-----------------------------------------//
 //----------------GLOBALS------------------//
+const IS_DEV_MODE = false;
 let puzzle: Puzzle;
 let music: IMusic;
 let images: IImages;
@@ -22,6 +23,10 @@ const KEY_D = 68;
 const KEY_S = 83;
 const KEY_Q = 81;
 const KEY_E = 69;
+const KEY_HALF = 192;
+const KEY_1 = 49;
+const KEY_2 = 50;
+const KEY_3 = 51;
 
 //-----------------------------------------//
 //------------MAIN P5 FUNCTIONS------------//
@@ -40,7 +45,7 @@ function preload() {
 function setup() {
     createCanvas(windowWidth, windowHeight);
     frameRate(60);
-    puzzle = new Puzzle(4, 6, images.background);
+    puzzle = new Puzzle(20, 20, images.background);
 }
 
 function draw() {

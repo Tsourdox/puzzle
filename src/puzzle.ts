@@ -14,7 +14,7 @@ class Puzzle implements IGraph {
     constructor(x: number, y: number, image: p5.Image) {
         this.scale = 1;
         this.translation = createVector(0, 0);
-        this.cellSize = createVector(width / x, height / y)
+        this.cellSize = createVector(image.width / x, image.height / y)
         this.inputHandler = new InputHandler(this, this.cellSize);
         this.piecesFactory = new PiecesFactory(x, y, image, this.cellSize);
         this.pieces = this.piecesFactory.createAllPieces();

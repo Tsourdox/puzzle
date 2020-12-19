@@ -3,8 +3,8 @@ class InputHandler {
     private selectedPieces: Piece[];
     private cellSize: p5.Vector;
     private prevMouseIsPressed: boolean;
-    private prevSpaceIsPressed: boolean;
-    private prevEnterIsPressed: boolean;
+    private prevSpaceIsDown: boolean;
+    private prevEnterIsDown: boolean;
     private prevMouseX: number;
     private prevMouseY: number;
     private scrollSensitivity: number;
@@ -15,8 +15,8 @@ class InputHandler {
         this.selectedPieces = [];
         this.cellSize = cellSize;
         this.prevMouseIsPressed = false;
-        this.prevSpaceIsPressed = false;
-        this.prevEnterIsPressed = false;
+        this.prevSpaceIsDown = false;
+        this.prevEnterIsDown = false;
         this.prevMouseX = mouseX;
         this.prevMouseY = mouseY;
         this.scrollSensitivity = 1;
@@ -35,14 +35,19 @@ class InputHandler {
 
     private handleGraphScaleAndTranslation() {
         if (!keyIsDown(ALT) && scrollDelta !== 0) {
-            this.graph.scale *= 1 + scrollDelta * 0.005 * this.scrollSensitivity
+            this.graph.scale *= 1 + scrollDelta * 0.005 * this.scrollSensitivity;
+            this.graph.scale = max(0.01, min(this.graph.scale, 100)); 
         }
+        if (keyIsDown(KEY_HALF)) this.graph.scale = 0.5;
+        if (keyIsDown(KEY_1)) this.graph.scale = 1;
+        if (keyIsDown(KEY_2)) this.graph.scale = 2;
+        if (keyIsDown(KEY_3)) this.graph.scale = 4;
     }
 
     private setPreviousValues() {
         this.prevMouseIsPressed = mouseIsPressed;
-        this.prevSpaceIsPressed = keyIsDown(SPACE);
-        this.prevEnterIsPressed = keyIsDown(ENTER);
+        this.prevSpaceIsDown = keyIsDown(SPACE);
+        this.prevEnterIsDown = keyIsDown(ENTER);
         this.prevMouseX = mouseX;
         this.prevMouseY = mouseY;
     }
@@ -114,10 +119,10 @@ class InputHandler {
     }
 
     private handlePieceExploding() {
-        if (keyIsDown(SPACE) && !this.prevSpaceIsPressed) {
+        if (keyIsDown(SPACE) && !this.prevSpaceIsDown) {
             this.explodePieces();
         }
-        if (keyIsDown(ENTER) && !this.prevEnterIsPressed) {
+        if (keyIsDown(ENTER) && !this.prevEnterIsDown) {
             this.stackPieces();
         }
     }
