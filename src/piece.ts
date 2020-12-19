@@ -16,7 +16,6 @@ interface Line {
 
 class Piece {
     private sides: Sides;
-    // private origin: p5.Vector;
     private center: p5.Vector;
     public rotation: number;
     public translation: p5.Vector;
@@ -24,7 +23,6 @@ class Piece {
 
     constructor(sides: Sides) {
         this.sides = sides
-        // this.origin = sides.top[0];
         this.center = this.getApproximatedCenter();
         this.rotation = 0;
         this.translation = createVector(0, 0);
@@ -108,7 +106,7 @@ class Piece {
         fill(`rgba(0,0,0,.7)`);
         this.isSelected ? stroke('red') : stroke('blue');
         strokeWeight(2);
-        curveTightness(0);
+        curveTightness(1);
         this.applyTranslation();
         this.applyRotation();
 

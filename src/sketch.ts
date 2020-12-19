@@ -66,7 +66,8 @@ function windowResized() {
 }
 
 function mousePressed() {
-    if (!music.love.isPlaying()) {
-        music.love.loop();
-    }
+    // if (!music.love.isPlaying()) {
+    //     music.love.setVolume(0.5);
+    //     music.love.loop();
+    // }
 }
