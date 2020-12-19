@@ -16,6 +16,10 @@ let scrollDelta = 0;
 const SPACE = 32;
 const COMMA = 188;
 const DOT = 190;
+const KEY_A = 65;
+const KEY_W = 87;
+const KEY_D = 68;
+const KEY_S = 83;
 
 //-----------------------------------------//
 //------------MAIN P5 FUNCTIONS------------//

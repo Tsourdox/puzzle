@@ -6,6 +6,8 @@ class InputHandler {
     private prevEnterIsPressed: boolean;
     private prevMouseX: number;
     private prevMouseY: number;
+    private scrollSensitivity: number;
+
 
     constructor(cellSize: p5.Vector) {
         this.selectedPieces = [];
@@ -15,6 +17,7 @@ class InputHandler {
         this.prevEnterIsPressed = false;
         this.prevMouseX = mouseX;
         this.prevMouseY = mouseY;
+        this.scrollSensitivity = 1;
     }
 
     public update(pieces: Piece[]) {
@@ -25,7 +28,7 @@ class InputHandler {
 
         for (const piece of this.selectedPieces) {
             if (piece.isSelected) {
-                piece.rotation += scrollDelta * 0.01;
+                piece.rotation += scrollDelta * 0.005 * this.scrollSensitivity;
             }
             if (mouseIsPressed) {
                 const movedX = mouseX - this.prevMouseX;
@@ -47,7 +50,7 @@ class InputHandler {
         if (didPress) {
             for (const piece of pieces) {
                 const isMouseOver = piece.isMouseOver();
-                if (keyIsDown(ALT)) {
+                if (keyIsDown(SHIFT)) {
                     if (isMouseOver) {
                         piece.isSelected = true;
                     }
@@ -74,24 +77,26 @@ class InputHandler {
         }
         
         // Rotation
+        const rotation = 5 / frameRate();
         if (keyIsDown(COMMA)) {
-            this.rotatePieces(-0.05);
+            this.rotatePieces(-rotation);
         }
         if (keyIsDown(DOT)) {
-            this.rotatePieces(0.05);
+            this.rotatePieces(rotation);
         }
         // Translation
-        if (keyIsDown(LEFT_ARROW)) {
-            this.translatePieces(-5, 0);
+        const translation = (2 * this.cellSize.mag()) / frameRate();
+        if (keyIsDown(LEFT_ARROW) || keyIsDown(KEY_A)) {
+            this.translatePieces(-translation, 0);
         }
-        if (keyIsDown(RIGHT_ARROW)) {
-            this.translatePieces(5, 0);
+        if (keyIsDown(RIGHT_ARROW) || keyIsDown(KEY_D)) {
+            this.translatePieces(translation, 0);
         }
-        if (keyIsDown(UP_ARROW)) {
-            this.translatePieces(0, -5);
+        if (keyIsDown(UP_ARROW) || keyIsDown(KEY_W)) {
+            this.translatePieces(0, -translation);
         }
-        if (keyIsDown(DOWN_ARROW)) {
-            this.translatePieces(0, 5);
+        if (keyIsDown(DOWN_ARROW) || keyIsDown(KEY_S)) {
+            this.translatePieces(0, translation);
         }
     }
 

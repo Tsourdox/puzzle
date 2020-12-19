@@ -17,6 +17,7 @@ class Puzzle {
     }
 
     public draw() {
+        background(0);
         this.piecesFactory.draw();
         this.drawPieces();
     }
