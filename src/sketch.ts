@@ -17,12 +17,8 @@ const SPACE = 32;
 const COMMA = 188;
 const DOT = 190;
 
-
-/**
- * Built in preload function in P5
- * This is a good place to load assets such as
- * sound files, images etc...
- */
+//-----------------------------------------//
+//------------MAIN P5 FUNCTIONS------------//
 function preload() {
     music = {
         dreaming: loadSound('../assets/music/dreaming-big.mp3'),
@@ -35,12 +31,6 @@ function preload() {
     }
 }
 
-/**
- * Built in setup function in P5
- * This is a good place to create your first class object
- * and save it as a global variable so it can be used
- * in the draw function below
- */
 function setup() {
     createCanvas(windowWidth, windowHeight);
     // Frame rate must match display for movedX & movedY to work properly!
@@ -48,11 +38,6 @@ function setup() {
     puzzle = new Puzzle(4, 6, images.background);
 }
 
-/**
- * Built in draw function in P5
- * This is a good place to call public methods of the object
- * you created in the setup function above
- */
 function draw() {
     puzzle.update();
     puzzle.draw();
@@ -60,9 +45,8 @@ function draw() {
 }
 
 
-/**
- *  Built in windowResize listener function in P5
- */
+//-----------------------------------------//
+//----------------EVENTS-------------------//
 function windowResized() {
     resizeCanvas(windowWidth, windowHeight);
 }
