@@ -4,6 +4,8 @@ class InputHandler {
     private prevMouseIsPressed: boolean;
     private prevSpaceIsPressed: boolean;
     private prevEnterIsPressed: boolean;
+    private prevMouseX: number;
+    private prevMouseY: number;
 
     constructor(cellSize: p5.Vector) {
         this.selectedPieces = [];
@@ -11,6 +13,8 @@ class InputHandler {
         this.prevMouseIsPressed = false;
         this.prevSpaceIsPressed = false;
         this.prevEnterIsPressed = false;
+        this.prevMouseX = mouseX;
+        this.prevMouseY = mouseY;
     }
 
     public update(pieces: Piece[]) {
@@ -24,15 +28,18 @@ class InputHandler {
                 piece.rotation += scrollDelta * 0.01;
             }
             if (mouseIsPressed) {
-                piece.translation.x += movedX;
-                piece.translation.y += movedY;
+                const movedX = mouseX - this.prevMouseX;
+                const movedY = mouseY - this.prevMouseY;
+                piece.translation.add(movedX, movedY);
             }
         }
 
-        // Set current values last in update!
+        // Set previous values last in update!
         this.prevMouseIsPressed = mouseIsPressed;
         this.prevSpaceIsPressed = keyIsDown(SPACE);
         this.prevEnterIsPressed = keyIsDown(ENTER);
+        this.prevMouseX = mouseX;
+        this.prevMouseY = mouseY;
     }
 
     private handleMouseInput(pieces: Piece[]) {

@@ -33,8 +33,7 @@ function preload() {
 
 function setup() {
     createCanvas(windowWidth, windowHeight);
-    // Frame rate must match display for movedX & movedY to work properly!
-    frameRate(170);
+    frameRate(60);
     puzzle = new Puzzle(4, 6, images.background);
 }
 
