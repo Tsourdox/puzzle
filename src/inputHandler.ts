@@ -23,8 +23,10 @@ class InputHandler {
     }
 
     public update(pieces: Piece[]) {
-        this.handleMouseInput(pieces);
-        this.handleKeyobardInput();
+        this.handlePieceSelection(pieces);
+        this.handlePieceRotation();
+        this.handlePieceTranslation();
+        this.handlePieceExploding();
 
         // Set previous values last in update!
         this.setPreviousValues();
@@ -38,7 +40,49 @@ class InputHandler {
         this.prevMouseY = mouseY;
     }
 
-    private handleMouseInput(pieces: Piece[]) {
+    private handlePieceTranslation() {
+        // Keyboard
+        const translation = (2 * this.cellSize.mag()) / frameRate();
+        if (keyIsDown(LEFT_ARROW) || keyIsDown(KEY_A)) {
+            this.translatePieces(-translation, 0);
+        }
+        if (keyIsDown(RIGHT_ARROW) || keyIsDown(KEY_D)) {
+            this.translatePieces(translation, 0);
+        }
+        if (keyIsDown(UP_ARROW) || keyIsDown(KEY_W)) {
+            this.translatePieces(0, -translation);
+        }
+        if (keyIsDown(DOWN_ARROW) || keyIsDown(KEY_S)) {
+            this.translatePieces(0, translation);
+        }
+        
+        // Dragging with mouse
+        if (mouseIsPressed) {
+            const movedX = mouseX - this.prevMouseX;
+            const movedY = mouseY - this.prevMouseY;
+            this.translatePieces(movedX, movedY);
+        }
+    }
+
+    private handlePieceRotation() {
+        // Keyboard rotation
+        const rotation = 5 / frameRate();
+        if (keyIsDown(COMMA) || keyIsDown(KEY_Q)) {
+            this.rotatePieces(-rotation);
+        }
+        if (keyIsDown(DOT) || keyIsDown(KEY_E)) {
+            this.rotatePieces(rotation);
+        }
+
+        // Scroll wheel rotation
+        if (keyIsDown(ALT)) {
+            const rotation = scrollDelta * 0.005 * this.scrollSensitivity;
+            this.rotatePieces(rotation)
+        }
+    }
+
+    private handlePieceSelection(pieces: Piece[]) {
+        // Select
         const didPress = !this.prevMouseIsPressed && mouseIsPressed;
         if (didPress) {
             for (const piece of pieces) {
@@ -53,59 +97,26 @@ class InputHandler {
             }
             this.selectedPieces = pieces.filter(p => p.isSelected);
         }
-
-        // todo: rotate pieces as group instead of individually
-        for (const piece of this.selectedPieces) {
-            if (keyIsDown(ALT)) {
-                piece.rotation += scrollDelta * 0.005 * this.scrollSensitivity;
-            }
-            if (mouseIsPressed) {
-                const movedX = mouseX - this.prevMouseX;
-                const movedY = mouseY - this.prevMouseY;
-                piece.translation.add(movedX, movedY);
-            }
-        }
-    }
-
-    private handleKeyobardInput() {
-        // Selection
-        if (keyIsDown(BACKSPACE)) { 
+        
+        // Deselect
+        if (keyIsDown(ESCAPE)) { 
             for (const piece of this.selectedPieces) {
                 piece.isSelected = false;
             }
         }
+    }
+
+    private handlePieceExploding() {
         if (keyIsDown(SPACE) && !this.prevSpaceIsPressed) {
             this.explodePieces();
         }
         if (keyIsDown(ENTER) && !this.prevEnterIsPressed) {
             this.stackPieces();
         }
-        
-        // Rotation
-        const rotation = 5 / frameRate();
-        if (keyIsDown(COMMA) || keyIsDown(KEY_Q)) {
-            this.rotatePieces(-rotation);
-        }
-        if (keyIsDown(DOT) || keyIsDown(KEY_E)) {
-            this.rotatePieces(rotation);
-        }
-        // Translation
-        const translation = (2 * this.cellSize.mag()) / frameRate();
-        if (keyIsDown(LEFT_ARROW) || keyIsDown(KEY_A)) {
-            this.translatePieces(-translation, 0);
-        }
-        if (keyIsDown(RIGHT_ARROW) || keyIsDown(KEY_D)) {
-            this.translatePieces(translation, 0);
-        }
-        if (keyIsDown(UP_ARROW) || keyIsDown(KEY_W)) {
-            this.translatePieces(0, -translation);
-        }
-        if (keyIsDown(DOWN_ARROW) || keyIsDown(KEY_S)) {
-            this.translatePieces(0, translation);
-        }
     }
 
     private rotatePieces(angle: number) {
+        // todo: rotate pieces as group instead of individually
         for (const piece of this.selectedPieces) {
             piece.rotation += angle;
         }
