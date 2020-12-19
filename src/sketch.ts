@@ -66,5 +66,7 @@ function windowResized() {
 }
 
 function mousePressed() {
-    music.dreaming.play();
+    if (!music.love.isPlaying()) {
+        music.love.loop();
+    }
 }
