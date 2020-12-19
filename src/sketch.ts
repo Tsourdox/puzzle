@@ -43,7 +43,8 @@ function preload() {
  */
 function setup() {
     createCanvas(windowWidth, windowHeight);
-    frameRate(60);
+    // Frame rate must match display for movedX & movedY to work properly!
+    frameRate(170);
     puzzle = new Puzzle(4, 6, images.background);
 }
 
@@ -55,6 +56,7 @@ function setup() {
 function draw() {
     puzzle.update();
     puzzle.draw();
+    scrollDelta = 0;
 }
 
 
@@ -63,6 +65,10 @@ function draw() {
  */
 function windowResized() {
     resizeCanvas(windowWidth, windowHeight);
+}
+
+function mouseWheel(event: any) {
+    scrollDelta = event.delta
 }
 
 function mousePressed() {
