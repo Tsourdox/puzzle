@@ -32,7 +32,15 @@ class Puzzle implements IGraph {
     }
 
     private drawPieces() {
+        const selectedPieces: Piece[] = [];
         for (const piece of this.pieces) {
+            if (piece.isSelected) {
+                selectedPieces.push(piece);
+            } else {
+                piece.draw();
+            }
+        }
+        for (const piece of selectedPieces) {
             piece.draw();
         }
     }
