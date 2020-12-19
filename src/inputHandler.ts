@@ -22,7 +22,8 @@ class InputHandler {
         this.scrollSensitivity = 1;
     }
 
-    public update(pieces: Piece[]) {
+    public update(pieces: ReadonlyArray<Piece>) {
+        this.handleGraphScaleAndTranslation();
         this.handlePieceSelection(pieces);
         this.handlePieceRotation();
         this.handlePieceTranslation();
@@ -30,6 +31,12 @@ class InputHandler {
 
         // Set previous values last in update!
         this.setPreviousValues();
+    }
+
+    private handleGraphScaleAndTranslation() {
+        if (!keyIsDown(ALT) && scrollDelta !== 0) {
+            this.graph.scale *= 1 + scrollDelta * 0.005 * this.scrollSensitivity
+        }
     }
 
     private setPreviousValues() {
@@ -58,8 +65,8 @@ class InputHandler {
         
         // Dragging with mouse
         if (mouseIsPressed) {
-            const movedX = mouseX - this.prevMouseX;
-            const movedY = mouseY - this.prevMouseY;
+            const movedX = (mouseX - this.prevMouseX) / this.graph.scale;
+            const movedY = (mouseY - this.prevMouseY) / this.graph.scale;
             this.translatePieces(movedX, movedY);
         }
     }
@@ -81,12 +88,12 @@ class InputHandler {
         }
     }
 
-    private handlePieceSelection(pieces: Piece[]) {
+    private handlePieceSelection(pieces: ReadonlyArray<Piece>) {
         // Select
         const didPress = !this.prevMouseIsPressed && mouseIsPressed;
         if (didPress) {
             for (const piece of pieces) {
-                const isMouseOver = piece.isMouseOver();
+                const isMouseOver = piece.isMouseOver(this.graph.scale);
                 if (keyIsDown(SHIFT)) {
                     if (isMouseOver) {
                         piece.isSelected = true;

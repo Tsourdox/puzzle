@@ -54,7 +54,7 @@ class Piece {
      * Premise: if point is on the same side
      * of the piece sides, is has to be inside.
      */
-    public isMouseOver() {
+    public isMouseOver(scale: number) {
         let corners = this.getCorners();
         // Always 4 corners!
         
@@ -69,7 +69,7 @@ class Piece {
             end.x += this.translation.x;
             end.y += this.translation.y;
             
-            const point = createVector(mouseX, mouseY);
+            const point = createVector(mouseX / scale, mouseY / scale);
             const line: Line = { start, end };
             positions[i] = this.pointPositionFromLine(point, line);
         }

@@ -1,18 +1,18 @@
 interface IGraph {
-    zoom: number;
+    scale: number;
     translation: p5.Vector;
 }
 
 class Puzzle implements IGraph {
-    public zoom: number;
+    public scale: number;
     public translation: p5.Vector;
     private cellSize: p5.Vector;
-    private pieces: Piece[];
+    private pieces: ReadonlyArray<Piece>;
     private inputHandler: InputHandler;
     private piecesFactory: PiecesFactory;
 
     constructor(x: number, y: number, image: p5.Image) {
-        this.zoom = 0;
+        this.scale = 1;
         this.translation = createVector(0, 0);
         this.cellSize = createVector(width / x, height / y)
         this.inputHandler = new InputHandler(this, this.cellSize);
@@ -25,7 +25,8 @@ class Puzzle implements IGraph {
     }
 
     public draw() {
-        background(0);
+        scale(this.scale);
+        background(50);
         this.piecesFactory.draw();
         this.drawPieces();
     }
