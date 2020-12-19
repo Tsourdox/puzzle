@@ -1,22 +1,20 @@
 class InputHandler {
-    private pieces: Piece[];
     private selectedPieces: Piece[];
-    private cellWidth: number;
+    private cellSize: p5.Vector;
     private prevMouseIsPressed: boolean;
     private prevSpaceIsPressed: boolean;
     private prevEnterIsPressed: boolean;
 
-    constructor(pieces: Piece[], cellWidth: number) {
-        this.pieces = pieces;
+    constructor(cellSize: p5.Vector) {
         this.selectedPieces = [];
-        this.cellWidth = cellWidth;
+        this.cellSize = cellSize;
         this.prevMouseIsPressed = false;
         this.prevSpaceIsPressed = false;
         this.prevEnterIsPressed = false;
     }
 
-    public update() {
-        this.handleMouseInput();
+    public update(pieces: Piece[]) {
+        this.handleMouseInput(pieces);
         this.handleKeyobardInput();
 
         // todo: rotate pieces as group instead of individually
@@ -37,10 +35,10 @@ class InputHandler {
         this.prevEnterIsPressed = keyIsDown(ENTER);
     }
 
-    private handleMouseInput() {
+    private handleMouseInput(pieces: Piece[]) {
         const didPress = !this.prevMouseIsPressed && mouseIsPressed;
         if (didPress) {
-            for (const piece of this.pieces) {
+            for (const piece of pieces) {
                 const isMouseOver = piece.isMouseOver();
                 if (keyIsDown(ALT)) {
                     if (isMouseOver) {
@@ -50,7 +48,7 @@ class InputHandler {
                     piece.isSelected = isMouseOver;
                 }
             }
-            this.selectedPieces = this.pieces.filter(p => p.isSelected);
+            this.selectedPieces = pieces.filter(p => p.isSelected);
         }
     }
 
@@ -103,7 +101,7 @@ class InputHandler {
     }
     
     private explodePieces() {
-        const radius = this.cellWidth;
+        const radius = this.cellSize.mag();
         const pieces = this.selectedPieces;
         if (pieces.length <= 1) return;
 
