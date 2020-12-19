@@ -1,5 +1,12 @@
 class InputHandler {
-    constructor(pieces, cellWidth) {
+    private pieces: Piece[];
+    private selectedPieces: Piece[];
+    private cellWidth: number;
+    private prevMouseIsPressed: boolean;
+    private prevSpaceIsPressed: boolean;
+    private prevEnterIsPressed: boolean;
+
+    constructor(pieces: Piece[], cellWidth: number) {
         this.pieces = pieces;
         this.selectedPieces = [];
         this.cellWidth = cellWidth;
@@ -8,7 +15,7 @@ class InputHandler {
         this.prevEnterIsPressed = false;
     }
 
-    update() {
+    public update() {
         this.handleMouseInput();
         this.handleKeyobardInput();
 
@@ -30,7 +37,7 @@ class InputHandler {
         this.prevEnterIsPressed = keyIsDown(ENTER);
     }
 
-    handleMouseInput() {
+    private handleMouseInput() {
         const didPress = !this.prevMouseIsPressed && mouseIsPressed;
         if (didPress) {
             for (const piece of this.pieces) {
@@ -47,7 +54,7 @@ class InputHandler {
         }
     }
 
-    handleKeyobardInput() {
+    private handleKeyobardInput() {
         // Selection
         if (keyIsDown(BACKSPACE)) { 
             for (const piece of this.selectedPieces) {
@@ -83,20 +90,19 @@ class InputHandler {
         }
     }
 
-    rotatePieces(angle) {
+    private rotatePieces(angle: number) {
         for (const piece of this.selectedPieces) {
             piece.rotation += angle;
         }
     }
     
-    translatePieces(x, y) {
+    private translatePieces(x: number, y: number) {
         for (const piece of this.selectedPieces) {
-            piece.translation.x += x;
-            piece.translation.y += y;
+            piece.translation.add(x, y);
         }
     }
     
-    explodePieces() {
+    private explodePieces() {
         const radius = this.cellWidth;
         const pieces = this.selectedPieces;
         if (pieces.length <= 1) return;
@@ -110,7 +116,7 @@ class InputHandler {
         }
     }
 
-    stackPieces() {
+    private stackPieces() {
         const group = this.getPiecesCenter();
 
         for (const piece of this.selectedPieces) {
@@ -122,7 +128,7 @@ class InputHandler {
         }
     }
 
-    getPiecesCenter() {
+    private getPiecesCenter() {
         const pieces = this.selectedPieces
         var x = pieces.map(p => p.getTruePosition().x);
         var y = pieces.map(p => p.getTruePosition().y);

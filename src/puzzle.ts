@@ -1,42 +1,45 @@
-/**
- * A two-dimensional array of points.
- * @typedef {Point[][]} Grid
- */
 
 class Puzzle {
-    constructor(x, y, image) {
+    private size: p5.Vector;
+    private fidelity: number;
+    private grid: p5.Vector[][];
+    private image: p5.Image;
+    private cellSize: p5.Vector;
+    private pieces: Piece[];
+    private inputHandler: InputHandler;
+
+    constructor(x: number, y: number, image: p5.Image) {
         this.fidelity = 2;
         this.grid = [];
-        this.size = { x, y };
+        this.size = createVector(x, y);
         this.image = image;
-        this.cellWidth = width / this.size.x;
-        this.cellHeight = height / this.size.y;
+        this.cellSize = createVector(width / x, height / y)
         this.pieces = [];
 
         this.createGrid();
         this.offsetPoints();
         this.createAllPieces();
 
-        this.inputHandler = new InputHandler(this.pieces, this.cellWidth);
+        this.inputHandler = new InputHandler(this.pieces, this.cellSize.x);
     }
 
-    createGrid() {
+    private createGrid() {
         for (let x = 0; x <= this.size.x; x++) {
             // create an array for y values
             this.grid[x] = [];
 
             for (let y = 0; y <= this.size.y; y++) {
-                this.grid[x][y] = {
-                    x: this.cellWidth * x,
-                    y: this.cellHeight * y,
-                };
+                this.grid[x][y] = createVector(
+                    this.cellSize.x * x,
+                    this.cellSize.y * y,
+                );
             }
         }
     }
 
-    offsetPoints() {
-        const maxOffsetX = this.cellWidth / 10;
-        const maxOffsetY = this.cellHeight / 10;
+    private offsetPoints() {
+        const maxOffsetX = this.cellSize.x / 10;
+        const maxOffsetY = this.cellSize.y / 10;
 
         for (let x = 0; x <= this.size.x; x++) {
             for (let y = 0; y <= this.size.y; y++) {
@@ -80,19 +83,19 @@ class Puzzle {
         }
     }
 
-    addPoints(array, depth = 0) {
+    private addPoints(array: p5.Vector[], depth = 0): p5.Vector[] {
         if (depth >= this.fidelity) return array;
         
-        const newPoints = [];
+        const newPoints: p5.Vector[] = [];
         for (let i = 0; i < array.length - 1; i++) {
             const a = array[i];
             const b = array[i + 1];
             
             // create point
-            const midPoint = {
-                x: (a.x + b.x) / 2,
-                y: (a.y + b.y) / 2
-            }
+            const midPoint = createVector(
+                (a.x + b.x) / 2,
+                (a.y + b.y) / 2
+            )
             
             // offset point
             const offsetX = (a.x - b.x) / 2
@@ -106,7 +109,7 @@ class Puzzle {
             newPoints.push(midPoint);
         }
         
-        const newArray = [];
+        const newArray: p5.Vector[] = [];
         for (let i = 0; i < newPoints.length; i++) {
             newArray[i * 2] = array[i]
             newArray[i * 2 + 1] = newPoints[i]
@@ -115,38 +118,38 @@ class Puzzle {
         return this.addPoints(newArray, depth + 1);
     }
 
-    update() {
+    public update() {
         this.inputHandler.update();
     }
 
-    draw() {
+    public draw() {
         this.drawBackground();
-        //this.drawFixedGrid();
-        //this.drawGrid();
-        //this.drawPoints();
+        this.drawFixedGrid();
+        this.drawGrid();
+        this.drawPoints();
         this.drawPieces();
     }
 
-    drawBackground() {
+    private drawBackground() {
         image(this.image, 0, 0);
     }
 
-    drawFixedGrid() {
+    private drawFixedGrid() {
         strokeWeight(1);
         stroke(200);
         // Verical lines
         for (let i = 0; i <= this.size.x; i++) {
-            const x = this.cellWidth * i;
+            const x = this.cellSize.x * i;
             line(x, 0, x, height);
         }
         // Horizontal lines
         for (let i = 0; i <= this.size.y; i++) {
-            const y = this.cellHeight * i;
+            const y = this.cellSize.y * i;
             line(0, y, width, y);
         }
     }
 
-    drawPoints() {
+    private drawPoints() {
         stroke(0);
         strokeWeight(12);
         for (let x = 0; x <= this.size.x; x++) {
@@ -157,7 +160,7 @@ class Puzzle {
         }
     }
 
-    drawGrid() {
+    private drawGrid() {
         curveTightness(0);
         noFill();
         stroke(255);
@@ -191,7 +194,7 @@ class Puzzle {
         }
     }
 
-    drawPieces() {
+    private drawPieces() {
         for (const piece of this.pieces) {
             piece.draw();
         }

@@ -1,37 +1,41 @@
 /**
  * All four sides of a puzzle piece,
  * represented as a series of points.
- * @typedef {{
- *      top: Point[];
- *      right: Point[];
- *      bottom: Point[];
- *      left: Point[];
- * }} Sides
- */
+*/
+interface Sides {
+    top: p5.Vector[];
+    right: p5.Vector[];
+    bottom: p5.Vector[];
+    left: p5.Vector[];
+}
 
-/**
- * A 2-dementional point represented as x & y.
- * @typedef {{ x: number; y: number }} Point
- */
+interface Line {
+    start: p5.Vector;
+    end: p5.Vector;
+}
 
 class Piece {
-    constructor(sides) {
+    private sides: Sides;
+    // private origin: p5.Vector;
+    private center: p5.Vector;
+    public rotation: number;
+    public translation: p5.Vector;
+    public isSelected: boolean;
+
+    constructor(sides: Sides) {
         this.sides = sides
-        this.origin = sides.top[0];
+        // this.origin = sides.top[0];
         this.center = this.getApproximatedCenter();
         this.rotation = 0;
-        this.translation = { x: 0, y: 0 };
+        this.translation = createVector(0, 0);
         this.isSelected = false;
     }
 
-    getTruePosition() {
-        return {
-            x: this.center.x + this.translation.x,
-            y: this.center.y + this.translation.y
-        };
+    public getTruePosition(): p5.Vector {
+        return p5.Vector.add(this.center, this.translation);
     }
 
-    getCorners() {
+    private getCorners(): p5.Vector[] {
         return [
             this.sides.top[0],
             this.sides.right[0],
@@ -40,15 +44,15 @@ class Piece {
         ];
     }
 
-    getApproximatedCenter() {
+    private getApproximatedCenter(): p5.Vector {
         const corners = this.getCorners();
         const xValues = corners.map(c => c.x);
         const yValues = corners.map(c => c.y);
 
-        const center = {
-            x: (min(xValues) + max(xValues)) / 2,
-            y: (min(yValues) + max(yValues)) / 2,
-        }
+        const center = createVector(
+            (min(xValues) + max(xValues)) / 2,
+            (min(yValues) + max(yValues)) / 2,
+        )
         return center;
     }
 
@@ -56,14 +60,14 @@ class Piece {
      * Premise: if point is on the same side
      * of the piece sides, is has to be inside.
      */
-    isMouseOver() {
-        this.corners = this.getCorners();
+    public isMouseOver() {
+        let corners = this.getCorners();
         // Always 4 corners!
         
         const positions = [];
         for (let i = 0; i < 4; i++) {
-            const start = { ...this.corners[i] };
-            const end = { ...this.corners[(i + 1) % 4] };
+            const start = corners[i].copy();
+            const end = corners[(i + 1) % 4].copy();
 
             // add translation...
             start.x += this.translation.x;
@@ -71,8 +75,8 @@ class Piece {
             end.x += this.translation.x;
             end.y += this.translation.y;
             
-            const point = { x: mouseX, y: mouseY };
-            const line = { start, end };
+            const point = createVector(mouseX, mouseY);
+            const line: Line = { start, end };
             positions[i] = this.pointPositionFromLine(point, line);
         }
 
@@ -89,7 +93,7 @@ class Piece {
      * on one side and -1 on the other side. 
      * https://stackoverflow.com/a/1560510
      **/
-    pointPositionFromLine(point, line) {
+    private pointPositionFromLine(point: p5.Vector, line: Line) {
         const { start, end } = line;
         return Math.sign(
             (end.x - start.x) *
@@ -99,21 +103,7 @@ class Piece {
         )
     }
 
-    checkCircleIntersection() {
-        const center = this.getTruePosition();
-        const dx1 = center.x - mouseX;
-        const dy1 = center.y - mouseY;
-
-        const distanceToPoint = Math.hypot(dx1, dy1);
-        // approximate with circle math for now
-        // todo: test "is point inside curve"
-        const { x: x1, y: y1 } = this.center;
-        const { x: x2, y: y2 } = this.origin;
-        const maxDistance = Math.hypot(x1 - x2, y1 - y2) * 0.7;
-        return distanceToPoint < maxDistance
-    }
-
-    draw() {
+    public draw() {
         push();
         fill(`rgba(0,0,0,.7)`);
         this.isSelected ? stroke('red') : stroke('blue');
@@ -122,26 +112,26 @@ class Piece {
         this.applyTranslation();
         this.applyRotation();
 
-        const listOfSides = Object.values(this.sides);
         beginShape();
-        for (const side of listOfSides) {
-            this.drawOneSide(side);
-        }
+        this.drawOneSide(this.sides.top);
+        this.drawOneSide(this.sides.right);
+        this.drawOneSide(this.sides.bottom);
+        this.drawOneSide(this.sides.left);
         endShape(CLOSE);
         pop();
     }
 
-    applyRotation() {
+    private applyRotation() {
         translate(this.center.x, this.center.y)
         rotate(this.rotation);
         translate(-this.center.x, -this.center.y)
     }
 
-    applyTranslation() {
+    private applyTranslation() {
         translate(this.translation.x, this.translation.y)
     }
 
-    drawOneSide(side) {
+    private drawOneSide(side: p5.Vector[]) {
         const firstPoint = side[0];
         const lastPoint = side[side.length -1];
         curveVertex(firstPoint.x, firstPoint.y);
