@@ -113,13 +113,7 @@ class InputHandler {
         
         
         if (didPress && mouseButton === LEFT) {
-            let mouseOverPiece = false;
-            for (const piece of pieces) {
-                if (piece.isMouseOver(this.graph)) {
-                    mouseOverPiece = true;
-                    break;
-                }
-            }
+            const mouseOverPiece = this.isMouseOverPiece(pieces);
             if (!this.selectedPieces.length || (keyIsDown(SHIFT) && !mouseOverPiece)) {
                 this.dragSelectionOrigin = createVector(mouseX, mouseY);
             }
@@ -129,17 +123,32 @@ class InputHandler {
         }
     }
 
+    private isMouseOverPiece(pieces: ReadonlyArray<Piece>) {
+        let mouseOverPiece = false;
+        for (const piece of pieces) {
+            if (piece.isMouseOver(this.graph)) {
+                mouseOverPiece = true;
+                break;
+            }
+        }
+        return mouseOverPiece;
+    }
+
     private handlePieceSelection(pieces: ReadonlyArray<Piece>) {
         const didPress = !this.prevMouseIsPressed && mouseIsPressed;
         
         // Select by clicking
         if (didPress && mouseButton === LEFT) {
+            const mouseOverPiece = this.isMouseOverPiece(this.selectedPieces);
+            
             for (const piece of pieces) {
                 const isMouseOver = piece.isMouseOver(this.graph);
                 if (keyIsDown(SHIFT)) {
                     if (isMouseOver) {
                         piece.isSelected = true;
                     }
+                } else if (mouseOverPiece) {
+                    piece.isSelected = piece.isSelected || isMouseOver;
                 } else {
                     piece.isSelected = isMouseOver;
                 }
