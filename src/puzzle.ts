@@ -26,6 +26,7 @@ class Puzzle implements IGraph {
 
     public draw() {
         scale(this.scale);
+        translate(this.translation);
         background(50);
         this.piecesFactory.draw();
         this.drawPieces();

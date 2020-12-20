@@ -5,6 +5,7 @@ class InputHandler {
     private prevMouseIsPressed: boolean;
     private prevSpaceIsDown: boolean;
     private prevEnterIsDown: boolean;
+    private prevKeyRIsDown: boolean;
     private prevMouseX: number;
     private prevMouseY: number;
     private scrollSensitivity: number;
@@ -17,6 +18,7 @@ class InputHandler {
         this.prevMouseIsPressed = false;
         this.prevSpaceIsDown = false;
         this.prevEnterIsDown = false;
+        this.prevKeyRIsDown = false;
         this.prevMouseX = mouseX;
         this.prevMouseY = mouseY;
         this.scrollSensitivity = 1;
@@ -34,20 +36,29 @@ class InputHandler {
     }
 
     private handleGraphScaleAndTranslation() {
+        // Scale
         if (!keyIsDown(ALT) && scrollDelta !== 0) {
             this.graph.scale *= 1 + scrollDelta * 0.005 * this.scrollSensitivity;
-            this.graph.scale = max(0.01, min(this.graph.scale, 100)); 
+            this.graph.scale = constrain(this.graph.scale, 0.01, 100); 
         }
         if (keyIsDown(KEY_HALF)) this.graph.scale = 0.5;
         if (keyIsDown(KEY_1)) this.graph.scale = 1;
         if (keyIsDown(KEY_2)) this.graph.scale = 2;
         if (keyIsDown(KEY_3)) this.graph.scale = 4;
+
+        // Translate
+        if (mouseIsPressed && mouseButton === CENTER) {
+            const movedX = (mouseX - this.prevMouseX) / this.graph.scale;
+            const movedY = (mouseY - this.prevMouseY) / this.graph.scale;
+            this.graph.translation.add(movedX, movedY);
+        }
     }
 
     private setPreviousValues() {
         this.prevMouseIsPressed = mouseIsPressed;
         this.prevSpaceIsDown = keyIsDown(SPACE);
         this.prevEnterIsDown = keyIsDown(ENTER);
+        this.prevKeyRIsDown = keyIsDown(KEY_R);
         this.prevMouseX = mouseX;
         this.prevMouseY = mouseY;
     }
@@ -69,7 +80,7 @@ class InputHandler {
         }
         
         // Dragging with mouse
-        if (mouseIsPressed) {
+        if (mouseIsPressed && mouseButton === LEFT) {
             const movedX = (mouseX - this.prevMouseX) / this.graph.scale;
             const movedY = (mouseY - this.prevMouseY) / this.graph.scale;
             this.translatePieces(movedX, movedY);
@@ -96,7 +107,7 @@ class InputHandler {
     private handlePieceSelection(pieces: ReadonlyArray<Piece>) {
         // Select
         const didPress = !this.prevMouseIsPressed && mouseIsPressed;
-        if (didPress) {
+        if (didPress && mouseButton === LEFT) {
             for (const piece of pieces) {
                 const isMouseOver = piece.isMouseOver(this.graph.scale);
                 if (keyIsDown(SHIFT)) {
@@ -122,7 +133,9 @@ class InputHandler {
         if (keyIsDown(SPACE) && !this.prevSpaceIsDown) {
             this.explodePieces();
         }
-        if (keyIsDown(ENTER) && !this.prevEnterIsDown) {
+        if (
+            (keyIsDown(ENTER) && !this.prevEnterIsDown) ||
+            (keyIsDown(KEY_R) && !this.prevKeyRIsDown)) {
             this.stackPieces();
         }
     }
