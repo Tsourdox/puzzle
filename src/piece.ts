@@ -11,14 +11,20 @@ interface Line {
 }
 
 class Piece {
+    private image: p5.Image;
+    private origin: p5.Vector;
+    private size: p5.Vector;
     private sides: Sides;
     private center: p5.Vector;
     public rotation: number;
     public translation: p5.Vector;
     public isSelected: boolean;
 
-    constructor(sides: Sides) {
-        this.sides = sides
+    constructor(image: p5.Image, origin: p5.Vector, size: p5.Vector, sides: Sides, ) {
+        this.image = image;
+        this.origin = origin;
+        this.size = size;
+        this.sides = sides;
         this.center = this.getApproximatedCenter();
         this.rotation = 0;
         this.translation = createVector(0, 0);
@@ -102,12 +108,15 @@ class Piece {
 
     public draw() {
         push();
-        fill(`rgba(0,0,0,.7)`);
-        this.isSelected ? stroke('red') : stroke('blue');
-        strokeWeight(1);
+        noFill();
+        this.isSelected ? stroke('blue') : stroke(250);
+        this.isSelected ? strokeWeight(2) : strokeWeight(1);
         curveTightness(1);
         this.applyTranslation();
         this.applyRotation();
+
+        const { x, y } = this.origin;
+        image(this.image, x, y, this.size.x, this.size.y);
 
         beginShape();
         this.drawOneSide(this.sides.top);

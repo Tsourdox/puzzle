@@ -11,7 +11,7 @@ class PiecesFactory {
         this.image = image;
 
         this.createGrid();
-        this.offsetPoints();
+        // this.offsetPoints();
         this.createAllPieces();
     }
 
@@ -35,7 +35,14 @@ class PiecesFactory {
                     left: [bottom, origin],
                 };
 
-                const piece = new Piece(sides);
+                const image = this.image.get(
+                    origin.x,
+                    origin.y,
+                    this.cellSize.x, 
+                    this.cellSize.y
+                );
+                
+                const piece = new Piece(image, origin, this.cellSize, sides);
                 pieces.push(piece)
             }
         }
@@ -57,26 +64,26 @@ class PiecesFactory {
         }
     }
 
-    private offsetPoints() {
-        const maxOffsetX = this.cellSize.x / 10;
-        const maxOffsetY = this.cellSize.y / 10;
+    // private offsetPoints() {
+    //     const maxOffsetX = this.cellSize.x / 10;
+    //     const maxOffsetY = this.cellSize.y / 10;
 
-        for (let x = 0; x <= this.puzzleSize.x; x++) {
-            for (let y = 0; y <= this.puzzleSize.y; y++) {
-                const gridPoint = this.grid[x][y];
-                if (x !== 0 && x !== this.puzzleSize.x) {
-                    gridPoint.x += random(-maxOffsetX, maxOffsetX);
-                }
-                if (y !== 0 && y !== this.puzzleSize.y) {
-                    gridPoint.y += random(-maxOffsetY, maxOffsetY);
-                }
-            }
-        }
-    }
+    //     for (let x = 0; x <= this.puzzleSize.x; x++) {
+    //         for (let y = 0; y <= this.puzzleSize.y; y++) {
+    //             const gridPoint = this.grid[x][y];
+    //             if (x !== 0 && x !== this.puzzleSize.x) {
+    //                 gridPoint.x += random(-maxOffsetX, maxOffsetX);
+    //             }
+    //             if (y !== 0 && y !== this.puzzleSize.y) {
+    //                 gridPoint.y += random(-maxOffsetY, maxOffsetY);
+    //             }
+    //         }
+    //     }
+    // }
 
     public draw() {
-        this.drawBackground();
         if (IS_DEV_MODE) {
+            this.drawBackground();
             this.drawFixedGrid();
             this.drawGrid();
             this.drawPoints();
