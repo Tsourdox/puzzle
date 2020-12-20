@@ -7,12 +7,17 @@ interface IImages {
     background: p5.Image;
 }
 
+interface IFonts {
+    icons: p5.Font;
+}
+
 //-----------------------------------------//
 //----------------GLOBALS------------------//
 const IS_DEV_MODE = false;
 let puzzle: Puzzle;
 let music: IMusic;
 let images: IImages;
+let fonts: IFonts;
 let scrollDelta = 0;
 
 //-----------------------------------------//
@@ -23,9 +28,11 @@ function preload() {
         love: loadSound('../assets/music/love-in-the-air.mp3'),
         journey: loadSound('../assets/music/the-journey.mp3')
     }
-
     images = {
         background: loadImage('../assets/images/photo.png')
+    }
+    fonts = {
+        icons: loadFont('../assets/fonts/font-awesome.otf')
     }
 }
 

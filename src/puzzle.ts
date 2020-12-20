@@ -10,6 +10,7 @@ class Puzzle implements IGraph {
     private pieces: ReadonlyArray<Piece>;
     private inputHandler: InputHandler;
     private piecesFactory: PiecesFactory;
+    private menu: Menu;
 
     constructor(x: number, y: number, image: p5.Image) {
         this.scale = 1;
@@ -18,6 +19,7 @@ class Puzzle implements IGraph {
         this.inputHandler = new InputHandler(this, this.cellSize);
         this.piecesFactory = new PiecesFactory(x, y, image, this.cellSize);
         this.pieces = this.piecesFactory.createAllPieces();
+        this.menu = new Menu();
     }
 
     public update() {
@@ -25,11 +27,15 @@ class Puzzle implements IGraph {
     }
 
     public draw() {
+        push();
+        background(50);
         scale(this.scale);
         translate(this.translation);
-        background(50);
         this.piecesFactory.draw();
         this.drawPieces();
+        pop();
+        
+        this.menu.draw();
     }
 
     private drawPieces() {

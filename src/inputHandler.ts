@@ -109,7 +109,7 @@ class InputHandler {
         const didPress = !this.prevMouseIsPressed && mouseIsPressed;
         if (didPress && mouseButton === LEFT) {
             for (const piece of pieces) {
-                const isMouseOver = piece.isMouseOver(this.graph.scale);
+                const isMouseOver = piece.isMouseOver(this.graph);
                 if (keyIsDown(SHIFT)) {
                     if (isMouseOver) {
                         piece.isSelected = true;
