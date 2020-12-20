@@ -39,7 +39,7 @@ function preload() {
 function setup() {
     createCanvas(windowWidth, windowHeight);
     frameRate(60);
-    puzzle = new Puzzle(20, 20, images.background);
+    puzzle = new Puzzle(50, 50, images.background);
 }
 
 function draw() {
