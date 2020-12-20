@@ -4,8 +4,8 @@ class InputHandler {
     private cellSize: p5.Vector;
     private prevMouseIsPressed: boolean;
     private prevSpaceIsDown: boolean;
-    private prevEnterIsDown: boolean;
     private prevKeyRIsDown: boolean;
+    private prevKeyCIsDown: boolean;
     private prevMouseX: number;
     private prevMouseY: number;
     private scrollSensitivity: number;
@@ -19,8 +19,8 @@ class InputHandler {
         this.cellSize = cellSize;
         this.prevMouseIsPressed = false;
         this.prevSpaceIsDown = false;
-        this.prevEnterIsDown = false;
         this.prevKeyRIsDown = false;
+        this.prevKeyCIsDown = false;
         this.prevMouseX = mouseX;
         this.prevMouseY = mouseY;
         this.scrollSensitivity = 1;
@@ -60,8 +60,8 @@ class InputHandler {
     private setPreviousValues() {
         this.prevMouseIsPressed = mouseIsPressed;
         this.prevSpaceIsDown = keyIsDown(SPACE);
-        this.prevEnterIsDown = keyIsDown(ENTER);
         this.prevKeyRIsDown = keyIsDown(KEY_R);
+        this.prevKeyCIsDown = keyIsDown(KEY_C);
         this.prevMouseX = mouseX;
         this.prevMouseY = mouseY;
     }
@@ -142,12 +142,13 @@ class InputHandler {
     }
 
     private handlePieceExploding() {
-        if (keyIsDown(SPACE) && !this.prevSpaceIsDown) {
-            this.explodePieces();
+        if (keyIsDown(KEY_C) && !this.prevKeyCIsDown) {
+            this.explodePiecesCircular();
         }
-        if (
-            (keyIsDown(ENTER) && !this.prevEnterIsDown) ||
-            (keyIsDown(KEY_R) && !this.prevKeyRIsDown)) {
+        if (keyIsDown(KEY_R) && !this.prevKeyRIsDown) {
+            this.explodePiecesRectangular();
+        }
+        if (keyIsDown(SPACE) && !this.prevSpaceIsDown) {
             this.stackPieces();
         }
     }
@@ -165,7 +166,7 @@ class InputHandler {
         }
     }
     
-    private explodePieces() {
+    private explodePiecesCircular() {
         const radius = this.cellSize.mag();
         const pieces = this.selectedPieces;
         if (pieces.length <= 1) return;
@@ -177,6 +178,10 @@ class InputHandler {
             pieces[i].translation.x += offsetX;
             pieces[i].translation.y += offsetY;
         }
+    }
+    
+    private explodePiecesRectangular() {
+        // todo: explode pieces into a rectangular shape 
     }
 
     private stackPieces() {
