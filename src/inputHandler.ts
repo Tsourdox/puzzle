@@ -12,7 +12,6 @@ class InputHandler {
     private dragRectColor: p5.Color;
     private dragSelectionOrigin?: p5.Vector;
 
-
     constructor(graph: IGraph, cellSize: p5.Vector) {
         this.graph = graph;
         this.selectedPieces = [];
@@ -30,6 +29,7 @@ class InputHandler {
     public update(pieces: ReadonlyArray<Piece>) {
         this.handleGraphScaleAndTranslation();
         this.handlePieceSelection(pieces);
+        this.handleDragSelection();
         this.handlePieceRotation();
         this.handlePieceTranslation();
         this.handlePieceExploding();
@@ -83,7 +83,7 @@ class InputHandler {
         }
         
         // Dragging with mouse
-        if (mouseIsPressed && mouseButton === LEFT) {
+        if (mouseIsPressed && mouseButton === LEFT && !this.dragSelectionOrigin) {
             const movedX = (mouseX - this.prevMouseX) / this.graph.scale;
             const movedY = (mouseY - this.prevMouseY) / this.graph.scale;
             this.translatePieces(movedX, movedY);
@@ -107,9 +107,22 @@ class InputHandler {
         }
     }
 
-    private handlePieceSelection(pieces: ReadonlyArray<Piece>) {
+    private handleDragSelection() {
         const didPress = !this.prevMouseIsPressed && mouseIsPressed;
         const didRelease = this.prevMouseIsPressed && !mouseIsPressed;
+        
+        if (
+            (didPress && mouseButton === LEFT) &&
+            (!this.selectedPieces.length || keyIsDown(SHIFT))
+        ) {
+            this.dragSelectionOrigin = createVector(mouseX, mouseY);
+        } else if (didRelease) {
+            delete this.dragSelectionOrigin;
+        }
+    }
+
+    private handlePieceSelection(pieces: ReadonlyArray<Piece>) {
+        const didPress = !this.prevMouseIsPressed && mouseIsPressed;
         
         // Select by clicking
         if (didPress && mouseButton === LEFT) {
@@ -127,10 +140,22 @@ class InputHandler {
         }
 
         // Select by dragging
-        if (didPress && mouseButton === LEFT && !this.selectedPieces.length) {
-            this.dragSelectionOrigin = createVector(mouseX, mouseY);
-        } else if (didRelease) {
-            delete this.dragSelectionOrigin;
+        if (this.dragSelectionOrigin) {
+            for (const piece of pieces) {
+                let isOneCornerInside = false;
+                for (const corner of piece.getCorners()) {
+                    const trueCorner = p5.Vector.add(corner, piece.translation);
+                    if (this.isPointInsideDragSelection(trueCorner)) {
+                        isOneCornerInside = true;
+                    }
+                }
+                if (keyIsDown(SHIFT)) {
+                    piece.isSelected = piece.isSelected || isOneCornerInside;
+                } else {
+                    piece.isSelected = isOneCornerInside;
+                }
+            }
+            this.selectedPieces = pieces.filter(p => p.isSelected);
         }
         
         // Deselect
@@ -185,14 +210,12 @@ class InputHandler {
     }
 
     private stackPieces() {
-        const group = this.getPiecesCenter();
+        const groupCenter = this.getPiecesCenter();
 
         for (const piece of this.selectedPieces) {
-            const center = piece.getTruePosition();
-            const deltaX = (group.x - center.x ) / 1;
-            const deltaY = (group.y - center.y ) / 1;
-            piece.translation.x += deltaX;
-            piece.translation.y += deltaY;
+            const pieceCenter = piece.getTruePosition()
+            const delta = p5.Vector.sub(groupCenter, pieceCenter);
+            piece.translation.add(delta);
         }
     }
 
@@ -204,7 +227,23 @@ class InputHandler {
         // avg: sum / length
         var centerX = x.reduce((a,b) => (a+b), 0) / x.length;
         var centerY = y.reduce((a,b) => (a+b), 0) / y.length;
-        return { x: centerX, y: centerY };
+        return createVector(centerX,centerY);
+    }
+
+    private isPointInsideDragSelection(point: p5.Vector): boolean {
+        if (!this.dragSelectionOrigin) return false;
+
+        const { scale, translation } = this.graph;
+        const { x, y } = p5.Vector.div(this.dragSelectionOrigin, scale).sub(translation);
+        const mouse = createVector(mouseX, mouseY).div(scale).sub(translation); 
+        
+        // todo: works but can probably by simplified!
+        return (
+            (point.x > x && point.x < mouse.x && point.y > y && point.y < mouse.y) ||
+            (point.x < x && point.x > mouse.x && point.y < y && point.y > mouse.y) ||
+            (point.x > x && point.x < mouse.x && point.y < y && point.y > mouse.y) ||
+            (point.x < x && point.x > mouse.x && point.y > y && point.y < mouse.y)
+        );
     }
 
     public draw() {

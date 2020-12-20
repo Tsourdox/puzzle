@@ -29,7 +29,7 @@ class Piece {
         return p5.Vector.add(this.center, this.translation);
     }
 
-    private getCorners(): p5.Vector[] {
+    public getCorners(): p5.Vector[] {
         return [
             this.sides.top[0],
             this.sides.right[0],
