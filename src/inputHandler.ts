@@ -218,7 +218,8 @@ class InputHandler {
     }
 
     private stackPieces() {
-        const groupCenter = this.getPiecesCenter();
+        const pieces = this.selectedPieces;
+        const groupCenter = this.getAverageCenter(pieces);
 
         for (const piece of this.selectedPieces) {
             const pieceCenter = piece.getTruePosition()
@@ -227,8 +228,7 @@ class InputHandler {
         }
     }
 
-    private getPiecesCenter() {
-        const pieces = this.selectedPieces
+    private getAverageCenter(pieces: Piece[]) {
         var x = pieces.map(p => p.getTruePosition().x);
         var y = pieces.map(p => p.getTruePosition().y);
         
