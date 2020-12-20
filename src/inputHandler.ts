@@ -29,7 +29,7 @@ class InputHandler {
     public update(pieces: ReadonlyArray<Piece>) {
         this.handleGraphScaleAndTranslation();
         this.handlePieceSelection(pieces);
-        this.handleDragSelection();
+        this.handleDragSelection(pieces);
         this.handlePieceRotation();
         this.handlePieceTranslation();
         this.handlePieceExploding();
@@ -107,16 +107,24 @@ class InputHandler {
         }
     }
 
-    private handleDragSelection() {
+    private handleDragSelection(pieces: ReadonlyArray<Piece>) {
         const didPress = !this.prevMouseIsPressed && mouseIsPressed;
         const didRelease = this.prevMouseIsPressed && !mouseIsPressed;
         
-        if (
-            (didPress && mouseButton === LEFT) &&
-            (!this.selectedPieces.length || keyIsDown(SHIFT))
-        ) {
-            this.dragSelectionOrigin = createVector(mouseX, mouseY);
-        } else if (didRelease) {
+        
+        if (didPress && mouseButton === LEFT) {
+            let mouseOverPiece = false;
+            for (const piece of pieces) {
+                if (piece.isMouseOver(this.graph)) {
+                    mouseOverPiece = true;
+                    break;
+                }
+            }
+            if (!this.selectedPieces.length || (keyIsDown(SHIFT) && !mouseOverPiece)) {
+                this.dragSelectionOrigin = createVector(mouseX, mouseY);
+            }
+        }
+        if (didRelease) {
             delete this.dragSelectionOrigin;
         }
     }
