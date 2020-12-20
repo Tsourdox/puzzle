@@ -35,11 +35,6 @@ class PiecesFactory {
                     left: [bottom, origin],
                 };
 
-                // todo: just for testing...
-                // if (pieces.length === 6) {
-                //     return pieces;
-                // }
-
                 const piece = new Piece(sides);
                 pieces.push(piece)
             }
