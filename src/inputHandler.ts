@@ -36,21 +36,21 @@ class InputHandler {
     }
 
     private handleGraphScaleAndTranslation() {
-        // Scale
-        if (!keyIsDown(ALT) && scrollDelta !== 0) {
-            this.graph.scale *= 1 + scrollDelta * 0.005 * this.scrollSensitivity;
-            this.graph.scale = constrain(this.graph.scale, 0.01, 100); 
-        }
-        if (keyIsDown(KEY_HALF)) this.graph.scale = 0.5;
-        if (keyIsDown(KEY_1)) this.graph.scale = 1;
-        if (keyIsDown(KEY_2)) this.graph.scale = 2;
-        if (keyIsDown(KEY_3)) this.graph.scale = 4;
-
-        // Translate
         if (mouseIsPressed && mouseButton === CENTER) {
+            // Translate
             const movedX = (mouseX - this.prevMouseX) / this.graph.scale;
             const movedY = (mouseY - this.prevMouseY) / this.graph.scale;
             this.graph.translation.add(movedX, movedY);
+        } else {
+            // Scale
+            if (!keyIsDown(ALT) && scrollDelta !== 0) {
+                this.graph.scale *= 1 + scrollDelta * 0.002 * this.scrollSensitivity;
+                this.graph.scale = constrain(this.graph.scale, 0.01, 100); 
+            }
+            if (keyIsDown(KEY_HALF)) this.graph.scale = 0.5;
+            if (keyIsDown(KEY_1)) this.graph.scale = 1;
+            if (keyIsDown(KEY_2)) this.graph.scale = 2;
+            if (keyIsDown(KEY_3)) this.graph.scale = 4;
         }
     }
 
