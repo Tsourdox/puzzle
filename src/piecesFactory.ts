@@ -88,6 +88,7 @@ class PiecesFactory {
     }
 
     private drawFixedGrid() {
+        push();
         strokeWeight(1);
         stroke(200);
         // Verical lines
@@ -100,9 +101,11 @@ class PiecesFactory {
             const y = this.cellSize.y * i;
             line(0, y, width, y);
         }
+        pop();
     }
 
     private drawPoints() {
+        push();
         stroke(0);
         strokeWeight(12);
         for (let x = 0; x <= this.puzzleSize.x; x++) {
@@ -111,9 +114,11 @@ class PiecesFactory {
                 point(gridPoint.x, gridPoint.y);
             }
         }
+        pop();
     }
 
     private drawGrid() {
+        push();
         curveTightness(0);
         noFill();
         stroke(255);
@@ -145,5 +150,6 @@ class PiecesFactory {
             curveVertex(lastPoint.x, lastPoint.y);
             endShape();
         }
+        pop();
     }
 }

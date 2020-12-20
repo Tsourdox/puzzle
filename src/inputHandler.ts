@@ -9,6 +9,8 @@ class InputHandler {
     private prevMouseX: number;
     private prevMouseY: number;
     private scrollSensitivity: number;
+    private dragRectColor: p5.Color;
+    private dragSelectionOrigin?: p5.Vector;
 
 
     constructor(graph: IGraph, cellSize: p5.Vector) {
@@ -22,6 +24,7 @@ class InputHandler {
         this.prevMouseX = mouseX;
         this.prevMouseY = mouseY;
         this.scrollSensitivity = 1;
+        this.dragRectColor = color('rgba(100,100,100,0.3)')
     }
 
     public update(pieces: ReadonlyArray<Piece>) {
@@ -105,8 +108,10 @@ class InputHandler {
     }
 
     private handlePieceSelection(pieces: ReadonlyArray<Piece>) {
-        // Select
         const didPress = !this.prevMouseIsPressed && mouseIsPressed;
+        const didRelease = this.prevMouseIsPressed && !mouseIsPressed;
+        
+        // Select by clicking
         if (didPress && mouseButton === LEFT) {
             for (const piece of pieces) {
                 const isMouseOver = piece.isMouseOver(this.graph);
@@ -119,6 +124,13 @@ class InputHandler {
                 }
             }
             this.selectedPieces = pieces.filter(p => p.isSelected);
+        }
+
+        // Select by dragging
+        if (didPress && mouseButton === LEFT && !this.selectedPieces.length) {
+            this.dragSelectionOrigin = createVector(mouseX, mouseY);
+        } else if (didRelease) {
+            delete this.dragSelectionOrigin;
         }
         
         // Deselect
@@ -188,5 +200,16 @@ class InputHandler {
         var centerX = x.reduce((a,b) => (a+b), 0) / x.length;
         var centerY = y.reduce((a,b) => (a+b), 0) / y.length;
         return { x: centerX, y: centerY };
+    }
+
+    public draw() {
+        if (!this.dragSelectionOrigin) return;
+        
+        push();
+        fill(this.dragRectColor);
+        noStroke();
+        const { x, y } = this.dragSelectionOrigin;
+        rect(x, y, mouseX - x, mouseY - y);
+        pop();
     }
 }

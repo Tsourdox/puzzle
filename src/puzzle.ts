@@ -36,6 +36,7 @@ class Puzzle implements IGraph {
         pop();
         
         this.menu.draw();
+        this.inputHandler.draw();
     }
 
     private drawPieces() {
