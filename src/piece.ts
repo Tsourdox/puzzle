@@ -44,20 +44,29 @@ class Piece {
         this.graphics.noFill();
         this.graphics.curveTightness(1);
         this.graphics.beginShape();
-        this.drawOneSide(this.sides.top);
-        this.drawOneSide(this.sides.right);
-        this.drawOneSide(this.sides.bottom);
-        this.drawOneSide(this.sides.left);
+        this.drawOneSide(this.sides.top, false);
+        this.drawOneSide(this.sides.right, true);
+        this.drawOneSide(this.sides.bottom, false);
+        this.drawOneSide(this.sides.left, true);
         this.graphics.endShape(CLOSE);
     }
 
-    private drawOneSide(side: p5.Vector[]) {
+    private drawOneSide(side: p5.Vector[], isVertical: boolean) {
         const firstPoint = p5.Vector.sub(side[0], this.origin);
         const lastPoint = p5.Vector.sub(side[side.length -1], this.origin);
+        if (isVertical) {
+            firstPoint.sub(0.2, 0);
+            lastPoint.sub(0.2, 0);
+        } else {
+            firstPoint.sub(0, 0.2);
+            lastPoint.sub(0, 0.2);
+        }
+
         this.graphics.curveVertex(firstPoint.x, firstPoint.y);
         for (const point of side) {
-            const { x, y } = p5.Vector.sub(point, this.origin)
-            this.graphics.curveVertex(x, y);
+            const p = p5.Vector.sub(point, this.origin)
+            isVertical ? p.sub(0.2, 0) : p.sub(0, 0.2);
+            this.graphics.curveVertex(p.x, p.y);
         }
         this.graphics.curveVertex(lastPoint.x, lastPoint.y);
     }
