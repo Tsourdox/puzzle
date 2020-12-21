@@ -3,29 +3,39 @@ interface IGraph {
     translation: p5.Vector;
 }
 
-class Puzzle implements IGraph {
+interface IGeneratePuzzle {
+    generateNewPuzzle(image: p5.Image, x: number, y: number): void;
+}
+
+class Puzzle implements IGraph, IGeneratePuzzle {
     public scale: number;
     public translation: p5.Vector;
-    private cellSize: p5.Vector;
-    private pieces: ReadonlyArray<Piece>;
     private inputHandler: InputHandler;
-    private piecesFactory: PiecesFactory;
     private menu: Menu;
     private fps: FPS;
+    
+    private pieceSize!: p5.Vector;
+    private pieces!: Piece[];
+    private piecesFactory!: PiecesFactory;
 
-    constructor(x: number, y: number, image: p5.Image) {
+    constructor() {
         this.scale = 1;
         this.translation = createVector(0, 0);
-        this.cellSize = createVector(image.width / x, image.height / y)
-        this.inputHandler = new InputHandler(this, this.cellSize);
-        this.piecesFactory = new PiecesFactory(x, y, image, this.cellSize);
-        this.pieces = this.piecesFactory.createAllPieces();
-        this.menu = new Menu();
+        this.inputHandler = new InputHandler(this);
+        this.menu = new Menu(this);
         this.fps = new FPS();
+        
+        this.generateNewPuzzle(images.background, 10, 10);
+    }
+
+    public generateNewPuzzle(image: p5.Image, x: number, y: number) {
+        this.pieceSize = createVector(image.width / x, image.height / y);
+        this.piecesFactory = new PiecesFactory(x, y, image, this.pieceSize);
+        this.pieces = this.piecesFactory.createAllPieces();
     }
 
     public update() {
-        this.inputHandler.update(this.pieces);
+        this.inputHandler.update(this.pieces, this.pieceSize);
         this.fps.update();
 
         for (const piece of this.pieces) {

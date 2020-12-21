@@ -15,7 +15,7 @@ class PiecesFactory {
         this.createAllPieces();
     }
 
-    public createAllPieces(): ReadonlyArray<Piece> {
+    public createAllPieces(): Piece[] {
         const pieces: Piece[] = [];
         
         for (let x = 0; x < this.puzzleSize.x; x++) {

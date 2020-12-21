@@ -1,7 +1,6 @@
 class InputHandler {
     private graph: IGraph;
     private selectedPieces: Piece[];
-    private cellSize: p5.Vector;
     private prevMouseIsPressed: boolean;
     private prevSpaceIsDown: boolean;
     private prevKeyRIsDown: boolean;
@@ -12,10 +11,9 @@ class InputHandler {
     private dragRectColor: p5.Color;
     private dragSelectionOrigin?: p5.Vector;
 
-    constructor(graph: IGraph, cellSize: p5.Vector) {
+    constructor(graph: IGraph) {
         this.graph = graph;
         this.selectedPieces = [];
-        this.cellSize = cellSize;
         this.prevMouseIsPressed = false;
         this.prevSpaceIsDown = false;
         this.prevKeyRIsDown = false;
@@ -26,13 +24,13 @@ class InputHandler {
         this.dragRectColor = color('rgba(100,100,100,0.3)')
     }
 
-    public update(pieces: ReadonlyArray<Piece>) {
+    public update(pieces: Piece[], pieceSize: p5.Vector) {
         this.handleGraphScaleAndTranslation();
         this.handlePieceSelection(pieces);
         this.handleDragSelection(pieces);
         this.handlePieceRotation();
-        this.handlePieceTranslation();
-        this.handlePieceExploding();
+        this.handlePieceTranslation(pieceSize);
+        this.handlePieceExploding(pieceSize);
 
         // Set previous values last in update!
         this.setPreviousValues();
@@ -66,9 +64,9 @@ class InputHandler {
         this.prevMouseY = mouseY;
     }
 
-    private handlePieceTranslation() {
+    private handlePieceTranslation(pieceSize: p5.Vector) {
         // Keyboard
-        const translation = (2 * this.cellSize.mag()) / frameRate();
+        const translation = (2 * pieceSize.mag()) / frameRate();
         if (keyIsDown(LEFT_ARROW) || keyIsDown(KEY_A)) {
             this.translatePieces(-translation, 0);
         }
@@ -183,9 +181,9 @@ class InputHandler {
         }
     }
 
-    private handlePieceExploding() {
+    private handlePieceExploding(pieceSize: p5.Vector) {
         if (keyIsDown(KEY_C) && !this.prevKeyCIsDown) {
-            this.explodePiecesCircular();
+            this.explodePiecesCircular(pieceSize);
         }
         if (keyIsDown(KEY_R) && !this.prevKeyRIsDown) {
             this.explodePiecesRectangular();
@@ -208,8 +206,8 @@ class InputHandler {
         }
     }
     
-    private explodePiecesCircular() {
-        const radius = this.cellSize.mag();
+    private explodePiecesCircular(pieceSize: p5.Vector) {
+        const radius = pieceSize.mag();
         const pieces = this.selectedPieces;
         if (pieces.length <= 1) return;
 
