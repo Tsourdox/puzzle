@@ -51,6 +51,17 @@ class Piece {
         this.graphics.endShape(CLOSE);
     }
 
+    private drawOneSide(side: p5.Vector[]) {
+        const firstPoint = p5.Vector.sub(side[0], this.origin);
+        const lastPoint = p5.Vector.sub(side[side.length -1], this.origin);
+        this.graphics.curveVertex(firstPoint.x, firstPoint.y);
+        for (const point of side) {
+            const { x, y } = p5.Vector.sub(point, this.origin)
+            this.graphics.curveVertex(x, y);
+        }
+        this.graphics.curveVertex(lastPoint.x, lastPoint.y);
+    }
+
     public getTruePosition(): p5.Vector {
         return p5.Vector.add(this.center, this.translation);
     }
@@ -151,16 +162,5 @@ class Piece {
 
     private applyTranslation() {
         translate(this.translation.x, this.translation.y)
-    }
-
-    private drawOneSide(side: p5.Vector[]) {
-        const firstPoint = p5.Vector.sub(side[0], this.origin);
-        const lastPoint = p5.Vector.sub(side[side.length -1], this.origin);
-        this.graphics.curveVertex(firstPoint.x, firstPoint.y);
-        for (const point of side) {
-            const { x, y } = p5.Vector.sub(point, this.origin)
-            this.graphics.curveVertex(x, y);
-        }
-        this.graphics.curveVertex(lastPoint.x, lastPoint.y);
     }
 }
