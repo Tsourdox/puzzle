@@ -11,6 +11,7 @@ interface Line {
 }
 
 class Piece {
+    private graphics: p5.Graphics;
     private image: p5.Image;
     private origin: p5.Vector;
     private size: p5.Vector;
@@ -19,6 +20,7 @@ class Piece {
     public rotation: number;
     public translation: p5.Vector;
     public isSelected: boolean;
+    private prevIsSelected: boolean;
 
     constructor(image: p5.Image, origin: p5.Vector, size: p5.Vector, sides: Sides, ) {
         this.image = image;
@@ -29,6 +31,24 @@ class Piece {
         this.rotation = 0;
         this.translation = createVector(0, 0);
         this.isSelected = false;
+        this.prevIsSelected = false;
+        this.graphics = createGraphics(this.size.x, this.size.y);
+        this.updateGraphics();
+    }
+    
+    private updateGraphics() {
+        this.graphics.image(this.image, 0, 0);
+        this.isSelected ? this.graphics.stroke('blue') : this.graphics.stroke(250);
+        this.isSelected ? this.graphics.strokeWeight(2) : this.graphics.strokeWeight(1);
+        
+        this.graphics.noFill();
+        this.graphics.curveTightness(1);
+        this.graphics.beginShape();
+        this.drawOneSide(this.sides.top);
+        this.drawOneSide(this.sides.right);
+        this.drawOneSide(this.sides.bottom);
+        this.drawOneSide(this.sides.left);
+        this.graphics.endShape(CLOSE);
     }
 
     public getTruePosition(): p5.Vector {
@@ -106,24 +126,20 @@ class Piece {
         )
     }
 
+    public update() {
+        if (this.prevIsSelected !== this.isSelected) {
+            this.updateGraphics();
+        }
+        
+        this.prevIsSelected = this.isSelected;
+    }
+
     public draw() {
         push();
-        noFill();
-        this.isSelected ? stroke('blue') : stroke(250);
-        this.isSelected ? strokeWeight(2) : strokeWeight(1);
-        curveTightness(1);
         this.applyTranslation();
         this.applyRotation();
-
-        const { x, y } = this.origin;
-        image(this.image, x, y, this.size.x, this.size.y);
-
-        beginShape();
-        this.drawOneSide(this.sides.top);
-        this.drawOneSide(this.sides.right);
-        this.drawOneSide(this.sides.bottom);
-        this.drawOneSide(this.sides.left);
-        endShape(CLOSE);
+        const { graphics, origin, size } = this;
+        image(graphics, origin.x, origin.y, size.x, size.y);
         pop();
     }
 
@@ -138,12 +154,13 @@ class Piece {
     }
 
     private drawOneSide(side: p5.Vector[]) {
-        const firstPoint = side[0];
-        const lastPoint = side[side.length -1];
-        curveVertex(firstPoint.x, firstPoint.y);
+        const firstPoint = p5.Vector.sub(side[0], this.origin);
+        const lastPoint = p5.Vector.sub(side[side.length -1], this.origin);
+        this.graphics.curveVertex(firstPoint.x, firstPoint.y);
         for (const point of side) {
-            curveVertex(point.x, point.y);
+            const { x, y } = p5.Vector.sub(point, this.origin)
+            this.graphics.curveVertex(x, y);
         }
-        curveVertex(lastPoint.x, lastPoint.y);
+        this.graphics.curveVertex(lastPoint.x, lastPoint.y);
     }
 }

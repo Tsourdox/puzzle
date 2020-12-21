@@ -1,3 +1,5 @@
+(p5 as any).disableFriendlyErrors = false; // disables FES
+
 interface IMusic {
     dreaming: p5.SoundFile;
     love: p5.SoundFile;
@@ -39,7 +41,7 @@ function preload() {
 function setup() {
     createCanvas(windowWidth, windowHeight);
     frameRate(60);
-    puzzle = new Puzzle(20, 20, images.background);
+    puzzle = new Puzzle(30, 30, images.background);
 }
 
 function draw() {

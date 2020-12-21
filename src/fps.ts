@@ -1,15 +1,20 @@
 class FPS {
     private count = 0;
-    private fps = "";
+    private fps = 60;
 
-    draw() {
-        this.count++;
-
-        if (this.count === 30) {
-            this.count = 0;
-            this.fps = frameRate().toFixed(0);
+    public update() {
+        if (this.count === 0) {
+            this.fps = Math.round(frameRate());
         }
         
+        this.count++;
+
+        if (this.count > 20) {
+            this.count = 0;
+        }
+    }
+
+    public draw() {
         push();
         fill(255);
         stroke(0);

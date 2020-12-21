@@ -26,6 +26,11 @@ class Puzzle implements IGraph {
 
     public update() {
         this.inputHandler.update(this.pieces);
+        this.fps.update();
+
+        for (const piece of this.pieces) {
+            piece.update();
+        }
     }
 
     public draw() {
