@@ -11,6 +11,7 @@ class Puzzle implements IGraph {
     private inputHandler: InputHandler;
     private piecesFactory: PiecesFactory;
     private menu: Menu;
+    private fps: FPS;
 
     constructor(x: number, y: number, image: p5.Image) {
         this.scale = 1;
@@ -20,6 +21,7 @@ class Puzzle implements IGraph {
         this.piecesFactory = new PiecesFactory(x, y, image, this.cellSize);
         this.pieces = this.piecesFactory.createAllPieces();
         this.menu = new Menu();
+        this.fps = new FPS();
     }
 
     public update() {
@@ -37,6 +39,7 @@ class Puzzle implements IGraph {
         
         this.menu.draw();
         this.inputHandler.draw();
+        this.fps.draw();
     }
 
     private drawPieces() {
