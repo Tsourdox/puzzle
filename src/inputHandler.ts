@@ -90,7 +90,7 @@ class InputHandler {
 
     private handlePieceRotation() {
         // Keyboard rotation
-        const rotation = 5 / frameRate();
+        const rotation = 2 / frameRate();
         if (keyIsDown(COMMA) || keyIsDown(KEY_Q)) {
             this.rotatePieces(-rotation);
         }

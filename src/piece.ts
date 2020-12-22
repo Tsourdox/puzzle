@@ -42,8 +42,12 @@ class Piece {
     
     private updateGraphics() {
         this.graphics.image(this.image, 0, 0);
-        this.isSelected ? this.graphics.stroke('blue') : this.graphics.stroke(250);
-        this.isSelected ? this.graphics.strokeWeight(2) : this.graphics.strokeWeight(1);
+        if (this.isSelected) {
+            this.graphics.stroke('red');
+            this.graphics.strokeWeight(4);
+        } else {
+            this.graphics.noStroke();
+        }
         
         this.graphics.noFill();
         this.graphics.curveTightness(1);
