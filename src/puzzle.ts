@@ -32,6 +32,22 @@ class Puzzle implements IGraph, IGeneratePuzzle {
         this.pieceSize = createVector(image.width / x, image.height / y);
         this.piecesFactory = new PiecesFactory(x, y, image, this.pieceSize);
         this.pieces = this.piecesFactory.createAllPieces();
+        this.shufflePieces();
+    }
+
+    private shufflePieces() {
+        const locations = this.pieces.map(p => p.getOrigin());
+        
+        for (const piece of this.pieces) {
+            // Translate
+            const randomIndex = random(0, locations.length);
+            const location = locations.splice(randomIndex, 1)[0];
+            const delta = p5.Vector.sub(location, piece.getOrigin())
+            piece.translation = delta;
+
+            // Rotate
+            piece.rotation = random(0, PI * 2);
+        }
     }
 
     public update() {

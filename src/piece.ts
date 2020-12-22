@@ -35,6 +35,10 @@ class Piece {
         this.graphics = createGraphics(this.size.x, this.size.y);
         this.updateGraphics();
     }
+
+    public getOrigin() {
+        return this.origin.copy();
+    }
     
     private updateGraphics() {
         this.graphics.image(this.image, 0, 0);

@@ -18,8 +18,8 @@ class PiecesFactory {
     public createAllPieces(): Piece[] {
         const pieces: Piece[] = [];
         
-        for (let x = 0; x < this.puzzleSize.x; x++) {
-            for (let y = 0; y < this.puzzleSize.y; y++) {
+        for (let y = 0; y < this.puzzleSize.y; y++) {
+            for (let x = 0; x < this.puzzleSize.x; x++) {
                 // All corners
                 const origin = this.grid[x][y];
                 const right = this.grid[x + 1][y];
