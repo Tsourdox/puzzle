@@ -37,7 +37,7 @@ class InputHandler {
     }
 
     private handleGraphScaleAndTranslation() {
-        if (mouseIsPressed && mouseButton === CENTER) {
+        if (mouseIsPressed && (mouseButton === CENTER || mouseButton === RIGHT)) {
             // Translate
             const movedX = (mouseX - this.prevMouseX) / this.graph.scale;
             const movedY = (mouseY - this.prevMouseY) / this.graph.scale;

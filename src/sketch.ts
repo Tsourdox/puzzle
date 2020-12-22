@@ -58,7 +58,8 @@ function windowResized() {
 }
 
 function mouseWheel(event: any) {
-    scrollDelta = event.delta
+    scrollDelta = event.delta;
+    return false;
 }
 
 function mousePressed() {
@@ -67,3 +68,6 @@ function mousePressed() {
     //     music.love.loop();
     // }
 }
+
+// Prevent context menu when right clicking
+document.oncontextmenu = () => false;
