@@ -25,7 +25,7 @@ class Puzzle implements IGraph, IGeneratePuzzle {
         this.menu = new Menu(this);
         this.fps = new FPS();
         
-        this.generateNewPuzzle(images.background, 10, 10);
+        this.generateNewPuzzle(images.background, 5, 5);
     }
 
     public generateNewPuzzle(image: p5.Image, x: number, y: number) {
@@ -74,15 +74,11 @@ class Puzzle implements IGraph, IGeneratePuzzle {
     }
 
     private drawPieces() {
-        const selectedPieces: Piece[] = [];
-        for (const piece of this.pieces) {
-            if (piece.isSelected) {
-                selectedPieces.push(piece);
-            } else {
-                piece.draw();
-            }
-        }
-        for (const piece of selectedPieces) {
+        const sortedPieces = this.pieces.sort((a, b) =>
+            a.lastSelected - b.lastSelected
+        )
+        
+        for (const piece of sortedPieces) {
             piece.draw();
         }
     }

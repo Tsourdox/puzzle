@@ -19,8 +19,9 @@ class Piece {
     private center: p5.Vector;
     public rotation: number;
     public translation: p5.Vector;
-    public isSelected: boolean;
+    private _isSelected: boolean;
     private prevIsSelected: boolean;
+    private _lastSelected: number;
 
     constructor(image: p5.Image, origin: p5.Vector, size: p5.Vector, sides: Sides, ) {
         this.image = image;
@@ -30,10 +31,28 @@ class Piece {
         this.center = this.getApproximatedCenter();
         this.rotation = 0;
         this.translation = createVector(0, 0);
-        this.isSelected = false;
+        this._isSelected = false;
         this.prevIsSelected = false;
+        this._lastSelected = 0;
         this.graphics = createGraphics(this.size.x, this.size.y);
         this.updateGraphics();
+    }
+
+    public set isSelected(value: boolean) {
+        if (this._isSelected !== value) {
+            this._isSelected = value;
+            if (value) {
+                this._lastSelected = frameCount;
+            }
+        }
+    }
+
+    public get isSelected() {
+        return this._isSelected;
+    }
+    
+    public get lastSelected() {
+        return this._lastSelected;
     }
 
     public getOrigin() {
