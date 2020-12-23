@@ -47,7 +47,7 @@ class Menu {
         textFont(fonts.icons);
         textSize(50);
         
-        text(icon["Play Circle regular"], halfMenu, height - halfMenu);
+        text(icon["cogs solid"], halfMenu, height - halfMenu);
         text(icon["Puzzle Piece solid"], width - halfMenu, height - halfMenu);
         pop();
     }

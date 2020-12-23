@@ -25,7 +25,7 @@ class Puzzle implements IGraph, IGeneratePuzzle {
         this.menu = new Menu(this);
         this.fps = new FPS();
         
-        this.generateNewPuzzle(images.background, 5, 5);
+        this.generateNewPuzzle(images.background, 1, 1);
     }
 
     public generateNewPuzzle(image: p5.Image, x: number, y: number) {
@@ -50,6 +50,10 @@ class Puzzle implements IGraph, IGeneratePuzzle {
         }
     }
 
+    private matchPieces() {
+        // todo...
+    }
+
     public update() {
         this.inputHandler.update(this.pieces, this.pieceSize);
         this.fps.update();
@@ -57,6 +61,8 @@ class Puzzle implements IGraph, IGeneratePuzzle {
         for (const piece of this.pieces) {
             piece.update();
         }
+
+        this.matchPieces();
     }
 
     public draw() {

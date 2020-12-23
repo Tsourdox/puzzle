@@ -133,14 +133,23 @@ class Piece {
         
         const positions = [];
         for (let i = 0; i < 4; i++) {
-            const start = corners[i].copy();
-            const end = corners[(i + 1) % 4].copy();
+            let start = corners[i].copy();
+            let end = corners[(i + 1) % 4].copy();
 
             // add translation...
             start.x += this.translation.x;
             start.y += this.translation.y;
             end.x += this.translation.x;
             end.y += this.translation.y;
+
+            // add rotation...
+            const center = this.getTruePosition();
+            const angleToStart = Math.atan2(start.y - center.y, start.x - center.x);
+            const distToStart = center.dist(start);
+            start = p5.Vector.fromAngle(angleToStart + this.rotation, distToStart).add(center);
+            const angleToEnd = Math.atan2(end.y - center.y, end.x - center.x);
+            const distToEnd = center.dist(end);
+            end = p5.Vector.fromAngle(angleToEnd + this.rotation, distToEnd).add(center);
             
             const point = createVector(
                 mouseX / graph.scale - graph.translation.x,

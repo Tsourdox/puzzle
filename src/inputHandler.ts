@@ -45,8 +45,9 @@ class InputHandler {
         } else {
             // Scale
             if (!keyIsDown(ALT) && scrollDelta !== 0) {
-                this.graph.scale *= 1 + scrollDelta * 0.002 * this.scrollSensitivity;
-                this.graph.scale = constrain(this.graph.scale, 0.01, 100); 
+                const zoomFactor = 1 + scrollDelta * 0.002 * this.scrollSensitivity;
+                const nextScale = constrain(this.graph.scale * zoomFactor, 0.01, 100);
+                this.graph.scale = nextScale;
             }
             if (keyIsDown(KEY_HALF)) this.graph.scale = 0.5;
             if (keyIsDown(KEY_1)) this.graph.scale = 1;
