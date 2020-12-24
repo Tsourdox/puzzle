@@ -1,6 +1,5 @@
 class InputHandler {
-    private graph: IGraph;
-    private selectedPieces: Piece[];
+    private puzzle: IPuzzle;
     private prevMouseIsPressed: boolean;
     private prevSpaceIsDown: boolean;
     private prevKeyRIsDown: boolean;
@@ -8,12 +7,11 @@ class InputHandler {
     private prevMouseX: number;
     private prevMouseY: number;
     private scrollSensitivity: number;
-    private dragRectColor: p5.Color;
+    private dragSelectionColor: p5.Color;
     private dragSelectionOrigin?: p5.Vector;
 
-    constructor(graph: IGraph) {
-        this.graph = graph;
-        this.selectedPieces = [];
+    constructor(puzzle: IPuzzle) {
+        this.puzzle = puzzle;
         this.prevMouseIsPressed = false;
         this.prevSpaceIsDown = false;
         this.prevKeyRIsDown = false;
@@ -21,13 +19,17 @@ class InputHandler {
         this.prevMouseX = mouseX;
         this.prevMouseY = mouseY;
         this.scrollSensitivity = 1;
-        this.dragRectColor = color('rgba(100,100,100,0.3)')
+        this.dragSelectionColor = color('rgba(100,100,100,0.3)')
     }
 
-    public update(pieces: Piece[], pieceSize: p5.Vector) {
+    private get selectedPieces(): Piece[] {
+        return this.puzzle.pieces.filter(p => p.isSelected);
+    }
+
+    public update(pieceSize: p5.Vector) {
         this.handleGraphScaleAndTranslation();
-        this.handlePieceSelection(pieces);
-        this.handleDragSelection(pieces);
+        this.handlePieceSelection();
+        this.handleDragSelection();
         this.handlePieceRotation();
         this.handlePieceTranslation(pieceSize);
         this.handlePieceExploding(pieceSize);
@@ -39,20 +41,20 @@ class InputHandler {
     private handleGraphScaleAndTranslation() {
         if (mouseIsPressed && (mouseButton === CENTER || mouseButton === RIGHT)) {
             // Translate
-            const movedX = (mouseX - this.prevMouseX) / this.graph.scale;
-            const movedY = (mouseY - this.prevMouseY) / this.graph.scale;
-            this.graph.translation.add(movedX, movedY);
+            const movedX = (mouseX - this.prevMouseX) / this.puzzle.scale;
+            const movedY = (mouseY - this.prevMouseY) / this.puzzle.scale;
+            this.puzzle.translation.add(movedX, movedY);
         } else {
             // Scale
             if (!keyIsDown(ALT) && scrollDelta !== 0) {
                 const zoomFactor = 1 + scrollDelta * 0.002 * this.scrollSensitivity;
-                const nextScale = constrain(this.graph.scale * zoomFactor, 0.01, 100);
-                this.graph.scale = nextScale;
+                const nextScale = constrain(this.puzzle.scale * zoomFactor, 0.01, 100);
+                this.puzzle.scale = nextScale;
             }
-            if (keyIsDown(KEY_HALF)) this.graph.scale = 0.5;
-            if (keyIsDown(KEY_1)) this.graph.scale = 1;
-            if (keyIsDown(KEY_2)) this.graph.scale = 2;
-            if (keyIsDown(KEY_3)) this.graph.scale = 4;
+            if (keyIsDown(KEY_HALF)) this.puzzle.scale = 0.5;
+            if (keyIsDown(KEY_1)) this.puzzle.scale = 1;
+            if (keyIsDown(KEY_2)) this.puzzle.scale = 2;
+            if (keyIsDown(KEY_3)) this.puzzle.scale = 4;
         }
     }
 
@@ -83,8 +85,8 @@ class InputHandler {
         
         // Dragging with mouse
         if (mouseIsPressed && mouseButton === LEFT && !this.dragSelectionOrigin) {
-            const movedX = (mouseX - this.prevMouseX) / this.graph.scale;
-            const movedY = (mouseY - this.prevMouseY) / this.graph.scale;
+            const movedX = (mouseX - this.prevMouseX) / this.puzzle.scale;
+            const movedY = (mouseY - this.prevMouseY) / this.puzzle.scale;
             this.translatePieces(movedX, movedY);
         }
     }
@@ -106,13 +108,13 @@ class InputHandler {
         }
     }
 
-    private handleDragSelection(pieces: ReadonlyArray<Piece>) {
+    private handleDragSelection() {
         const didPress = !this.prevMouseIsPressed && mouseIsPressed;
         const didRelease = this.prevMouseIsPressed && !mouseIsPressed;
         
         
         if (didPress && mouseButton === LEFT) {
-            const mouseOverPiece = this.isMouseOverPiece(pieces);
+            const mouseOverPiece = this.isMouseOverPiece(this.puzzle.pieces);
             if (!this.selectedPieces.length || (keyIsDown(SHIFT) && !mouseOverPiece)) {
                 this.dragSelectionOrigin = createVector(mouseX, mouseY);
             }
@@ -125,7 +127,7 @@ class InputHandler {
     private isMouseOverPiece(pieces: ReadonlyArray<Piece>) {
         let mouseOverPiece = false;
         for (const piece of pieces) {
-            if (piece.isMouseOver(this.graph)) {
+            if (piece.isMouseOver(this.puzzle)) {
                 mouseOverPiece = true;
                 break;
             }
@@ -133,15 +135,15 @@ class InputHandler {
         return mouseOverPiece;
     }
 
-    private handlePieceSelection(pieces: ReadonlyArray<Piece>) {
+    private handlePieceSelection() {
         const didPress = !this.prevMouseIsPressed && mouseIsPressed;
         
         // Select by clicking
         if (didPress && mouseButton === LEFT) {
             const mouseOverPiece = this.isMouseOverPiece(this.selectedPieces);
             
-            for (const piece of pieces) {
-                const isMouseOver = piece.isMouseOver(this.graph);
+            for (const piece of this.puzzle.pieces) {
+                const isMouseOver = piece.isMouseOver(this.puzzle);
                 if (keyIsDown(SHIFT)) {
                     if (isMouseOver) {
                         piece.isSelected = true;
@@ -152,16 +154,14 @@ class InputHandler {
                     piece.isSelected = isMouseOver;
                 }
             }
-            this.selectedPieces = pieces.filter(p => p.isSelected);
         }
 
         // Select by dragging
         if (this.dragSelectionOrigin) {
-            for (const piece of pieces) {
+            for (const piece of this.puzzle.pieces) {
                 let isOneCornerInside = false;
-                for (const corner of piece.getCorners()) {
-                    const trueCorner = p5.Vector.add(corner, piece.translation);
-                    if (this.isPointInsideDragSelection(trueCorner)) {
+                for (const corner of piece.getTrueCorners()) {
+                    if (this.isPointInsideDragSelection(corner)) {
                         isOneCornerInside = true;
                     }
                 }
@@ -171,7 +171,6 @@ class InputHandler {
                     piece.isSelected = isOneCornerInside;
                 }
             }
-            this.selectedPieces = pieces.filter(p => p.isSelected);
         }
         
         // Deselect
@@ -249,7 +248,7 @@ class InputHandler {
     private isPointInsideDragSelection(point: p5.Vector): boolean {
         if (!this.dragSelectionOrigin) return false;
 
-        const { scale, translation } = this.graph;
+        const { scale, translation } = this.puzzle;
         const { x, y } = p5.Vector.div(this.dragSelectionOrigin, scale).sub(translation);
         const mouse = createVector(mouseX, mouseY).div(scale).sub(translation); 
         
@@ -266,7 +265,7 @@ class InputHandler {
         if (!this.dragSelectionOrigin) return;
         
         push();
-        fill(this.dragRectColor);
+        fill(this.dragSelectionColor);
         noStroke();
         const { x, y } = this.dragSelectionOrigin;
         rect(x, y, mouseX - x, mouseY - y);

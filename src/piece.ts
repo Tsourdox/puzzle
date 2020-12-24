@@ -73,7 +73,7 @@ class Piece {
         }
 
         if (this.isConnected) {
-            this.graphics.fill('rgba(0,0,0,.8)')
+            this.graphics.fill('rgba(255,255,255,.2)')
         } else {
             this.graphics.noFill();
         }
@@ -111,7 +111,7 @@ class Piece {
         return p5.Vector.add(this.center, this.translation);
     }
 
-    public getCorners(): p5.Vector[] {
+    private getCorners(): p5.Vector[] {
         return [
             this.sides.top[0],
             this.sides.right[0],
@@ -144,7 +144,7 @@ class Piece {
      * Premise: if point is on the same side
      * of the piece sides, is has to be inside.
      */
-    public isMouseOver(graph: IGraph) {
+    public isMouseOver(puzzle: IPuzzle) {
         let corners = this.getTrueCorners();
         // Always 4 corners!
         
@@ -154,8 +154,8 @@ class Piece {
             const end = corners[(i + 1) % 4];
             
             const point = createVector(
-                mouseX / graph.scale - graph.translation.x,
-                mouseY / graph.scale - graph.translation.y
+                mouseX / puzzle.scale - puzzle.translation.x,
+                mouseY / puzzle.scale - puzzle.translation.y
             );
             const line: Line = { start, end };
             positions[i] = this.pointPositionFromLine(point, line);

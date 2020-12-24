@@ -1,4 +1,5 @@
-interface IGraph {
+interface IPuzzle {
+    pieces: Piece[];
     scale: number;
     translation: p5.Vector;
 }
@@ -7,7 +8,8 @@ interface IGeneratePuzzle {
     generateNewPuzzle(image: p5.Image, x: number, y: number): void;
 }
 
-class Puzzle implements IGraph, IGeneratePuzzle {
+class Puzzle implements IPuzzle, IGeneratePuzzle {
+    public pieces!: Piece[];
     public scale: number;
     public translation: p5.Vector;
     private inputHandler: InputHandler;
@@ -15,7 +17,6 @@ class Puzzle implements IGraph, IGeneratePuzzle {
     private fps: FPS;
     
     private pieceSize!: p5.Vector;
-    private pieces!: Piece[];
     private piecesFactory!: PiecesFactory;
     private xPieceCount!: number;
 
@@ -26,7 +27,7 @@ class Puzzle implements IGraph, IGeneratePuzzle {
         this.menu = new Menu(this);
         this.fps = new FPS();
         
-        this.generateNewPuzzle(images.background, 20, 20);
+        this.generateNewPuzzle(images.background, 3, 3);
     }
 
     public generateNewPuzzle(image: p5.Image, x: number, y: number) {
@@ -81,8 +82,12 @@ class Puzzle implements IGraph, IGeneratePuzzle {
                     const distA = pieceCorners[s].dist(adjecentCorners[(s+3)%4]);
                     const distB = pieceCorners[(s+1)%4].dist(adjecentCorners[(s+2)%4]);
                     if (distA + distB < limit) {
-                        piece.isConnected = true;
                         adjecentPiece.isConnected = true;
+                        piece.isConnected = true;
+                        piece.isSelected = false;
+                        // todo: place correcly when rotated
+                        piece.rotation = adjecentPiece.rotation;
+                        piece.translation = adjecentPiece.translation.copy();
                     }
                 }
             }
@@ -90,7 +95,7 @@ class Puzzle implements IGraph, IGeneratePuzzle {
     }
 
     public update() {
-        this.inputHandler.update(this.pieces, this.pieceSize);
+        this.inputHandler.update(this.pieceSize);
         this.fps.update();
 
         for (const piece of this.pieces) {

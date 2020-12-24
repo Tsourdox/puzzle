@@ -19,7 +19,7 @@ class Menu {
     private handleFileSelect(file: any) {
         if (file.type === 'image') {
             loadImage(file.data, (image) => {
-                this.puzzle.generateNewPuzzle(image, 20, 20)
+                this.puzzle.generateNewPuzzle(image, 3, 3)
             });
         }
     }
