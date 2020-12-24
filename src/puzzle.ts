@@ -26,7 +26,7 @@ class Puzzle implements IGraph, IGeneratePuzzle {
         this.menu = new Menu(this);
         this.fps = new FPS();
         
-        this.generateNewPuzzle(images.background, 2, 2);
+        this.generateNewPuzzle(images.background, 20, 20);
     }
 
     public generateNewPuzzle(image: p5.Image, x: number, y: number) {
@@ -53,9 +53,10 @@ class Puzzle implements IGraph, IGeneratePuzzle {
     }
 
     private checkForConnectedPieces() {
-        const limit = 50;
+        const limit = this.pieceSize.mag() / 10;
         const x = this.xPieceCount;
         const length = this.pieces.length;
+        
         for (let i = 0; i < this.pieces.length; i++) {
             const piece = this.pieces[i];
             // Only check selected pieces
