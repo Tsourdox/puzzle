@@ -22,6 +22,8 @@ class Piece {
     private _isSelected: boolean;
     private prevIsSelected: boolean;
     private _lastSelected: number;
+    public isConnected: boolean;
+    private prevIsConnected: boolean;
 
     constructor(image: p5.Image, origin: p5.Vector, size: p5.Vector, sides: Sides, ) {
         this.image = image;
@@ -34,6 +36,8 @@ class Piece {
         this._isSelected = false;
         this.prevIsSelected = false;
         this._lastSelected = 0;
+        this.isConnected = false;
+        this.prevIsConnected = false;
         this.graphics = createGraphics(this.size.x, this.size.y);
         this.updateGraphics();
     }
@@ -67,8 +71,13 @@ class Piece {
         } else {
             this.graphics.noStroke();
         }
+
+        if (this.isConnected) {
+            this.graphics.fill('rgba(0,0,0,.8)')
+        } else {
+            this.graphics.noFill();
+        }
         
-        this.graphics.noFill();
         this.graphics.curveTightness(1);
         this.graphics.beginShape();
         this.drawOneSide(this.sides.top, false);
@@ -111,6 +120,14 @@ class Piece {
         ];
     }
 
+    public getTrueCorners(): p5.Vector[] {
+        return this.getCorners().map(corner => {
+            const trueCorner = this.rotatePointAroundCenter(corner, this.center, this.rotation);
+            trueCorner.add(this.translation);
+            return trueCorner;
+        });
+    }
+
     private getApproximatedCenter(): p5.Vector {
         const corners = this.getCorners();
         const xValues = corners.map(c => c.x);
@@ -128,28 +145,13 @@ class Piece {
      * of the piece sides, is has to be inside.
      */
     public isMouseOver(graph: IGraph) {
-        let corners = this.getCorners();
+        let corners = this.getTrueCorners();
         // Always 4 corners!
         
         const positions = [];
         for (let i = 0; i < 4; i++) {
-            let start = corners[i].copy();
-            let end = corners[(i + 1) % 4].copy();
-
-            // add translation...
-            start.x += this.translation.x;
-            start.y += this.translation.y;
-            end.x += this.translation.x;
-            end.y += this.translation.y;
-
-            // add rotation...
-            const center = this.getTruePosition();
-            const angleToStart = Math.atan2(start.y - center.y, start.x - center.x);
-            const distToStart = center.dist(start);
-            start = p5.Vector.fromAngle(angleToStart + this.rotation, distToStart).add(center);
-            const angleToEnd = Math.atan2(end.y - center.y, end.x - center.x);
-            const distToEnd = center.dist(end);
-            end = p5.Vector.fromAngle(angleToEnd + this.rotation, distToEnd).add(center);
+            const start = corners[i];
+            const end = corners[(i + 1) % 4];
             
             const point = createVector(
                 mouseX / graph.scale - graph.translation.x,
@@ -164,6 +166,12 @@ class Piece {
             return true;
         }
         return false;
+    }
+
+    private rotatePointAroundCenter(point: p5.Vector, center: p5.Vector, angle: number) {
+        const angleToStart = Math.atan2(point.y - center.y, point.x - center.x);
+        const distToStart = center.dist(point);
+        return p5.Vector.fromAngle(angleToStart + angle, distToStart).add(center);
     }
 
     /**
@@ -183,11 +191,14 @@ class Piece {
     }
 
     public update() {
-        if (this.prevIsSelected !== this.isSelected) {
+        const selectionChanged = this.prevIsSelected !== this.isSelected;
+        const connectionChanged = this.prevIsConnected !== this.isConnected;
+        if (selectionChanged || connectionChanged) {
             this.updateGraphics();
         }
         
         this.prevIsSelected = this.isSelected;
+        this.prevIsConnected = this.isConnected;
     }
 
     public draw() {

@@ -17,6 +17,7 @@ class Puzzle implements IGraph, IGeneratePuzzle {
     private pieceSize!: p5.Vector;
     private pieces!: Piece[];
     private piecesFactory!: PiecesFactory;
+    private xPieceCount!: number;
 
     constructor() {
         this.scale = 1;
@@ -25,13 +26,14 @@ class Puzzle implements IGraph, IGeneratePuzzle {
         this.menu = new Menu(this);
         this.fps = new FPS();
         
-        this.generateNewPuzzle(images.background, 1, 1);
+        this.generateNewPuzzle(images.background, 2, 2);
     }
 
     public generateNewPuzzle(image: p5.Image, x: number, y: number) {
         this.pieceSize = createVector(image.width / x, image.height / y);
         this.piecesFactory = new PiecesFactory(x, y, image, this.pieceSize);
         this.pieces = this.piecesFactory.createAllPieces();
+        this.xPieceCount = x;
         this.shufflePieces();
     }
 
@@ -50,8 +52,40 @@ class Puzzle implements IGraph, IGeneratePuzzle {
         }
     }
 
-    private matchPieces() {
-        // todo...
+    private checkForConnectedPieces() {
+        const limit = 50;
+        const x = this.xPieceCount;
+        const length = this.pieces.length;
+        for (let i = 0; i < this.pieces.length; i++) {
+            const piece = this.pieces[i];
+            // Only check selected pieces
+            if (piece.isSelected) {
+                const pieceCorners = piece.getTrueCorners();
+                
+                // Check each side [top, right, bottom, left]
+                for (let s = 0; s < 4; s++) {
+                    // Dont check outside of puzzle
+                    if (s === 0 && i < x) continue;
+                    if (s === 1 && i % x === x - 1) continue;
+                    if (s === 2 && length - i <= x) continue;
+                    if (s === 3 && (length - i) % x === 0) continue;
+
+                    let adjecentPiece!: Piece;
+                    if (s === 0) adjecentPiece = this.pieces[i - x];
+                    if (s === 1) adjecentPiece = this.pieces[i + 1];
+                    if (s === 2) adjecentPiece = this.pieces[i + x];
+                    if (s === 3) adjecentPiece = this.pieces[i - 1];
+                    
+                    const adjecentCorners = adjecentPiece.getTrueCorners();
+                    const distA = pieceCorners[s].dist(adjecentCorners[(s+3)%4]);
+                    const distB = pieceCorners[(s+1)%4].dist(adjecentCorners[(s+2)%4]);
+                    if (distA + distB < limit) {
+                        piece.isConnected = true;
+                        adjecentPiece.isConnected = true;
+                    }
+                }
+            }
+        }
     }
 
     public update() {
@@ -62,7 +96,7 @@ class Puzzle implements IGraph, IGeneratePuzzle {
             piece.update();
         }
 
-        this.matchPieces();
+        this.checkForConnectedPieces();
     }
 
     public draw() {
@@ -80,7 +114,8 @@ class Puzzle implements IGraph, IGeneratePuzzle {
     }
 
     private drawPieces() {
-        const sortedPieces = this.pieces.sort((a, b) =>
+        // Create new array before sorting so it's not mutated
+        const sortedPieces = [...this.pieces].sort((a, b) =>
             a.lastSelected - b.lastSelected
         )
         
