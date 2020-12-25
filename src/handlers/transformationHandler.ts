@@ -118,22 +118,12 @@ class TransformationHandler extends InputHandler {
 
     private stackPieces() {
         const pieces = this.selectedPieces;
-        const groupCenter = this.getAverageCenter(pieces);
+        const groupCenter = getAverageCenter(pieces);
 
         for (const piece of this.selectedPieces) {
             const pieceCenter = piece.getTrueCenter()
             const delta = p5.Vector.sub(groupCenter, pieceCenter);
             piece.translation.add(delta);
         }
-    }
-
-    private getAverageCenter(pieces: Piece[]) {
-        var x = pieces.map(p => p.getTrueCenter().x);
-        var y = pieces.map(p => p.getTrueCenter().y);
-        
-        // avg: sum / length
-        var centerX = x.reduce((a,b) => (a+b), 0) / x.length;
-        var centerY = y.reduce((a,b) => (a+b), 0) / y.length;
-        return createVector(centerX,centerY);
     }
 }
