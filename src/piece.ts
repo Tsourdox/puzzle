@@ -144,7 +144,7 @@ class Piece {
      * Premise: if point is on the same side
      * of the piece sides, is has to be inside.
      */
-    public isMouseOver(puzzle: IPuzzle) {
+    public isMouseOver(puzzle: IGraph) {
         let corners = this.getTrueCorners();
         // Always 4 corners!
         

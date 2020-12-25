@@ -1,9 +1,10 @@
-class SelectionHandler extends InputHandler {
+interface ISelection {
+    isDragSelecting: () => boolean;
+}
+
+class SelectionHandler extends InputHandler implements ISelection {
     private puzzle: IPuzzle & IGraph;
     private prevMouseIsPressed: boolean;
-    private prevSpaceIsDown: boolean;
-    private prevKeyRIsDown: boolean;
-    private prevKeyCIsDown: boolean;
     private dragSelectionColor: p5.Color;
     private dragSelectionOrigin?: p5.Vector;
 
@@ -11,75 +12,25 @@ class SelectionHandler extends InputHandler {
         super();
         this.puzzle = puzzle;
         this.prevMouseIsPressed = false;
-        this.prevSpaceIsDown = false;
-        this.prevKeyRIsDown = false;
-        this.prevKeyCIsDown = false;
         this.dragSelectionColor = color('rgba(100,100,100,0.3)')
     }
+
+    public isDragSelecting = () => !!this.dragSelectionOrigin;
 
     private get selectedPieces(): Piece[] {
         return this.puzzle.pieces.filter(p => p.isSelected);
     }
 
-    public update(pieceSize: p5.Vector) {
+    public update() {
         this.handlePieceSelection();
         this.handleDragSelection();
-        this.handlePieceRotation();
-        this.handlePieceTranslation(pieceSize);
-        this.handlePieceExploding(pieceSize);
 
-        // Set previous values last in update!
         this.setPreviousValues();
     }
 
-    private setPreviousValues() {
+    protected setPreviousValues() {
+        super.setPreviousValues();
         this.prevMouseIsPressed = mouseIsPressed;
-        this.prevSpaceIsDown = keyIsDown(SPACE);
-        this.prevKeyRIsDown = keyIsDown(KEY_R);
-        this.prevKeyCIsDown = keyIsDown(KEY_C);
-        this.prevMouseX = mouseX;
-        this.prevMouseY = mouseY;
-    }
-
-    private handlePieceTranslation(pieceSize: p5.Vector) {
-        // Keyboard
-        const translation = (2 * pieceSize.mag()) / frameRate();
-        if (keyIsDown(LEFT_ARROW) || keyIsDown(KEY_A)) {
-            this.translatePieces(-translation, 0);
-        }
-        if (keyIsDown(RIGHT_ARROW) || keyIsDown(KEY_D)) {
-            this.translatePieces(translation, 0);
-        }
-        if (keyIsDown(UP_ARROW) || keyIsDown(KEY_W)) {
-            this.translatePieces(0, -translation);
-        }
-        if (keyIsDown(DOWN_ARROW) || keyIsDown(KEY_S)) {
-            this.translatePieces(0, translation);
-        }
-        
-        // Dragging with mouse
-        if (mouseIsPressed && mouseButton === LEFT && !this.dragSelectionOrigin) {
-            const movedX = (mouseX - this.prevMouseX) / this.puzzle.scale;
-            const movedY = (mouseY - this.prevMouseY) / this.puzzle.scale;
-            this.translatePieces(movedX, movedY);
-        }
-    }
-
-    private handlePieceRotation() {
-        // Keyboard rotation
-        const rotation = 2 / frameRate();
-        if (keyIsDown(COMMA) || keyIsDown(KEY_Q)) {
-            this.rotatePieces(-rotation);
-        }
-        if (keyIsDown(DOT) || keyIsDown(KEY_E)) {
-            this.rotatePieces(rotation);
-        }
-
-        // Scroll wheel rotation
-        if (keyIsDown(ALT)) {
-            const rotation = scrollDelta * 0.005 * this.scrollSensitivity;
-            this.rotatePieces(rotation)
-        }
     }
 
     private handleDragSelection() {
@@ -153,70 +104,6 @@ class SelectionHandler extends InputHandler {
                 piece.isSelected = false;
             }
         }
-    }
-
-    private handlePieceExploding(pieceSize: p5.Vector) {
-        if (keyIsDown(KEY_C) && !this.prevKeyCIsDown) {
-            this.explodePiecesCircular(pieceSize);
-        }
-        if (keyIsDown(KEY_R) && !this.prevKeyRIsDown) {
-            this.explodePiecesRectangular();
-        }
-        if (keyIsDown(SPACE) && !this.prevSpaceIsDown) {
-            this.stackPieces();
-        }
-    }
-
-    private rotatePieces(angle: number) {
-        // todo: rotate pieces as group instead of individually
-        for (const piece of this.selectedPieces) {
-            piece.rotation += angle;
-        }
-    }
-    
-    private translatePieces(x: number, y: number) {
-        for (const piece of this.selectedPieces) {
-            piece.translation.add(x, y);
-        }
-    }
-    
-    private explodePiecesCircular(pieceSize: p5.Vector) {
-        const radius = pieceSize.mag();
-        const pieces = this.selectedPieces;
-        if (pieces.length <= 1) return;
-
-        for (let i = 0; i < pieces.length; i++) {
-            const angle = (PI * 2 / pieces.length) * i;
-            const offsetX = radius * cos(angle);
-            const offsetY = radius * sin(angle);
-            pieces[i].translation.x += offsetX;
-            pieces[i].translation.y += offsetY;
-        }
-    }
-    
-    private explodePiecesRectangular() {
-        // todo: explode pieces into a rectangular shape 
-    }
-
-    private stackPieces() {
-        const pieces = this.selectedPieces;
-        const groupCenter = this.getAverageCenter(pieces);
-
-        for (const piece of this.selectedPieces) {
-            const pieceCenter = piece.getTruePosition()
-            const delta = p5.Vector.sub(groupCenter, pieceCenter);
-            piece.translation.add(delta);
-        }
-    }
-
-    private getAverageCenter(pieces: Piece[]) {
-        var x = pieces.map(p => p.getTruePosition().x);
-        var y = pieces.map(p => p.getTruePosition().y);
-        
-        // avg: sum / length
-        var centerX = x.reduce((a,b) => (a+b), 0) / x.length;
-        var centerY = y.reduce((a,b) => (a+b), 0) / y.length;
-        return createVector(centerX,centerY);
     }
 
     private isPointInsideDragSelection(point: p5.Vector): boolean {

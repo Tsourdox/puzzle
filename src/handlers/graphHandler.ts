@@ -1,7 +1,7 @@
 class GraphHandler extends InputHandler {
-    private graph: IPuzzle;
+    private graph: IGraph;
 
-    constructor(graph: IPuzzle) {
+    constructor(graph: IGraph) {
         super();
         this.graph = graph;
     }
@@ -9,11 +9,6 @@ class GraphHandler extends InputHandler {
     update() {
         this.handleGraphScaleAndTranslation();
         this.setPreviousValues();
-    }
-
-    private setPreviousValues() {
-        this.prevMouseX = mouseX;
-        this.prevMouseY = mouseY;
     }
 
     private handleGraphScaleAndTranslation() {

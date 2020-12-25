@@ -1,5 +1,6 @@
 interface IPuzzle {
     pieces: Piece[];
+    pieceSize: p5.Vector;
 }
 
 interface IGraph {
@@ -13,22 +14,24 @@ interface IGeneratePuzzle {
 
 class Puzzle implements IPuzzle, IGeneratePuzzle {
     public pieces!: Piece[];
+    public pieceSize!: p5.Vector;
     public scale: number;
     public translation: p5.Vector;
-    private selectionHandler: SelectionHandler;
     private graphHandler: GraphHandler;
+    private selectionHandler: SelectionHandler;
+    private transformationHandler: TransformationHandler;
     private menu: Menu;
     private fps: FPS;
     
-    private pieceSize!: p5.Vector;
     private piecesFactory!: PiecesFactory;
     private xPieceCount!: number;
 
     constructor() {
         this.scale = 1;
         this.translation = createVector(0, 0);
-        this.selectionHandler = new SelectionHandler(this);
         this.graphHandler = new GraphHandler(this);
+        this.selectionHandler = new SelectionHandler(this);
+        this.transformationHandler = new TransformationHandler(this, this.selectionHandler);
         this.menu = new Menu(this);
         this.fps = new FPS();
         
@@ -101,7 +104,8 @@ class Puzzle implements IPuzzle, IGeneratePuzzle {
 
     public update() {
         this.graphHandler.update();
-        this.selectionHandler.update(this.pieceSize);
+        this.selectionHandler.update();
+        this.transformationHandler.update();
         this.fps.update();
 
         for (const piece of this.pieces) {
