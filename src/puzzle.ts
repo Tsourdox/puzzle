@@ -94,7 +94,8 @@ class Puzzle implements IPuzzle, IGeneratePuzzle {
                         piece.isConnected = true;
                         piece.isSelected = false;
                         // todo: place correcly when rotated
-                        piece.rotation = adjecentPiece.rotation;
+                        piece.rotation = 0
+                        adjecentPiece.rotation = 0;
                         piece.translation = adjecentPiece.translation.copy();
                     }
                 }
