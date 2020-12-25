@@ -80,23 +80,32 @@ class Puzzle implements IPuzzle, IGeneratePuzzle {
                     if (s === 2 && length - i <= x) continue;
                     if (s === 3 && (length - i) % x === 0) continue;
 
+                    // Select adjecentPiece
                     let adjecentPiece!: Piece;
                     if (s === 0) adjecentPiece = this.pieces[i - x];
                     if (s === 1) adjecentPiece = this.pieces[i + 1];
                     if (s === 2) adjecentPiece = this.pieces[i + x];
                     if (s === 3) adjecentPiece = this.pieces[i - 1];
                     
+                    // Select matching edges
                     const adjecentCorners = adjecentPiece.getTrueCorners();
-                    const distA = pieceCorners[s].dist(adjecentCorners[(s+3)%4]);
-                    const distB = pieceCorners[(s+1)%4].dist(adjecentCorners[(s+2)%4]);
+                    const pcA = pieceCorners[s];
+                    const acA = adjecentCorners[(s+3)%4];
+                    const pcB = pieceCorners[(s+1)%4];
+                    const acB = adjecentCorners[(s+2)%4];
+
+                    // Check distance between matching edges
+                    const distA = pcA.dist(acA);
+                    const distB = pcB.dist(acB);
                     if (distA + distB < limit) {
                         adjecentPiece.isConnected = true;
                         piece.isConnected = true;
                         piece.isSelected = false;
-                        // todo: place correcly when rotated
-                        piece.rotation = 0
-                        adjecentPiece.rotation = 0;
-                        piece.translation = adjecentPiece.translation.copy();
+                        piece.rotation = adjecentPiece.rotation;
+                        const ucA = piece.getTrueCorners()[s];
+                        const delta = p5.Vector.sub(acA, ucA);
+                        piece.translation.add(delta);
+                        sounds.snap.play();
                     }
                 }
             }

@@ -1,9 +1,10 @@
-(p5 as any).disableFriendlyErrors = false; // disables FES
-
 interface IMusic {
     dreaming: p5.SoundFile;
     love: p5.SoundFile;
     journey: p5.SoundFile;
+}
+interface ISound {
+    snap: p5.SoundFile;
 }
 interface IImages {
     background: p5.Image;
@@ -18,6 +19,7 @@ interface IFonts {
 const IS_DEV_MODE = false;
 let puzzle: Puzzle;
 let music: IMusic;
+let sounds: ISound;
 let images: IImages;
 let fonts: IFonts;
 let scrollDelta = 0;
@@ -30,6 +32,9 @@ function preload() {
         love: loadSound('../assets/music/love-in-the-air.mp3'),
         journey: loadSound('../assets/music/the-journey.mp3')
     }
+    sounds = {
+        snap: loadSound('../assets/sounds/snap.wav')
+    }
     images = {
         background: loadImage('../assets/images/photo.png')
     }
@@ -41,6 +46,8 @@ function preload() {
 function setup() {
     createCanvas(windowWidth, windowHeight);
     frameRate(60);
+    sounds.snap.setVolume(0.5);
+
     puzzle = new Puzzle();
 }
 
