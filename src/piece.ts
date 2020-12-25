@@ -5,11 +5,6 @@ interface Sides {
     left: p5.Vector[];
 }
 
-interface Line {
-    start: p5.Vector;
-    end: p5.Vector;
-}
-
 class Piece {
     private graphics: p5.Graphics;
     private image: p5.Image;
@@ -136,7 +131,7 @@ class Piece {
         let corners = this.getTrueCorners();
         // Always 4 corners!
         
-        const positions = [];
+        const locations = [];
         for (let i = 0; i < 4; i++) {
             const start = corners[i];
             const end = corners[(i + 1) % 4];
@@ -146,30 +141,14 @@ class Piece {
                 mouseY / puzzle.scale - puzzle.translation.y
             );
             const line: Line = { start, end };
-            positions[i] = this.pointPositionFromLine(point, line);
+            locations[i] = pointSideLocationOfLine(point, line);
         }
-
-        const sum = positions.reduce((a, b) => a + b, 0);
-        if (sum === -4 || sum === 4 ) {
+;
+        const locationSum = sum(...locations);
+        if (locationSum === -4 || locationSum === 4 ) {
             return true;
         }
         return false;
-    }
-
-    /**
-     * Will return which side of a curve that a point lies.
-     * Return value is -1, 0 or 1. It is 0 on the line, +1
-     * on one side and -1 on the other side. 
-     * https://stackoverflow.com/a/1560510
-     **/
-    private pointPositionFromLine(point: p5.Vector, line: Line) {
-        const { start, end } = line;
-        return Math.sign(
-            (end.x - start.x) *
-            (point.y - start.y) -
-            (end.y - start.y) *
-            (point.x - start.x)
-        )
     }
 
     public update() {
