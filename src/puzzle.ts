@@ -105,7 +105,8 @@ class Puzzle implements IPuzzle, IGeneratePuzzle {
                         const ucA = piece.getTrueCorners()[s];
                         const delta = p5.Vector.sub(acA, ucA);
                         piece.translation.add(delta);
-                        sounds.snap.play();
+                        const index = floor(random(0, sounds.snaps.length));
+                        sounds.snaps[index].play();
                     }
                 }
             }

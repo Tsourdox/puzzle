@@ -4,12 +4,11 @@ interface IMusic {
     journey: p5.SoundFile;
 }
 interface ISound {
-    snap: p5.SoundFile;
+    snaps: p5.SoundFile[];
 }
 interface IImages {
     background: p5.Image;
 }
-
 interface IFonts {
     icons: p5.Font;
 }
@@ -33,7 +32,12 @@ function preload() {
         journey: loadSound('../assets/music/the-journey.mp3')
     }
     sounds = {
-        snap: loadSound('../assets/sounds/snap.wav')
+        snaps: [
+            loadSound('../assets/sounds/snap0.wav'),
+            loadSound('../assets/sounds/snap1.wav'),
+            loadSound('../assets/sounds/snap2.wav'),
+            loadSound('../assets/sounds/snap3.wav'),
+        ]
     }
     images = {
         background: loadImage('../assets/images/photo.png')
@@ -46,7 +50,10 @@ function preload() {
 function setup() {
     createCanvas(windowWidth, windowHeight);
     frameRate(60);
-    sounds.snap.setVolume(0.5);
+    sounds.snaps[0].setVolume(0.8);
+    sounds.snaps[1].setVolume(0.1);
+    sounds.snaps[2].setVolume(0.5);
+    sounds.snaps[3].setVolume(0.1);
 
     puzzle = new Puzzle();
 }
