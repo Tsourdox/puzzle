@@ -52,7 +52,7 @@ class SelectionHandler extends InputHandler implements ISelection {
     private isMouseOverPiece(pieces: ReadonlyArray<Piece>) {
         let mouseOverPiece = false;
         for (const piece of pieces) {
-            if (piece.isMouseOver(this.puzzle)) {
+            if (this.isMouseOver(piece)) {
                 mouseOverPiece = true;
                 break;
             }
@@ -68,7 +68,7 @@ class SelectionHandler extends InputHandler implements ISelection {
             const mouseOverPiece = this.isMouseOverPiece(this.selectedPieces);
             
             for (const piece of this.puzzle.pieces) {
-                const isMouseOver = piece.isMouseOver(this.puzzle);
+                const isMouseOver = this.isMouseOver(piece);
                 if (keyIsDown(SHIFT)) {
                     if (isMouseOver) {
                         piece.isSelected = true;
@@ -120,6 +120,35 @@ class SelectionHandler extends InputHandler implements ISelection {
             (point.x > x && point.x < mouse.x && point.y < y && point.y > mouse.y) ||
             (point.x < x && point.x > mouse.x && point.y > y && point.y < mouse.y)
         );
+    }
+
+    // todo: merge above and below code!
+
+    /**
+     * Premise: if point is on the same side
+     * of the piece sides, is has to be inside.
+     */
+    private isMouseOver(piece: Piece) {
+        let corners = piece.getTrueCorners();
+        
+        const locations = [];
+        for (let i = 0; i < 4; i++) {
+            const start = corners[i];
+            const end = corners[(i + 1) % 4];
+            
+            const point = createVector(
+                mouseX / puzzle.scale - puzzle.translation.x,
+                mouseY / puzzle.scale - puzzle.translation.y
+            );
+            const line: Line = { start, end };
+            locations[i] = pointSideLocationOfLine(point, line);
+        }
+
+        const locationSum = sum(...locations);
+        if (locationSum === -4 || locationSum === 4 ) {
+            return true;
+        }
+        return false;
     }
 
     public draw() {
