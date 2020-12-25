@@ -1,24 +1,19 @@
-class InputHandler {
-    private puzzle: IPuzzle;
+class SelectionHandler extends InputHandler {
+    private puzzle: IPuzzle & IGraph;
     private prevMouseIsPressed: boolean;
     private prevSpaceIsDown: boolean;
     private prevKeyRIsDown: boolean;
     private prevKeyCIsDown: boolean;
-    private prevMouseX: number;
-    private prevMouseY: number;
-    private scrollSensitivity: number;
     private dragSelectionColor: p5.Color;
     private dragSelectionOrigin?: p5.Vector;
 
-    constructor(puzzle: IPuzzle) {
+    constructor(puzzle: IPuzzle & IGraph) {
+        super();
         this.puzzle = puzzle;
         this.prevMouseIsPressed = false;
         this.prevSpaceIsDown = false;
         this.prevKeyRIsDown = false;
         this.prevKeyCIsDown = false;
-        this.prevMouseX = mouseX;
-        this.prevMouseY = mouseY;
-        this.scrollSensitivity = 1;
         this.dragSelectionColor = color('rgba(100,100,100,0.3)')
     }
 
@@ -27,7 +22,6 @@ class InputHandler {
     }
 
     public update(pieceSize: p5.Vector) {
-        this.handleGraphScaleAndTranslation();
         this.handlePieceSelection();
         this.handleDragSelection();
         this.handlePieceRotation();
@@ -36,26 +30,6 @@ class InputHandler {
 
         // Set previous values last in update!
         this.setPreviousValues();
-    }
-
-    private handleGraphScaleAndTranslation() {
-        if (mouseIsPressed && (mouseButton === CENTER || mouseButton === RIGHT)) {
-            // Translate
-            const movedX = (mouseX - this.prevMouseX) / this.puzzle.scale;
-            const movedY = (mouseY - this.prevMouseY) / this.puzzle.scale;
-            this.puzzle.translation.add(movedX, movedY);
-        } else {
-            // Scale
-            if (!keyIsDown(ALT) && scrollDelta !== 0) {
-                const zoomFactor = 1 + scrollDelta * 0.002 * this.scrollSensitivity;
-                const nextScale = constrain(this.puzzle.scale * zoomFactor, 0.01, 100);
-                this.puzzle.scale = nextScale;
-            }
-            if (keyIsDown(KEY_HALF)) this.puzzle.scale = 0.5;
-            if (keyIsDown(KEY_1)) this.puzzle.scale = 1;
-            if (keyIsDown(KEY_2)) this.puzzle.scale = 2;
-            if (keyIsDown(KEY_3)) this.puzzle.scale = 4;
-        }
     }
 
     private setPreviousValues() {
