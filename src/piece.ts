@@ -30,7 +30,7 @@ class Piece {
         this.origin = origin;
         this.size = size;
         this.sides = sides;
-        this.center = this.getApproximatedCenter();
+        this.center = getAverageCenter(this.getCorners());
         this.rotation = 0;
         this.translation = createVector(0, 0);
         this._isSelected = false;
@@ -126,18 +126,6 @@ class Piece {
             trueCorner.add(this.translation);
             return trueCorner;
         });
-    }
-
-    private getApproximatedCenter(): p5.Vector {
-        const corners = this.getCorners();
-        const xValues = corners.map(c => c.x);
-        const yValues = corners.map(c => c.y);
-
-        const center = createVector(
-            (min(xValues) + max(xValues)) / 2,
-            (min(yValues) + max(yValues)) / 2,
-        )
-        return center;
     }
 
     /**

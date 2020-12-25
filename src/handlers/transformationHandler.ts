@@ -118,7 +118,8 @@ class TransformationHandler extends InputHandler {
 
     private stackPieces() {
         const pieces = this.selectedPieces;
-        const groupCenter = getAverageCenter(pieces);
+        const centers = pieces.map(p => p.getTrueCenter());
+        const groupCenter = getAverageCenter(centers);
 
         for (const piece of this.selectedPieces) {
             const pieceCenter = piece.getTrueCenter()
