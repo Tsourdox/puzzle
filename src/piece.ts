@@ -107,7 +107,7 @@ class Piece {
         this.graphics.curveVertex(lastPoint.x, lastPoint.y);
     }
 
-    public getTruePosition(): p5.Vector {
+    public getTrueCenter(): p5.Vector {
         return p5.Vector.add(this.center, this.translation);
     }
 
@@ -122,7 +122,7 @@ class Piece {
 
     public getTrueCorners(): p5.Vector[] {
         return this.getCorners().map(corner => {
-            const trueCorner = this.rotatePointAroundCenter(corner, this.center, this.rotation);
+            const trueCorner = rotatePointAroundCenter(corner, this.center, this.rotation);
             trueCorner.add(this.translation);
             return trueCorner;
         });
@@ -166,12 +166,6 @@ class Piece {
             return true;
         }
         return false;
-    }
-
-    private rotatePointAroundCenter(point: p5.Vector, center: p5.Vector, angle: number) {
-        const angleToStart = Math.atan2(point.y - center.y, point.x - center.x);
-        const distToStart = center.dist(point);
-        return p5.Vector.fromAngle(angleToStart + angle, distToStart).add(center);
     }
 
     /**
