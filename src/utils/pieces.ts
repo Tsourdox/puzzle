@@ -30,3 +30,14 @@ function getConnectedPieces(
 
     return result;
 }
+
+/** Rotate a piece around a center point by applying translation */
+function rotateAroundCenter(piece: Piece, rotationCenter: p5.Vector, angle: number) {
+    const pieceCenter = piece.getTrueCenter();
+    const centerA = rotatePointAroundCenter(pieceCenter, rotationCenter, angle);
+    const centerB = rotatePointAroundCenter(pieceCenter, pieceCenter, angle);
+    
+    const deltaCenter = p5.Vector.sub(centerB, centerA);
+    piece.translation.sub(deltaCenter);
+    piece.rotation += angle;
+}

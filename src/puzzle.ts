@@ -21,7 +21,7 @@ class Puzzle implements IPuzzle, IGeneratePuzzle {
     public translation: p5.Vector;
     private graphHandler: GraphHandler;
     private selectionHandler: SelectionHandler;
-    private transformationHandler: TransformationHandler;
+    private transformHandler: TransformHandler;
     private menu: Menu;
     private fps: FPS;
     
@@ -32,11 +32,11 @@ class Puzzle implements IPuzzle, IGeneratePuzzle {
         this.translation = createVector(0, 0);
         this.graphHandler = new GraphHandler(this);
         this.selectionHandler = new SelectionHandler(this);
-        this.transformationHandler = new TransformationHandler(this, this.selectionHandler);
+        this.transformHandler = new TransformHandler(this, this.selectionHandler);
         this.menu = new Menu(this);
         this.fps = new FPS();
         
-        this.generateNewPuzzle(images.background, 3, 3);
+        this.generateNewPuzzle(images.background, 2, 2);
     }
 
     public generateNewPuzzle(image: p5.Image, x: number, y: number) {
@@ -101,20 +101,25 @@ class Puzzle implements IPuzzle, IGeneratePuzzle {
                     const distA = pcA.dist(acA);
                     const distB = pcB.dist(acB);
                     if (distA + distB < limit) {
+                        // First matching side found
+                        if (piece.isSelected) {
+                            // Play click sound
+                            const index = floor(random(0, sounds.snaps.length));
+                            sounds.snaps[index].play();
+                            
+                            // Rotate and translate selected piece|s
+                            const deltaRotation = adjecentPiece.rotation - piece.rotation;
+                            this.transformHandler.rotatePiece(piece, deltaRotation);
+                            
+                            const ucA = piece.getTrueCorners()[s];
+                            const deltaTranslation = p5.Vector.sub(acA, ucA);
+                            this.transformHandler.translatePiece(piece, deltaTranslation);
+                        }
+
+                        // Add to connected side list
                         const oppositeSide = (s+2)%4;
                         adjecentPiece.connectedSides.push(oppositeSide);
                         piece.connectedSides.push(s);
-                        
-                        // First matching side found
-                        if (piece.isSelected) {
-                            // todo: has to be done recursively
-                            piece.rotation = adjecentPiece.rotation;
-                            const ucA = piece.getTrueCorners()[s];
-                            const delta = p5.Vector.sub(acA, ucA);
-                            piece.translation.add(delta);
-                            const index = floor(random(0, sounds.snaps.length));
-                            sounds.snaps[index].play();
-                        }
                         
                         // Remove selection and reset loop
                         // so all sides are properly checked
@@ -129,7 +134,7 @@ class Puzzle implements IPuzzle, IGeneratePuzzle {
     public update() {
         this.graphHandler.update();
         this.selectionHandler.update();
-        this.transformationHandler.update();
+        this.transformHandler.update();
         this.fps.update();
 
         for (const piece of this.pieces) {

@@ -1,4 +1,4 @@
-class TransformationHandler extends InputHandler {
+class TransformHandler extends InputHandler {
     private puzzle: IPuzzle & IGraph;
     private selection: ISelection;
     private prevSpaceIsDown: boolean;
@@ -30,6 +30,23 @@ class TransformationHandler extends InputHandler {
         this.prevSpaceIsDown = keyIsDown(SPACE);
         this.prevKeyRIsDown = keyIsDown(KEY_R);
         this.prevKeyCIsDown = keyIsDown(KEY_C);
+    }
+
+    /** Will also rotate connected pieces */
+    public rotatePiece(piece: Piece, angle: number) {
+        const pieces = getConnectedPieces(piece, this.puzzle);
+        const centeres = pieces.map(p => p.getTrueCenter());
+        const averageCenter = getAverageCenter(centeres);
+        
+        for (const piece of pieces) {
+            rotateAroundCenter(piece, averageCenter, angle);
+        }
+    }
+
+    /** Will also translate connected pieces */
+    public translatePiece(piece: Piece, translation: p5.Vector) {
+        const pieces = getConnectedPieces(piece, this.puzzle);
+        pieces.forEach(p => p.translation.add(translation));
     }
 
     private handlePieceTranslation() {
@@ -86,9 +103,11 @@ class TransformationHandler extends InputHandler {
     }
 
     private rotatePieces(angle: number) {
-        // todo: rotate pieces as group instead of individually
+        const centeres = this.selectedPieces.map(p => p.getTrueCenter());
+        const averageCenter = getAverageCenter(centeres);
+        
         for (const piece of this.selectedPieces) {
-            piece.rotation += angle;
+            rotateAroundCenter(piece, averageCenter, angle);
         }
     }
     
