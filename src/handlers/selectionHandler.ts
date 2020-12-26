@@ -104,25 +104,10 @@ class SelectionHandler extends InputHandler implements ISelection {
         }
     }
 
-    /** Will select connected pieces recusivly */
+    /** Will select connected pieces recursively */
     public select(piece: Piece, value: boolean) {
-        if (piece.isSelected === value) return;
-        
-        piece.isSelected = value;
-        const { pieces, pieceCount } = this.puzzle;
-        const { x } = pieceCount;
-        const i = pieces.indexOf(piece)
-        
-        for (const s of piece.connectedSides) {
-            let adjecentPiece!: Piece;
-            if (s === Side.Top) adjecentPiece = pieces[i - x];
-            if (s === Side.Right) adjecentPiece = pieces[i + 1];
-            if (s === Side.Bottom) adjecentPiece = pieces[i + x];
-            if (s === Side.Left) adjecentPiece = pieces[i - 1];
-
-            this.select(adjecentPiece, value);
-        }
-
+        const pieces = getConnectedPieces(piece, this.puzzle);
+        pieces.forEach(piece => piece.isSelected = value);
     }
 
     private isPointInsideDragSelection(point: p5.Vector): boolean {

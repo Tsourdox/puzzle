@@ -73,7 +73,7 @@ class Piece {
         // todo: create mask
         
         this.graphics.stroke('red');
-        this.graphics.strokeWeight(20);
+        this.graphics.strokeWeight(this.size.mag() / 40);
         this.graphics.noFill();
         this.graphics.curveTightness(1);
         if (!this.connectedSides.includes(Side.Top)) {

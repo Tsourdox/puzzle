@@ -40,9 +40,3 @@ function pointSideLocationOfLine(point: p5.Vector, line: Line): 1 | 0 | -1 {
         (point.x - start.x)
     ) as 1 | 0 | -1
 }
-
-/** Sort based on last selected, will not mutate array */
-function sortPieces(pieces: Piece[], reversed = false): Piece[] {
-    return [...pieces].sort((a, b) =>
-        (a.lastSelected - b.lastSelected) * (reversed ? -1 : 1));
-}
