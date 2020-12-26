@@ -5,6 +5,13 @@ interface Sides {
     left: p5.Vector[];
 }
 
+enum Side {
+    Top,
+    Right,
+    Bottom,
+    Left,
+}
+
 class Piece {
     private graphics: p5.Graphics;
     private image: p5.Image;
@@ -17,8 +24,8 @@ class Piece {
     private _isSelected: boolean;
     private prevIsSelected: boolean;
     private _lastSelected: number;
-    public isConnected: boolean;
-    private prevIsConnected: boolean;
+    public isConnected: Side[];
+    private prevIsConnected: Side[];
 
     constructor(image: p5.Image, origin: p5.Vector, size: p5.Vector, sides: Sides, ) {
         this.image = image;
@@ -31,8 +38,8 @@ class Piece {
         this._isSelected = false;
         this.prevIsSelected = false;
         this._lastSelected = 0;
-        this.isConnected = false;
-        this.prevIsConnected = false;
+        this.isConnected = [];
+        this.prevIsConnected = [];
         this.graphics = createGraphics(this.size.x, this.size.y);
         this.updateGraphics();
     }
@@ -59,27 +66,36 @@ class Piece {
     }
     
     private updateGraphics() {
+        this.graphics.clear();
         this.graphics.image(this.image, 0, 0);
-        if (this.isSelected) {
-            this.graphics.stroke('red');
-            this.graphics.strokeWeight(4);
-        } else {
-            this.graphics.noStroke();
-        }
+        if (!this.isSelected) return;
 
-        if (this.isConnected) {
-            this.graphics.fill('rgba(255,255,255,.2)')
-        } else {
-            this.graphics.noFill();
-        }
+        // todo: create mask
         
+        this.graphics.stroke('red');
+        this.graphics.strokeWeight(20);
+        this.graphics.noFill();
         this.graphics.curveTightness(1);
-        this.graphics.beginShape();
-        this.drawOneSide(this.sides.top, false);
-        this.drawOneSide(this.sides.right, true);
-        this.drawOneSide(this.sides.bottom, false);
-        this.drawOneSide(this.sides.left, true);
-        this.graphics.endShape(CLOSE);
+        if (!this.isConnected.includes(Side.Top)) {
+            this.graphics.beginShape();
+            this.drawOneSide(this.sides.top, false);
+            this.graphics.endShape();
+        }
+        if (!this.isConnected.includes(Side.Right)) {
+            this.graphics.beginShape();
+            this.drawOneSide(this.sides.right, true);
+            this.graphics.endShape();
+        }
+        if (!this.isConnected.includes(Side.Bottom)) {
+            this.graphics.beginShape();
+            this.drawOneSide(this.sides.bottom, false);
+            this.graphics.endShape();
+        }
+        if (!this.isConnected.includes(Side.Left)) {
+            this.graphics.beginShape();
+            this.drawOneSide(this.sides.left, true);
+            this.graphics.endShape();
+        }
     }
 
     private drawOneSide(side: p5.Vector[], isVertical: boolean) {
@@ -125,13 +141,13 @@ class Piece {
 
     public update() {
         const selectionChanged = this.prevIsSelected !== this.isSelected;
-        const connectionChanged = this.prevIsConnected !== this.isConnected;
+        const connectionChanged = this.prevIsConnected.length !== this.isConnected.length;
         if (selectionChanged || connectionChanged) {
             this.updateGraphics();
         }
         
         this.prevIsSelected = this.isSelected;
-        this.prevIsConnected = this.isConnected;
+        this.prevIsConnected = [...this.isConnected];
     }
 
     public draw() {

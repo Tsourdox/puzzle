@@ -71,12 +71,12 @@ class SelectionHandler extends InputHandler implements ISelection {
                 const isMouseOver = this.isMouseOver(piece);
                 if (keyIsDown(SHIFT)) {
                     if (isMouseOver) {
-                        piece.isSelected = true;
+                        this.select(piece, true);
                     }
                 } else if (mouseOverPiece) {
-                    piece.isSelected = piece.isSelected || isMouseOver;
+                    this.select(piece, piece.isSelected || isMouseOver);
                 } else {
-                    piece.isSelected = isMouseOver;
+                    this.select(piece, isMouseOver);
                 }
             }
         }
@@ -91,9 +91,9 @@ class SelectionHandler extends InputHandler implements ISelection {
                     }
                 }
                 if (keyIsDown(SHIFT)) {
-                    piece.isSelected = piece.isSelected || isOneCornerInside;
+                    this.select(piece, piece.isSelected || isOneCornerInside);
                 } else {
-                    piece.isSelected = isOneCornerInside;
+                    this.select(piece, isOneCornerInside);
                 }
             }
         }
@@ -101,9 +101,13 @@ class SelectionHandler extends InputHandler implements ISelection {
         // Deselect
         if (keyIsDown(ESCAPE)) { 
             for (const piece of this.selectedPieces) {
-                piece.isSelected = false;
+                this.select(piece, false);
             }
         }
+    }
+
+    private select(piece: Piece, value: boolean) {
+        piece.isSelected = value;
     }
 
     private isPointInsideDragSelection(point: p5.Vector): boolean {

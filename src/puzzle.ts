@@ -35,7 +35,7 @@ class Puzzle implements IPuzzle, IGeneratePuzzle {
         this.menu = new Menu(this);
         this.fps = new FPS();
         
-        this.generateNewPuzzle(images.background, 3, 3);
+        this.generateNewPuzzle(images.background, 2, 2);
     }
 
     public generateNewPuzzle(image: p5.Image, x: number, y: number) {
@@ -74,18 +74,21 @@ class Puzzle implements IPuzzle, IGeneratePuzzle {
                 
                 // Check each side [top, right, bottom, left]
                 for (let s = 0; s < 4; s++) {
+                    // Dont check connected pieces
+                    if (piece.isConnected.includes(s)) return;
+
                     // Dont check outside of puzzle
-                    if (s === 0 && i < x) continue;
-                    if (s === 1 && i % x === x - 1) continue;
-                    if (s === 2 && length - i <= x) continue;
-                    if (s === 3 && (length - i) % x === 0) continue;
+                    if (s === Side.Top && i < x) continue;
+                    if (s === Side.Right && i % x === x - 1) continue;
+                    if (s === Side.Bottom && length - i <= x) continue;
+                    if (s === Side.Left && (length - i) % x === 0) continue;
 
                     // Select adjecentPiece
                     let adjecentPiece!: Piece;
-                    if (s === 0) adjecentPiece = this.pieces[i - x];
-                    if (s === 1) adjecentPiece = this.pieces[i + 1];
-                    if (s === 2) adjecentPiece = this.pieces[i + x];
-                    if (s === 3) adjecentPiece = this.pieces[i - 1];
+                    if (s === Side.Top) adjecentPiece = this.pieces[i - x];
+                    if (s === Side.Right) adjecentPiece = this.pieces[i + 1];
+                    if (s === Side.Bottom) adjecentPiece = this.pieces[i + x];
+                    if (s === Side.Left) adjecentPiece = this.pieces[i - 1];
                     
                     // Select matching edges
                     const adjecentCorners = adjecentPiece.getTrueCorners();
@@ -98,15 +101,24 @@ class Puzzle implements IPuzzle, IGeneratePuzzle {
                     const distA = pcA.dist(acA);
                     const distB = pcB.dist(acB);
                     if (distA + distB < limit) {
-                        adjecentPiece.isConnected = true;
-                        piece.isConnected = true;
+                        const oppositeSide = (s+2)%4;
+                        adjecentPiece.isConnected.push(oppositeSide);
+                        piece.isConnected.push(s);
+                        
+                        // First matching side found
+                        if (piece.isSelected) {
+                            piece.rotation = adjecentPiece.rotation;
+                            const ucA = piece.getTrueCorners()[s];
+                            const delta = p5.Vector.sub(acA, ucA);
+                            piece.translation.add(delta);
+                            const index = floor(random(0, sounds.snaps.length));
+                            sounds.snaps[index].play();
+                        }
+                        
+                        // Remove selection and reset loop
+                        // so all sides are properly checked
                         piece.isSelected = false;
-                        piece.rotation = adjecentPiece.rotation;
-                        const ucA = piece.getTrueCorners()[s];
-                        const delta = p5.Vector.sub(acA, ucA);
-                        piece.translation.add(delta);
-                        const index = floor(random(0, sounds.snaps.length));
-                        sounds.snaps[index].play();
+                        s=0;
                     }
                 }
             }
@@ -141,12 +153,7 @@ class Puzzle implements IPuzzle, IGeneratePuzzle {
     }
 
     private drawPieces() {
-        // Create new array before sorting so it's not mutated
-        const sortedPieces = [...this.pieces].sort((a, b) =>
-            a.lastSelected - b.lastSelected
-        )
-        
-        for (const piece of sortedPieces) {
+        for (const piece of sortPieces(this.pieces)) {
             piece.draw();
         }
     }
