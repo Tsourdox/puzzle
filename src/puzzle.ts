@@ -1,5 +1,5 @@
 interface IPuzzle {
-    pieces: Piece[];
+    pieces: ReadonlyArray<Piece>;
     pieceCount: p5.Vector;
     pieceSize: p5.Vector;
 }

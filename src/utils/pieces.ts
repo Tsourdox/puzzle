@@ -1,5 +1,5 @@
 /** Sort based on last selected, will not mutate array */
-function sortPieces(pieces: Piece[], reversed = false): Piece[] {
+function sortPieces(pieces: ReadonlyArray<Piece>, reversed = false): Piece[] {
     return [...pieces].sort((a, b) =>
         (a.lastSelected - b.lastSelected) * (reversed ? -1 : 1));
 }
