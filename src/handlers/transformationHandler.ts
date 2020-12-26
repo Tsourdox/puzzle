@@ -4,13 +4,13 @@ interface ITransformHandler {
 }
 
 class TransformHandler extends InputHandler implements ITransformHandler {
-    private puzzle: IPuzzle & IGraph;
+    private puzzle: IPuzzle;
     private selection: ISelectionHandler;
     private prevSpaceIsDown: boolean;
     private prevKeyRIsDown: boolean;
     private prevKeyCIsDown: boolean;
 
-    constructor(puzzle: IPuzzle & IGraph, selection: ISelectionHandler) {
+    constructor(puzzle: IPuzzle, selection: ISelectionHandler) {
         super();
         this.puzzle = puzzle;
         this.selection = selection;
@@ -23,9 +23,9 @@ class TransformHandler extends InputHandler implements ITransformHandler {
         return this.puzzle.pieces.filter(p => p.isSelected);
     }
     
-    public update() {
+    public update(graphScale: number) {
         this.handlePieceRotation();
-        this.handlePieceTranslation();
+        this.handlePieceTranslation(graphScale);
         this.handlePieceExploding();
         this.setPreviousValues();
     }
@@ -54,7 +54,7 @@ class TransformHandler extends InputHandler implements ITransformHandler {
         pieces.forEach(p => p.translation.add(translation));
     }
 
-    private handlePieceTranslation() {
+    private handlePieceTranslation(graphScale: number) {
         // Keyboard
         const translation = (2 * this.puzzle.pieceSize.mag()) / frameRate();
         if (keyIsDown(LEFT_ARROW) || keyIsDown(KEY_A)) {
@@ -72,8 +72,8 @@ class TransformHandler extends InputHandler implements ITransformHandler {
         
         // Dragging with mouse
         if (mouseIsPressed && mouseButton === LEFT && !this.selection.isDragSelecting()) {
-            const movedX = (mouseX - this.prevMouseX) / this.puzzle.scale;
-            const movedY = (mouseY - this.prevMouseY) / this.puzzle.scale;
+            const movedX = (mouseX - this.prevMouseX) / graphScale;
+            const movedY = (mouseY - this.prevMouseY) / graphScale;
             this.translatePieces(movedX, movedY);
         }
     }

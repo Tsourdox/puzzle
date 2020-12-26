@@ -136,17 +136,16 @@ class SelectionHandler extends InputHandler implements ISelectionHandler {
     private isMouseOver(piece: Piece) {
         let corners = piece.getTrueCorners();
         
+        const { scale, translation } = this.puzzle;
+        const mouse = createVector(mouseX, mouseY).div(scale).sub(translation);
+        
         const locations = [];
         for (let i = 0; i < 4; i++) {
             const start = corners[i];
             const end = corners[(i + 1) % 4];
             
-            const point = createVector(
-                mouseX / puzzle.scale - puzzle.translation.x,
-                mouseY / puzzle.scale - puzzle.translation.y
-            );
             const line: Line = { start, end };
-            locations[i] = pointSideLocationOfLine(point, line);
+            locations[i] = pointSideLocationOfLine(mouse, line);
         }
 
         const locationSum = sum(...locations);

@@ -13,7 +13,7 @@ interface IGeneratePuzzle {
     generateNewPuzzle(image: p5.Image, x: number, y: number): void;
 }
 
-class Puzzle implements IPuzzle, IGeneratePuzzle {
+class Puzzle implements IPuzzle, IGraph, IGeneratePuzzle {
     public pieces!: Piece[];
     public pieceCount!: p5.Vector;
     public pieceSize!: p5.Vector;
@@ -67,7 +67,7 @@ class Puzzle implements IPuzzle, IGeneratePuzzle {
     public update() {
         this.graphHandler.update();
         this.selectionHandler.update();
-        this.transformHandler.update();
+        this.transformHandler.update(this.scale);
         this.pieceConnetor.update();
         this.fps.update();
 
