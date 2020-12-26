@@ -68,16 +68,13 @@ class SelectionHandler extends InputHandler implements ISelection {
             const mouseOverSelectedPiece = this.isMouseOverPiece(this.selectedPieces);
             
             for (const piece of sortPieces(this.puzzle.pieces, true)) {
-                const isMouseOver = this.isMouseOver(piece);
-                if (isMouseOver) {
+                if (this.isMouseOver(piece)) {
                     this.select(piece, true);
                     break;
                 }
-
                 if (mouseOverSelectedPiece || keyIsDown(SHIFT)) {
                     continue;
                 }
-
                 this.select(piece, false);
             }
         }
@@ -107,8 +104,25 @@ class SelectionHandler extends InputHandler implements ISelection {
         }
     }
 
-    private select(piece: Piece, value: boolean) {
+    /** Will select connected pieces recusivly */
+    public select(piece: Piece, value: boolean) {
+        if (piece.isSelected === value) return;
+        
         piece.isSelected = value;
+        const { pieces, pieceCount } = this.puzzle;
+        const { x } = pieceCount;
+        const i = pieces.indexOf(piece)
+        
+        for (const s of piece.isConnected) {
+            let adjecentPiece!: Piece;
+            if (s === Side.Top) adjecentPiece = pieces[i - x];
+            if (s === Side.Right) adjecentPiece = pieces[i + 1];
+            if (s === Side.Bottom) adjecentPiece = pieces[i + x];
+            if (s === Side.Left) adjecentPiece = pieces[i - 1];
+
+            this.select(adjecentPiece, value);
+        }
+
     }
 
     private isPointInsideDragSelection(point: p5.Vector): boolean {

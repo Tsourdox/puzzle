@@ -1,5 +1,6 @@
 interface IPuzzle {
     pieces: Piece[];
+    pieceCount: p5.Vector;
     pieceSize: p5.Vector;
 }
 
@@ -14,6 +15,7 @@ interface IGeneratePuzzle {
 
 class Puzzle implements IPuzzle, IGeneratePuzzle {
     public pieces!: Piece[];
+    public pieceCount!: p5.Vector;
     public pieceSize!: p5.Vector;
     public scale: number;
     public translation: p5.Vector;
@@ -24,7 +26,6 @@ class Puzzle implements IPuzzle, IGeneratePuzzle {
     private fps: FPS;
     
     private piecesFactory!: PiecesFactory;
-    private xPieceCount!: number;
 
     constructor() {
         this.scale = 1;
@@ -39,10 +40,10 @@ class Puzzle implements IPuzzle, IGeneratePuzzle {
     }
 
     public generateNewPuzzle(image: p5.Image, x: number, y: number) {
+        this.pieceCount = createVector(x, y);
         this.pieceSize = createVector(image.width / x, image.height / y);
         this.piecesFactory = new PiecesFactory(x, y, image, this.pieceSize);
         this.pieces = this.piecesFactory.createAllPieces();
-        this.xPieceCount = x;
         this.shufflePieces();
     }
 
@@ -63,7 +64,7 @@ class Puzzle implements IPuzzle, IGeneratePuzzle {
 
     private checkForConnectedPieces() {
         const limit = this.pieceSize.mag() / 10;
-        const x = this.xPieceCount;
+        const { x } = this.pieceCount;
         const length = this.pieces.length;
         
         for (let i = 0; i < this.pieces.length; i++) {
@@ -117,7 +118,7 @@ class Puzzle implements IPuzzle, IGeneratePuzzle {
                         
                         // Remove selection and reset loop
                         // so all sides are properly checked
-                        piece.isSelected = false;
+                        this.selectionHandler.select(piece, false);
                         s=0;
                     }
                 }
