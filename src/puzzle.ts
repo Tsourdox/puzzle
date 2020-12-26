@@ -87,10 +87,10 @@ class Puzzle implements IPuzzle, IGeneratePuzzle {
             if (side === Side.Bottom && length - i <= x) continue;
             if (side === Side.Left && (length - i) % x === 0) continue;
 
-            // Select adjecentPiece
+            // Find adjecentPiece
             const adjecentPiece = getAdjecentPiece(piece, side, this);
             
-            // Select matching edges
+            // Find matching edges
             const pieceCorners = piece.getTrueCorners();
             const adjecentCorners = adjecentPiece.getTrueCorners();
             const pcA = pieceCorners[side];
@@ -102,19 +102,16 @@ class Puzzle implements IPuzzle, IGeneratePuzzle {
             const distA = pcA.dist(acA);
             const distB = pcB.dist(acB);
             if (distA + distB < limit) {
-                this.connectPieces(piece, adjecentPiece, side)
-                // Remove selection and reset loop
-                // so all sides are properly checked
-                this.selectionHandler.select(piece, false);
-                side = -1;
+                this.connectPieces(piece, adjecentPiece, side, limit);
             }
         }
     }
 
-    private connectPieces(piece: Piece, adjecentPiece: Piece, side: Side) {
+    private connectPieces(piece: Piece, adjecentPiece: Piece, side: Side, limit: number) {
         // First matching side found
         if (piece.isSelected) {
-            // Play click sound
+            // Remove selection & play click sound
+            this.selectionHandler.select(piece, false);
             const index = floor(random(0, sounds.snaps.length));
             sounds.snaps[index].play();
             
@@ -126,6 +123,10 @@ class Puzzle implements IPuzzle, IGeneratePuzzle {
             const ucA = piece.getTrueCorners()[side];
             const deltaTranslation = p5.Vector.sub(acA, ucA);
             this.transformHandler.translatePiece(piece, deltaTranslation);
+
+            // Check all connected pieces
+            const connectedPieces = getConnectedPieces(piece, this);
+            connectedPieces.forEach(p => this.checkPieceConnection(p, limit));
         }
 
         // Add to connected side list
