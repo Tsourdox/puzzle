@@ -19,9 +19,7 @@ class Puzzle implements IPuzzle, IGraph, IGeneratePuzzle {
     public pieceSize!: p5.Vector;
     public scale: number;
     public translation: p5.Vector;
-    private graphHandler: GraphHandler;
-    private selectionHandler: SelectionHandler;
-    private transformHandler: TransformHandler;
+    private inputHandler: InputHandler;
     private pieceConnetor: PieceConnector;
     private menu: Menu;
     private fps: FPS;
@@ -31,10 +29,9 @@ class Puzzle implements IPuzzle, IGraph, IGeneratePuzzle {
     constructor() {
         this.scale = 1;
         this.translation = createVector(0, 0);
-        this.graphHandler = new GraphHandler(this);
-        this.selectionHandler = new SelectionHandler(this);
-        this.transformHandler = new TransformHandler(this, this.selectionHandler);
-        this.pieceConnetor = new PieceConnector(this, this.selectionHandler, this.transformHandler);
+        this.inputHandler = new InputHandler(this);
+        const { selectionHandler, transformHandler } = this.inputHandler;
+        this.pieceConnetor = new PieceConnector(this, selectionHandler, transformHandler);
         this.menu = new Menu(this);
         this.fps = new FPS();
         
@@ -65,9 +62,7 @@ class Puzzle implements IPuzzle, IGraph, IGeneratePuzzle {
     }
 
     public update() {
-        this.graphHandler.update();
-        this.selectionHandler.update();
-        this.transformHandler.update(this.scale);
+        this.inputHandler.update();
         this.pieceConnetor.update();
         this.fps.update();
 
@@ -86,7 +81,7 @@ class Puzzle implements IPuzzle, IGraph, IGeneratePuzzle {
         pop();
         
         this.menu.draw();
-        this.selectionHandler.draw();
+        this.inputHandler.draw();
         this.fps.draw();
     }
 

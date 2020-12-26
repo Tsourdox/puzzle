@@ -3,15 +3,14 @@ interface ITransformHandler {
     translatePiece(piece: Piece, translation: p5.Vector): void;
 }
 
-class TransformHandler extends InputHandler implements ITransformHandler {
-    private puzzle: IPuzzle;
+class TransformHandler implements ITransformHandler {
+    private puzzle: IPuzzle & IGraph;
     private selection: ISelectionHandler;
     private prevSpaceIsDown: boolean;
     private prevKeyRIsDown: boolean;
     private prevKeyCIsDown: boolean;
 
-    constructor(puzzle: IPuzzle, selection: ISelectionHandler) {
-        super();
+    constructor(puzzle: IPuzzle & IGraph, selection: ISelectionHandler) {
         this.puzzle = puzzle;
         this.selection = selection;
         this.prevSpaceIsDown = false;
@@ -23,15 +22,14 @@ class TransformHandler extends InputHandler implements ITransformHandler {
         return this.puzzle.pieces.filter(p => p.isSelected);
     }
     
-    public update(graphScale: number) {
-        this.handlePieceRotation();
-        this.handlePieceTranslation(graphScale);
+    public update(scrollSensitivity: number, prevMouse: p5.Vector) {
+        this.handlePieceRotation(scrollSensitivity);
+        this.handlePieceTranslation(prevMouse);
         this.handlePieceExploding();
         this.setPreviousValues();
     }
 
     protected setPreviousValues() {
-        super.setPreviousValues();
         this.prevSpaceIsDown = keyIsDown(SPACE);
         this.prevKeyRIsDown = keyIsDown(KEY_R);
         this.prevKeyCIsDown = keyIsDown(KEY_C);
@@ -54,7 +52,7 @@ class TransformHandler extends InputHandler implements ITransformHandler {
         pieces.forEach(p => p.translation.add(translation));
     }
 
-    private handlePieceTranslation(graphScale: number) {
+    private handlePieceTranslation(prevMouse: p5.Vector) {
         // Keyboard
         const translation = (2 * this.puzzle.pieceSize.mag()) / frameRate();
         if (keyIsDown(LEFT_ARROW) || keyIsDown(KEY_A)) {
@@ -72,13 +70,13 @@ class TransformHandler extends InputHandler implements ITransformHandler {
         
         // Dragging with mouse
         if (mouseIsPressed && mouseButton === LEFT && !this.selection.isDragSelecting()) {
-            const movedX = (mouseX - this.prevMouseX) / graphScale;
-            const movedY = (mouseY - this.prevMouseY) / graphScale;
+            const movedX = (mouseX - prevMouse.x) / this.puzzle.scale;
+            const movedY = (mouseY - prevMouse.y) / this.puzzle.scale;
             this.translatePieces(movedX, movedY);
         }
     }
 
-    private handlePieceRotation() {
+    private handlePieceRotation(scrollSensitivity: number) {
         // Keyboard rotation
         const rotation = 2 / frameRate();
         if (keyIsDown(COMMA) || keyIsDown(KEY_Q)) {
@@ -90,7 +88,7 @@ class TransformHandler extends InputHandler implements ITransformHandler {
 
         // Scroll wheel rotation
         if (keyIsDown(ALT)) {
-            const rotation = scrollDelta * 0.005 * this.scrollSensitivity;
+            const rotation = scrollDelta * 0.005 * scrollSensitivity;
             this.rotatePieces(rotation)
         }
     }

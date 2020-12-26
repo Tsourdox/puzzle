@@ -3,14 +3,13 @@ interface ISelectionHandler {
     select(piece: Piece, value: boolean): void;
 }
 
-class SelectionHandler extends InputHandler implements ISelectionHandler {
+class SelectionHandler implements ISelectionHandler {
     private puzzle: IPuzzle & IGraph;
     private prevMouseIsPressed: boolean;
     private dragSelectionColor: p5.Color;
     private dragSelectionOrigin?: p5.Vector;
 
     constructor(puzzle: IPuzzle & IGraph) {
-        super();
         this.puzzle = puzzle;
         this.prevMouseIsPressed = false;
         this.dragSelectionColor = color('rgba(100,100,100,0.3)')
@@ -30,7 +29,6 @@ class SelectionHandler extends InputHandler implements ISelectionHandler {
     }
 
     protected setPreviousValues() {
-        super.setPreviousValues();
         this.prevMouseIsPressed = mouseIsPressed;
     }
 
