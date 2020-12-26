@@ -65,19 +65,20 @@ class SelectionHandler extends InputHandler implements ISelection {
         
         // Select by clicking
         if (didPress && mouseButton === LEFT) {
-            const mouseOverPiece = this.isMouseOverPiece(this.selectedPieces);
+            const mouseOverSelectedPiece = this.isMouseOverPiece(this.selectedPieces);
             
-            for (const piece of this.puzzle.pieces) {
+            for (const piece of sortPieces(this.puzzle.pieces, true)) {
                 const isMouseOver = this.isMouseOver(piece);
-                if (keyIsDown(SHIFT)) {
-                    if (isMouseOver) {
-                        this.select(piece, true);
-                    }
-                } else if (mouseOverPiece) {
-                    this.select(piece, piece.isSelected || isMouseOver);
-                } else {
-                    this.select(piece, isMouseOver);
+                if (isMouseOver) {
+                    this.select(piece, true);
+                    break;
                 }
+
+                if (mouseOverSelectedPiece || keyIsDown(SHIFT)) {
+                    continue;
+                }
+
+                this.select(piece, false);
             }
         }
 
