@@ -1,8 +1,9 @@
-interface ISelection {
+interface ISelectionHandler {
     isDragSelecting: () => boolean;
+    select(piece: Piece, value: boolean): void;
 }
 
-class SelectionHandler extends InputHandler implements ISelection {
+class SelectionHandler extends InputHandler implements ISelectionHandler {
     private puzzle: IPuzzle & IGraph;
     private prevMouseIsPressed: boolean;
     private dragSelectionColor: p5.Color;

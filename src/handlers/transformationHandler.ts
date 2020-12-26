@@ -1,11 +1,16 @@
-class TransformHandler extends InputHandler {
+interface ITransformHandler {
+    rotatePiece(piece: Piece, angle: number): void;
+    translatePiece(piece: Piece, translation: p5.Vector): void;
+}
+
+class TransformHandler extends InputHandler implements ITransformHandler {
     private puzzle: IPuzzle & IGraph;
-    private selection: ISelection;
+    private selection: ISelectionHandler;
     private prevSpaceIsDown: boolean;
     private prevKeyRIsDown: boolean;
     private prevKeyCIsDown: boolean;
 
-    constructor(puzzle: IPuzzle & IGraph, selection: ISelection) {
+    constructor(puzzle: IPuzzle & IGraph, selection: ISelectionHandler) {
         super();
         this.puzzle = puzzle;
         this.selection = selection;
