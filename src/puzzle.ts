@@ -64,71 +64,74 @@ class Puzzle implements IPuzzle, IGeneratePuzzle {
 
     private checkForConnectedPieces() {
         const limit = this.pieceSize.mag() / 10;
-        const { x } = this.pieceCount;
-        const length = this.pieces.length;
-        
-        for (let i = 0; i < this.pieces.length; i++) {
-            const piece = this.pieces[i];
-            // Only check selected pieces
+        for (const piece of this.pieces) {
             if (piece.isSelected) {
-                // Check each side [top, right, bottom, left]
-                for (let s = 0; s < 4; s++) {
-                    // Dont check connected pieces
-                    if (piece.connectedSides.includes(s)) continue;
-
-                    // Dont check outside of puzzle
-                    if (s === Side.Top && i < x) continue;
-                    if (s === Side.Right && i % x === x - 1) continue;
-                    if (s === Side.Bottom && length - i <= x) continue;
-                    if (s === Side.Left && (length - i) % x === 0) continue;
-
-                    // Select adjecentPiece
-                    let adjecentPiece!: Piece;
-                    if (s === Side.Top) adjecentPiece = this.pieces[i - x];
-                    if (s === Side.Right) adjecentPiece = this.pieces[i + 1];
-                    if (s === Side.Bottom) adjecentPiece = this.pieces[i + x];
-                    if (s === Side.Left) adjecentPiece = this.pieces[i - 1];
-                    
-                    // Select matching edges
-                    const pieceCorners = piece.getTrueCorners();
-                    const adjecentCorners = adjecentPiece.getTrueCorners();
-                    const pcA = pieceCorners[s];
-                    const acA = adjecentCorners[(s+3)%4];
-                    const pcB = pieceCorners[(s+1)%4];
-                    const acB = adjecentCorners[(s+2)%4];
-
-                    // Check distance between matching edges
-                    const distA = pcA.dist(acA);
-                    const distB = pcB.dist(acB);
-                    if (distA + distB < limit) {
-                        // First matching side found
-                        if (piece.isSelected) {
-                            // Play click sound
-                            const index = floor(random(0, sounds.snaps.length));
-                            sounds.snaps[index].play();
-                            
-                            // Rotate and translate selected piece|s
-                            const deltaRotation = adjecentPiece.rotation - piece.rotation;
-                            this.transformHandler.rotatePiece(piece, deltaRotation);
-                            
-                            const ucA = piece.getTrueCorners()[s];
-                            const deltaTranslation = p5.Vector.sub(acA, ucA);
-                            this.transformHandler.translatePiece(piece, deltaTranslation);
-                        }
-
-                        // Add to connected side list
-                        const oppositeSide = (s+2)%4;
-                        adjecentPiece.connectedSides.push(oppositeSide);
-                        piece.connectedSides.push(s);
-                        
-                        // Remove selection and reset loop
-                        // so all sides are properly checked
-                        this.selectionHandler.select(piece, false);
-                        s = -1;
-                    }
-                }
+                this.checkPieceConnection(piece, limit);
             }
         }
+    }
+
+    private checkPieceConnection(piece: Piece, limit: number) {
+        const length = this.pieces.length;
+        const { x } = this.pieceCount;
+        
+        // Check each side [top, right, bottom, left]
+        for (let side = 0; side < 4; side++) {
+            // Dont check connected pieces
+            if (piece.connectedSides.includes(side)) continue;
+
+            // Dont check outside of puzzle
+            const i = this.pieces.indexOf(piece)
+            if (side === Side.Top && i < x) continue;
+            if (side === Side.Right && i % x === x - 1) continue;
+            if (side === Side.Bottom && length - i <= x) continue;
+            if (side === Side.Left && (length - i) % x === 0) continue;
+
+            // Select adjecentPiece
+            const adjecentPiece = getAdjecentPiece(piece, side, this);
+            
+            // Select matching edges
+            const pieceCorners = piece.getTrueCorners();
+            const adjecentCorners = adjecentPiece.getTrueCorners();
+            const pcA = pieceCorners[side];
+            const acA = adjecentCorners[(side+3)%4];
+            const pcB = pieceCorners[(side+1)%4];
+            const acB = adjecentCorners[(side+2)%4];
+
+            // Check distance between matching edges
+            const distA = pcA.dist(acA);
+            const distB = pcB.dist(acB);
+            if (distA + distB < limit) {
+                this.connectPieces(piece, adjecentPiece, side)
+                // Remove selection and reset loop
+                // so all sides are properly checked
+                this.selectionHandler.select(piece, false);
+                side = -1;
+            }
+        }
+    }
+
+    private connectPieces(piece: Piece, adjecentPiece: Piece, side: Side) {
+        // First matching side found
+        if (piece.isSelected) {
+            // Play click sound
+            const index = floor(random(0, sounds.snaps.length));
+            sounds.snaps[index].play();
+            
+            // Rotate and translate selected piece|s
+            const deltaRotation = adjecentPiece.rotation - piece.rotation;
+            this.transformHandler.rotatePiece(piece, deltaRotation);
+            
+            const acA = adjecentPiece.getTrueCorners()[(side+3)%4];
+            const ucA = piece.getTrueCorners()[side];
+            const deltaTranslation = p5.Vector.sub(acA, ucA);
+            this.transformHandler.translatePiece(piece, deltaTranslation);
+        }
+
+        // Add to connected side list
+        const oppositeSide = (side+2)%4;
+        adjecentPiece.connectedSides.push(oppositeSide);
+        piece.connectedSides.push(side);
     }
 
     public update() {

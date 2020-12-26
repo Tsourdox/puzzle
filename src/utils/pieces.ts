@@ -13,22 +13,25 @@ function getConnectedPieces(
     if (result.includes(piece)) return result;
     
     result.push(piece)
-    
+    for (const side of piece.connectedSides) {
+        const adjecentPiece = getAdjecentPiece(piece, side, puzzle)
+        getConnectedPieces(adjecentPiece, puzzle, result);
+    }
+    return result;
+}
+
+function getAdjecentPiece(piece: Piece, side: Side, puzzle: IPuzzle): Piece {
     const { pieces, pieceCount } = puzzle;
     const { x } = pieceCount;
     const i = pieces.indexOf(piece)
-    
-    for (const s of piece.connectedSides) {
-        let adjecentPiece!: Piece;
-        if (s === Side.Top) adjecentPiece = pieces[i - x];
-        if (s === Side.Right) adjecentPiece = pieces[i + 1];
-        if (s === Side.Bottom) adjecentPiece = pieces[i + x];
-        if (s === Side.Left) adjecentPiece = pieces[i - 1];
 
-        getConnectedPieces(adjecentPiece, puzzle, result);
-    }
+    let adjecentPiece!: Piece;
+    if (side === Side.Top) adjecentPiece = pieces[i - x];
+    if (side === Side.Right) adjecentPiece = pieces[i + 1];
+    if (side === Side.Bottom) adjecentPiece = pieces[i + x];
+    if (side === Side.Left) adjecentPiece = pieces[i - 1];
 
-    return result;
+    return adjecentPiece;
 }
 
 /** Rotate a piece around a center point by applying translation */
