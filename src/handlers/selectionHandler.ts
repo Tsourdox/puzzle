@@ -113,7 +113,7 @@ class SelectionHandler extends InputHandler implements ISelection {
         const { x } = pieceCount;
         const i = pieces.indexOf(piece)
         
-        for (const s of piece.isConnected) {
+        for (const s of piece.connectedSides) {
             let adjecentPiece!: Piece;
             if (s === Side.Top) adjecentPiece = pieces[i - x];
             if (s === Side.Right) adjecentPiece = pieces[i + 1];

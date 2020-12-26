@@ -24,7 +24,7 @@ class Piece {
     private _isSelected: boolean;
     private prevIsSelected: boolean;
     private _lastSelected: number;
-    public isConnected: Side[];
+    public connectedSides: Side[];
     private prevIsConnected: Side[];
 
     constructor(image: p5.Image, origin: p5.Vector, size: p5.Vector, sides: Sides, ) {
@@ -38,7 +38,7 @@ class Piece {
         this._isSelected = false;
         this.prevIsSelected = false;
         this._lastSelected = 0;
-        this.isConnected = [];
+        this.connectedSides = [];
         this.prevIsConnected = [];
         this.graphics = createGraphics(this.size.x, this.size.y);
         this.updateGraphics();
@@ -76,22 +76,22 @@ class Piece {
         this.graphics.strokeWeight(20);
         this.graphics.noFill();
         this.graphics.curveTightness(1);
-        if (!this.isConnected.includes(Side.Top)) {
+        if (!this.connectedSides.includes(Side.Top)) {
             this.graphics.beginShape();
             this.drawOneSide(this.sides.top, false);
             this.graphics.endShape();
         }
-        if (!this.isConnected.includes(Side.Right)) {
+        if (!this.connectedSides.includes(Side.Right)) {
             this.graphics.beginShape();
             this.drawOneSide(this.sides.right, true);
             this.graphics.endShape();
         }
-        if (!this.isConnected.includes(Side.Bottom)) {
+        if (!this.connectedSides.includes(Side.Bottom)) {
             this.graphics.beginShape();
             this.drawOneSide(this.sides.bottom, false);
             this.graphics.endShape();
         }
-        if (!this.isConnected.includes(Side.Left)) {
+        if (!this.connectedSides.includes(Side.Left)) {
             this.graphics.beginShape();
             this.drawOneSide(this.sides.left, true);
             this.graphics.endShape();
@@ -141,13 +141,13 @@ class Piece {
 
     public update() {
         const selectionChanged = this.prevIsSelected !== this.isSelected;
-        const connectionChanged = this.prevIsConnected.length !== this.isConnected.length;
+        const connectionChanged = this.prevIsConnected.length !== this.connectedSides.length;
         if (selectionChanged || connectionChanged) {
             this.updateGraphics();
         }
         
         this.prevIsSelected = this.isSelected;
-        this.prevIsConnected = [...this.isConnected];
+        this.prevIsConnected = [...this.connectedSides];
     }
 
     public draw() {

@@ -76,7 +76,7 @@ class Puzzle implements IPuzzle, IGeneratePuzzle {
                 // Check each side [top, right, bottom, left]
                 for (let s = 0; s < 4; s++) {
                     // Dont check connected pieces
-                    if (piece.isConnected.includes(s)) return;
+                    if (piece.connectedSides.includes(s)) return;
 
                     // Dont check outside of puzzle
                     if (s === Side.Top && i < x) continue;
@@ -103,8 +103,8 @@ class Puzzle implements IPuzzle, IGeneratePuzzle {
                     const distB = pcB.dist(acB);
                     if (distA + distB < limit) {
                         const oppositeSide = (s+2)%4;
-                        adjecentPiece.isConnected.push(oppositeSide);
-                        piece.isConnected.push(s);
+                        adjecentPiece.connectedSides.push(oppositeSide);
+                        piece.connectedSides.push(s);
                         
                         // First matching side found
                         if (piece.isSelected) {
