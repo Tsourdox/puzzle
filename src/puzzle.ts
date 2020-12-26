@@ -36,7 +36,7 @@ class Puzzle implements IPuzzle, IGeneratePuzzle {
         this.menu = new Menu(this);
         this.fps = new FPS();
         
-        this.generateNewPuzzle(images.background, 2, 2);
+        this.generateNewPuzzle(images.background, 3, 3);
     }
 
     public generateNewPuzzle(image: p5.Image, x: number, y: number) {
@@ -71,8 +71,6 @@ class Puzzle implements IPuzzle, IGeneratePuzzle {
             const piece = this.pieces[i];
             // Only check selected pieces
             if (piece.isSelected) {
-                const pieceCorners = piece.getTrueCorners();
-                
                 // Check each side [top, right, bottom, left]
                 for (let s = 0; s < 4; s++) {
                     // Dont check connected pieces
@@ -92,6 +90,7 @@ class Puzzle implements IPuzzle, IGeneratePuzzle {
                     if (s === Side.Left) adjecentPiece = this.pieces[i - 1];
                     
                     // Select matching edges
+                    const pieceCorners = piece.getTrueCorners();
                     const adjecentCorners = adjecentPiece.getTrueCorners();
                     const pcA = pieceCorners[s];
                     const acA = adjecentCorners[(s+3)%4];
@@ -120,7 +119,7 @@ class Puzzle implements IPuzzle, IGeneratePuzzle {
                         // Remove selection and reset loop
                         // so all sides are properly checked
                         this.selectionHandler.select(piece, false);
-                        s=0;
+                        s = -1;
                     }
                 }
             }
