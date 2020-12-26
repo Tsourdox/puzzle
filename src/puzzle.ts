@@ -76,7 +76,7 @@ class Puzzle implements IPuzzle, IGeneratePuzzle {
                 // Check each side [top, right, bottom, left]
                 for (let s = 0; s < 4; s++) {
                     // Dont check connected pieces
-                    if (piece.connectedSides.includes(s)) return;
+                    if (piece.connectedSides.includes(s)) continue;
 
                     // Dont check outside of puzzle
                     if (s === Side.Top && i < x) continue;
@@ -108,6 +108,7 @@ class Puzzle implements IPuzzle, IGeneratePuzzle {
                         
                         // First matching side found
                         if (piece.isSelected) {
+                            // todo: has to be done recursively
                             piece.rotation = adjecentPiece.rotation;
                             const ucA = piece.getTrueCorners()[s];
                             const delta = p5.Vector.sub(acA, ucA);
