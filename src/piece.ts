@@ -50,7 +50,7 @@ class Piece implements ISerializablePiece {
         if (this._isSelected !== value) {
             this._isSelected = value;
             if (value) {
-                this._lastSelected = frameCount;
+                this._lastSelected = new Date().getTime();
             }
         }
     }
@@ -185,7 +185,7 @@ class Piece implements ISerializablePiece {
         this.rotation = piece.rotation;
         this.connectedSides = piece.connectedSides;
         this.translation = toVector(piece.translation);
-        this.isSelected = piece.isSelected;
         this._lastSelected = piece.lastSelected
+        this._isSelected = piece.isSelected;
     }
 }
