@@ -1,3 +1,5 @@
+interface Point { x: number, y: number };
+
 interface Line {
     start: p5.Vector;
     end: p5.Vector;
@@ -39,3 +41,11 @@ function pointSideLocationOfLine(point: p5.Vector, line: Line): 1 | 0 | -1 {
         (point.x - start.x)
     ) as 1 | 0 | -1
 }
+
+function toPoint(vector: p5.Vector): Point {
+    return { x: vector.x, y: vector.y };
+} 
+
+function toVector(point: Point): p5.Vector {
+    return createVector(point.x, point.y);
+} 

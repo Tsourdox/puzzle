@@ -4,24 +4,17 @@ interface IPuzzle {
     pieceSize: p5.Vector;
 }
 
-interface IGraph {
-    scale: number;
-    translation: p5.Vector;
-}
-
 interface IGeneratePuzzle {
     generateNewPuzzle(image: p5.Image, x: number, y: number): void;
 }
 
-class Puzzle implements IPuzzle, IGraph, IGeneratePuzzle, ISerializablePuzzle {
+class Puzzle implements IPuzzle, IGeneratePuzzle, ISerializablePuzzle {
     public pieces: ReadonlyArray<Piece>;
     public pieceCount: p5.Vector;
     public pieceSize: p5.Vector;
     public isModified: boolean;
-    public scale: number;
-    public translation: p5.Vector;
-    private networkSerializer: NetworkSerializer;
     private inputHandler: InputHandler;
+    private networkSerializer: NetworkSerializer;
     private pieceConnetor: PieceConnector;
     private menu: Menu;
     private fps: FPS;
@@ -33,10 +26,8 @@ class Puzzle implements IPuzzle, IGraph, IGeneratePuzzle, ISerializablePuzzle {
         this.pieceCount = createVector(0, 0);
         this.pieceSize = createVector(0, 0);
         this.isModified = false;
-        this.scale = 1;
-        this.translation = createVector(0, 0);
-        this.networkSerializer = new NetworkSerializer(this);
         this.inputHandler = new InputHandler(this);
+        this.networkSerializer = new NetworkSerializer(this, this.inputHandler.graphHandler);
         const { selectionHandler, transformHandler } = this.inputHandler;
         this.pieceConnetor = new PieceConnector(this, selectionHandler, transformHandler);
         this.menu = new Menu(this);
@@ -71,10 +62,11 @@ class Puzzle implements IPuzzle, IGraph, IGeneratePuzzle, ISerializablePuzzle {
     }
 
     public draw() {
+        const { graphHandler } = this.inputHandler;
         push();
         background(50);
-        scale(this.scale);
-        translate(this.translation);
+        scale(graphHandler.scale);
+        translate(graphHandler.translation);
         this.piecesFactory?.draw();
         this.drawPieces();
         pop();
@@ -91,9 +83,8 @@ class Puzzle implements IPuzzle, IGraph, IGeneratePuzzle, ISerializablePuzzle {
     }
 
     public serialize(): PuzzleData {
-        const { x, y } = this.pieceCount;
         return {
-            pieceCount: { x, y },
+            pieceCount: toPoint(this.pieceCount),
             seed: this.piecesFactory?.seed || 0,
             image: (this.image as any)?.canvas.toDataURL() || 'no-image'
         };

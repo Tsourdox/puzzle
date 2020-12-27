@@ -4,14 +4,16 @@ interface ITransformHandler {
 }
 
 class TransformHandler implements ITransformHandler {
-    private puzzle: IPuzzle & IGraph;
+    private puzzle: IPuzzle;
+    private graph: IGraph;
     private selection: ISelectionHandler;
     private prevSpaceIsDown: boolean;
     private prevKeyRIsDown: boolean;
     private prevKeyCIsDown: boolean;
 
-    constructor(puzzle: IPuzzle & IGraph, selection: ISelectionHandler) {
+    constructor(puzzle: IPuzzle, graph: IGraph, selection: ISelectionHandler) {
         this.puzzle = puzzle;
+        this.graph = graph;
         this.selection = selection;
         this.prevSpaceIsDown = false;
         this.prevKeyRIsDown = false;
@@ -70,8 +72,8 @@ class TransformHandler implements ITransformHandler {
         
         // Dragging with mouse
         if (mouseIsPressed && mouseButton === LEFT && !this.selection.isDragSelecting()) {
-            const movedX = (mouseX - prevMouse.x) / this.puzzle.scale;
-            const movedY = (mouseY - prevMouse.y) / this.puzzle.scale;
+            const movedX = (mouseX - prevMouse.x) / this.graph.scale;
+            const movedY = (mouseY - prevMouse.y) / this.graph.scale;
             this.translatePieces(movedX, movedY);
         }
     }

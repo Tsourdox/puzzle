@@ -1,5 +1,3 @@
-interface Point { x: number, y: number };
-
 interface ISerializable<T> {
     isModified: boolean;
     serialize: () => T;
@@ -11,26 +9,37 @@ interface ISerializablePuzzle extends ISerializable<PuzzleData> {
 }
 
 interface ISerializablePiece extends ISerializable<PieceData> {}
+interface ISerializableGraph extends ISerializable<GraphData> {}
 
-type PuzzleData = {
+interface PuzzleData {
     image: string;
     pieceCount: Point;
     seed: number;
-};
+}
 
-type PieceData = {
+interface PieceData {
     rotation: number;
     translation: Point;
     connectedSides: number[];
-};
+    lastSelected: number;
+    isSelected: boolean;
+}
+
+interface GraphData {
+    scale: number;
+    translation: Point;
+}
 
 class NetworkSerializer {
+    private readonly TIMEOUT = 1000;
     private puzzle: ISerializablePuzzle
+    private graph: ISerializableGraph
     private sendTimeout: number;
 
-    constructor(puzzle: ISerializablePuzzle) {
+    constructor(puzzle: ISerializablePuzzle, graph: ISerializableGraph) {
         this.puzzle = puzzle;
-        this.sendTimeout = 10000;
+        this.graph = graph;
+        this.sendTimeout = this.TIMEOUT;
     }
 
     public update() {
@@ -38,10 +47,13 @@ class NetworkSerializer {
             this.sendInitialData();
             this.puzzle.isModified = false;
         }
-        
+
         if (this.sendTimeout <= 0) {
-            this.sendTimeout = 5000;
-            this.sendIncrementalData();
+            this.sendTimeout = this.TIMEOUT;
+            if (this.graph.isModified) {
+                this.sendGraphData();
+            }
+            this.sendIncrementalPuzzleData();
         }
 
         this.sendTimeout -= deltaTime;
@@ -52,10 +64,17 @@ class NetworkSerializer {
         const stringifiedData = JSON.stringify(puzzleData);
         localStorage.clear();
         localStorage.setItem('puzzle', stringifiedData);
+        this.sendGraphData();
         // todo: send to server
     }
 
-    private sendIncrementalData() {
+    private sendGraphData() {
+        const graphData = this.graph.serialize();
+        const stringifiedData = JSON.stringify(graphData);
+        localStorage.setItem('graph', stringifiedData);
+    }
+
+    private sendIncrementalPuzzleData() {
         const { pieces } = this.puzzle;
         for (let i = 0; i < pieces.length; i++) {
             if (pieces[i].isModified) {
@@ -67,12 +86,15 @@ class NetworkSerializer {
     }
 
     public loadPuzzle() {
-        const stringifiedData = localStorage.getItem('puzzle');
-        if (!stringifiedData) return;
+        const stringifiedPuzzleData = localStorage.getItem('puzzle');
+        const stringifiedGraphData = localStorage.getItem('graph');
+        if (!stringifiedPuzzleData || !stringifiedGraphData) return;
 
-        const data: PuzzleData = JSON.parse(stringifiedData);
+        const puzzleData: PuzzleData = JSON.parse(stringifiedPuzzleData);
+        const graphData: GraphData = JSON.parse(stringifiedGraphData);
         
-        this.puzzle.deserialize(data, () => {
+        this.graph.deserialize(graphData);
+        this.puzzle.deserialize(puzzleData, () => {
             for (let i = 0; i < this.puzzle.pieces.length; i++) {
                 const stringifiedData = localStorage.getItem(`piece-${i}`);
                 if (!stringifiedData) continue;

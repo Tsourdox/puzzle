@@ -4,13 +4,15 @@ interface ISelectionHandler {
 }
 
 class SelectionHandler implements ISelectionHandler {
-    private puzzle: IPuzzle & IGraph;
+    private puzzle: IPuzzle;
+    private graph: IGraph;
     private prevMouseIsPressed: boolean;
     private dragSelectionColor: p5.Color;
     private dragSelectionOrigin?: p5.Vector;
 
-    constructor(puzzle: IPuzzle & IGraph) {
+    constructor(puzzle: IPuzzle, graph: IGraph) {
         this.puzzle = puzzle;
+        this.graph = graph;
         this.prevMouseIsPressed = false;
         this.dragSelectionColor = color('rgba(100,100,100,0.3)')
     }
@@ -112,7 +114,7 @@ class SelectionHandler implements ISelectionHandler {
     private isPointInsideDragSelection(point: p5.Vector): boolean {
         if (!this.dragSelectionOrigin) return false;
 
-        const { scale, translation } = this.puzzle;
+        const { scale, translation } = this.graph;
         const { x, y } = p5.Vector.div(this.dragSelectionOrigin, scale).sub(translation);
         const mouse = createVector(mouseX, mouseY).div(scale).sub(translation); 
         
@@ -134,7 +136,7 @@ class SelectionHandler implements ISelectionHandler {
     private isMouseOver(piece: Piece) {
         let corners = piece.getTrueCorners();
         
-        const { scale, translation } = this.puzzle;
+        const { scale, translation } = this.graph;
         const mouse = createVector(mouseX, mouseY).div(scale).sub(translation);
         
         const locations = [];

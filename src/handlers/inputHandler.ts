@@ -1,16 +1,16 @@
 // todo: probably not a good idea with an abstract class..
 class InputHandler {
+    public graphHandler: GraphHandler;
     public selectionHandler: SelectionHandler;
     public transformHandler: TransformHandler;
-    private graphHandler: GraphHandler;
     private scrollSensitivity: number;
     private prevMouse: p5.Vector;
 
 
-    constructor(puzzle: IPuzzle & IGraph) {
-        this.selectionHandler = new SelectionHandler(puzzle);
-        this.transformHandler = new TransformHandler(puzzle, this.selectionHandler);
-        this.graphHandler = new GraphHandler(puzzle);
+    constructor(puzzle: IPuzzle) {
+        this.graphHandler = new GraphHandler();
+        this.selectionHandler = new SelectionHandler(puzzle, this.graphHandler);
+        this.transformHandler = new TransformHandler(puzzle, this.graphHandler, this.selectionHandler);
         this.scrollSensitivity = 1;
         this.prevMouse = createVector(mouseX, mouseY);
     }

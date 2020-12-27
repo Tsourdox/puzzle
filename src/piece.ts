@@ -172,18 +172,20 @@ class Piece implements ISerializablePiece {
     }
 
     public serialize(): PieceData {
-        const { rotation, translation, connectedSides } = this;
         return {
-            rotation,
-            connectedSides,
-            translation: { x: translation.x, y: translation.y },
+            rotation: this.rotation,
+            translation: toPoint(this.translation),
+            connectedSides: this.connectedSides,
+            lastSelected: this.lastSelected,
+            isSelected: this.isSelected
         };
     }
 
     public deserialize(piece: PieceData) {
         this.rotation = piece.rotation;
         this.connectedSides = piece.connectedSides;
-        const { x, y } = piece.translation;
-        this.translation = createVector(x, y);
+        this.translation = toVector(piece.translation);
+        this.isSelected = piece.isSelected;
+        this._lastSelected = piece.lastSelected
     }
 }
