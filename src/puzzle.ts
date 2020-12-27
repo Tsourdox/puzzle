@@ -13,55 +13,54 @@ interface IGeneratePuzzle {
     generateNewPuzzle(image: p5.Image, x: number, y: number): void;
 }
 
-class Puzzle implements IPuzzle, IGraph, IGeneratePuzzle {
-    public pieces!: Piece[];
-    public pieceCount!: p5.Vector;
-    public pieceSize!: p5.Vector;
+class Puzzle implements IPuzzle, IGraph, IGeneratePuzzle, ISerializablePuzzle {
+    public pieces: ReadonlyArray<Piece>;
+    public pieceCount: p5.Vector;
+    public pieceSize: p5.Vector;
+    public isModified: boolean;
     public scale: number;
     public translation: p5.Vector;
+    private networkSerializer: NetworkSerializer;
     private inputHandler: InputHandler;
     private pieceConnetor: PieceConnector;
     private menu: Menu;
     private fps: FPS;
-    
-    private piecesFactory!: PiecesFactory;
+    private image?: p5.Image;
+    private piecesFactory?: PiecesFactory;
 
     constructor() {
+        this.pieces = [];
+        this.pieceCount = createVector(0, 0);
+        this.pieceSize = createVector(0, 0);
+        this.isModified = false;
         this.scale = 1;
         this.translation = createVector(0, 0);
+        this.networkSerializer = new NetworkSerializer(this);
         this.inputHandler = new InputHandler(this);
         const { selectionHandler, transformHandler } = this.inputHandler;
         this.pieceConnetor = new PieceConnector(this, selectionHandler, transformHandler);
         this.menu = new Menu(this);
         this.fps = new FPS();
         
-        this.generateNewPuzzle(images.background, 4, 4);
+        // this.generateNewPuzzle(images.scull, 2, 2);
+        this.loadPuzzle();
+    }
+
+    private loadPuzzle() {
+        this.networkSerializer.loadPuzzle();
     }
 
     public generateNewPuzzle(image: p5.Image, x: number, y: number) {
+        this.isModified = true;
+        this.image = image;
         this.pieceCount = createVector(x, y);
         this.pieceSize = createVector(image.width / x, image.height / y);
-        this.piecesFactory = new PiecesFactory(x, y, image, this.pieceSize);
+        this.piecesFactory = new PiecesFactory(x, y, image);
         this.pieces = this.piecesFactory.createAllPieces();
-        this.shufflePieces();
-    }
-
-    private shufflePieces() {
-        const locations = this.pieces.map(p => p.getOrigin());
-        
-        for (const piece of this.pieces) {
-            // Translate
-            const randomIndex = random(0, locations.length);
-            const location = locations.splice(randomIndex, 1)[0];
-            const delta = p5.Vector.sub(location, piece.getOrigin())
-            piece.translation = delta;
-
-            // Rotate
-            piece.rotation = random(0, PI * 2);
-        }
     }
 
     public update() {
+        this.networkSerializer.update();
         this.inputHandler.update();
         this.pieceConnetor.update();
         this.fps.update();
@@ -76,7 +75,7 @@ class Puzzle implements IPuzzle, IGraph, IGeneratePuzzle {
         background(50);
         scale(this.scale);
         translate(this.translation);
-        this.piecesFactory.draw();
+        this.piecesFactory?.draw();
         this.drawPieces();
         pop();
         
@@ -89,5 +88,26 @@ class Puzzle implements IPuzzle, IGraph, IGeneratePuzzle {
         for (const piece of sortPieces(this.pieces)) {
             piece.draw();
         }
+    }
+
+    public serialize(): PuzzleData {
+        const { x, y } = this.pieceCount;
+        return {
+            pieceCount: { x, y },
+            seed: this.piecesFactory?.seed || 0,
+            image: (this.image as any)?.canvas.toDataURL() || 'no-image'
+        };
+    }
+
+    public deserialize(puzzle: PuzzleData, done?: Function) {
+        loadImage(puzzle.image, (image) => {
+            const { x, y } = puzzle.pieceCount;
+            this.image = image;
+            this.pieceCount = createVector(x, y);
+            this.pieceSize = createVector(image.width / x, image.height / y);
+            this.piecesFactory = new PiecesFactory(x, y, image, puzzle.seed);
+            this.pieces = this.piecesFactory.createAllPieces();
+            done!();
+        });
     }
 }

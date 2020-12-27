@@ -12,7 +12,8 @@ enum Side {
     Left,
 }
 
-class Piece {
+class Piece implements ISerializablePiece {
+    public isModified: boolean;
     private graphics: p5.Graphics;
     private image: p5.Image;
     private origin: p5.Vector;
@@ -27,7 +28,8 @@ class Piece {
     public connectedSides: Side[];
     private prevIsConnected: Side[];
 
-    constructor(image: p5.Image, origin: p5.Vector, size: p5.Vector, sides: Sides, ) {
+    constructor(image: p5.Image, origin: p5.Vector, size: p5.Vector, sides: Sides) {
+        this.isModified = true; // always true for now!
         this.image = image;
         this.origin = origin;
         this.size = size;
@@ -167,5 +169,21 @@ class Piece {
 
     private applyTranslation() {
         translate(this.translation.x, this.translation.y)
+    }
+
+    public serialize(): PieceData {
+        const { rotation, translation, connectedSides } = this;
+        return {
+            rotation,
+            connectedSides,
+            translation: { x: translation.x, y: translation.y },
+        };
+    }
+
+    public deserialize(piece: PieceData) {
+        this.rotation = piece.rotation;
+        this.connectedSides = piece.connectedSides;
+        const { x, y } = piece.translation;
+        this.translation = createVector(x, y);
     }
 }

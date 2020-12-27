@@ -3,16 +3,18 @@ class PiecesFactory {
     private cellSize: p5.Vector;
     private grid: p5.Vector[][];
     private image: p5.Image;
+    public seed: number;
 
-    constructor(x: number, y: number, image: p5.Image, cellSize: p5.Vector) {
+    constructor(x: number, y: number, image: p5.Image, seed?: number) {
         this.puzzleSize = createVector(x, y);
-        this.cellSize = cellSize;
+        this.cellSize = createVector(image.width / x, image.height / y);
         this.grid = [];
         this.image = image;
+        this.seed = seed || floor(random(0, 100));
+        randomSeed(this.seed)
 
         this.createGrid();
         // this.offsetPoints();
-        this.createAllPieces();
     }
 
     public createAllPieces(): Piece[] {
@@ -46,8 +48,24 @@ class PiecesFactory {
                 pieces.push(piece)
             }
         }
-
+        
+        this.shufflePieces(pieces);
         return pieces;
+    }
+
+    private shufflePieces(pieces: Piece[]) {
+        const locations = pieces.map(p => p.getOrigin());
+        
+        for (const piece of pieces) {
+            // Translate
+            const randomIndex = random(0, locations.length);
+            const location = locations.splice(randomIndex, 1)[0];
+            const delta = p5.Vector.sub(location, piece.getOrigin())
+            piece.translation = delta;
+
+            // Rotate
+            piece.rotation = random(0, PI * 2);
+        }
     }
 
     private createGrid() {

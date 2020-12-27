@@ -7,7 +7,8 @@ interface ISound {
     snaps: p5.SoundFile[];
 }
 interface IImages {
-    background: p5.Image;
+    face: p5.Image;
+    scull: p5.Image;
 }
 interface IFonts {
     icons: p5.Font;
@@ -40,7 +41,8 @@ function preload() {
         ]
     }
     images = {
-        background: loadImage('../assets/images/photo.png')
+        face: loadImage('../assets/images/face.png'),
+        scull: loadImage('../assets/images/scull.png')
     }
     fonts = {
         icons: loadFont('../assets/fonts/font-awesome.otf')
