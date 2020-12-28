@@ -33,8 +33,8 @@ class Puzzle implements IPuzzle, IGeneratePuzzle, ISerializablePuzzle {
         this.menu = new Menu(this);
         this.fps = new FPS();
         
-        // this.generateNewPuzzle(images.scull, 2, 2);
-        this.loadPuzzle();
+        this.generateNewPuzzle(images.face, 2, 2);
+        // this.loadPuzzle();
     }
 
     private loadPuzzle() {

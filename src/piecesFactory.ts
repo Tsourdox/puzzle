@@ -37,14 +37,21 @@ class PiecesFactory {
                     left: [bottom, origin],
                 };
 
-                const image = this.image.get(
-                    origin.x,
-                    origin.y,
-                    this.cellSize.x, 
-                    this.cellSize.y
-                );
-                
-                const piece = new Piece(image, origin, this.cellSize, sides);
+                const baseOffset = this.cellSize.mag() / 20;
+                const offsets: Offsets = {
+                    left: x === 0 ? 0 : baseOffset,
+                    top: y === 0 ? 0 : baseOffset,
+                    right: x === this.puzzleSize.x - 1 ? 0 : baseOffset,
+                    bottom: y === this.puzzleSize.y - 1 ? 0 : baseOffset,
+                }
+
+                const pieceX = origin.x - offsets.left;
+                const pieceY = origin.y - offsets.top
+                let pieceW = this.cellSize.x + offsets.left + offsets.right;
+                let pieceH = this.cellSize.y + offsets.top + offsets.bottom;
+
+                const image = this.image.get(pieceX, pieceY, pieceW, pieceH);
+                const piece = new Piece(image, origin, this.cellSize, sides, offsets);
                 pieces.push(piece)
             }
         }

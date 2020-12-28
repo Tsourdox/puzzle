@@ -5,6 +5,13 @@ interface Sides {
     left: p5.Vector[];
 }
 
+interface Offsets {
+    left: number;
+    top: number;
+    right: number;
+    bottom: number;
+}
+
 enum Side {
     Top,
     Right,
@@ -14,35 +21,42 @@ enum Side {
 
 class Piece implements ISerializablePiece {
     public isModified: boolean;
+    public rotation: number;
+    public translation: p5.Vector;
+    public connectedSides: Side[];
     private graphics: p5.Graphics;
+    private mask: p5.Graphics;
     private image: p5.Image;
     private origin: p5.Vector;
     private size: p5.Vector;
     private sides: Sides;
     private center: p5.Vector;
-    public rotation: number;
-    public translation: p5.Vector;
+    private offsets: Offsets;
     private _isSelected: boolean;
     private prevIsSelected: boolean;
     private _lastSelected: number;
-    public connectedSides: Side[];
     private prevIsConnected: Side[];
 
-    constructor(image: p5.Image, origin: p5.Vector, size: p5.Vector, sides: Sides) {
+    constructor(image: p5.Image, origin: p5.Vector, size: p5.Vector, sides: Sides, offsets: Offsets) {
         this.isModified = true; // always true for now!
+        this.rotation = 0;
+        this.translation = createVector(0, 0);
         this.image = image;
         this.origin = origin;
         this.size = size;
         this.sides = sides;
+        this.offsets = offsets;
         this.center = getAverageCenter(this.getCorners());
-        this.rotation = 0;
-        this.translation = createVector(0, 0);
         this._isSelected = false;
         this.prevIsSelected = false;
         this._lastSelected = 0;
         this.connectedSides = [];
         this.prevIsConnected = [];
-        this.graphics = createGraphics(this.size.x, this.size.y);
+        this.graphics = createGraphics(
+            this.size.x + offsets.left + offsets.right,
+            this.size.y + offsets.top + offsets.bottom
+        );
+        this.mask = createGraphics(this.graphics.width, this.graphics.height);
         this.updateGraphics();
     }
 
@@ -68,39 +82,56 @@ class Piece implements ISerializablePiece {
     }
     
     private updateGraphics() {
+        const { top, right, bottom, left } = this.sides;
         this.graphics.clear();
-        this.graphics.image(this.image, 0, 0);
-        if (!this.isSelected) return;
-
-        // todo: create mask
         
-        this.graphics.stroke('red');
-        this.graphics.strokeWeight(this.size.mag() / 40);
-        this.graphics.noFill();
-        this.graphics.curveTightness(1);
-        if (!this.connectedSides.includes(Side.Top)) {
-            this.graphics.beginShape();
-            this.drawOneSide(this.sides.top, false);
-            this.graphics.endShape();
-        }
-        if (!this.connectedSides.includes(Side.Right)) {
-            this.graphics.beginShape();
-            this.drawOneSide(this.sides.right, true);
-            this.graphics.endShape();
-        }
-        if (!this.connectedSides.includes(Side.Bottom)) {
-            this.graphics.beginShape();
-            this.drawOneSide(this.sides.bottom, false);
-            this.graphics.endShape();
-        }
-        if (!this.connectedSides.includes(Side.Left)) {
-            this.graphics.beginShape();
-            this.drawOneSide(this.sides.left, true);
-            this.graphics.endShape();
+        // Create clipping mask
+        this.mask.translate(this.offsets.left, this.offsets.top)
+        this.mask.fill(0);
+        this.mask.curveTightness(1);
+        this.mask.beginShape();
+        this.drawOneSide(this.mask, top, false);
+        this.drawOneSide(this.mask, right, true);
+        this.drawOneSide(this.mask, bottom, false);
+        this.drawOneSide(this.mask, left, true);
+        this.mask.endShape(CLOSE);
+
+        this.image.mask(this.mask as any);
+        this.graphics.image(this.image, 0, 0);
+
+        // Create selection outline
+        if (this.isSelected) {
+            this.graphics.push();
+            this.graphics.translate(this.offsets.left, this.offsets.top)
+            this.graphics.stroke('red');
+            this.graphics.strokeWeight(this.size.mag() / 40);
+            this.graphics.noFill();
+            this.graphics.curveTightness(1);
+            if (!this.connectedSides.includes(Side.Top)) {
+                this.graphics.beginShape();
+                this.drawOneSide(this.graphics, top, false);
+                this.graphics.endShape();
+            }
+            if (!this.connectedSides.includes(Side.Right)) {
+                this.graphics.beginShape();
+                this.drawOneSide(this.graphics, right, true);
+                this.graphics.endShape();
+            }
+            if (!this.connectedSides.includes(Side.Bottom)) {
+                this.graphics.beginShape();
+                this.drawOneSide(this.graphics, bottom, false);
+                this.graphics.endShape();
+            }
+            if (!this.connectedSides.includes(Side.Left)) {
+                this.graphics.beginShape();
+                this.drawOneSide(this.graphics, left, true);
+                this.graphics.endShape();
+            }
+            this.graphics.pop();
         }
     }
 
-    private drawOneSide(side: p5.Vector[], isVertical: boolean) {
+    private drawOneSide(graphics: p5.Graphics, side: p5.Vector[], isVertical: boolean) {
         const firstPoint = p5.Vector.sub(side[0], this.origin);
         const lastPoint = p5.Vector.sub(side[side.length -1], this.origin);
         if (isVertical) {
@@ -111,13 +142,13 @@ class Piece implements ISerializablePiece {
             lastPoint.sub(0, 0.2);
         }
 
-        this.graphics.curveVertex(firstPoint.x, firstPoint.y);
+        graphics.curveVertex(firstPoint.x, firstPoint.y);
         for (const point of side) {
             const p = p5.Vector.sub(point, this.origin)
             isVertical ? p.sub(0.2, 0) : p.sub(0, 0.2);
-            this.graphics.curveVertex(p.x, p.y);
+            graphics.curveVertex(p.x, p.y);
         }
-        this.graphics.curveVertex(lastPoint.x, lastPoint.y);
+        graphics.curveVertex(lastPoint.x, lastPoint.y);
     }
 
     public getTrueCenter(): p5.Vector {
@@ -156,8 +187,9 @@ class Piece implements ISerializablePiece {
         push();
         this.applyTranslation();
         this.applyRotation();
-        const { graphics, origin, size } = this;
-        image(graphics, origin.x, origin.y, size.x, size.y);
+        const { graphics, origin } = this;
+        const { top, left } = this.offsets;
+        image(graphics, origin.x - left, origin.y - top);
         pop();
     }
 
