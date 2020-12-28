@@ -86,6 +86,7 @@ class Piece implements ISerializablePiece {
         this.graphics.clear();
         
         // Create clipping mask
+        this.mask.push();
         this.mask.translate(this.offsets.left, this.offsets.top)
         this.mask.fill(0);
         this.mask.curveTightness(1);
@@ -95,6 +96,7 @@ class Piece implements ISerializablePiece {
         this.drawOneSide(this.mask, bottom, false);
         this.drawOneSide(this.mask, left, true);
         this.mask.endShape(CLOSE);
+        this.mask.pop();
 
         this.image.mask(this.mask as any);
         this.graphics.image(this.image, 0, 0);
