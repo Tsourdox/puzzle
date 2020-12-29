@@ -5,13 +5,6 @@ interface Sides {
     left: p5.Vector[];
 }
 
-interface Offsets {
-    left: number;
-    top: number;
-    right: number;
-    bottom: number;
-}
-
 enum Side {
     Top,
     Right,
@@ -31,13 +24,13 @@ class Piece implements ISerializablePiece {
     private size: p5.Vector;
     private sides: Sides;
     private center: p5.Vector;
-    private offsets: Offsets;
+    private offset: number;
     private _isSelected: boolean;
     private prevIsSelected: boolean;
     private _lastSelected: number;
     private prevIsConnected: Side[];
 
-    constructor(image: p5.Image, origin: p5.Vector, size: p5.Vector, sides: Sides, offsets: Offsets) {
+    constructor(image: p5.Image, origin: p5.Vector, size: p5.Vector, sides: Sides, offset: number) {
         this.isModified = true; // always true for now!
         this.rotation = 0;
         this.translation = createVector(0, 0);
@@ -45,7 +38,7 @@ class Piece implements ISerializablePiece {
         this.origin = origin;
         this.size = size;
         this.sides = sides;
-        this.offsets = offsets;
+        this.offset = offset;
         this.center = getAverageCenter(this.getCorners());
         this._isSelected = false;
         this.prevIsSelected = false;
@@ -53,8 +46,8 @@ class Piece implements ISerializablePiece {
         this.connectedSides = [];
         this.prevIsConnected = [];
         this.graphics = createGraphics(
-            this.size.x + offsets.left + offsets.right,
-            this.size.y + offsets.top + offsets.bottom
+            this.size.x + offset * 2,
+            this.size.y + offset * 2
         );
         this.mask = createGraphics(this.graphics.width, this.graphics.height);
         this.updateGraphics();
@@ -82,72 +75,71 @@ class Piece implements ISerializablePiece {
     }
     
     private updateGraphics() {
-        const { top, right, bottom, left } = this.sides;
+        this.updateClippingMask();
+
+        this.image.mask(this.mask as unknown as p5.Image);
         this.graphics.clear();
-        
-        // Create clipping mask
-        this.mask.push();
-        this.mask.translate(this.offsets.left, this.offsets.top)
-        this.mask.fill(0);
-        this.mask.curveTightness(1);
-        this.mask.beginShape();
-        this.drawOneSide(this.mask, top, false);
-        this.drawOneSide(this.mask, right, true);
-        this.drawOneSide(this.mask, bottom, false);
-        this.drawOneSide(this.mask, left, true);
-        this.mask.endShape(CLOSE);
-        this.mask.pop();
-
-        this.image.mask(this.mask as any);
         this.graphics.image(this.image, 0, 0);
-
-        // Create selection outline
+        
         if (this.isSelected) {
-            this.graphics.push();
-            this.graphics.translate(this.offsets.left, this.offsets.top)
-            this.graphics.stroke('red');
-            this.graphics.strokeWeight(this.size.mag() / 40);
-            this.graphics.noFill();
-            this.graphics.curveTightness(1);
-            if (!this.connectedSides.includes(Side.Top)) {
-                this.graphics.beginShape();
-                this.drawOneSide(this.graphics, top, false);
-                this.graphics.endShape();
-            }
-            if (!this.connectedSides.includes(Side.Right)) {
-                this.graphics.beginShape();
-                this.drawOneSide(this.graphics, right, true);
-                this.graphics.endShape();
-            }
-            if (!this.connectedSides.includes(Side.Bottom)) {
-                this.graphics.beginShape();
-                this.drawOneSide(this.graphics, bottom, false);
-                this.graphics.endShape();
-            }
-            if (!this.connectedSides.includes(Side.Left)) {
-                this.graphics.beginShape();
-                this.drawOneSide(this.graphics, left, true);
-                this.graphics.endShape();
-            }
-            this.graphics.pop();
+            this.updateSelectionOutline();
         }
     }
 
-    private drawOneSide(graphics: p5.Graphics, side: p5.Vector[], isVertical: boolean) {
+    private updateClippingMask() {
+        const { top, right, bottom, left } = this.sides;
+        this.mask.push();
+        this.mask.clear();
+        this.mask.translate(this.offset, this.offset)
+        this.mask.fill(0);
+        this.mask.curveTightness(1);
+        this.mask.beginShape();
+        this.drawOneSide(this.mask, top);
+        this.drawOneSide(this.mask, right);
+        this.drawOneSide(this.mask, bottom);
+        this.drawOneSide(this.mask, left);
+        this.mask.endShape(CLOSE);
+        this.mask.pop();
+    }
+
+    private updateSelectionOutline() {
+        const { top, right, bottom, left } = this.sides;
+        this.graphics.push();
+        this.graphics.translate(this.offset, this.offset)
+        this.graphics.stroke('red');
+        this.graphics.strokeWeight(this.size.mag() / 60);
+        this.graphics.noFill();
+        this.graphics.curveTightness(1);
+        if (!this.connectedSides.includes(Side.Top)) {
+            this.graphics.beginShape();
+            this.drawOneSide(this.graphics, top);
+            this.graphics.endShape();
+        }
+        if (!this.connectedSides.includes(Side.Right)) {
+            this.graphics.beginShape();
+            this.drawOneSide(this.graphics, right);
+            this.graphics.endShape();
+        }
+        if (!this.connectedSides.includes(Side.Bottom)) {
+            this.graphics.beginShape();
+            this.drawOneSide(this.graphics, bottom);
+            this.graphics.endShape();
+        }
+        if (!this.connectedSides.includes(Side.Left)) {
+            this.graphics.beginShape();
+            this.drawOneSide(this.graphics, left);
+            this.graphics.endShape();
+        }
+        this.graphics.pop();
+    }
+
+    private drawOneSide(graphics: p5.Graphics, side: p5.Vector[]) {
         const firstPoint = p5.Vector.sub(side[0], this.origin);
         const lastPoint = p5.Vector.sub(side[side.length -1], this.origin);
-        if (isVertical) {
-            firstPoint.sub(0.2, 0);
-            lastPoint.sub(0.2, 0);
-        } else {
-            firstPoint.sub(0, 0.2);
-            lastPoint.sub(0, 0.2);
-        }
 
         graphics.curveVertex(firstPoint.x, firstPoint.y);
         for (const point of side) {
             const p = p5.Vector.sub(point, this.origin)
-            isVertical ? p.sub(0.2, 0) : p.sub(0, 0.2);
             graphics.curveVertex(p.x, p.y);
         }
         graphics.curveVertex(lastPoint.x, lastPoint.y);
@@ -189,9 +181,8 @@ class Piece implements ISerializablePiece {
         push();
         this.applyTranslation();
         this.applyRotation();
-        const { graphics, origin } = this;
-        const { top, left } = this.offsets;
-        image(graphics, origin.x - left, origin.y - top);
+        const { graphics, origin, offset } = this;
+        image(graphics, origin.x - offset, origin.y - offset);
         pop();
     }
 

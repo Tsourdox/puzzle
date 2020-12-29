@@ -32,13 +32,14 @@ class Puzzle implements IPuzzle, IGeneratePuzzle, ISerializablePuzzle {
         this.pieceConnetor = new PieceConnector(this, selectionHandler, transformHandler);
         this.menu = new Menu(this);
         this.fps = new FPS();
-        
-        this.generateNewPuzzle(images.face, 2, 2);
-        // this.loadPuzzle();
+        this.loadPuzzle();
     }
 
     private loadPuzzle() {
-        this.networkSerializer.loadPuzzle();
+        const loadStateFound = this.networkSerializer.loadPuzzle();
+        if (!loadStateFound) {
+            this.generateNewPuzzle(images.face, 5, 5);
+        }
     }
 
     public generateNewPuzzle(image: p5.Image, x: number, y: number) {

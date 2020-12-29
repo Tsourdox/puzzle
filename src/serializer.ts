@@ -85,10 +85,11 @@ class NetworkSerializer {
         // todo: send to server
     }
 
-    public loadPuzzle() {
+    /** Returns true if a loading state was found otherwise false */
+    public loadPuzzle(): boolean {
         const stringifiedPuzzleData = localStorage.getItem('puzzle');
         const stringifiedGraphData = localStorage.getItem('graph');
-        if (!stringifiedPuzzleData || !stringifiedGraphData) return;
+        if (!stringifiedPuzzleData || !stringifiedGraphData) return false;
 
         const puzzleData: PuzzleData = JSON.parse(stringifiedPuzzleData);
         const graphData: GraphData = JSON.parse(stringifiedGraphData);
@@ -101,6 +102,8 @@ class NetworkSerializer {
                 
                 this.puzzle.pieces[i].deserialize(JSON.parse(stringifiedData));
             }
-        });   
+        });
+        
+        return true;   
     }
 }

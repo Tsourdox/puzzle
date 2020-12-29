@@ -3,6 +3,7 @@ class PiecesFactory {
     private cellSize: p5.Vector;
     private grid: p5.Vector[][];
     private image: p5.Image;
+    private offset: number;
     public seed: number;
 
     constructor(x: number, y: number, image: p5.Image, seed?: number) {
@@ -10,11 +11,12 @@ class PiecesFactory {
         this.cellSize = createVector(image.width / x, image.height / y);
         this.grid = [];
         this.image = image;
+        this.offset = this.cellSize.mag() / 10;
         this.seed = seed || floor(random(0, 100));
         randomSeed(this.seed)
 
         this.createGrid();
-        // this.offsetPoints();
+        this.offsetPoints();
     }
 
     public createAllPieces(): Piece[] {
@@ -37,21 +39,14 @@ class PiecesFactory {
                     left: [bottom, origin],
                 };
 
-                const baseOffset = this.cellSize.mag() / 20;
-                const offsets: Offsets = {
-                    left: x === 0 ? 0 : baseOffset,
-                    top: y === 0 ? 0 : baseOffset,
-                    right: x === this.puzzleSize.x - 1 ? 0 : baseOffset,
-                    bottom: y === this.puzzleSize.y - 1 ? 0 : baseOffset,
-                }
-
-                const pieceX = origin.x - offsets.left;
-                const pieceY = origin.y - offsets.top
-                let pieceW = this.cellSize.x + offsets.left + offsets.right;
-                let pieceH = this.cellSize.y + offsets.top + offsets.bottom;
+                const offset = this.offset * 2;
+                const pieceX = origin.x - offset;
+                const pieceY = origin.y - offset
+                let pieceW = this.cellSize.x + offset * 2;
+                let pieceH = this.cellSize.y + offset * 2;
 
                 const image = this.image.get(pieceX, pieceY, pieceW, pieceH);
-                const piece = new Piece(image, origin, this.cellSize, sides, offsets);
+                const piece = new Piece(image, origin, this.cellSize, sides, offset);
                 pieces.push(piece)
             }
         }
@@ -89,22 +84,19 @@ class PiecesFactory {
         }
     }
 
-    // private offsetPoints() {
-    //     const maxOffsetX = this.cellSize.x / 10;
-    //     const maxOffsetY = this.cellSize.y / 10;
-
-    //     for (let x = 0; x <= this.puzzleSize.x; x++) {
-    //         for (let y = 0; y <= this.puzzleSize.y; y++) {
-    //             const gridPoint = this.grid[x][y];
-    //             if (x !== 0 && x !== this.puzzleSize.x) {
-    //                 gridPoint.x += random(-maxOffsetX, maxOffsetX);
-    //             }
-    //             if (y !== 0 && y !== this.puzzleSize.y) {
-    //                 gridPoint.y += random(-maxOffsetY, maxOffsetY);
-    //             }
-    //         }
-    //     }
-    // }
+    private offsetPoints() {
+        for (let x = 0; x <= this.puzzleSize.x; x++) {
+            for (let y = 0; y <= this.puzzleSize.y; y++) {
+                const gridPoint = this.grid[x][y];
+                if (x !== 0 && x !== this.puzzleSize.x) {
+                    gridPoint.x += random(-this.offset, this.offset);
+                }
+                if (y !== 0 && y !== this.puzzleSize.y) {
+                    gridPoint.y += random(-this.offset, this.offset);
+                }
+            }
+        }
+    }
 
     public draw() {
         if (IS_DEV_MODE) {
