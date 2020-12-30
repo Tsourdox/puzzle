@@ -11,6 +11,7 @@ interface IImages {
     scull: p5.Image;
 }
 interface IFonts {
+    primary: p5.Font;
     icons: p5.Font;
 }
 
@@ -45,6 +46,7 @@ function preload() {
         scull: loadImage('../assets/images/scull.png')
     }
     fonts = {
+        primary: loadFont('../assets/fonts/black-ops-one.ttf'),
         icons: loadFont('../assets/fonts/font-awesome.otf')
     }
 }

@@ -1,16 +1,40 @@
 <html>
     <head>
         <style>
+            @font-face {
+                font-family: primary;
+                src: url(./assets/fonts/black-ops-one.ttf);
+            }
+
+            :root {
+                --color: rgb(200, 200, 200);
+                --background: rgb(20, 20, 20);
+                --backdrop: rgba(100, 100, 100, 0.8)
+            }
+
             html, body, canvas {
                 height: 100%;
                 width: 100%;
                 margin: 0;
-                background: black;
+                background: var(--background);
                 overflow: hidden;
+                font-family: 'primary';
             }
 
             .file-input {
+                display: none;
+            }
+
+            .button {
+                font-size: 2rem;
                 transform: translate(-50%, -50%);
+                display: inline-block;
+                border-radius: 100rem;
+                padding: 1rem 2rem;
+                cursor: pointer;
+                color: var(--color);
+                background: var(--background);
+                box-shadow: 0 0 1rem var(--backdrop);
             }
         </style>
 

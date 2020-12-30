@@ -18,7 +18,9 @@ class FPS {
         push();
         fill(255);
         stroke(0);
-        text("FPS: " + this.fps, width - 50, 20);
+        textSize(20);
+        textAlign(LEFT, TOP);
+        text("FPS: " + this.fps, width - 94, 8);
         pop();
     }
 }

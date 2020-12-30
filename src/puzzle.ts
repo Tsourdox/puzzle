@@ -17,7 +17,6 @@ class Puzzle implements IPuzzle, IGeneratePuzzle, ISerializablePuzzle {
     private networkSerializer: NetworkSerializer;
     private pieceConnetor: PieceConnector;
     private menu: Menu;
-    private fps: FPS;
     private image?: p5.Image;
     private piecesFactory?: PiecesFactory;
 
@@ -31,7 +30,6 @@ class Puzzle implements IPuzzle, IGeneratePuzzle, ISerializablePuzzle {
         const { selectionHandler, transformHandler } = this.inputHandler;
         this.pieceConnetor = new PieceConnector(this, selectionHandler, transformHandler);
         this.menu = new Menu(this);
-        this.fps = new FPS();
         this.loadPuzzle();
     }
 
@@ -52,29 +50,31 @@ class Puzzle implements IPuzzle, IGeneratePuzzle, ISerializablePuzzle {
     }
 
     public update() {
+        this.menu.update();
         this.networkSerializer.update();
-        this.inputHandler.update();
-        this.pieceConnetor.update();
-        this.fps.update();
-
-        for (const piece of this.pieces) {
-            piece.update();
+        if (!this.menu.isOpen) {
+            this.inputHandler.update();
+            this.pieceConnetor.update();
+    
+            for (const piece of this.pieces) {
+                piece.update();
+            }
         }
     }
 
     public draw() {
-        const { graphHandler } = this.inputHandler;
-        push();
         background(50);
-        scale(graphHandler.scale);
-        translate(graphHandler.translation);
+        textFont(fonts.primary);
+        
+        push();
+        scale(this.inputHandler.graphHandler.scale);
+        translate(this.inputHandler.graphHandler.translation);
         this.piecesFactory?.draw();
         this.drawPieces();
         pop();
         
-        this.menu.draw();
         this.inputHandler.draw();
-        this.fps.draw();
+        this.menu.draw();
     }
 
     private drawPieces() {
