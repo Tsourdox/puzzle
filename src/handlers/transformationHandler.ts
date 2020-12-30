@@ -71,7 +71,7 @@ class TransformHandler implements ITransformHandler {
         }
         
         // Dragging with mouse
-        if (mouseIsPressed && mouseButton === LEFT && !this.selection.isDragSelecting()) {
+        if (mouseIsPressed && mouseButton === LEFT && !this.selection.isDragSelecting && !keyIsDown(SHIFT)) {
             const movedX = (mouseX - prevMouse.x) / this.graph.scale;
             const movedY = (mouseY - prevMouse.y) / this.graph.scale;
             this.translatePieces(movedX, movedY);

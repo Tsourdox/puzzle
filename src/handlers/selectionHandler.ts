@@ -1,5 +1,5 @@
 interface ISelectionHandler {
-    isDragSelecting: () => boolean;
+    isDragSelecting: boolean;
     select(piece: Piece, value: boolean): void;
 }
 
@@ -7,17 +7,27 @@ class SelectionHandler implements ISelectionHandler {
     private puzzle: IPuzzle;
     private graph: IGraph;
     private prevMouseIsPressed: boolean;
-    private dragSelectionColor: p5.Color;
+    private dragSelectionFill: p5.Color;
+    private dragSelectionStroke: p5.Color;
+    private timeSincePress: number;
     private dragSelectionOrigin?: p5.Vector;
 
     constructor(puzzle: IPuzzle, graph: IGraph) {
         this.puzzle = puzzle;
         this.graph = graph;
         this.prevMouseIsPressed = false;
-        this.dragSelectionColor = color('rgba(100,100,100,0.3)')
+        this.dragSelectionFill = color('rgba(200,200,200,0.3)');
+        this.dragSelectionStroke = color('rgba(255,255,255,0.6)');
+        this.timeSincePress = 0;
     }
 
-    public isDragSelecting = () => !!this.dragSelectionOrigin;
+    public get isDragSelecting(): boolean {
+        if (!this.dragSelectionOrigin) return false;
+        const enoughTimePassed = this.timeSincePress > 200;
+        const moved = createVector(mouseX, mouseY).dist(this.dragSelectionOrigin);
+        const enoughDistMoved = moved > 10;
+        return enoughTimePassed || enoughDistMoved;
+    }
 
     private get selectedPieces(): Piece[] {
         return this.puzzle.pieces.filter(p => p.isSelected);
@@ -26,11 +36,6 @@ class SelectionHandler implements ISelectionHandler {
     public update() {
         this.handlePieceSelection();
         this.handleDragSelection();
-
-        this.setPreviousValues();
-    }
-
-    protected setPreviousValues() {
         this.prevMouseIsPressed = mouseIsPressed;
     }
 
@@ -44,20 +49,15 @@ class SelectionHandler implements ISelectionHandler {
                 this.dragSelectionOrigin = createVector(mouseX, mouseY);
             }
         }
+
         if (didRelease) {
+            this.timeSincePress = 0;
             delete this.dragSelectionOrigin;
         }
-    }
 
-    private isMouseOverAnyPiece(pieces: ReadonlyArray<Piece>) {
-        let mouseOverPiece = false;
-        for (const piece of pieces) {
-            if (this.isMouseOver(piece)) {
-                mouseOverPiece = true;
-                break;
-            }
+        if (this.dragSelectionOrigin) {
+            this.timeSincePress += deltaTime;
         }
-        return mouseOverPiece;
     }
 
     private handlePieceSelection() {
@@ -68,8 +68,12 @@ class SelectionHandler implements ISelectionHandler {
             const mouseOverSelectedPiece = this.isMouseOverAnyPiece(this.selectedPieces);
             
             for (const piece of sortPieces(this.puzzle.pieces, true)) {
-                if (this.isMouseOver(piece)) {
-                    this.select(piece, true);
+                if (this.isMouseOverPiece(piece)) {
+                    if (keyIsDown(SHIFT)) {
+                        this.select(piece, !piece.isSelected);
+                    } else {
+                        this.select(piece, true);
+                    }
                     break;
                 }
                 if (mouseOverSelectedPiece || keyIsDown(SHIFT)) {
@@ -80,18 +84,26 @@ class SelectionHandler implements ISelectionHandler {
         }
 
         // Select by dragging
-        if (this.dragSelectionOrigin) {
+        if (this.isDragSelecting) {
+            const chekedPieces: Piece[] = []
             for (const piece of this.puzzle.pieces) {
-                let isOneCornerInside = false;
-                for (const corner of piece.getTrueCorners()) {
-                    if (this.isPointInsideDragSelection(corner)) {
-                        isOneCornerInside = true;
+                if (chekedPieces.includes(piece)) continue;
+                
+                // Check all connected pieces at the same time!
+                const connectedPieces = getConnectedPieces(piece, this.puzzle);
+                let selectionIsOverAnyConnectedPiece = false;
+                for (const cp of connectedPieces) {
+                    if (this.isDragSelectionOverPiece(cp)) {
+                        selectionIsOverAnyConnectedPiece = true;
+                        break;
                     }
                 }
+                chekedPieces.push(...connectedPieces);
+                
                 if (keyIsDown(SHIFT)) {
-                    this.select(piece, piece.isSelected || isOneCornerInside);
+                    this.select(piece, piece.isSelected || selectionIsOverAnyConnectedPiece);
                 } else {
-                    this.select(piece, isOneCornerInside);
+                    this.select(piece, selectionIsOverAnyConnectedPiece);
                 }
             }
         }
@@ -110,41 +122,62 @@ class SelectionHandler implements ISelectionHandler {
         pieces.forEach(piece => piece.isSelected = value);
     }
 
-    private isPointInsideDragSelection(point: p5.Vector): boolean {
-        if (!this.dragSelectionOrigin) return false;
-
-        const { scale, translation } = this.graph;
-        const { x, y } = p5.Vector.div(this.dragSelectionOrigin, scale).sub(translation);
-        const mouse = createVector(mouseX, mouseY).div(scale).sub(translation); 
-        
-        // todo: works but can probably by simplified!
-        return (
-            (point.x > x && point.x < mouse.x && point.y > y && point.y < mouse.y) ||
-            (point.x < x && point.x > mouse.x && point.y < y && point.y > mouse.y) ||
-            (point.x > x && point.x < mouse.x && point.y < y && point.y > mouse.y) ||
-            (point.x < x && point.x > mouse.x && point.y > y && point.y < mouse.y)
-        );
+    private isMouseOverAnyPiece(pieces: ReadonlyArray<Piece>) {
+        let mouseOverPiece = false;
+        for (const piece of pieces) {
+            if (this.isMouseOverPiece(piece)) {
+                mouseOverPiece = true;
+                break;
+            }
+        }
+        return mouseOverPiece;
     }
 
-    // todo: merge above and below code!
-
-    /**
-     * Premise: if point is on the same side
-     * of the piece sides, is has to be inside.
-     */
-    private isMouseOver(piece: Piece) {
-        let corners = piece.getTrueCorners();
-        
+    private isMouseOverPiece(piece: Piece) {
         const { scale, translation } = this.graph;
         const mouse = createVector(mouseX, mouseY).div(scale).sub(translation);
+        const corners = piece.getTrueCorners();
+        return this.isPointInsideRect(mouse, corners)
+    }
+
+    private isDragSelectionOverPiece(piece: Piece): boolean {
+        const { scale, translation } = this.graph;
+        const dsOrigin = p5.Vector.div(this.dragSelectionOrigin!, scale).sub(translation);
+        const mouse = createVector(mouseX, mouseY).div(scale).sub(translation);
+
+        const dragSelectionCorners = [
+            dsOrigin, // topLeft
+            createVector(mouse.x, dsOrigin.y), // topRight
+            mouse, // bottomRight
+            createVector(dsOrigin.x, mouse.y) // bottomLeft
+        ]
+        const pieceCorners = piece.getTrueCorners();
         
+        for (const corner of dragSelectionCorners) {
+            if (this.isPointInsideRect(corner, pieceCorners)) {
+                return true;
+            }
+        }
+        for (const corner of pieceCorners) {
+            if (this.isPointInsideRect(corner, dragSelectionCorners)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Premise: if a point lies on the same side of each of a rect sides, it is inside.
+     * @param rect array of corners [topLeft, topRight, bottomRight, bottomLeft]
+     */
+    private isPointInsideRect(point: p5.Vector, rect: p5.Vector[]) {
         const locations = [];
         for (let i = 0; i < 4; i++) {
-            const start = corners[i];
-            const end = corners[(i + 1) % 4];
+            const start = rect[i];
+            const end = rect[(i + 1) % 4];
             
             const line: Line = { start, end };
-            locations[i] = pointSideLocationOfLine(mouse, line);
+            locations[i] = pointSideLocationOfLine(point, line);
         }
 
         const locationSum = sum(...locations);
@@ -155,12 +188,12 @@ class SelectionHandler implements ISelectionHandler {
     }
 
     public draw() {
-        if (!this.dragSelectionOrigin) return;
+        if (!this.isDragSelecting) return;
         
         push();
-        fill(this.dragSelectionColor);
-        noStroke();
-        const { x, y } = this.dragSelectionOrigin;
+        fill(this.dragSelectionFill);
+        stroke(this.dragSelectionStroke);
+        const { x, y } = this.dragSelectionOrigin!;
         rect(x, y, mouseX - x, mouseY - y);
         pop();
     }
