@@ -42,7 +42,7 @@ class Menu {
             this.label.html('LOADING...');
             loadImage(file.data, (image) => {
                 this.puzzle.generateNewPuzzle(image, 8, 8);
-                this.label.html('NYTT PUSSEL');
+                this.label.html('Nytt Pussel');
                 this.openOrCloseMenu()
             });
         }
