@@ -39,7 +39,7 @@ class Menu {
 
     private handleFileSelect(file: { type: string, data: string }) {
         if (file.type === 'image') {
-            this.label.html('LOADING...');
+            this.label.html('Laddar ...');
             loadImage(file.data, (image) => {
                 this.puzzle.generateNewPuzzle(image, 8, 8);
                 this.label.html('Nytt Pussel');
@@ -75,9 +75,9 @@ class Menu {
         textAlign(CENTER, CENTER);
         
         this.fps.draw();
-        this.drawRoomCode();
         this.drawMenuBar();
         this.drawContent();
+        this.drawRoomCode();
         pop();
     }
 
