@@ -18,8 +18,9 @@ function rotatePointAroundCenter(point: p5.Vector, center: p5.Vector, angle: num
 
 /** Sum all points and divide by count to get average center point */
 function getAverageCenter(points: p5.Vector[]): p5.Vector {
-    // avg: sum / length
     const sum = createVector(0, 0);
+    if (!points.length) return sum;
+
     for (const center of points) {
         sum.add(center);
     }

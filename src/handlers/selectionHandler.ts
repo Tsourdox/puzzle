@@ -38,10 +38,9 @@ class SelectionHandler implements ISelectionHandler {
         const didPress = !this.prevMouseIsPressed && mouseIsPressed;
         const didRelease = this.prevMouseIsPressed && !mouseIsPressed;
         
-        
         if (didPress && mouseButton === LEFT) {
-            const mouseOverPiece = this.isMouseOverPiece(this.puzzle.pieces);
-            if (!this.selectedPieces.length || (keyIsDown(SHIFT) && !mouseOverPiece)) {
+            const mouseOverAnyPiece = this.isMouseOverAnyPiece(this.puzzle.pieces);
+            if (!mouseOverAnyPiece || keyIsDown(SHIFT)) {
                 this.dragSelectionOrigin = createVector(mouseX, mouseY);
             }
         }
@@ -50,7 +49,7 @@ class SelectionHandler implements ISelectionHandler {
         }
     }
 
-    private isMouseOverPiece(pieces: ReadonlyArray<Piece>) {
+    private isMouseOverAnyPiece(pieces: ReadonlyArray<Piece>) {
         let mouseOverPiece = false;
         for (const piece of pieces) {
             if (this.isMouseOver(piece)) {
@@ -66,7 +65,7 @@ class SelectionHandler implements ISelectionHandler {
         
         // Select by clicking
         if (didPress && mouseButton === LEFT) {
-            const mouseOverSelectedPiece = this.isMouseOverPiece(this.selectedPieces);
+            const mouseOverSelectedPiece = this.isMouseOverAnyPiece(this.selectedPieces);
             
             for (const piece of sortPieces(this.puzzle.pieces, true)) {
                 if (this.isMouseOver(piece)) {

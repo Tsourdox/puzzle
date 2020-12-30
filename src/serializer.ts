@@ -21,7 +21,6 @@ interface PieceData {
     rotation: number;
     translation: Point;
     connectedSides: number[];
-    lastSelected: number;
     isSelected: boolean;
 }
 
