@@ -1,0 +1,81 @@
+@font-face {
+    font-family: primary;
+    src: url(./assets/fonts/black-ops-one.ttf);
+}
+
+:root {
+    --primary: rgb(141, 44, 168);
+    --darkened: rgb(95, 43, 110);
+    --neutral: rgb(200, 200, 200);
+    --background: rgb(20, 20, 20);
+    --backdrop: rgba(100, 100, 100, 0.8)
+}
+
+html, body, canvas {
+    height: 100%;
+    width: 100%;
+    margin: 0;
+    background: var(--background);
+    overflow: hidden;
+    font-family: 'primary';
+}
+
+.menu-box {
+    position: fixed;
+    left: 0; top: 0; right: 0; bottom: 5rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.hidden {
+    display: none;
+}
+
+.button {
+    display: inline-block;
+    font-size: 2rem;
+    border-radius: 100rem;
+    padding: 1rem 2rem;
+    margin: 1.5rem;
+    cursor: pointer;
+    color: var(--neutral);
+    background: var(--background);
+    box-shadow: 0 0 1rem var(--backdrop);
+}
+
+
+/******************************/
+/******* LOADING SCREEN *******/
+/******************************/
+#p5_loading {
+    color: var(--neutral);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+}
+
+#p5_loading h1 {
+    font-size: 7rem;
+    margin: 0;
+}
+
+#p5_loading h1 span {
+    animation: flashing 3.5s infinite;
+}
+#p5_loading .a { animation-delay: 0s; }
+#p5_loading .b { animation-delay: .15s; }
+#p5_loading .c { animation-delay: .3s; }
+#p5_loading .d { animation-delay: .45s; }
+#p5_loading .e { animation-delay: .6s; }
+#p5_loading .f { animation-delay: .75s; }
+#p5_loading .g { animation-delay: .9s; }
+#p5_loading .h { animation-delay: 1.05s; }
+
+@keyframes flashing {
+    0% { color: var(--neutral); }
+    20% { color: var(--darkened); }
+    40%, 100% { color: var(--neutral); }
+}

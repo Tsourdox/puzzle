@@ -1,57 +1,23 @@
 <html>
     <head>
-        <style>
-            @font-face {
-                font-family: primary;
-                src: url(./assets/fonts/black-ops-one.ttf);
-            }
-
-            :root {
-                --color: rgb(200, 200, 200);
-                --background: rgb(20, 20, 20);
-                --backdrop: rgba(100, 100, 100, 0.8)
-            }
-
-            html, body, canvas {
-                height: 100%;
-                width: 100%;
-                margin: 0;
-                background: var(--background);
-                overflow: hidden;
-                font-family: 'primary';
-            }
-
-            .menu-box {
-                position: fixed;
-                left: 0; top: 0; right: 0; bottom: 5rem;
-                display: flex;
-                flex-direction: column;
-                justify-content: center;
-                align-items: center;
-            }
-
-            .hidden {
-                display: none;
-            }
-
-            .button {
-                display: inline-block;
-                font-size: 2rem;
-                border-radius: 100rem;
-                padding: 1rem 2rem;
-                margin: 1.5rem;
-                cursor: pointer;
-                color: var(--color);
-                background: var(--background);
-                box-shadow: 0 0 1rem var(--backdrop);
-            }
-        </style>
-
+        <link rel="stylesheet" href="index.css">
         <script src="https://cdn.jsdelivr.net/npm/p5@1.1.9/lib/p5.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/p5@1.1.9/lib/addons/p5.sound.js"></script>
         <script src="build/bundle.js"></script>
     </head>
     <body>
+        <div id="p5_loading">
+            <h1>
+                <span class="a">P</span>
+                <span class="b">U</span>
+                <span class="c">Z</span>
+                <span class="d">Z</span>
+                <span class="e">E</span>
+                <span class="f">L</span>
+                <span class="g">I</span>
+                <span class="h">N</span>
+            </h1>
+        </div>
         <!-- Code injected via JavaScript -->
     </body>
 </html>
