@@ -1,11 +1,16 @@
-class Menu {
+interface IMenu {
+    div: p5.Element;
+    isOpen: boolean;
+    openOrCloseMenu: () => void;
+    onImageLoaded: (image: p5.Image) => void;
+}
+
+class Menu implements IMenu {
     public isOpen: boolean;
+    public div: p5.Element;
     private background: p5.Color;
     private foreground: p5.Color;
     private height: number;
-    private input: p5.Element;
-    private label: p5.Element;
-    private closeButton: p5.Element;
     private puzzle: IGeneratePuzzle;
     private fps: FPS;
     private prevMouseIsPressed: boolean;
@@ -19,45 +24,27 @@ class Menu {
         this.isOpen = false;
         this.prevMouseIsPressed = false;
 
-        this.input = createFileInput((file) => this.handleFileSelect(file));
-        this.input.addClass('file-input');
-        this.input.id('file');
-        this.label = createElement('label');
-        this.label.addClass('button');
-        this.label.attribute('for', 'file');
-        this.label.position(width / 2, height / 2 - 50);
-        this.label.html('Nytt Pussel');
-        this.label.hide();
+        this.div = createElement('div');
+        this.div.addClass('menu-box');
+        this.div.addClass('hidden');
 
-        this.closeButton = createElement('label');
-        this.closeButton.addClass('button');
-        this.closeButton.position(width / 2, height / 2 + 50);
-        this.closeButton.html('Stäng Menyn');
-        this.closeButton.mousePressed(() => this.openOrCloseMenu());
-        this.closeButton.hide();
+        new RandomButton(this);
+        new FileButton(this);
+        new CloseButton(this);
+    }
+    
+    public onImageLoaded = (image: p5.Image) => {
+        this.puzzle.generateNewPuzzle(image, 6, 6);
+        this.openOrCloseMenu()
     }
 
-    private handleFileSelect(file: { type: string, data: string }) {
-        if (file.type === 'image') {
-            this.label.html('Laddar ...');
-            loadImage(file.data, (image) => {
-                this.puzzle.generateNewPuzzle(image, 8, 8);
-                this.label.html('Nytt Pussel');
-                this.openOrCloseMenu()
-            });
-        }
-    }
-
-    private openOrCloseMenu() {
+    public openOrCloseMenu() {
         this.isOpen = !this.isOpen;
-        this.isOpen ? this.label.show() : this.label.hide();
-        this.isOpen ? this.closeButton.show() : this.closeButton.hide();
+        this.isOpen ? this.div.removeClass('hidden') : this.div.addClass('hidden');
     }
 
     public update() {
         this.fps.update();
-        this.label.position(width / 2, height / 2 - 50);
-        this.closeButton.position(width / 2, height / 2 + 50);
         
         const didPress = !this.prevMouseIsPressed && mouseIsPressed;
         const mouseOverMenu = mouseY > height - this.height;
@@ -102,7 +89,7 @@ class Menu {
         
         push();
         const x = width / 2;
-        const y = height - this.height / 1.7;
+        const y = height - this.height / 1.65;
         textSize(60);
         text("PUZZELIN", x, y);
         pop();

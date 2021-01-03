@@ -21,16 +21,25 @@
                 font-family: 'primary';
             }
 
-            .file-input {
+            .menu-box {
+                position: fixed;
+                left: 0; top: 0; right: 0; bottom: 5rem;
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+                align-items: center;
+            }
+
+            .hidden {
                 display: none;
             }
 
             .button {
-                font-size: 2rem;
-                transform: translate(-50%, -50%);
                 display: inline-block;
+                font-size: 2rem;
                 border-radius: 100rem;
                 padding: 1rem 2rem;
+                margin: 1.5rem;
                 cursor: pointer;
                 color: var(--color);
                 background: var(--background);

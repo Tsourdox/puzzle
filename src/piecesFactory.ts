@@ -46,7 +46,8 @@ class PiecesFactory {
                 let pieceH = this.cellSize.y + offset * 2;
 
                 const image = this.image.get(pieceX, pieceY, pieceW, pieceH);
-                const piece = new Piece(image, origin, this.cellSize, sides, offset);
+                const id = pieces.length // array index
+                const piece = new Piece(id, image, origin, this.cellSize, sides, offset);
                 pieces.push(piece)
             }
         }

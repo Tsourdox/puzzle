@@ -51,7 +51,7 @@ class TransformHandler implements ITransformHandler {
     /** Will also translate connected pieces */
     public translatePiece(piece: Piece, translation: p5.Vector) {
         const pieces = getConnectedPieces(piece, this.puzzle);
-        pieces.forEach(p => p.translation.add(translation));
+        pieces.forEach(p => p.translation = p5.Vector.add(p.translation, translation));
     }
 
     private handlePieceTranslation(prevMouse: p5.Vector) {
@@ -118,7 +118,7 @@ class TransformHandler implements ITransformHandler {
     
     private translatePieces(x: number, y: number) {
         for (const piece of this.selectedPieces) {
-            piece.translation.add(x, y);
+            piece.translation = createVector(x, y).add(piece.translation);
         }
     }
     
@@ -129,10 +129,9 @@ class TransformHandler implements ITransformHandler {
 
         for (let i = 0; i < pieces.length; i++) {
             const angle = (PI * 2 / pieces.length) * i;
-            const offsetX = radius * cos(angle);
-            const offsetY = radius * sin(angle);
-            pieces[i].translation.x += offsetX;
-            pieces[i].translation.y += offsetY;
+            const x = radius * cos(angle);
+            const y = radius * sin(angle);
+            pieces[i].translation = createVector(x, y).add(pieces[i].translation);
         }
     }
     
@@ -148,7 +147,7 @@ class TransformHandler implements ITransformHandler {
         for (const piece of this.selectedPieces) {
             const pieceCenter = piece.getTrueCenter()
             const delta = p5.Vector.sub(groupCenter, pieceCenter);
-            piece.translation.add(delta);
+            piece.translation = p5.Vector.add(delta, piece.translation);
         }
     }
 }

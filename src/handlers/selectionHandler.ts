@@ -118,8 +118,14 @@ class SelectionHandler implements ISelectionHandler {
 
     /** Will select connected pieces recursively */
     public select(piece: Piece, value: boolean) {
+        const maxElev = max(this.puzzle.pieces.map(p => p.elevation))
         const pieces = getConnectedPieces(piece, this.puzzle);
-        pieces.forEach(piece => piece.isSelected = value);
+        pieces.forEach(piece => {
+            piece.isSelected = value;
+            if (value) {
+                piece.elevation = maxElev + 1;
+            }
+        });
     }
 
     private isMouseOverAnyPiece(pieces: ReadonlyArray<Piece>) {

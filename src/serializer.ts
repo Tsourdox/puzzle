@@ -18,10 +18,12 @@ interface PuzzleData {
 }
 
 interface PieceData {
+    id: number;
     rotation: number;
     translation: Point;
     connectedSides: number[];
     isSelected: boolean;
+    elevation: number;
 }
 
 interface GraphData {
@@ -30,15 +32,17 @@ interface GraphData {
 }
 
 class NetworkSerializer {
-    private readonly TIMEOUT = 1000;
+    private readonly TIMEOUT = 60; //ms
     private puzzle: ISerializablePuzzle
     private graph: ISerializableGraph
     private sendTimeout: number;
+    private clientDB: ClientDB;
 
     constructor(puzzle: ISerializablePuzzle, graph: ISerializableGraph) {
         this.puzzle = puzzle;
         this.graph = graph;
         this.sendTimeout = this.TIMEOUT;
+        this.clientDB = new ClientDB();
     }
 
     public update() {
@@ -60,49 +64,41 @@ class NetworkSerializer {
     
     private sendInitialData() {
         const puzzleData = this.puzzle.serialize();
-        const stringifiedData = JSON.stringify(puzzleData);
-        localStorage.clear();
-        localStorage.setItem('puzzle', stringifiedData);
+        this.clientDB.savePuzzle(puzzleData);
         this.sendGraphData();
         // todo: send to server
     }
 
     private sendGraphData() {
         const graphData = this.graph.serialize();
-        const stringifiedData = JSON.stringify(graphData);
-        localStorage.setItem('graph', stringifiedData);
+        this.clientDB.saveGraph(graphData);
     }
 
     private sendIncrementalPuzzleData() {
         const { pieces } = this.puzzle;
-        for (let i = 0; i < pieces.length; i++) {
-            if (pieces[i].isModified) {
-                const stringifiedData = JSON.stringify(pieces[i].serialize());
-                localStorage.setItem(`piece-${i}`, stringifiedData);
-            }
-        }
+        const piecesData = pieces.filter(p => p.isModified).map(p => p.serialize());
+        this.clientDB.savePieces(piecesData);
         // todo: send to server
     }
 
     /** Returns true if a loading state was found otherwise false */
-    public loadPuzzle(): boolean {
-        const stringifiedPuzzleData = localStorage.getItem('puzzle');
-        const stringifiedGraphData = localStorage.getItem('graph');
-        if (!stringifiedPuzzleData || !stringifiedGraphData) return false;
-
-        const puzzleData: PuzzleData = JSON.parse(stringifiedPuzzleData);
-        const graphData: GraphData = JSON.parse(stringifiedGraphData);
-        
-        this.graph.deserialize(graphData);
-        this.puzzle.deserialize(puzzleData, () => {
-            for (let i = 0; i < this.puzzle.pieces.length; i++) {
-                const stringifiedData = localStorage.getItem(`piece-${i}`);
-                if (!stringifiedData) continue;
-                
-                this.puzzle.pieces[i].deserialize(JSON.parse(stringifiedData));
-            }
-        });
-        
-        return true;   
+    public async loadPuzzle(): Promise<boolean> {
+        try {
+            const puzzleData = await this.clientDB.loadPuzzle();
+            const graphData = await this.clientDB.loadGraph();
+            const piecesData = await this.clientDB.loadPieces();
+            
+            this.puzzle.deserialize(puzzleData, () => {
+                this.graph.deserialize(graphData);
+                for (const pieceData of piecesData) {
+                    this.puzzle.pieces[pieceData.id].deserialize(pieceData);
+                }
+            });
+            
+            return true;   
+        } catch (error) {
+            console.error(error);
+            return false;
+        }
     }
 }

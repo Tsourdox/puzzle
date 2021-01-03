@@ -13,10 +13,12 @@ enum Side {
 }
 
 class Piece implements ISerializablePiece {
+    public id: number;
     public isModified: boolean;
-    public rotation: number;
-    public translation: p5.Vector;
-    public connectedSides: Side[];
+    public elevation: number;
+    private _rotation: number;
+    private _translation: p5.Vector;
+    private _connectedSides: Side[];
     private graphics: p5.Graphics;
     private mask: p5.Graphics;
     private image: p5.Image;
@@ -26,14 +28,14 @@ class Piece implements ISerializablePiece {
     private center: p5.Vector;
     private offset: number;
     private _isSelected: boolean;
-    private prevIsSelected: boolean;
-    private _lastSelected: number;
-    private prevIsConnected: Side[];
+    private graphicNeedsUpdating: boolean;
 
-    constructor(image: p5.Image, origin: p5.Vector, size: p5.Vector, sides: Sides, offset: number) {
-        this.isModified = true; // always true for now!
-        this.rotation = 0;
-        this.translation = createVector(0, 0);
+    constructor(id: number, image: p5.Image, origin: p5.Vector, size: p5.Vector, sides: Sides, offset: number) {
+        this.id = id;
+        this.isModified = false;
+        this.elevation = id;
+        this._rotation = 0;
+        this._translation = createVector(0, 0);
         this.image = image;
         this.origin = origin;
         this.size = size;
@@ -41,10 +43,8 @@ class Piece implements ISerializablePiece {
         this.offset = offset;
         this.center = getAverageCenter(this.getCorners());
         this._isSelected = false;
-        this.prevIsSelected = false;
-        this._lastSelected = 0;
-        this.connectedSides = [];
-        this.prevIsConnected = [];
+        this._connectedSides = [];
+        this.graphicNeedsUpdating = false;
         this.graphics = createGraphics(
             this.size.x + offset * 2,
             this.size.y + offset * 2
@@ -53,21 +53,43 @@ class Piece implements ISerializablePiece {
         this.updateGraphics();
     }
 
-    public set isSelected(value: boolean) {
-        if (this._isSelected !== value) {
-            this._isSelected = value;
-            if (value) {
-                this._lastSelected = frameCount;
-            }
-        }
+    public set rotation(value: number) {
+        this._rotation = value;
+        this.isModified = true;
     }
-
-    public get isSelected() {
-        return this._isSelected;
+    public get rotation() {
+        return this._rotation;
     }
     
-    public get lastSelected() {
-        return this._lastSelected;
+    public set translation(value: p5.Vector) {
+        if (!this.translation.equals(value)) {
+            this._translation = value;
+            this.isModified = true;
+        }
+    }
+    public get translation() {
+        return this._translation;
+    }
+
+    public set connectedSides(value: number[]) {
+        this._connectedSides = value;
+        this.isModified = true;
+        this.graphicNeedsUpdating = true;
+    }
+    public get connectedSides() {
+        return this._connectedSides;
+    }
+
+    public set isSelected(value: boolean) {
+        if (this._isSelected !== value) {
+            console.log('setting isSelected', this.id);
+            this._isSelected = value;
+            this.isModified = true;
+            this.graphicNeedsUpdating = true;
+        }
+    }
+    public get isSelected() {
+        return this._isSelected;
     }
 
     public getOrigin() {
@@ -75,6 +97,7 @@ class Piece implements ISerializablePiece {
     }
     
     private updateGraphics() {
+        this.graphicNeedsUpdating = false;
         this.updateClippingMask();
 
         this.image.mask(this.mask as unknown as p5.Image);
@@ -146,7 +169,7 @@ class Piece implements ISerializablePiece {
     }
 
     public getTrueCenter(): p5.Vector {
-        return p5.Vector.add(this.center, this.translation);
+        return p5.Vector.add(this.center, this._translation);
     }
 
     private getCorners(): p5.Vector[] {
@@ -167,14 +190,9 @@ class Piece implements ISerializablePiece {
     }
 
     public update() {
-        const selectionChanged = this.prevIsSelected !== this.isSelected;
-        const connectionChanged = this.prevIsConnected.length !== this.connectedSides.length;
-        if (selectionChanged || connectionChanged) {
+        if (this.graphicNeedsUpdating) {
             this.updateGraphics();
         }
-        
-        this.prevIsSelected = this.isSelected;
-        this.prevIsConnected = [...this.connectedSides];
     }
 
     public draw() {
@@ -197,18 +215,27 @@ class Piece implements ISerializablePiece {
     }
 
     public serialize(): PieceData {
+        this.isModified = false;
+        // console.log('sending piece', this.id);
         return {
+            id: this.id,
             rotation: this.rotation,
             translation: toPoint(this.translation),
             connectedSides: this.connectedSides,
-            isSelected: this.isSelected
+            isSelected: this.isSelected,
+            elevation: this.elevation
         };
     }
 
     public deserialize(piece: PieceData) {
-        this.rotation = piece.rotation;
-        this.connectedSides = piece.connectedSides;
-        this.translation = toVector(piece.translation);
-        this.isSelected = piece.isSelected;
+        this._rotation = piece.rotation;
+        this._connectedSides = piece.connectedSides;
+        this._translation = toVector(piece.translation);
+        this._isSelected = piece.isSelected;
+        this.elevation = piece.elevation;
+
+        if (piece.isSelected) {
+            this.graphicNeedsUpdating = true;
+        }
     }
 }

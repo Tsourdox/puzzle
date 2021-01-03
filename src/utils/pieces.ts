@@ -1,7 +1,7 @@
 /** Sort based on last selected, will not mutate array */
 function sortPieces(pieces: ReadonlyArray<Piece>, reversed = false): Piece[] {
     return [...pieces].sort((a, b) =>
-        (a.lastSelected - b.lastSelected) * (reversed ? -1 : 1));
+        (a.elevation - b.elevation) * (reversed ? -1 : 1));
 }
 
 /** Will get and return connected pieces recusivly */
@@ -41,6 +41,6 @@ function rotateAroundCenter(piece: Piece, rotationCenter: p5.Vector, angle: numb
     const centerB = rotatePointAroundCenter(pieceCenter, pieceCenter, angle);
     
     const deltaCenter = p5.Vector.sub(centerB, centerA);
-    piece.translation.sub(deltaCenter);
-    piece.rotation += angle;
+    piece.translation = p5.Vector.sub(piece.translation, deltaCenter);
+    piece.rotation = piece.rotation + angle;
 }
