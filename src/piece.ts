@@ -82,7 +82,6 @@ class Piece implements ISerializablePiece {
 
     public set isSelected(value: boolean) {
         if (this._isSelected !== value) {
-            console.log('setting isSelected', this.id);
             this._isSelected = value;
             this.isModified = true;
             this.graphicNeedsUpdating = true;

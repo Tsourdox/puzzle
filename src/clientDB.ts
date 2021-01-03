@@ -1,16 +1,13 @@
-enum StoreNames {
-    puzzle = 'puzzle',
-    graph = 'graph',
-    pieces = 'pieces'
-}
-type StoreName = keyof typeof StoreNames;
+type DBKey = 'puzzle' | 'graph' | 'pieces';
 
 class ClientDB {
+    private readonly dbName = 'application';
+    private readonly storeName = 'main';
     private db?: IDBDatabase;
 
     private init(): Promise<void> {
         return new Promise((resolve, reject) => {
-            const request = indexedDB.open('application');
+            const request = indexedDB.open(this.dbName);
             request.onerror = reject;
             request.onsuccess = (e: any) => {
                 this.db = e.target.result
@@ -18,30 +15,17 @@ class ClientDB {
             };
             request.onupgradeneeded = (e: any) => {
                 const db = e.target.result;
-                db.createObjectStore(StoreNames.puzzle);
-                db.createObjectStore(StoreNames.graph);
-                db.createObjectStore(StoreNames.pieces);
+                db.createObjectStore('main');
             }
         });
     }
 
-    private clearStore(storeName: StoreName): Promise<void> {
+    private loadFromStore<T>(key: DBKey): Promise<T> {
         return new Promise(async (resolve, reject) => {
             if (!this.db) await this.init();
-            const trans = this.db!.transaction([storeName], 'readwrite');
-            const store = trans.objectStore(storeName);
-            const request = store.clear();
-            request.onsuccess = () => resolve();
-            request.onerror = reject;
-        });
-    }
-
-    private loadFromStore<T>(storeName: StoreName, key?: string|number): Promise<T> {
-        return new Promise(async (resolve, reject) => {
-            if (!this.db) await this.init();
-            const trans = this.db!.transaction(storeName, 'readwrite');
-            const store = trans.objectStore(storeName);
-            const request = typeof key === 'undefined' ? store.getAll() : store.get(key);
+            const trans = this.db!.transaction(this.storeName, 'readwrite');
+            const store = trans.objectStore(this.storeName);
+            const request = store.get(key);
             request.onsuccess = (e: any) => {
                 if (!e.target.result) {
                     reject(new Error('No data'));
@@ -53,11 +37,11 @@ class ClientDB {
         });
     }
 
-    private saveToStore<T>(storeName: StoreName, data: T, key: string|number) {
+    private saveToStore<T>(data: T, key: DBKey) {
         return new Promise<void>(async (resolve, reject) => {
             if (!this.db) await this.init();
-            const trans = this.db!.transaction(storeName, 'readwrite');
-            const store = trans.objectStore(storeName);
+            const trans = this.db!.transaction(this.storeName, 'readwrite');
+            const store = trans.objectStore(this.storeName);
             const request = store.put(data, key);
             request.onsuccess = () => resolve();
             request.onerror = reject;
@@ -65,27 +49,41 @@ class ClientDB {
     }
 
     public async loadPuzzle(): Promise<PuzzleData> {
-        return await this.loadFromStore<PuzzleData>('puzzle', 0);
+        return await this.loadFromStore<PuzzleData>('puzzle');
     }
 
     public async loadGraph(): Promise<GraphData> {
-        return await this.loadFromStore<GraphData>('graph', 0);
+        return await this.loadFromStore<GraphData>('graph');
     }
 
     public async loadPieces(): Promise<PieceData[]> {
-        return await this.loadFromStore<PieceData[]>('pieces');
+        try {
+            return await this.loadFromStore<PieceData[]>('pieces');
+        } catch (error: unknown) {
+            return [];
+        }
     }
 
     public async savePuzzle(data: PuzzleData): Promise<void> {
-        await this.clearStore('pieces');
-        await this.saveToStore('puzzle', data, 0);
+        await this.saveToStore([], 'pieces');
+        await this.saveToStore(data, 'puzzle');
     }
 
     public async saveGraph(data: GraphData): Promise<void> {
-        await this.saveToStore('graph', data, 0);
+        await this.saveToStore(data, 'graph');
     }
     
     public async savePieces(data: PieceData[]): Promise<void> {
-        await Promise.all(data.map((d) => this.saveToStore('pieces', d, d.id)));
+        const pieces = await this.loadPieces();
+        console.log(pieces);
+        // preserve old data
+        for (const piece of pieces) {
+            const oldData = !data.find(d => d.id === piece.id);
+            if (oldData) {
+                data.push(piece);
+            }
+        }
+        console.log(data);
+        await this.saveToStore(data, 'pieces');
     }
 }

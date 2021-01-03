@@ -32,7 +32,7 @@ interface GraphData {
 }
 
 class NetworkSerializer {
-    private readonly TIMEOUT = 60; //ms
+    private readonly TIMEOUT = 100; //ms
     private puzzle: ISerializablePuzzle
     private graph: ISerializableGraph
     private sendTimeout: number;

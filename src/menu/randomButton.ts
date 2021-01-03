@@ -19,7 +19,7 @@ class RandomButton {
         const page = floor(random(1, 1000));
         const domain = 'https://api.pexels.com/';
         const path = 'v1/search'
-        const query = `?query=animals&per_page=1&page=${page}`;
+        const query = `?query=multiple+colors&orientation=landscape&per_page=1&page=${page}`;
         return `${domain}${path}${query}`
     }
 
