@@ -74,16 +74,14 @@ class ClientDB {
     }
     
     public async savePieces(data: PieceData[]): Promise<void> {
-        const pieces = await this.loadPieces();
-        console.log(pieces);
         // preserve old data
+        const pieces = await this.loadPieces();
         for (const piece of pieces) {
             const oldData = !data.find(d => d.id === piece.id);
             if (oldData) {
                 data.push(piece);
             }
         }
-        console.log(data);
         await this.saveToStore(data, 'pieces');
     }
 }
