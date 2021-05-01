@@ -40,11 +40,12 @@ class PiecesFactory {
                 };
 
                 const offset = this.offset * 2;
-                const pieceX = origin.x - offset;
-                const pieceY = origin.y - offset
-                let pieceW = this.cellSize.x + offset * 2;
-                let pieceH = this.cellSize.y + offset * 2;
+                const pieceX = round(origin.x);
+                const pieceY = round(origin.y)
+                let pieceW = round(this.cellSize.x + offset * 2);
+                let pieceH = round(this.cellSize.y + offset * 2);
 
+                // todo: cant be outside of image in Safari..... damn...
                 const image = this.image.get(pieceX, pieceY, pieceW, pieceH);
                 const id = pieces.length // array index
                 const piece = new Piece(id, image, origin, this.cellSize, sides, offset);
