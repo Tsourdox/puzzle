@@ -7,15 +7,17 @@ class ClientDB {
 
     private init(): Promise<void> {
         return new Promise((resolve, reject) => {
-            const request = indexedDB.open(this.dbName, 1);
+            const request = indexedDB.open(this.dbName, 2);
             request.onerror = reject;
             request.onsuccess = (e: any) => {
                 this.db = e.target.result
                 resolve();
             };
-            request.onupgradeneeded = (e: any) => {
+            request.onupgradeneeded = async (e: any) => {
                 const db = e.target.result;
-                db.createObjectStore('main');
+                await db.deleteObjectStore('main');
+                await db.createObjectStore('main', { autoIncrement: true });
+                resolve();
             }
         });
     }
