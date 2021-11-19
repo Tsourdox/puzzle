@@ -40,8 +40,8 @@ class PiecesFactory {
                 };
 
                 const offset = this.offset * 2;
-                const pieceX = round(origin.x);
-                const pieceY = round(origin.y)
+                const pieceX = round(origin.x - offset);
+                const pieceY = round(origin.y - offset);
                 let pieceW = round(this.cellSize.x + offset * 2);
                 let pieceH = round(this.cellSize.y + offset * 2);
 
