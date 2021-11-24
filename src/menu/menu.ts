@@ -34,7 +34,7 @@ class Menu implements IMenu {
     }
     
     public onImageLoaded = (image: p5.Image) => {
-        this.puzzle.generateNewPuzzle(image, 6, 6);
+        this.puzzle.generateNewPuzzle(image, 4, 4);
         this.openOrCloseMenu()
     }
 
