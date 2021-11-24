@@ -114,7 +114,6 @@ class Piece implements ISerializablePiece {
         this.mask.clear();
         this.mask.translate(this.offset, this.offset)
         this.mask.fill(0);
-        this.mask.curveTightness(1);
         this.mask.beginShape();
         this.drawOneSide(this.mask, top);
         this.drawOneSide(this.mask, right);
@@ -131,7 +130,6 @@ class Piece implements ISerializablePiece {
         this.graphics.stroke('red');
         this.graphics.strokeWeight(this.size.mag() / 60);
         this.graphics.noFill();
-        this.graphics.curveTightness(1);
         if (!this.connectedSides.includes(Side.Top)) {
             this.graphics.beginShape();
             this.drawOneSide(this.graphics, top);
@@ -157,14 +155,14 @@ class Piece implements ISerializablePiece {
 
     private drawOneSide(graphics: p5.Graphics, side: p5.Vector[]) {
         const firstPoint = p5.Vector.sub(side[0], this.origin);
-        const lastPoint = p5.Vector.sub(side[side.length -1], this.origin);
 
-        graphics.curveVertex(firstPoint.x, firstPoint.y);
-        for (const point of side) {
-            const p = p5.Vector.sub(point, this.origin)
-            graphics.curveVertex(p.x, p.y);
+        graphics.vertex(firstPoint.x, firstPoint.y);
+        for (let i = 1; i < side.length; i += 3) {
+            const p2 = p5.Vector.sub(side[i], this.origin);
+            const p3 = p5.Vector.sub(side[i + 1], this.origin);
+            const p4 = p5.Vector.sub(side[i + 2], this.origin);
+            graphics.bezierVertex(p2.x, p2.y, p3.x, p3.y, p4.x, p4.y);
         }
-        graphics.curveVertex(lastPoint.x, lastPoint.y);
     }
 
     public getTrueCenter(): p5.Vector {
