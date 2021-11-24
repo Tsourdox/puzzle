@@ -22,6 +22,29 @@ class PiecesFactory {
     public createAllPieces(): Piece[] {
         const pieces: Piece[] = [];
         
+        for (const sides of this.generatePiecesOutlines()) {
+            const origin = sides.top[0];
+            const offset = this.offset * 2;
+            const pieceX = round(origin.x - offset);
+            const pieceY = round(origin.y - offset);
+            let pieceW = round(this.cellSize.x + offset * 2);
+            let pieceH = round(this.cellSize.y + offset * 2);
+    
+            // todo: cant be outside of image in Safari..... damn...
+            const image = this.image.get(pieceX, pieceY, pieceW, pieceH);
+            const id = pieces.length // array index
+            const piece = new Piece(id, image, origin, this.cellSize, sides, offset);
+            pieces.push(piece)
+
+        }
+        
+        this.shufflePieces(pieces);
+        return pieces;
+    }
+
+    private generatePiecesOutlines() {
+        const sidesList: Sides[] = [];
+        
         for (let y = 0; y < this.puzzleSize.y; y++) {
             for (let x = 0; x < this.puzzleSize.x; x++) {
                 // All corners
@@ -39,22 +62,59 @@ class PiecesFactory {
                     left: [bottom, origin],
                 };
 
-                const offset = this.offset * 2;
-                const pieceX = round(origin.x - offset);
-                const pieceY = round(origin.y - offset);
-                let pieceW = round(this.cellSize.x + offset * 2);
-                let pieceH = round(this.cellSize.y + offset * 2);
+                // todo: adding a few more points, still need more...
+                this.generateSidePoints(sides.top, 't', x, y, sidesList);
+                this.generateSidePoints(sides.right, 'r', x, y, sidesList);
+                this.generateSidePoints(sides.bottom, 'b', x, y, sidesList);
+                this.generateSidePoints(sides.left, 'l', x, y, sidesList);
 
-                // todo: cant be outside of image in Safari..... damn...
-                const image = this.image.get(pieceX, pieceY, pieceW, pieceH);
-                const id = pieces.length // array index
-                const piece = new Piece(id, image, origin, this.cellSize, sides, offset);
-                pieces.push(piece)
+                sidesList.push(sides);
             }
         }
-        
-        this.shufflePieces(pieces);
-        return pieces;
+
+        return sidesList;
+    }
+
+    private generateSidePoints(side: p5.Vector[], edge: 't'|'r'|'b'|'l', x: number, y: number, sides: Sides[]) {
+        if (edge === 't' || edge === 'b') {
+            if (edge === 't' && y !== 0) {
+                // Clone bottom side from above piece to match it.
+                const abovePieceIndex = (y - 1) * this.puzzleSize.x + x;
+                const newSide = sides[abovePieceIndex].bottom.map(vector => vector.copy());
+                newSide.reverse();
+                side.splice(0, 2, ...newSide);
+                return;
+            }
+            const deltaY = this.offset;
+            const deltaX = side[1].x - side[0].x;
+            const oneFifthDelta = deltaX / 5 * 1;
+            const first = createVector(side[0].x + oneFifthDelta, side[0].y);
+            const second = createVector(side[1].x - oneFifthDelta, side[1].y);
+            if ((edge === 't' && y !== 0) || (edge === 'b' && y !== this.puzzleSize.y - 1)) {
+                first.y += random(-deltaY, deltaY);
+                second.y += random(-deltaY, deltaY);
+            }
+            side.splice(1, 0, first, second);
+        } else {
+            if (edge === 'l' && x !== 0) {
+                // Clone right side from piece on the left to match it.
+                const leftPieceIndex = y * this.puzzleSize.x + (x - 1);
+                const newSide = sides[leftPieceIndex].right.map(vector => vector.copy());
+                newSide.reverse();
+                side.splice(0, 2, ...newSide);
+                return;
+            }
+            const deltaX = this.offset;
+            const deltaY = side[1].y - side[0].y;
+            const oneFifthDelta = deltaY / 5 * 1;
+            const first = createVector(side[0].x, side[0].y + oneFifthDelta);
+            const second = createVector(side[1].x, side[1].y - oneFifthDelta);
+            if ((edge === 'l' && x !== 0) || (edge === 'r' && x !== this.puzzleSize.x - 1)) {
+                first.x += random(-deltaX, deltaX);
+                second.x += random(-deltaX, deltaX);
+            }
+            side.splice(1, 0, first, second);
+        }
     }
 
     private shufflePieces(pieces: Piece[]) {
