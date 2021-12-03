@@ -24,7 +24,7 @@ class PiecesFactory {
         
         for (const sides of this.generatePiecesOutlines()) {
             const origin = sides.top[0];
-            const offset = this.offset * 2;
+            const offset = this.offset * 4;
             const pieceX = round(origin.x - offset);
             const pieceY = round(origin.y - offset);
             let pieceW = round(this.cellSize.x + offset * 2);
@@ -63,10 +63,10 @@ class PiecesFactory {
                 };
 
                 // todo: adding a few more points, still need more...
-                this.generateSidePoints(sides.top, 't', x, y, sidesList);
-                this.generateSidePoints(sides.right, 'r', x, y, sidesList);
-                this.generateSidePoints(sides.bottom, 'b', x, y, sidesList);
-                this.generateSidePoints(sides.left, 'l', x, y, sidesList);
+                this.generateSidePoints(sides.top, 'top', x, y, sidesList);
+                this.generateSidePoints(sides.right, 'right', x, y, sidesList);
+                this.generateSidePoints(sides.bottom, 'bottom', x, y, sidesList);
+                this.generateSidePoints(sides.left, 'left', x, y, sidesList);
 
                 sidesList.push(sides);
             }
@@ -75,46 +75,94 @@ class PiecesFactory {
         return sidesList;
     }
 
-    private generateSidePoints(side: p5.Vector[], edge: 't'|'r'|'b'|'l', x: number, y: number, sides: Sides[]) {
-        if (edge === 't' || edge === 'b') {
-            if (edge === 't' && y !== 0) {
-                // Clone bottom side from above piece to match it.
-                const abovePieceIndex = (y - 1) * this.puzzleSize.x + x;
-                const newSide = sides[abovePieceIndex].bottom.map(vector => vector.copy());
-                newSide.reverse();
-                side.splice(0, 2, ...newSide);
-                return;
-            }
-            const deltaY = this.offset;
-            const deltaX = side[1].x - side[0].x;
-            const oneFifthDelta = deltaX / 5 * 1;
-            const first = createVector(side[0].x + oneFifthDelta, side[0].y);
-            const second = createVector(side[1].x - oneFifthDelta, side[1].y);
-            if ((edge === 't' && y !== 0) || (edge === 'b' && y !== this.puzzleSize.y - 1)) {
-                first.y += random(-deltaY, deltaY);
-                second.y += random(-deltaY, deltaY);
-            }
-            side.splice(1, 0, first, second);
-        } else {
-            if (edge === 'l' && x !== 0) {
-                // Clone right side from piece on the left to match it.
-                const leftPieceIndex = y * this.puzzleSize.x + (x - 1);
-                const newSide = sides[leftPieceIndex].right.map(vector => vector.copy());
-                newSide.reverse();
-                side.splice(0, 2, ...newSide);
-                return;
-            }
-            const deltaX = this.offset;
-            const deltaY = side[1].y - side[0].y;
-            const oneFifthDelta = deltaY / 5 * 1;
-            const first = createVector(side[0].x, side[0].y + oneFifthDelta);
-            const second = createVector(side[1].x, side[1].y - oneFifthDelta);
-            if ((edge === 'l' && x !== 0) || (edge === 'r' && x !== this.puzzleSize.x - 1)) {
-                first.x += random(-deltaX, deltaX);
-                second.x += random(-deltaX, deltaX);
-            }
-            side.splice(1, 0, first, second);
+    private generateSidePoints(side: p5.Vector[], edge: 'top'|'right'|'bottom'|'left', x: number, y: number, sides: Sides[]) {
+        const abovePieceIndex = (y - 1) * this.puzzleSize.x + x;
+        const leftPieceIndex = y * this.puzzleSize.x + (x - 1);
+
+        if (edge === 'bottom' && y === this.puzzleSize.y - 1) return;
+        if (edge === 'right' && x === this.puzzleSize.x - 1) return;
+        
+        if (edge === 'top') {
+            if (y === 0) return;
+            // Clone bottom side from above piece to match it.
+            const newSide = sides[abovePieceIndex].bottom.map(vector => vector.copy());
+            newSide.reverse();
+            side.splice(0, 2, ...newSide);
+            return;
         }
+        if (edge === 'left') {
+            if (x === 0) return;
+            // Clone right side from piece on the left to match it.
+            const newSide = sides[leftPieceIndex].right.map(vector => vector.copy());
+            newSide.reverse();
+            side.splice(0, 2, ...newSide);
+            return;
+        }
+        const newSide = this.createCurve(side[0], side[1]);
+        side.splice(0, 2, ...newSide);
+    }
+
+    private angleBetween(v0: p5.Vector, v1: p5.Vector) {
+        const dx = v1.x - v0.x;
+        const dy = v1.y - v0.y;
+        return Math.atan2(dy, dx);
+    }
+      
+    private createCurve(v0: p5.Vector, v1: p5.Vector) {
+        const distance = this.cellSize.mag() * .6;
+        const angle = this.angleBetween(v0, v1);
+      
+        const mid = createVector(
+            lerp(v0.x, v1.x, .5),
+            lerp(v0.y, v1.y, .5),
+        );
+      
+        // Bay or headland?
+        const direction = random() > .5 ? 1 : -1; 
+        
+        const farAngle = angle - Math.PI * .5 * direction;
+        const far = createVector(
+            mid.x + Math.cos(farAngle) * distance * .3,
+            mid.y + Math.sin(farAngle) * distance * .3,
+        );
+        const farBezier = this.createBezierPoint(far, angle + Math.PI, distance * .15);
+        
+        const b1Angle = farAngle - Math.PI * .4 * direction;
+        const b1 = createVector(
+            mid.x + Math.cos(b1Angle) * distance * .1,
+            mid.y + Math.sin(b1Angle) * distance * .1,
+        );
+        const bezier1 = this.createBezierPoint(b1, angle + Math.PI * .3 * direction, distance * .15);
+        
+        const b2Angle = farAngle + Math.PI * .4 * direction;
+        const b2 = createVector(
+            mid.x + Math.cos(b2Angle) * distance * .1,
+            mid.y + Math.sin(b2Angle) * distance * .1,
+        );
+        const bezier2 = this.createBezierPoint(b2, angle - Math.PI * .3 * direction, distance * .15);
+      
+        const c0 = createVector(
+            lerp(v0.x, v1.x, .2),
+            lerp(v0.y, v1.y, .2),
+        );
+        const c1 = createVector(
+            lerp(v0.x, v1.x, .8),
+            lerp(v0.y, v1.y, .8),
+        );
+      
+        return [v0, c0, ...bezier1, ...farBezier, ...bezier2, c1, v1];
+    }
+      
+    private createBezierPoint(origin: p5.Vector, rotation: number, magnitude: number) {
+        const c1 = createVector(
+            origin.x + magnitude * cos(rotation),
+            origin.y + magnitude * sin(rotation)
+        );
+        const c2 = createVector(
+            origin.x - magnitude * cos(rotation),
+            origin.y - magnitude * sin(rotation)
+        );
+        return [c1, origin, c2];
     }
 
     private shufflePieces(pieces: Piece[]) {
@@ -158,84 +206,5 @@ class PiecesFactory {
                 }
             }
         }
-    }
-
-    public draw() {
-        if (IS_DEV_MODE) {
-            this.drawBackground();
-            this.drawFixedGrid();
-            this.drawGrid();
-            this.drawPoints();
-        }
-    }
-
-    private drawBackground() {
-        image(this.image, 0, 0);
-    }
-
-    private drawFixedGrid() {
-        push();
-        strokeWeight(1);
-        stroke(200);
-        // Verical lines
-        for (let i = 0; i <= this.puzzleSize.x; i++) {
-            const x = this.cellSize.x * i;
-            line(x, 0, x, height);
-        }
-        // Horizontal lines
-        for (let i = 0; i <= this.puzzleSize.y; i++) {
-            const y = this.cellSize.y * i;
-            line(0, y, width, y);
-        }
-        pop();
-    }
-
-    private drawPoints() {
-        push();
-        stroke(0);
-        strokeWeight(12);
-        for (let x = 0; x <= this.puzzleSize.x; x++) {
-            for (let y = 0; y <= this.puzzleSize.y; y++) {
-                const gridPoint = this.grid[x][y];
-                point(gridPoint.x, gridPoint.y);
-            }
-        }
-        pop();
-    }
-
-    private drawGrid() {
-        push();
-        curveTightness(0);
-        noFill();
-        stroke(255);
-        strokeWeight(2);
-        // vertical
-        for (let x = 0; x <= this.puzzleSize.x; x++) {
-            const firstPoint = this.grid[x][0];
-            const lastPoint = this.grid[x][this.puzzleSize.y];
-            beginShape();
-            curveVertex(firstPoint.x, firstPoint.y);
-            for (let y = 0; y <= this.puzzleSize.y; y++) {
-                const gridPoint = this.grid[x][y];
-                curveVertex(gridPoint.x, gridPoint.y);
-            }
-            curveVertex(lastPoint.x, lastPoint.y);
-            endShape();
-        }
-
-        // horizontal
-        for (let y = 0; y <= this.puzzleSize.y; y++) {
-            const firstPoint = this.grid[0][y];
-            const lastPoint = this.grid[this.puzzleSize.x][y];
-            beginShape();
-            curveVertex(firstPoint.x, firstPoint.y);
-            for (let x = 0; x <= this.puzzleSize.x; x++) {
-                const gridPoint = this.grid[x][y];
-                curveVertex(gridPoint.x, gridPoint.y);
-            }
-            curveVertex(lastPoint.x, lastPoint.y);
-            endShape();
-        }
-        pop();
     }
 }

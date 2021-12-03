@@ -69,7 +69,6 @@ class Puzzle implements IPuzzle, IGeneratePuzzle, ISerializablePuzzle {
         push();
         scale(this.inputHandler.graphHandler.scale);
         translate(this.inputHandler.graphHandler.translation);
-        this.piecesFactory?.draw();
         this.drawPieces();
         pop();
         

@@ -17,7 +17,6 @@ interface IFonts {
 
 //-----------------------------------------//
 //----------------GLOBALS------------------//
-const IS_DEV_MODE = false;
 let puzzle: Puzzle;
 let music: IMusic;
 let sounds: ISound;

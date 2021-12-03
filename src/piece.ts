@@ -159,8 +159,8 @@ class Piece implements ISerializablePiece {
         graphics.vertex(firstPoint.x, firstPoint.y);
         for (let i = 1; i < side.length; i += 3) {
             const p2 = p5.Vector.sub(side[i], this.origin);
-            const p3 = p5.Vector.sub(side[i + 1], this.origin);
-            const p4 = p5.Vector.sub(side[i + 2], this.origin);
+            const p3 = p5.Vector.sub(side[(i + 1) % side.length], this.origin);
+            const p4 = p5.Vector.sub(side[(i + 2) % side.length], this.origin);
             graphics.bezierVertex(p2.x, p2.y, p3.x, p3.y, p4.x, p4.y);
         }
     }
