@@ -9,15 +9,13 @@ class FPS {
         
         this.count++;
 
-        if (this.count > 20) {
+        if (this.count > 40) {
             this.count = 0;
         }
     }
 
     public draw() {
         push();
-        fill(255);
-        stroke(0);
         textSize(20);
         textAlign(LEFT, TOP);
         text("FPS: " + this.fps, width - 94, 8);
