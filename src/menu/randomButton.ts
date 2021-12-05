@@ -1,10 +1,10 @@
 class RandomButton {
     private readonly API_KEY: string
-    private menu: IMenu;
+    private gameMenu: IGameMenu;
     private button: p5.Element;
 
-    constructor(menu: IMenu) {
-        this.menu = menu;
+    constructor(div: p5.Element, gameMenu: IGameMenu) {
+        this.gameMenu = gameMenu;
         // todo: how do we hide the key?
         this.API_KEY = '563492ad6f91700001000001e9543e64cc6240f3a18b3b0d9f42629d';
 
@@ -12,7 +12,7 @@ class RandomButton {
         this.button.addClass('button');
         this.button.html('Slumpat Pussel');
         this.button.mousePressed(() => this.fetchPhotos());
-        this.menu.div.child(this.button);
+        div.child(this.button);
     }
 
     private get url() {
@@ -33,7 +33,7 @@ class RandomButton {
             this.button.html('Laddar ...');
             loadImage(photo.src.large, (image) => {
                 this.button.html('Slumpat Pussel');
-                this.menu.onImageLoaded(image)
+                this.gameMenu.useImage(image)
             });
         } catch (error) {
             console.error(error);
