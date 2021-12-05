@@ -59,10 +59,11 @@ class Menu implements IMenu {
         this.fps.update();
         
         const didPress = !this.prevMouseIsPressed && mouseIsPressed;
+        const mouseOverMenu = mouseY > height - this.height;
         const mouseOverGameIcon = mouseX < this.height;
         const mouseOverSettingsIcon = mouseX > width - this.height;
         
-        if (didPress) {
+        if (didPress && mouseOverMenu) {
             if (mouseOverGameIcon) {
                 this.setOpenMenu('game');
             } else if (mouseOverSettingsIcon) {
@@ -72,7 +73,7 @@ class Menu implements IMenu {
             }
         }
 
-        if (mouseOverGameIcon || mouseOverSettingsIcon) {
+        if (mouseOverMenu && (mouseOverGameIcon || mouseOverSettingsIcon)) {
             cursor('pointer');
         } else {
             cursor('auto');

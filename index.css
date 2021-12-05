@@ -59,7 +59,7 @@ html, body, canvas {
     border: none;
     min-width: 4rem;
     text-transform: uppercase;
-    font-weight: bold;
+    font-family: 'primary';
 }
 
 .selected {
