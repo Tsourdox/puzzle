@@ -107,39 +107,61 @@ class PiecesFactory {
         const dy = v1.y - v0.y;
         return Math.atan2(dy, dx);
     }
-      
-    private createCurve(v0: p5.Vector, v1: p5.Vector) {
+    
+    /**
+     * Creates the curve by adding 2 control points to each end (v0, v1) and 3 bezier points
+     * (a pair of 1 origin and 2 control points) in the middle of the array.
+     * The direction or in other words - bay or headland for a puzzle piece, is randomed.
+     * Each point has some slight randomness to it's position to make
+     * the whole curve a bit random.
+     * 
+     * @returns a curve as a series of points.
+     */
+    private createCurve(v0: p5.Vector, v1: p5.Vector): p5.Vector[] {
         const distance = this.cellSize.mag() * .6;
         const angle = this.angleBetween(v0, v1);
+        const distVariation = random(-distance * .05, distance * .05);
       
         const mid = createVector(
-            lerp(v0.x, v1.x, .5),
-            lerp(v0.y, v1.y, .5),
+            lerp(v0.x, v1.x, .5 + random(-.08, .08)),
+            lerp(v0.y, v1.y, .5 + random(-.08, .08)),
         );
       
         // Bay or headland?
         const direction = random() > .5 ? 1 : -1; 
         
-        const farAngle = angle - Math.PI * .5 * direction;
+        const farAngle = angle - Math.PI * .5 * direction +  random(-.1, .1);
         const far = createVector(
-            mid.x + Math.cos(farAngle) * distance * .3,
-            mid.y + Math.sin(farAngle) * distance * .3,
+            mid.x + Math.cos(farAngle) * distance * .3 + distVariation,
+            mid.y + Math.sin(farAngle) * distance * .3 + distVariation,
         );
-        const farBezier = this.createBezierPoint(far, angle + Math.PI, distance * .15);
+        const farBezier = this.createBezierPoint(
+            far,
+            angle + Math.PI + random(-.4, .4),
+            distance * .15 * random(1, 2)
+        );
         
-        const b1Angle = farAngle - Math.PI * .4 * direction;
+        const b1Angle = farAngle - Math.PI * .4 * direction + random(-.1, .1);
         const b1 = createVector(
-            mid.x + Math.cos(b1Angle) * distance * .1,
-            mid.y + Math.sin(b1Angle) * distance * .1,
+            mid.x + Math.cos(b1Angle) * distance * .1 + distVariation,
+            mid.y + Math.sin(b1Angle) * distance * .1 + distVariation,
         );
-        const bezier1 = this.createBezierPoint(b1, angle + Math.PI * .3 * direction, distance * .15);
+        const bezier1 = this.createBezierPoint(
+            b1,
+            angle + Math.PI * .3 * direction + random(-.2, .2),
+            distance * .5 * random(.1, .2)
+        );
         
-        const b2Angle = farAngle + Math.PI * .4 * direction;
+        const b2Angle = farAngle + Math.PI * .4 * direction +  random(-.1, .1);
         const b2 = createVector(
-            mid.x + Math.cos(b2Angle) * distance * .1,
-            mid.y + Math.sin(b2Angle) * distance * .1,
+            mid.x + Math.cos(b2Angle) * distance * .1 + distVariation,
+            mid.y + Math.sin(b2Angle) * distance * .1 + distVariation,
         );
-        const bezier2 = this.createBezierPoint(b2, angle - Math.PI * .3 * direction, distance * .15);
+        const bezier2 = this.createBezierPoint(
+            b2,
+            angle - Math.PI * .3 * direction + random(-.2, .2),
+            distance * .5 * random(.1, .2)
+        );
       
         const c0 = createVector(
             lerp(v0.x, v1.x, .2),
