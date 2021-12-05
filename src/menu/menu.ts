@@ -18,7 +18,7 @@ class Menu implements IMenu {
 
     constructor(puzzle: IGeneratePuzzle) {
         this.puzzle = puzzle;
-        this.background = color('rgba(10, 10, 10, 0.9)');
+        this.background = color('rgba(10, 10, 10, 0.92)');
         this.foreground = color(200);
         this.height = 80;
         this.fps = new FPS();

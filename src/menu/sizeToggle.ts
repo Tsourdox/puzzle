@@ -1,5 +1,5 @@
 class SizeToggle {
-  private readonly sizes: PuzzleSize[] = ['xs', 's', 'm', 'l', 'xl', 'xxl'];
+  private readonly sizes: PuzzleSize[] = ['xs', 's', 'm', 'l', 'xl', /* 'xxl' */];
   private _selectedSize: PuzzleSize;
   private buttons: p5.Element[] = [];
 

@@ -7,7 +7,7 @@
     --primary: rgb(141, 44, 168);
     --darkened: rgb(95, 43, 110);
     --neutral: rgb(200, 200, 200);
-    --background: rgb(20, 20, 20);
+    --background: rgb(30, 30, 30);
     --backdrop: rgba(100, 100, 100, 0.8)
 }
 
@@ -33,37 +33,35 @@ html, body, canvas {
     display: none;
 }
 
-.button {
+.button, .toggle-button {
     display: inline-block;
-    font-size: 2rem;
     border-radius: 100rem;
-    padding: 1rem 2rem;
-    margin: 1.5rem;
     cursor: pointer;
     color: var(--neutral);
     background: var(--background);
-    box-shadow: 0 0 0.4rem var(--darkened);
     border: none;
 }
 
+.button {
+    font-size: 2rem;
+    padding: 1rem 2rem;
+    margin: 1.5rem;
+}
+
+.button:active, .toggle-button:active {
+    box-shadow: 0 0 .5rem var(--primary);
+}
+
 .toggle-button {
-    display: inline-block;
     font-size: 1.4rem;
-    border-radius: 100rem;
     padding: .5rem 1rem;
     margin: 1rem .5rem;
-    cursor: pointer;
-    color: var(--neutral);
-    background: var(--background);
-    box-shadow: 0 0 0.4rem var(--darkened);
-    border: none;
     min-width: 4rem;
     text-transform: uppercase;
     font-family: 'primary';
 }
 
 .selected {
-    box-shadow: 0 0 0.4rem var(--neutral);
     background: var(--darkened);
 }
 
