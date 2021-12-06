@@ -1,5 +1,6 @@
 interface IGameMenu {
     useImage: (image: p5.Image) => void;
+    readonly selectedSize: PuzzleSize;
 }
 
 type PuzzleSize = 'xs' | 's' | 'm' | 'l' | 'xl' | 'xxl';
@@ -26,7 +27,12 @@ class GameMenu implements IGameMenu {
     }
     
     public useImage(image: p5.Image) {
-        this.menu.generatePuzzleFromImage(image, this.sizeToggle.selectedSize);
+        const size = this.sizeToggle.selectedSizeAsVector;
+        this.menu.generatePuzzleFromImage(image, size);
+    }
+
+    public get selectedSize() {
+        return this.sizeToggle.selectedSize;
     }
 
     public open() {

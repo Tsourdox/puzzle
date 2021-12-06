@@ -25,6 +25,9 @@ class SizeToggle {
   }
 
   public get selectedSize() {
+    return this._selectedSize;
+  }
+  public get selectedSizeAsVector() {
     switch(this._selectedSize) {
         case 'xs': return createVector(5, 5);
         case 's': return createVector(10, 10);
