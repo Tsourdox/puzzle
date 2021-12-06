@@ -18,10 +18,10 @@ class RandomButton {
     }
 
     private get url() {
-        const page = floor(random(1, 1000));
+        const page = floor(random(1, 50));
         const domain = 'https://api.pexels.com/';
         const path = 'v1/search'
-        const query = `?query=multiple+colors&orientation=landscape&per_page=1&page=${page}`;
+        const query = `?query=landscape+people&orientation=landscape&per_page=10&page=${page}`;
         return `${domain}${path}${query}`
     }
 
@@ -34,7 +34,7 @@ class RandomButton {
                 headers: { 'Authorization': this.API_KEY }
             });
             const data = await response.json();
-            const photo = data.photos[0];
+            const photo = data.photos[floor(random(0, 10))];
             
             const url = this.getImageUrl(photo.src, this.gameMenu.selectedSize);
             loadImage(url, (image) => {
