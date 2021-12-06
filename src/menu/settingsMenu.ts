@@ -7,6 +7,11 @@ class SettingsMenu {
       this.div.addClass('menu-box');
       this.div.addClass('hidden');
 
+      const title = createElement('h2');
+      title.html('Inställningar');
+      title.addClass('title');
+      this.div.child(title);
+
       this.keyBindings = new KeyBindings(this.div);
       new CloseButton(this.div, menu);
   }
