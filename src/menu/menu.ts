@@ -87,10 +87,10 @@ class Menu implements IMenu {
         fill(this.foreground);
         textAlign(CENTER, CENTER);
         
-        this.fps.draw();
         this.drawMenuBar();
         this.drawContent();
         this.drawRoomCode();
+        this.fps.draw();
         pop();
     }
 

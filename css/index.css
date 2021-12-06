@@ -1,6 +1,6 @@
 @font-face {
     font-family: primary;
-    src: url(./assets/fonts/black-ops-one.ttf);
+    src: url(../assets/fonts/black-ops-one.ttf);
 }
 
 :root {
@@ -21,6 +21,9 @@ html, body, canvas {
     text-transform: uppercase;
 }
 
+/******************************/
+/******* MENU *******/
+/******************************/
 .menu-box {
     position: fixed;
     left: 0; top: 0; right: 0; bottom: 5rem;
@@ -78,6 +81,7 @@ html, body, canvas {
     padding: .6rem;
     min-width: 30rem;
     font-size: 1.4rem;
+    align-items: center;
 }
 
 .row-name {
@@ -90,7 +94,6 @@ html, body, canvas {
     color: var(--neutral);
     font-weight: normal;
 }
-
 
 /******************************/
 /******* LOADING SCREEN *******/
