@@ -16,7 +16,7 @@ class SizeToggle {
         if (size === this._selectedSize) {
           button.addClass('selected');
         }
-        button.mouseClicked(() => this.selectPuzzleSize(button, size));
+        button.mouseReleased(() => this.selectPuzzleSize(button, size));
         this.buttons.push(button);
         container.child(button);
       }

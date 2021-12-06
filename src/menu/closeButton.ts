@@ -7,7 +7,7 @@ class CloseButton {
         this.closeButton = createElement('label');
         this.closeButton.addClass('button');
         this.closeButton.html('Stäng Menyn');
-        this.closeButton.mousePressed(() => this.menu.setOpenMenu('closed'));
+        this.closeButton.mouseReleased(() => this.menu.setOpenMenu('closed'));
         div.child(this.closeButton);
     }
 }

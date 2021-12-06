@@ -11,7 +11,7 @@ class RandomButton {
         this.button = createElement('label');
         this.button.addClass('button');
         this.button.html('Slumpat Pussel');
-        this.button.mousePressed(() => this.fetchPhotos());
+        this.button.mouseReleased(() => this.fetchPhotos());
         div.child(this.button);
     }
 
