@@ -11,6 +11,10 @@ class KeyBindings {
     'visa fps': 1,
   };
 
+  public get showFPS() {
+    return Boolean(this.keyTable['visa fps']);
+  }
+
   constructor(parent: p5.Element) {
       const title = createElement('h2');
       title.html('Tangentbindningar');
@@ -28,9 +32,9 @@ class KeyBindings {
         
         let rowContent: p5.Element;
         if (key === 'rotationshastighet') {
-          rowContent = this.createSlider(value);
+          rowContent = this.createSlider(value, key);
         } else if (key === 'visa fps') {
-          rowContent = this.createToggleSwitch(value);
+          rowContent = this.createToggleSwitch(value, key);
         } else {
           rowContent = this.createKeyBinding(value);
         }
@@ -44,30 +48,48 @@ class KeyBindings {
       parent.child(container);
   }
 
-  private createToggleSwitch(value: number) {
+  private createToggleSwitch(value: number, key: string) {
     const container = createElement('label');
     const input = createElement('input');
     const handle = createElement('span');
     
     container.addClass('switch');
-    input.attribute('type', 'checkbox');
-    value && input.attribute('checked', '');
     handle.addClass('toggle');
+    input.attribute('type', 'checkbox');
+    input.elt.checked = Boolean(value);
+    input.mouseClicked(() => {
+      this.keyTable[key] = input.elt.checked ? 1 : 0;
+    });
     
     container.child(input);
     container.child(handle);
     return container;
   }
 
-  private createSlider(value: number) {
+  private createSlider(value: number, key: string) {
+    const min = .3; const max = 3;
     const input = createElement('input');
-    input.attribute('step', '0.1');
-    input.attribute('min', '0.3');
-    input.attribute('max', '3');
     input.attribute('type', 'range');
+    input.attribute('step', '0.1');
+    input.attribute('min', min.toString());
+    input.attribute('max', max.toString());
     input.value(value);
     input.addClass('slider');
+    input.elt.addEventListener('input', () => {
+      this.setSliderBackground(input, min, max);
+      this.keyTable[key] = Number(input.value());
+    });
+    this.setSliderBackground(input, min, max);
     return input
+  }
+
+  private setSliderBackground(input: p5.Element, min: number, max: number) {
+    const value = Number(input.value());
+      if (value === min) return;
+
+      let percentage = (value - min) / (max - min) * 100
+      const gradient = `linear-gradient(to right, var(--darkened), var(--primary) ${percentage}%, var(--backdrop) ${percentage}%, var(--background) 100%)`;
+      input.style('background', gradient);
   }
 
   private createKeyBinding(value: number) {

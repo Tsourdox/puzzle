@@ -20,6 +20,7 @@
   border-radius: 50%; 
   background: var(--primary);
   cursor: pointer;
+  box-shadow: 0 0 .4rem -.1rem var(--background);
 }
 
 .slider::-moz-range-thumb {
@@ -28,4 +29,5 @@
   border-radius: 50%;
   background: var(--primary);
   cursor: pointer;
+  box-shadow: 0 0 .4rem -.1rem var(--background);
 }

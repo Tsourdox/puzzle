@@ -90,7 +90,9 @@ class Menu implements IMenu {
         this.drawMenuBar();
         this.drawContent();
         this.drawRoomCode();
-        this.fps.draw();
+        if (this.settingsMenu.showFPS) {
+            this.fps.draw();
+        }
         pop();
     }
 
