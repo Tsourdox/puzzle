@@ -52,7 +52,7 @@ function preload() {
 
 function setup() {
     createCanvas(windowWidth, windowHeight);
-    frameRate(60);
+    frameRate(120);
     sounds.snaps[0].setVolume(0.8);
     sounds.snaps[1].setVolume(0.1);
     sounds.snaps[2].setVolume(0.5);
