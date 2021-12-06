@@ -4,11 +4,11 @@
 }
 
 :root {
-    --primary: rgb(141, 44, 168);
+    --primary: rgb(223, 113, 253);
     --darkened: rgb(95, 43, 110);
     --neutral: rgb(200, 200, 200);
-    --background: rgb(30, 30, 30);
-    --backdrop: rgba(100, 100, 100, 0.8)
+    --background: rgb(40, 40, 40);
+    --backdrop: rgba(60, 60, 60, 0.8)
 }
 
 html, body, canvas {
@@ -74,7 +74,7 @@ html, body, canvas {
 .table-row {
     display: flex;
     color: var(--neutral);
-    border-top: 1px solid var(--background);
+    border-top: .1rem solid var(--backdrop);
     padding: .6rem;
     min-width: 30rem;
     font-size: 1.4rem;
