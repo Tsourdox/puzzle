@@ -10,7 +10,7 @@ class RandomButton {
 
         this.button = createElement('label');
         this.button.addClass('button');
-        this.button.html('Slumpat Pussel');
+        this.button.html('Slumpa bild');
         this.button.mouseReleased(() => this.fetchPhotos());
         div.child(this.button);
     }
@@ -25,14 +25,14 @@ class RandomButton {
 
     private async fetchPhotos() {
         try {
+            this.button.html('Skapar pussel ...');
             const response = await fetch(this.url, {
                 headers: { 'Authorization': this.API_KEY }
             });
             const data = await response.json();
             const photo = data.photos[0];
-            this.button.html('Laddar ...');
             loadImage(photo.src.large, (image) => {
-                this.button.html('Slumpat Pussel');
+                this.button.html('Slumpa bild');
                 this.gameMenu.useImage(image)
             });
         } catch (error) {

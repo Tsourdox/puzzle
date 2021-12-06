@@ -14,6 +14,10 @@ class GameMenu implements IGameMenu {
         this.div = createElement('div');
         this.div.addClass('menu-box');
         this.div.addClass('hidden');
+        const title = createElement('h2');
+        title.html('Börja ett nytt pussel');
+        title.addClass('title');
+        this.div.child(title);
 
         this.sizeToggle = new SizeToggle(this.div);
         new RandomButton(this.div, this);

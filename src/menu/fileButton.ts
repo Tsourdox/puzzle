@@ -12,15 +12,15 @@ class FileButton {
         this.label = createElement('label');
         this.label.addClass('button');
         this.label.attribute('for', 'file');
-        this.label.html('Eget Pussel');
+        this.label.html('Välj egen bild');
         div.child(this.label);
     }
 
     private handleFileSelect(file: { type: string, data: string }) {
         if (file.type === 'image') {
-            this.label.html('Laddar ...');
+            this.label.html('Skapar pussel ...');
             loadImage(file.data, (file) => {
-                this.label.html('Nytt Pussel');
+                this.label.html('Välj egen bild');
                 this.gameMenu.useImage(file);
             });
         }

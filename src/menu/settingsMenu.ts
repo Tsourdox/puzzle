@@ -6,6 +6,7 @@ class SettingsMenu {
       this.div.addClass('menu-box');
       this.div.addClass('hidden');
 
+      new KeyBindings(this.div);
       new CloseButton(this.div, menu);
   }
 

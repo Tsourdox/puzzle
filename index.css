@@ -18,6 +18,7 @@ html, body, canvas {
     background: var(--background);
     overflow: hidden;
     font-family: 'primary';
+    text-transform: uppercase;
 }
 
 .menu-box {
@@ -44,8 +45,8 @@ html, body, canvas {
 
 .button {
     font-size: 2rem;
-    padding: 1rem 2rem;
-    margin: 1.5rem;
+    padding: 0.8rem 1.6rem;
+    margin: 1rem;
 }
 
 .button:active, .toggle-button:active {
@@ -63,6 +64,31 @@ html, body, canvas {
 
 .selected {
     background: var(--darkened);
+}
+
+
+.keybindings-container {
+    margin-bottom: 2rem;
+}
+
+.table-row {
+    display: flex;
+    color: var(--neutral);
+    border-top: 1px solid var(--background);
+    padding: .6rem;
+    min-width: 30rem;
+    font-size: 1.4rem;
+}
+
+.row-name {
+    flex: 1;
+}
+
+.title {
+    font-family: 'primary';
+    font-size: 2.2rem;
+    color: var(--neutral);
+    font-weight: normal;
 }
 
 
