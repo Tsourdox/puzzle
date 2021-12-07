@@ -30,9 +30,9 @@ class SizeToggle {
   public get selectedSizeAsVector() {
     switch(this._selectedSize) {
         case 'xs': return createVector(5, 5);
-        case 's': return createVector(10, 10);
-        case 'm': return createVector(16, 16);
-        case 'l': return createVector(24, 24);
+        case 's': return createVector(8, 8);
+        case 'm': return createVector(12, 12);
+        case 'l': return createVector(20, 20);
         case 'xl': return createVector(30, 30);
         case 'xxl': return createVector(40, 40);
     }
