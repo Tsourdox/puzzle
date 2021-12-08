@@ -63,7 +63,7 @@ class Puzzle implements IPuzzle, IGeneratePuzzle, ISerializablePuzzle {
     }
 
     public draw() {
-        background(50);
+        background(40);
         textFont(fonts.primary);
         
         push();

@@ -56,6 +56,7 @@ class Menu implements IMenu {
     }
 
     public update() {
+        this.settingsMenu.update();
         this.fps.update();
         
         const didPress = !this.prevMouseIsPressed && mouseIsPressed;

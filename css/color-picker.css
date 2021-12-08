@@ -1,0 +1,17 @@
+.color-picker {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+}
+
+.color-picker > * {
+    width: 2rem;
+    height: 2rem;
+    border-radius: 0.5rem;
+    box-sizing: border-box;
+    cursor: pointer;
+}
+
+.color-picker > .selected {
+    border: 0.2rem solid var(--primary);
+}
