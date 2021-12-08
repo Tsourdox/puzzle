@@ -11,10 +11,12 @@ class SelectionHandler implements ISelectionHandler {
     private dragSelectionStroke: p5.Color;
     private timeSincePress: number;
     private dragSelectionOrigin?: p5.Vector;
+    private settings: IReadableSettings;
 
-    constructor(puzzle: IPuzzle, graph: IGraph) {
+    constructor(puzzle: IPuzzle, graph: IGraph, settings: IReadableSettings) {
         this.puzzle = puzzle;
         this.graph = graph;
+        this.settings = settings;
         this.prevMouseIsPressed = false;
         this.dragSelectionFill = color('rgba(200,200,200,0.3)');
         this.dragSelectionStroke = color('rgba(255,255,255,0.6)');
@@ -29,10 +31,6 @@ class SelectionHandler implements ISelectionHandler {
         return enoughTimePassed || enoughDistMoved;
     }
 
-    private get selectedPieces(): Piece[] {
-        return this.puzzle.pieces.filter(p => p.isSelected);
-    }
-
     public update() {
         this.handlePieceSelection();
         this.handleDragSelection();
@@ -45,7 +43,7 @@ class SelectionHandler implements ISelectionHandler {
         
         if (didPress && mouseButton === LEFT) {
             const mouseOverAnyPiece = this.isMouseOverAnyPiece(this.puzzle.pieces);
-            if (!mouseOverAnyPiece || keyIsDown(SHIFT)) {
+            if (!mouseOverAnyPiece || keyIsDown(this.settings.getValue('markera fler'))) {
                 this.dragSelectionOrigin = createVector(mouseX, mouseY);
             }
         }
@@ -65,18 +63,18 @@ class SelectionHandler implements ISelectionHandler {
         
         // Select by clicking
         if (didPress && mouseButton === LEFT) {
-            const mouseOverSelectedPiece = this.isMouseOverAnyPiece(this.selectedPieces);
+            const mouseOverSelectedPiece = this.isMouseOverAnyPiece(this.puzzle.selectedPieces);
             
             for (const piece of sortPieces(this.puzzle.pieces, true)) {
                 if (this.isMouseOverPiece(piece)) {
-                    if (keyIsDown(SHIFT)) {
+                    if (keyIsDown(this.settings.getValue('markera fler'))) {
                         this.select(piece, !piece.isSelected);
                     } else {
                         this.select(piece, true);
                     }
                     break;
                 }
-                if (mouseOverSelectedPiece || keyIsDown(SHIFT)) {
+                if (mouseOverSelectedPiece || keyIsDown(this.settings.getValue('markera fler'))) {
                     continue;
                 }
                 this.select(piece, false);
@@ -100,7 +98,7 @@ class SelectionHandler implements ISelectionHandler {
                 }
                 chekedPieces.push(...connectedPieces);
                 
-                if (keyIsDown(SHIFT)) {
+                if (keyIsDown(this.settings.getValue('markera fler'))) {
                     this.select(piece, piece.isSelected || selectionIsOverAnyConnectedPiece);
                 } else {
                     this.select(piece, selectionIsOverAnyConnectedPiece);
@@ -110,7 +108,7 @@ class SelectionHandler implements ISelectionHandler {
         
         // Deselect
         if (keyIsDown(ESCAPE)) { 
-            for (const piece of this.selectedPieces) {
+            for (const piece of this.puzzle.selectedPieces) {
                 this.select(piece, false);
             }
         }

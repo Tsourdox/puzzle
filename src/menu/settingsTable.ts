@@ -101,7 +101,7 @@ class SettingsTable {
     }
 
     private createSlider(value: number, key: ISetting) {
-        const min = .3; const max = 3;
+        const min = .2; const max = 5;
         const input = createElement('input');
         input.attribute('type', 'range');
         input.attribute('step', '0.1');
@@ -119,8 +119,6 @@ class SettingsTable {
 
     private setSliderBackground(input: p5.Element, min: number, max: number) {
         const value = Number(input.value());
-        if (value === min) return;
-
         let percentage = (value - min) / (max - min) * 100
         const gradient = `linear-gradient(to right, var(--darkened), var(--primary) ${percentage}%, var(--backdrop) ${percentage}%, var(--background) 100%)`;
         input.style('background', gradient);

@@ -28,6 +28,10 @@ class Menu implements IMenu {
         this.prevMouseIsPressed = false;
     }
 
+    public get settings(): IReadableSettings {
+        return this.settingsMenu;
+    }
+
     public get isOpen() {
         return this.menuName !== 'closed'
     }

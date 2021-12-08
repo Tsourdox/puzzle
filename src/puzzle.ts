@@ -2,6 +2,7 @@ interface IPuzzle {
     pieces: ReadonlyArray<Piece>;
     pieceCount: p5.Vector;
     pieceSize: p5.Vector;
+    readonly selectedPieces: ReadonlyArray<Piece>;
 }
 
 interface IGeneratePuzzle {
@@ -25,11 +26,11 @@ class Puzzle implements IPuzzle, IGeneratePuzzle, ISerializablePuzzle {
         this.pieceCount = createVector(0, 0);
         this.pieceSize = createVector(0, 0);
         this.isModified = false;
-        this.inputHandler = new InputHandler(this);
+        this.menu = new Menu(this);
+        this.inputHandler = new InputHandler(this, this.menu.settings);
         this.networkSerializer = new NetworkSerializer(this, this.inputHandler.graphHandler);
         const { selectionHandler, transformHandler } = this.inputHandler;
         this.pieceConnetor = new PieceConnector(this, selectionHandler, transformHandler);
-        this.menu = new Menu(this);
         this.loadPuzzle();
     }
 
@@ -47,6 +48,12 @@ class Puzzle implements IPuzzle, IGeneratePuzzle, ISerializablePuzzle {
         this.pieceSize = createVector(image.width / x, image.height / y);
         this.piecesFactory = new PiecesFactory(x, y, image);
         this.pieces = this.piecesFactory.createAllPieces();
+    }
+
+    // todo: borde sparas eftersom detta blir kostsamt med många bitar
+    // samt flytta till InputHandler
+    public get selectedPieces(): Piece[] {
+        return this.pieces.filter(p => p.isSelected);
     }
 
     public update() {

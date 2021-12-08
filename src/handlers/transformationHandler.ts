@@ -7,34 +7,33 @@ class TransformHandler implements ITransformHandler {
     private puzzle: IPuzzle;
     private graph: IGraph;
     private selection: ISelectionHandler;
-    private prevSpaceIsDown: boolean;
-    private prevKeyRIsDown: boolean;
-    private prevKeyCIsDown: boolean;
+    private stackKeyPrevDown: boolean;
+    private explodeKeyPrevDown: boolean;
+    private settings: IReadableSettings;
 
-    constructor(puzzle: IPuzzle, graph: IGraph, selection: ISelectionHandler) {
+    constructor(puzzle: IPuzzle, graph: IGraph, selection: ISelectionHandler, settings: IReadableSettings) {
         this.puzzle = puzzle;
         this.graph = graph;
         this.selection = selection;
-        this.prevSpaceIsDown = false;
-        this.prevKeyRIsDown = false;
-        this.prevKeyCIsDown = false;
+        this.settings = settings;
+        this.stackKeyPrevDown = false;
+        this.explodeKeyPrevDown = false;
     }
 
     private get selectedPieces(): Piece[] {
         return this.puzzle.pieces.filter(p => p.isSelected);
     }
     
-    public update(scrollSensitivity: number, prevMouse: p5.Vector) {
-        this.handlePieceRotation(scrollSensitivity);
+    public update(prevMouse: p5.Vector) {
+        this.handlePieceRotation();
         this.handlePieceTranslation(prevMouse);
         this.handlePieceExploding();
         this.setPreviousValues();
     }
 
     protected setPreviousValues() {
-        this.prevSpaceIsDown = keyIsDown(SPACE);
-        this.prevKeyRIsDown = keyIsDown(KEY_R);
-        this.prevKeyCIsDown = keyIsDown(KEY_C);
+        this.stackKeyPrevDown = keyIsDown(this.settings.getValue('stapla bitar'));
+        this.explodeKeyPrevDown = keyIsDown(this.settings.getValue('sprid bitar'));
     }
 
     /** Will also rotate connected pieces */
@@ -55,54 +54,39 @@ class TransformHandler implements ITransformHandler {
     }
 
     private handlePieceTranslation(prevMouse: p5.Vector) {
-        // Keyboard
-        const translation = (2 * this.puzzle.pieceSize.mag()) / frameRate();
-        if (keyIsDown(LEFT_ARROW) || keyIsDown(KEY_A)) {
-            this.translatePieces(-translation, 0);
-        }
-        if (keyIsDown(RIGHT_ARROW) || keyIsDown(KEY_D)) {
-            this.translatePieces(translation, 0);
-        }
-        if (keyIsDown(UP_ARROW) || keyIsDown(KEY_W)) {
-            this.translatePieces(0, -translation);
-        }
-        if (keyIsDown(DOWN_ARROW) || keyIsDown(KEY_S)) {
-            this.translatePieces(0, translation);
-        }
-        
         // Dragging with mouse
-        if (mouseIsPressed && mouseButton === LEFT && !this.selection.isDragSelecting && !keyIsDown(SHIFT)) {
+        const isMassSelecting = keyIsDown(this.settings.getValue('markera fler'));
+        if (mouseIsPressed && mouseButton === LEFT && !this.selection.isDragSelecting && !isMassSelecting) {
             const movedX = (mouseX - prevMouse.x) / this.graph.scale;
             const movedY = (mouseY - prevMouse.y) / this.graph.scale;
             this.translatePieces(movedX, movedY);
         }
     }
 
-    private handlePieceRotation(scrollSensitivity: number) {
+    private handlePieceRotation() {
         // Keyboard rotation
-        const rotation = 2 / frameRate();
-        if (keyIsDown(COMMA) || keyIsDown(KEY_Q)) {
+        const userSpeed = this.settings.getValue('rotationshastighet');
+        const rotation = 2 / frameRate() * userSpeed;
+        if (keyIsDown(this.settings.getValue('rotera vänster'))) {
             this.rotatePieces(-rotation);
         }
-        if (keyIsDown(DOT) || keyIsDown(KEY_E)) {
+        if (keyIsDown(this.settings.getValue('rotera höger'))) {
             this.rotatePieces(rotation);
         }
 
         // Scroll wheel rotation
-        if (keyIsDown(ALT)) {
-            const rotation = scrollDelta * 0.005 * scrollSensitivity;
+        if (this.puzzle.selectedPieces) {
+            const rotation = scrollDelta * 0.005 * userSpeed;
             this.rotatePieces(rotation)
         }
     }
 
     private handlePieceExploding() {
-        if (keyIsDown(KEY_C) && !this.prevKeyCIsDown) {
-            this.explodePiecesCircular();
+        // todo: se till att det inte påverkar kopplade bitar...
+        if (keyIsDown(this.settings.getValue('sprid bitar')) && !this.explodeKeyPrevDown) {
+            this.explodePieces();
         }
-        if (keyIsDown(KEY_R) && !this.prevKeyRIsDown) {
-            this.explodePiecesRectangular();
-        }
-        if (keyIsDown(SPACE) && !this.prevSpaceIsDown) {
+        if (keyIsDown(this.settings.getValue('stapla bitar')) && !this.stackKeyPrevDown) {
             this.stackPieces();
         }
     }
@@ -122,21 +106,18 @@ class TransformHandler implements ITransformHandler {
         }
     }
     
-    private explodePiecesCircular() {
+    private explodePieces() {
         const radius = this.puzzle.pieceSize.mag();
         const pieces = this.selectedPieces;
         if (pieces.length <= 1) return;
 
+        // todo: explodera bättre, animerat?
         for (let i = 0; i < pieces.length; i++) {
             const angle = (PI * 2 / pieces.length) * i;
             const x = radius * cos(angle);
             const y = radius * sin(angle);
             pieces[i].translation = createVector(x, y).add(pieces[i].translation);
         }
-    }
-    
-    private explodePiecesRectangular() {
-        // todo: explode pieces into a rectangular shape 
     }
 
     private stackPieces() {
