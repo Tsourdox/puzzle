@@ -70,7 +70,7 @@ class Puzzle implements IPuzzle, IGeneratePuzzle, ISerializablePuzzle {
     }
 
     public draw() {
-        background(40);
+        background(this.menu.settings.getValue('bakgrundsfärg'));
         textFont(fonts.primary);
         
         push();

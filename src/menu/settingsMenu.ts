@@ -12,7 +12,7 @@ class SettingsMenu implements IWritableSettings, IReadableSettings {
         'sprid bitar': KEY_C,
         'markera fler': SHIFT,
         'visa fps räknare': 0,
-        'bakgrundsfärg': 40,
+        'bakgrundsfärg': 15,
     };
 
     public get keys() {
