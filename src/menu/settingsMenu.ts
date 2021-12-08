@@ -1,9 +1,32 @@
-class SettingsMenu {
+class SettingsMenu implements IWritableSettings, IReadableSettings {
     public div: p5.Element;
-    private keyBindings: KeyBindings;
+    private settingsTable: SettingsTable;
     private isOpen: boolean;
 
+    private settingsMap: ISettingsMap = {
+        'rotationshastighet': 1,
+        'rotera vänster': KEY_Q,
+        'rotera höger': KEY_E,
+        'zooma hem': KEY_1,
+        'stapla bitar': SPACE,
+        'sprid bitar': KEY_C,
+        'markera fler': SHIFT,
+        'visa fps räknare': 0,
+        'bakgrundsfärg': 40,
+    };
+
+    public get keys() {
+        return Object.keys(this.settingsMap) as ISetting[];
+    }
+    public get map() {
+        return this.settingsMap;
+    }
+    public getValue(key: ISetting) {
+        return this.settingsMap[key];
+    }
+
     constructor(menu: IMenu) {
+        this.loadFromLS();
         this.isOpen = false;
         this.div = createElement('div');
         this.div.addClass('menu-box');
@@ -14,18 +37,18 @@ class SettingsMenu {
         title.addClass('title');
         this.div.child(title);
 
-        this.keyBindings = new KeyBindings(this.div);
+        this.settingsTable = new SettingsTable(this.div, this);
         new CloseButton(this.div, menu);
     }
 
     public update() {
         if (this.isOpen) {
-            this.keyBindings.update();
+            this.settingsTable.update();
         }
     }
 
     public get showFPS() {
-        return this.keyBindings.showFPS;
+        return Boolean(this.settingsMap['visa fps räknare']);
     }
 
     public open() {
@@ -36,5 +59,24 @@ class SettingsMenu {
     public close() {
         this.div.addClass('hidden');
         this.isOpen = false;
+    }
+
+    public updateBinding(key: ISetting, value: number | string | boolean) {
+        this.settingsMap[key] = Number(value);
+        this.saveToLS();
+    }
+
+    private saveToLS() {
+        localStorage.setItem('settings', JSON.stringify(this.settingsMap));
+    }
+
+    private loadFromLS() {
+        const data = localStorage.getItem('settings');
+        if (data) {
+            const savedTable = JSON.parse(data);
+            for (const key of Object.keys(this.settingsMap) as ISetting[]) {
+                this.settingsMap[key] = savedTable[key];
+            }
+        }
     }
 }

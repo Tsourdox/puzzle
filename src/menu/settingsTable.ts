@@ -1,28 +1,14 @@
-class KeyBindings {
-    private waitingOnKeyBindingForKey?: string;
+class SettingsTable {
+    private waitingOnKeyBindingForKey?: ISetting;
     private elementToUpdate?: p5.Element;
+    private settings: IReadWriteSettings;
 
-    private keyTable: { [key: string]: number } = {
-        'rotationshastighet': 1,
-        'rotera vänster': KEY_Q,
-        'rotera höger': KEY_E,
-        'zooma hem': KEY_1,
-        'stapla bitar': SPACE,
-        'sprid bitar': KEY_C,
-        'markera fler': SHIFT,
-        'visa fps räknare': 0,
-        'bakgrundsfärg': 40,
-    };
-
-    public get showFPS() {
-        return Boolean(this.keyTable['visa fps räknare']);
-    }
-
-    constructor(parent: p5.Element) {
-        this.loadFromLS();
+    constructor(parent: p5.Element, settings: IReadWriteSettings) {
+        this.settings = settings;
         const container = createElement('div');
         container.addClass('keybindings-container')
-        for (const [key, value] of Object.entries(this.keyTable)) {
+        for (const key of settings.keys) {
+            const value = settings.getValue(key);
             const row = createElement('div');
             row.addClass('table-row');
             
@@ -55,7 +41,7 @@ class KeyBindings {
                     this.resetWaitingOnKeyBinding();
                 } else {
                     const key = this.waitingOnKeyBindingForKey;
-                    this.updateBinding(key, keyCode);
+                    this.settings.updateBinding(key, keyCode);
                     this.elementToUpdate?.html(this.getStringFromKeyCode(keyCode));
                     this.elementToUpdate?.removeClass('active');
                 }
@@ -68,18 +54,13 @@ class KeyBindings {
 
     private resetWaitingOnKeyBinding() {
         if (!this.waitingOnKeyBindingForKey) return;
-        const oldKeyCode = this.keyTable[this.waitingOnKeyBindingForKey];
+        const oldKeyCode = this.settings.getValue(this.waitingOnKeyBindingForKey);
         const keyCodeString = this.getStringFromKeyCode(oldKeyCode)
         this.elementToUpdate?.html(keyCodeString);
         this.elementToUpdate?.removeClass('active');
     }
 
-    private updateBinding(key: string, value: number | string | boolean) {
-        this.keyTable[key] = Number(value);
-        this.saveToLS();
-    }
-
-    private createColorPicker(value: number, key: string, colors: number[]) {
+    private createColorPicker(value: number, key: ISetting, colors: number[]) {
         const colorPicker = createElement('div');
         colorPicker.addClass('color-picker')
         for (const background of colors) {
@@ -90,7 +71,7 @@ class KeyBindings {
                     square.classList.remove('selected');
                 }
                 colorSquare.addClass('selected');
-                this.updateBinding(key, background);
+                this.settings.updateBinding(key, background);
             });
             
             if (value === background) {
@@ -101,7 +82,7 @@ class KeyBindings {
         return colorPicker;
     }
 
-    private createToggleSwitch(value: number, key: string) {
+    private createToggleSwitch(value: number, key: ISetting) {
         const container = createElement('label');
         const input = createElement('input');
         const handle = createElement('span');
@@ -111,7 +92,7 @@ class KeyBindings {
         input.attribute('type', 'checkbox');
         input.elt.checked = Boolean(value);
         input.mouseClicked(() => {
-            this.updateBinding(key, input.elt.checked);
+            this.settings.updateBinding(key, input.elt.checked);
         });
         
         container.child(input);
@@ -119,7 +100,7 @@ class KeyBindings {
         return container;
     }
 
-    private createSlider(value: number, key: string) {
+    private createSlider(value: number, key: ISetting) {
         const min = .3; const max = 3;
         const input = createElement('input');
         input.attribute('type', 'range');
@@ -130,7 +111,7 @@ class KeyBindings {
         input.addClass('slider');
         input.elt.addEventListener('input', () => {
             this.setSliderBackground(input, min, max);
-            this.updateBinding(key, input.value());
+            this.settings.updateBinding(key, input.value());
         });
         this.setSliderBackground(input, min, max);
         return input
@@ -145,7 +126,7 @@ class KeyBindings {
         input.style('background', gradient);
     }
 
-    private createKeyBinding(value: number, key: string) {
+    private createKeyBinding(value: number, key: ISetting) {
         const span = createElement('span');
         span.addClass('key-binding');
         span.html(this.getStringFromKeyCode(value));
@@ -165,7 +146,7 @@ class KeyBindings {
 
     private getStringFromKeyCode(code: number) {
         switch(code) {
-            case SPACE: return 'space';
+            case SPACE: return 'mellanslag';
             case LEFT_ARROW: return 'pil vänster';
             case RIGHT_ARROW: return 'pil höger';
             case UP_ARROW: return 'pil upp';
@@ -175,20 +156,6 @@ class KeyBindings {
             case CONTROL: return 'ctrl';
             case ENTER: return 'enter';
             default: return String.fromCharCode(code);
-        }
-    }
-
-    private saveToLS() {
-        localStorage.setItem('settings', JSON.stringify(this.keyTable));
-    }
-
-    private loadFromLS() {
-        const data = localStorage.getItem('settings');
-        if (data) {
-            const savedTable = JSON.parse(data);
-            for (const key in this.keyTable) {
-                this.keyTable[key] = savedTable[key];
-            }
         }
     }
 }
