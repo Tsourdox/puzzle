@@ -104,7 +104,7 @@ class SettingsTable {
         const min = .2; const max = 5;
         const input = createElement('input');
         input.attribute('type', 'range');
-        input.attribute('step', '0.1');
+        input.attribute('step', '0.01');
         input.attribute('min', min.toString());
         input.attribute('max', max.toString());
         input.value(value);

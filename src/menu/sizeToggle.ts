@@ -47,10 +47,3 @@ class SizeToggle {
     this._selectedSize = size;
   }
 }
-
-// xs: 5x5 - 25
-// s: 10x10 - 100
-// m: 16x16 - 256
-// l: 24x24 - 576
-// xs: 30x30 - 900
-// xxs: 40x40 - 1600

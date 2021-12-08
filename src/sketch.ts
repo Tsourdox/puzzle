@@ -1,20 +1,3 @@
-interface IMusic {
-    dreaming: p5.SoundFile;
-    love: p5.SoundFile;
-    journey: p5.SoundFile;
-}
-interface ISound {
-    snaps: p5.SoundFile[];
-}
-interface IImages {
-    face: p5.Image;
-    scull: p5.Image;
-}
-interface IFonts {
-    primary: p5.Font;
-    icons: p5.Font;
-}
-
 //-----------------------------------------//
 //----------------GLOBALS------------------//
 let puzzle: Puzzle;
@@ -23,6 +6,7 @@ let sounds: ISound;
 let images: IImages;
 let fonts: IFonts;
 let scrollDelta = 0;
+let theme: ITheme;
 
 //-----------------------------------------//
 //------------MAIN P5 FUNCTIONS------------//
@@ -53,6 +37,7 @@ function preload() {
 function setup() {
     createCanvas(windowWidth, windowHeight);
     frameRate(120);
+    getThemeFromCSS();
     sounds.snaps[0].setVolume(0.8);
     sounds.snaps[1].setVolume(0.1);
     sounds.snaps[2].setVolume(0.5);
@@ -67,6 +52,16 @@ function draw() {
     scrollDelta = 0;
 }
 
+function getThemeFromCSS() {
+    const rootStyle = getComputedStyle(document.documentElement);
+    theme = {
+        primary: rootStyle.getPropertyValue('--primary'),
+        darkened: rootStyle.getPropertyValue('--darkened'),
+        neutral: rootStyle.getPropertyValue('--neutral'),
+        backdrop: rootStyle.getPropertyValue('--backdrop'),
+        background: rootStyle.getPropertyValue('--background')
+    };
+}
 
 //-----------------------------------------//
 //----------------EVENTS-------------------//

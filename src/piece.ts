@@ -127,7 +127,7 @@ class Piece implements ISerializablePiece {
         const { top, right, bottom, left } = this.sides;
         this.graphics.push();
         this.graphics.translate(this.offset, this.offset)
-        this.graphics.stroke('red');
+        this.graphics.stroke(theme.primary);
         this.graphics.strokeWeight(this.size.mag() / 60);
         this.graphics.noFill();
         if (!this.connectedSides.includes(Side.Top)) {
