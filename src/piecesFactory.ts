@@ -11,7 +11,7 @@ class PiecesFactory {
         this.cellSize = createVector(image.width / x, image.height / y);
         this.grid = [];
         this.image = image;
-        this.offset = this.cellSize.mag() / 10;
+        this.offset = this.cellSize.mag() / 12;
         this.seed = seed || floor(random(0, 100));
         randomSeed(this.seed)
 
@@ -123,8 +123,8 @@ class PiecesFactory {
         const distVariation = random(-distance * .05, distance * .05);
       
         const mid = createVector(
-            lerp(v0.x, v1.x, .5 + random(-.08, .08)),
-            lerp(v0.y, v1.y, .5 + random(-.08, .08)),
+            lerp(v0.x, v1.x, .5 + random(-.07, .07)),
+            lerp(v0.y, v1.y, .5 + random(-.07, .07)),
         );
       
         // Bay or headland?
