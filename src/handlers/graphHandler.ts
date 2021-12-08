@@ -8,6 +8,7 @@ class GraphHandler implements IGraph, ISerializableGraph {
     private _translation: p5.Vector;
     private settings: IReadableSettings;
     private puzzle: IPuzzle;
+    private isZoomDisabled: number;
 
     constructor(puzzle: IPuzzle, settings: IReadableSettings) {
         this.puzzle = puzzle;
@@ -15,6 +16,7 @@ class GraphHandler implements IGraph, ISerializableGraph {
         this._isModified = false;
         this._scale = 1;
         this._translation = createVector(0, 0);
+        this.isZoomDisabled = 0;
     }
 
     public get isModified() { return this._isModified; }
@@ -32,11 +34,17 @@ class GraphHandler implements IGraph, ISerializableGraph {
         } else {
             this.handleScaling();
         }
+
+        // Prevent non-intended zoom when a piece connects from scrolling
+        this.isZoomDisabled = max(0, this.isZoomDisabled - 1);
+        if (this.puzzle.selectedPieces.length) {
+            this.isZoomDisabled = 0.3 * frameRate()
+        }
     }
 
     private handleScaling() {
         // Scale
-        if (!this.puzzle.selectedPieces.length && scrollDelta !== 0) {
+        if (!this.isZoomDisabled && scrollDelta !== 0) {
             const zoomFactor = 1 + scrollDelta * 0.002;
             const nextScale = constrain(this.scale * zoomFactor, 0.01, 100);
             this.setScale(nextScale);
