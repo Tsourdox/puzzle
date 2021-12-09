@@ -82,7 +82,6 @@ class TransformHandler implements ITransformHandler {
     }
 
     private handlePieceExploding() {
-        // todo: se till att det inte påverkar kopplade bitar...
         if (keyIsDown(this.settings.getValue('sprid bitar')) && !this.explodeKeyPrevDown) {
             this.explodePieces();
         }
@@ -116,7 +115,7 @@ class TransformHandler implements ITransformHandler {
             const angle = (PI * 2 / pieces.length) * i;
             const x = radius * cos(angle);
             const y = radius * sin(angle);
-            pieces[i].translation = createVector(x, y).add(pieces[i].translation);
+            this.translatePiece(pieces[i], createVector(x, y));
         }
     }
 
@@ -128,7 +127,7 @@ class TransformHandler implements ITransformHandler {
         for (const piece of this.selectedPieces) {
             const pieceCenter = piece.getTrueCenter()
             const delta = p5.Vector.sub(groupCenter, pieceCenter);
-            piece.translation = p5.Vector.add(delta, piece.translation);
+            this.translatePiece(piece, delta);
         }
     }
 }
