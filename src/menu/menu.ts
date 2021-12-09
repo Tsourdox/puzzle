@@ -23,7 +23,7 @@ class Menu implements IMenu {
         this.height = 80;
         this.fps = new FPS();
         this.gameMenu = new GameMenu(this);
-        this.settingsMenu = new SettingsMenu(this);
+        this.settingsMenu = new SettingsMenu();
         this.menuName = 'closed';
         this.prevMouseIsPressed = false;
     }
@@ -65,23 +65,29 @@ class Menu implements IMenu {
         
         const didPress = !this.prevMouseIsPressed && mouseIsPressed;
         const mouseOverMenu = mouseY > height - this.height;
-        const mouseOverGameIcon = mouseX < this.height;
-        const mouseOverSettingsIcon = mouseX > width - this.height;
         
-        if (didPress && mouseOverMenu) {
-            if (mouseOverGameIcon) {
-                this.setOpenMenu('game');
-            } else if (mouseOverSettingsIcon) {
-                this.setOpenMenu('settings');
-            } else {
-                this.setOpenMenu('closed');
+        if (mouseOverMenu) {
+            const mouseOverGameIcon = mouseX < this.height;
+            const mouseOverSettingsIcon = mouseX > width - this.height;
+            const offset = this.height * 1.5;
+            const mouseOverText = mouseX > width / 2 - offset && mouseX < width / 2 + offset;
+            
+            if (didPress) {
+                if (mouseOverGameIcon) {
+                    this.setOpenMenu('game');
+                } else if (mouseOverSettingsIcon) {
+                    this.setOpenMenu('settings');
+                } else {
+                    this.setOpenMenu('closed');
+                }
             }
-        }
+    
+            if (mouseOverGameIcon || mouseOverSettingsIcon || (mouseOverText && this.isOpen)) {
+                cursor('pointer');
+            } else {
+                cursor('auto');
+            }
 
-        if (mouseOverMenu && (mouseOverGameIcon || mouseOverSettingsIcon)) {
-            cursor('pointer');
-        } else {
-            cursor('auto');
         }
         
         this.prevMouseIsPressed = mouseIsPressed;
@@ -124,8 +130,8 @@ class Menu implements IMenu {
         push();
         const x = width / 2;
         const y = height - this.height / 1.65;
-        textSize(60);
-        text("PUZZELIN", x, y);
+        textSize(this.isOpen ? 30 : 60);
+        text(this.isOpen ? "STÄNG MENYN" : "PUZZELIN", x, y);
         pop();
     }
 

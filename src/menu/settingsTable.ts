@@ -19,7 +19,7 @@ class SettingsTable {
             let rowContent: p5.Element;
             if (key === 'rotationshastighet') {
                 rowContent = this.createSlider(value, key);
-            } else if (key === 'visa fps räknare') {
+            } else if (key === 'visa fps räknare' || key === 'invertera zoom') {
                 rowContent = this.createToggleSwitch(value, key);
             } else if (key === 'bakgrundsfärg') {
                 rowContent = this.createColorPicker(value, key, [20, 40, 80]);

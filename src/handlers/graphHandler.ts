@@ -45,7 +45,8 @@ class GraphHandler implements IGraph, ISerializableGraph {
     private handleScaling() {
         // Scale
         if (!this.isZoomDisabled && scrollDelta !== 0) {
-            const zoomFactor = 1 + scrollDelta * 0.002;
+            const invert = this.settings.getValue('invertera zoom');
+            const zoomFactor = 1 + scrollDelta * 0.002 * (invert ? -1 : 1);
             const nextScale = constrain(this.scale * zoomFactor, 0.01, 100);
             this.setScale(nextScale);
         }

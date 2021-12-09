@@ -7,10 +7,11 @@ class SettingsMenu implements IWritableSettings, IReadableSettings {
         'rotationshastighet': 1,
         'rotera vänster': KEY_Z,
         'rotera höger': KEY_X,
-        'zooma hem': KEY_H,
         'stapla bitar': SPACE,
         'sprid bitar': KEY_C,
         'markera fler': SHIFT,
+        'zooma hem': KEY_H,
+        'invertera zoom': 0,
         'visa fps räknare': 0,
         'bakgrundsfärg': 40,
     };
@@ -25,7 +26,7 @@ class SettingsMenu implements IWritableSettings, IReadableSettings {
         return this.settingsMap[key];
     }
 
-    constructor(menu: IMenu) {
+    constructor() {
         this.loadFromLS();
         this.isOpen = false;
         this.div = createElement('div');
@@ -38,7 +39,6 @@ class SettingsMenu implements IWritableSettings, IReadableSettings {
         this.div.child(title);
 
         this.settingsTable = new SettingsTable(this.div, this);
-        new CloseButton(this.div, menu);
     }
 
     public update() {

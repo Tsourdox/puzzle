@@ -7,6 +7,7 @@ interface ISettingsMap {
     'sprid bitar': number;
     'markera fler': number;
     'visa fps räknare': number;
+    'invertera zoom': number;
     'bakgrundsfärg': number;
 }
 type ISetting = keyof ISettingsMap;
