@@ -1,8 +1,24 @@
+interface PexelsImage {
+    src: {
+        original: string;
+        large2x: string;
+        large: string;
+    }
+}
+
 class RandomButton {
-    private readonly API_KEY: string
+    private readonly API_KEY: string;
     private gameMenu: IGameMenu;
     private button: p5.Element;
     private isLoading: boolean;
+    private imageCache: Record<string, PexelsImage[] | undefined> = {
+        'wind+pirate': undefined,
+        'happy+sun': undefined,
+        'water+house': undefined,
+        'earth+totem': undefined,
+        'magic+snow': undefined,
+        'animal+love': undefined
+    };
 
     constructor(div: p5.Element, gameMenu: IGameMenu) {
         this.gameMenu = gameMenu;
@@ -13,50 +29,61 @@ class RandomButton {
         this.button = createElement('label');
         this.button.addClass('button');
         this.button.html('Slumpa bild');
-        this.button.mouseReleased(() => this.fetchPhotos());
+        this.button.mouseReleased(() => this.loadRandomPhoto());
         div.child(this.button);
     }
 
-    private get url() {
-        const page = floor(random(1, 50));
-        const domain = 'https://api.pexels.com/';
-        const path = 'v1/search'
-        const query = `?query=landscape+people&orientation=landscape&per_page=10&page=${page}`;
-        return `${domain}${path}${query}`
-    }
-
-    private async fetchPhotos() {
-        if (this.isLoading) return;
+    private async loadRandomPhoto() {
         try {
+            if (this.isLoading) return;
             this.isLoading = true;
             this.button.html('Skapar pussel ...');
-            const response = await fetch(this.url, {
-                headers: { 'Authorization': this.API_KEY }
-            });
-            const data = await response.json();
-            const photo = data.photos[floor(random(0, 10))];
+
+            const searchTerm = random(Object.keys(this.imageCache));
+            let imageGroup = this.imageCache[searchTerm];
+            if (!imageGroup) {
+                imageGroup = await this.fetchImageGroupFromAPI(searchTerm);
+                console.log('fetch', imageGroup);
+                this.imageCache[searchTerm] = imageGroup;
+            }
             
-            const url = this.getImageUrl(photo.src, this.gameMenu.selectedSize);
-            loadImage(url, (image) => {
-                this.isLoading = false;
-                this.button.html('Slumpa bild');
-                this.gameMenu.useImage(image)
-            });
+            const image = random(imageGroup);
+            const url = this.getImageUrl(image);
+            loadImage(url, this.loadImageComplete);
         } catch (error) {
+            // todo: Bättre felhantering?
             this.isLoading = false;
             this.button.html('Slumpa bild');
             console.error(error);
         }
     }
 
-    private getImageUrl(srcOjb: any, size: PuzzleSize): string {
-        switch (size) {
-            case 'xs': return srcOjb.large;
-            case 's': return srcOjb.large;
-            case 'm': return srcOjb.large2x;
-            case 'l': return srcOjb.large2x;
-            case 'xl': return srcOjb.original;
-            default: return srcOjb.original
+    private async fetchImageGroupFromAPI(searchTerm: string) {
+        const page = floor(random(0, 40));
+        const domain = 'https://api.pexels.com/';
+        const path = 'v1/search'
+        const query = `?query=${searchTerm}&orientation=landscape&per_page=80&page=${page}`;
+        const url = `${domain}${path}${query}`
+        const response = await fetch(url, {
+            headers: { 'Authorization': this.API_KEY }
+        });
+        return (await response.json()).photos as PexelsImage[];
+    }
+
+    private loadImageComplete = (image: p5.Image) => {
+        this.isLoading = false;
+        this.button.html('Slumpa bild');
+        this.gameMenu.useImage(image);
+    }
+
+    private getImageUrl(image: PexelsImage): string {
+        switch (this.gameMenu.selectedSize) {
+            case 'xs': return image.src.large;
+            case 's': return image.src.large;
+            case 'm': return image.src.large2x;
+            case 'l': return image.src.large2x;
+            case 'xl': return image.src.original;
+            default: return image.src.original
         }
     }
 }
