@@ -213,7 +213,6 @@ class Piece implements ISerializablePiece {
 
     public serialize(): PieceData {
         this.isModified = false;
-        // console.log('sending piece', this.id);
         return {
             id: this.id,
             rotation: this.rotation,
