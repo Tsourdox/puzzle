@@ -49,4 +49,17 @@ function toPoint(vector: p5.Vector): Point {
 
 function toVector(point: Point): p5.Vector {
     return createVector(point.x, point.y);
-} 
+}
+
+function angleBetween(v0: Point, v1: Point): number {
+    const dx = v1.x - v0.x;
+    const dy = v1.y - v0.y;
+    return Math.atan2(dy, dx);
+}
+
+function pointBetween(v0: Point, v1: Point, amount?: number): p5.Vector {
+    return createVector(
+        lerp(v0.x, v1.x, amount || .5),
+        lerp(v0.y, v1.y, amount || .5),
+    );
+}

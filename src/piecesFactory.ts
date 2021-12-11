@@ -101,12 +101,6 @@ class PiecesFactory {
         const newSide = this.createCurve(side[0], side[1]);
         side.splice(0, 2, ...newSide);
     }
-
-    private angleBetween(v0: p5.Vector, v1: p5.Vector) {
-        const dx = v1.x - v0.x;
-        const dy = v1.y - v0.y;
-        return Math.atan2(dy, dx);
-    }
     
     /**
      * Creates the curve by adding 2 control points to each end (v0, v1) and 3 bezier points
@@ -119,7 +113,7 @@ class PiecesFactory {
      */
     private createCurve(v0: p5.Vector, v1: p5.Vector): p5.Vector[] {
         const distance = this.cellSize.mag() * .6;
-        const angle = this.angleBetween(v0, v1);
+        const angle = angleBetween(v0, v1);
         const distVariation = random(-distance * .05, distance * .05);
       
         const mid = createVector(

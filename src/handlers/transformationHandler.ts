@@ -49,6 +49,7 @@ class TransformHandler implements ITransformHandler {
 
     /** Will also translate connected pieces */
     public translatePiece(piece: Piece, translation: p5.Vector) {
+        if (touches.length > 1) return;
         const pieces = getConnectedPieces(piece, this.puzzle);
         pieces.forEach(p => p.translation = p5.Vector.add(p.translation, translation));
     }

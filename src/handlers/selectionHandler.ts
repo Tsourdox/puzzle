@@ -38,6 +38,10 @@ class SelectionHandler implements ISelectionHandler {
     }
 
     private handleDragSelection() {
+        if (touches.length > 1) {
+            this.dragSelectionOrigin = undefined;
+        }
+
         const didPress = !this.prevMouseIsPressed && mouseIsPressed;
         const didRelease = this.prevMouseIsPressed && !mouseIsPressed;
         
@@ -116,6 +120,7 @@ class SelectionHandler implements ISelectionHandler {
 
     /** Will select connected pieces recursively */
     public select(piece: Piece, value: boolean) {
+        if (touches.length > 1) return;
         const maxElev = max(this.puzzle.pieces.map(p => p.elevation))
         const pieces = getConnectedPieces(piece, this.puzzle);
         pieces.forEach(piece => {
