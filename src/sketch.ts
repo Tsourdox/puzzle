@@ -42,6 +42,9 @@ function setup() {
 }
 
 function draw() {
+    if (windowWidth !== width || windowHeight !== height) {
+        resizeCanvas(windowWidth, windowHeight, false);
+    }
     puzzle.update();
     puzzle.draw();
     scrollDelta = 0;
@@ -60,10 +63,6 @@ function getThemeFromCSS() {
 
 //-----------------------------------------//
 //----------------EVENTS-------------------//
-function windowResized() {
-    resizeCanvas(windowWidth, windowHeight);
-}
-
 function mouseWheel(event: any) {
     scrollDelta = event.delta;
     return false;
