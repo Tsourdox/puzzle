@@ -16,10 +16,11 @@ An online puzzle for family and friends. This is still a work in progess but the
 Run `npm install` followed by `npm start` and you should be good to go!
 
 ## About the code
-   * **Stack:** [HMTL, CSS, Typescript, P5.js, (Firebase)];
-   * **Paradigm:** Mostly OOP (Object Orientet Programming);
+   * **Frontend Stack:** [HMTL, CSS, Typescript, P5.js];
+   * **Backend Stack:** Firebase for realtime communication (not implemented);
+   * **Paradigm:** Mostly OOP, with some helper functions;
    * **Modules:** Configured to run "module-less";
-   * **Klass Diagram**: Slightly outdated...
+   * **Class Diagram:** Slightly outdated...
 
 <img src="./documentation/puzzelin-uml.png">
 
