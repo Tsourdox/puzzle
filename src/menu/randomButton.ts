@@ -43,7 +43,6 @@ class RandomButton {
             let imageGroup = this.imageCache[searchTerm];
             if (!imageGroup) {
                 imageGroup = await this.fetchImageGroupFromAPI(searchTerm);
-                console.log('fetch', imageGroup);
                 this.imageCache[searchTerm] = imageGroup;
             }
             

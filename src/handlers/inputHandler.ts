@@ -18,7 +18,7 @@ class InputHandler {
     public update() {
         this.graphHandler.update(this.prevMouse, this.prevTouches);
         this.selectionHandler.update();
-        this.transformHandler.update(this.prevMouse);
+        this.transformHandler.update(this.prevMouse, this.prevTouches);
         
         this.setPreviousValues();
     }

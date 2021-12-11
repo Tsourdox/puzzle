@@ -24,9 +24,9 @@ class TransformHandler implements ITransformHandler {
         return this.puzzle.pieces.filter(p => p.isSelected);
     }
     
-    public update(prevMouse: p5.Vector) {
+    public update(prevMouse: p5.Vector, prevTouches: Touches) {
         this.handlePieceRotation();
-        this.handlePieceTranslation(prevMouse);
+        this.handlePieceTranslation(prevMouse, prevTouches);
         this.handlePieceExploding();
         this.setPreviousValues();
     }
@@ -54,8 +54,12 @@ class TransformHandler implements ITransformHandler {
         pieces.forEach(p => p.translation = p5.Vector.add(p.translation, translation));
     }
 
-    private handlePieceTranslation(prevMouse: p5.Vector) {
-        // Dragging with mouse
+    private handlePieceTranslation(prevMouse: p5.Vector, prevTouches: Touches) {
+        // Wait to next frame when input is touch
+        if (touches.length && !prevTouches.length) return;
+        // Dont move pieces when using multi touch gestures
+        if (touches.length > 1) return;
+        // Dragging with mouse or touch
         const isMassSelecting = keyIsDown(this.settings.getValue('markera fler'));
         if (mouseIsPressed && mouseButton === LEFT && !this.selection.isDragSelecting && !isMassSelecting) {
             const movedX = (mouseX - prevMouse.x) / this.graph.scale;
