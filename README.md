@@ -4,12 +4,12 @@ An online puzzle for family and friends. This is still a work in progess but the
 
 **[Try it out!](https://puzzelin.netlify.app)**
 
-## Browser & Device compatability
+## Browser & Device Compatibility
 - 🟢 **Chrome** - Full Support;
 - 🟡 **Firebox** - Bad FPS;
 - 🔴 **Safari** - Bad FPS, tansparent pieces;
 - 🟡 **Edge** - To be determined;
-- 🔴 **iPad** - Broken touch input, tansparent pieces;
+- 🔴 **iPad** - Missing inputs, tansparent pieces (in all browsers);
 
 ## Installation
 
@@ -32,5 +32,3 @@ Run `npm install` followed by `npm start` and you should be good to go!
 * [Zoom effect with p5](https://stackoverflow.com/questions/57131714/create-zoom-effect-with-p5-js)
 * [Rotate points around origin](https://stackoverflow.com/questions/45357715/how-to-rotate-point-around-another-one/45360970)
 * [Transformations in p5](https://genekogan.com/code/p5js-transformations/)
-
-...
