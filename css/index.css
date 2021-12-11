@@ -19,6 +19,9 @@ html, body, canvas {
     overflow: hidden;
     font-family: 'primary';
     text-transform: uppercase;
+    position: fixed;
+    left: 0; right: 0; top: 0; bottom: 0;
+    touch-action: none;
 }
 
 /******************************/

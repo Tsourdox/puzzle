@@ -9,9 +9,9 @@ An online puzzle for family and friends. This is still a work in progess but the
 - 🟡 **Firebox** - Bad FPS;
 - 🔴 **Safari** - Bad FPS, tansparent pieces;
 - 🟡 **Edge** - To be determined;
-- 🔴 **iPad** - Bad FPS, broken touch input;
+- 🔴 **iPad** - Broken touch input, tansparent pieces;
 
-## Istallation
+## Installation
 
 Run `npm install` followed by `npm start` and you should be good to go!
 
