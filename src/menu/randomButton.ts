@@ -46,6 +46,7 @@ class RandomButton {
                 this.imageCache[searchTerm] = imageGroup;
             }
             
+            // todo: ibland är image undefined...
             const image = random(imageGroup);
             const url = this.getImageUrl(image);
             loadImage(url, this.loadImageComplete);
