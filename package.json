@@ -6,7 +6,7 @@
     "start": "run-p build:watch serve",
     "build:watch": "tsc --watch",
     "build": "tsc",
-    "serve": "live-server --watch=index.html,index.css,build --port=5500 --wait=100 --browser=chrome"
+    "serve": "live-server --watch=index.html,css,build --port=5500 --wait=100 --browser=chrome"
   },
   "devDependencies": {
     "@types/p5": "^0.9.1",
