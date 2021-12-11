@@ -64,9 +64,16 @@ class GraphHandler implements IGraph, ISerializableGraph {
 
         // Keyboard
         if (keyIsDown(this.settings.getValue('zooma hem'))) {
-            this.setScale(1);
-            this._translation = createVector(0, 0);
+            this.zoomHome();
         }
+    }
+
+    public zoomHome() {
+        if (!this.puzzle.image) return;
+        const homeX = (width - this.puzzle.image.width) * .5;
+        const homeY = ((height - 80) - this.puzzle.image.height) * .5;
+        this.setScale(1);
+        this._translation = createVector(homeX, homeY);
     }
 
     private handleTranslation(prevMouse: p5.Vector, prevTouches: Touches) {

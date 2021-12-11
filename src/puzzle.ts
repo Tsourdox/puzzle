@@ -1,4 +1,5 @@
 interface IPuzzle {
+    image?: p5.Image;
     pieces: ReadonlyArray<Piece>;
     pieceCount: p5.Vector;
     pieceSize: p5.Vector;
@@ -10,6 +11,7 @@ interface IGeneratePuzzle {
 }
 
 class Puzzle implements IPuzzle, IGeneratePuzzle, ISerializablePuzzle {
+    public image?: p5.Image;
     public pieces: ReadonlyArray<Piece>;
     public pieceCount: p5.Vector;
     public pieceSize: p5.Vector;
@@ -18,7 +20,6 @@ class Puzzle implements IPuzzle, IGeneratePuzzle, ISerializablePuzzle {
     private networkSerializer: NetworkSerializer;
     private pieceConnetor: PieceConnector;
     private menu: Menu;
-    private image?: p5.Image;
     private piecesFactory?: PiecesFactory;
 
     constructor() {
@@ -48,6 +49,7 @@ class Puzzle implements IPuzzle, IGeneratePuzzle, ISerializablePuzzle {
         this.pieceSize = createVector(image.width / x, image.height / y);
         this.piecesFactory = new PiecesFactory(x, y, image);
         this.pieces = this.piecesFactory.createAllPieces();
+        this.inputHandler.graphHandler.zoomHome();
     }
 
     // todo: borde sparas eftersom detta blir kostsamt med många bitar
