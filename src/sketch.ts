@@ -3,7 +3,6 @@
 let puzzle: Puzzle;
 let music: IMusic;
 let sounds: ISound;
-let images: IImages;
 let fonts: IFonts;
 let scrollDelta = 0;
 let theme: ITheme;
@@ -23,10 +22,6 @@ function preload() {
             loadSound('../assets/sounds/snap2.wav'),
             loadSound('../assets/sounds/snap3.wav'),
         ]
-    }
-    images = {
-        face: loadImage('../assets/images/face.png'),
-        scull: loadImage('../assets/images/scull.png')
     }
     fonts = {
         primary: loadFont('../assets/fonts/black-ops-one.ttf'),

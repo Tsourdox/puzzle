@@ -37,7 +37,7 @@ class Puzzle implements IPuzzle, IGeneratePuzzle, ISerializablePuzzle {
     private async loadPuzzle() {
         const loadStateFound = await this.networkSerializer.loadPuzzle();
         if (!loadStateFound) {
-            this.generateNewPuzzle(images.face, 5, 5);
+            // todo....
         }
     }
 

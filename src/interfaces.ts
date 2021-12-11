@@ -6,10 +6,6 @@ interface IMusic {
 interface ISound {
     snaps: p5.SoundFile[];
 }
-interface IImages {
-    face: p5.Image;
-    scull: p5.Image;
-}
 interface IFonts {
     primary: p5.Font;
     icons: p5.Font;
