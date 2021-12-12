@@ -21,21 +21,28 @@ class PiecesFactory {
 
     public createAllPieces(): Piece[] {
         const pieces: Piece[] = [];
+        const offset = this.offset * 4;
+
+        const w = this.image.width;
+        const h = this.image.height;
+        
+        // Create offset around image before croping piece-images,
+        // because Safari makes edge pieces transparent.
+        // For some reason offset * 2 is not enough, why?
+        const imageWithOffset = createImage(w + offset * 3, h + offset * 3);
+        imageWithOffset.copy(this.image, 0, 0, w, h, offset, offset, w, h);
         
         for (const sides of this.generatePiecesOutlines()) {
             const origin = sides.top[0];
-            const offset = this.offset * 4;
-            const pieceX = round(origin.x - offset);
-            const pieceY = round(origin.y - offset);
-            let pieceW = round(this.cellSize.x + offset * 2);
-            let pieceH = round(this.cellSize.y + offset * 2);
+            const pieceX = round(origin.x);
+            const pieceY = round(origin.y);
+            const pieceW = round(this.cellSize.x + offset * 2);
+            const pieceH = round(this.cellSize.y + offset * 2);
     
-            // todo: cant be outside of image in Safari..... damn...
-            const image = this.image.get(pieceX, pieceY, pieceW, pieceH);
+            const image = imageWithOffset.get(pieceX, pieceY, pieceW, pieceH);
             const id = pieces.length // array index
             const piece = new Piece(id, image, origin, this.cellSize, sides, offset);
             pieces.push(piece)
-
         }
         
         this.shufflePieces(pieces);

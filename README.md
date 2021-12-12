@@ -7,9 +7,9 @@ An online puzzle for family and friends. This is still a work in progess but the
 ## Browser & Device Compatibility
 - 🟢 **Chrome** - Full Support;
 - 🟡 **Firebox** - Bad FPS;
-- 🔴 **Safari** - Bad FPS, tansparent pieces;
+- 🟡 **Safari** - Bad FPS;
 - 🟡 **Edge** - To be determined;
-- 🔴 **iPad** - Missing inputs, tansparent pieces (in all browsers);
+- 🔴 **iPad** - Missing inputs;
 
 ## Installation
 
