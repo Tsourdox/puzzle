@@ -20,7 +20,6 @@ class Piece implements ISerializablePiece {
     private _translation: p5.Vector;
     private _connectedSides: Side[];
     private graphics: p5.Graphics;
-    private mask: p5.Graphics;
     private image: p5.Image;
     private origin: p5.Vector;
     private size: p5.Vector;
@@ -29,6 +28,7 @@ class Piece implements ISerializablePiece {
     private offset: number;
     private _isSelected: boolean;
     private graphicNeedsUpdating: boolean;
+    private clippingMask: p5.Image;
 
     constructor(id: number, image: p5.Image, origin: p5.Vector, size: p5.Vector, sides: Sides, offset: number) {
         this.id = id;
@@ -49,8 +49,14 @@ class Piece implements ISerializablePiece {
             this.size.x + offset * 2,
             this.size.y + offset * 2
         );
-        this.mask = createGraphics(this.graphics.width, this.graphics.height);
+        this.clippingMask = this.createClippingMask();
         this.updateGraphics();
+    }
+
+    public cleanup() {
+        this.graphics.width = 0;
+        this.graphics.height = 0;
+        this.graphics.remove();
     }
 
     public set rotation(value: number) {
@@ -97,9 +103,8 @@ class Piece implements ISerializablePiece {
     
     private updateGraphics() {
         this.graphicNeedsUpdating = false;
-        this.updateClippingMask();
 
-        this.image.mask(this.mask as unknown as p5.Image);
+        this.image.mask(this.clippingMask);
         this.graphics.clear();
         this.graphics.image(this.image, 0, 0);
         
@@ -108,19 +113,29 @@ class Piece implements ISerializablePiece {
         }
     }
 
-    private updateClippingMask() {
+    private createClippingMask() {
+        const { width, height } = this.graphics;
         const { top, right, bottom, left } = this.sides;
-        this.mask.push();
-        this.mask.clear();
-        this.mask.translate(this.offset, this.offset)
-        this.mask.fill(0);
-        this.mask.beginShape();
-        this.drawOneSide(this.mask, top);
-        this.drawOneSide(this.mask, right);
-        this.drawOneSide(this.mask, bottom);
-        this.drawOneSide(this.mask, left);
-        this.mask.endShape(CLOSE);
-        this.mask.pop();
+        const mask = createGraphics(width, height);
+        mask.push();
+        mask.clear();
+        mask.translate(this.offset, this.offset)
+        mask.fill(0);
+        mask.beginShape();
+        this.drawOneSide(mask, top);
+        this.drawOneSide(mask, right);
+        this.drawOneSide(mask, bottom);
+        this.drawOneSide(mask, left);
+        mask.endShape(CLOSE);
+        mask.pop();
+
+        const image = createImage(width, height);
+        image.copy(mask, 0, 0, width, height, 0, 0, width, height);
+        mask.width = 0;
+        mask.height = 0;
+        mask.remove();
+
+        return image;
     }
 
     private updateSelectionOutline() {

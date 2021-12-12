@@ -47,6 +47,11 @@ class Puzzle implements IPuzzle, IGeneratePuzzle, ISerializablePuzzle {
         this.image = image;
         this.pieceCount = createVector(x, y);
         this.pieceSize = createVector(image.width / x, image.height / y);
+
+        for (const piece of this.pieces) {
+            piece.cleanup();
+        }
+
         this.piecesFactory = new PiecesFactory(x, y, image);
         this.pieces = this.piecesFactory.createAllPieces();
         this.inputHandler.graphHandler.zoomHome();
