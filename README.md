@@ -5,11 +5,12 @@ An online puzzle for family and friends. This is still a work in progess but the
 **[Try it out!](https://puzzelin.netlify.app)**
 
 ## Browser & Device Compatibility
-- 🟢 **Chrome** - Full Support;
-- 🟡 **Firebox** - Bad FPS;
-- 🟡 **Safari** - Bad FPS;
+- 🟢 **Chrome** - Good Support;
+- 🟡 **Firefox** - Bad FPS;
+
 - 🟡 **Edge** - To be determined;
-- 🔴 **iPad** - Missing inputs;
+- 🟡 **Safari** - Bad FPS, can't load large images;
+- 🔴 **iPad** - Missing inputs: rotation, zoom-to-home, etc;
 
 ## Installation
 
