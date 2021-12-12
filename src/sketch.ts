@@ -42,8 +42,8 @@ function setup() {
 }
 
 function draw() {
-    if (windowWidth !== width || windowHeight !== height) {
-        resizeCanvas(windowWidth, windowHeight, false);
+    if (window.innerWidth !== width || window.innerHeight !== height) {
+        setFullScreenCanvas();
     }
     puzzle.update();
     puzzle.draw();
@@ -59,6 +59,10 @@ function getThemeFromCSS() {
         backdrop: rootStyle.getPropertyValue('--backdrop'),
         background: rootStyle.getPropertyValue('--background')
     };
+}
+
+function setFullScreenCanvas() {
+    resizeCanvas(window.innerWidth, window.innerHeight, true);
 }
 
 //-----------------------------------------//
