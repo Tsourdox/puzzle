@@ -62,8 +62,7 @@ class TransformHandler implements ITransformHandler {
         // Dragging with mouse or touch
         const isMassSelecting = keyIsDown(this.settings.getValue('markera fler'));
         if ((mouseIsPressed && mouseButton === LEFT || touches.length) && !this.selection.isDragSelecting && !isMassSelecting) {
-            // prevent touch translate bug after rotating
-            if (abs(mouseX-prevMouse.x) > width * .1) return;
+            if (touches.length !== prevTouches.length) return;
             
             const movedX = (mouseX - prevMouse.x) / this.graph.scale;
             const movedY = (mouseY - prevMouse.y) / this.graph.scale;
@@ -82,7 +81,7 @@ class TransformHandler implements ITransformHandler {
             this.rotatePieces(rotation);
         }
 
-        // Touch
+        // Touch (rotate button)
         if (touches.length === 2 && prevTouches.length === 2 && isTouchInputDisabled) {
             const [t1, t2] = touches as Touches;
             const pinchDist = dist(t1.x, t1.y, t2.x, t2.y);
@@ -90,6 +89,13 @@ class TransformHandler implements ITransformHandler {
             const prevPinchDist = dist(p1.x, p1.y, p2.x, p2.y);
             const pinchDelta = prevPinchDist - pinchDist;
             this.rotatePieces(rotation * pinchDelta * -.5);
+        }
+        // Touch (3 finger drag)
+        if (touches.length === 3 && prevTouches.length === 3) {
+            const [t1, t2, t3] = touches as Touches;
+            const [p1, p2, p3] = prevTouches;
+            const delta = (t1.x + t2.x + t3.x) - (p1.x + p2.x + p3.x);
+            this.rotatePieces(rotation * delta * .5);
         }
 
         // Scroll
