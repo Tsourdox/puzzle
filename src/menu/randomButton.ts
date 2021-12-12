@@ -47,8 +47,7 @@ class RandomButton {
                 this.imageGroupCache[searchTerm] = imageGroup;
                 this.saveCacheToLS();
             }
-            
-            // todo: ibland är image undefined...
+
             const image = random(imageGroup);
             const url = this.getImageUrl(image);
             loadImage(url, this.loadImageComplete);
@@ -83,8 +82,8 @@ class RandomButton {
         }
     }
 
-    private async fetchImageGroupFromAPI(searchTerm: string) {
-        const page = floor(random(0, 40));
+    private async fetchImageGroupFromAPI(searchTerm: string): Promise<PexelsImage[]> {
+        const page = floor(random(0, 20));
         const domain = 'https://api.pexels.com/';
         const path = 'v1/search'
         const query = `?query=${searchTerm}&orientation=landscape&per_page=80&page=${page}`;
@@ -92,7 +91,12 @@ class RandomButton {
         const response = await fetch(url, {
             headers: { 'Authorization': this.API_KEY }
         });
-        return (await response.json()).photos as PexelsImage[];
+        const imageGroup = (await response.json()).photos as PexelsImage[];
+        if (!imageGroup?.length) {
+            // Just in case nothing was returned - fetch again...
+            return this.fetchImageGroupFromAPI(searchTerm);
+        }
+        return imageGroup;
     }
 
     private loadImageComplete = (image: p5.Image) => {
