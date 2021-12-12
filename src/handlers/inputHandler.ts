@@ -6,7 +6,6 @@ class InputHandler {
     public transformHandler: TransformHandler;
     private prevMouse: p5.Vector;
     private prevTouches: Touches;
-    private isTouchDevice: boolean;
 
     constructor(puzzle: IPuzzle, settings: IReadableSettings) {
         this.graphHandler = new GraphHandler(puzzle, settings);
@@ -14,19 +13,12 @@ class InputHandler {
         this.transformHandler = new TransformHandler(puzzle, this.graphHandler, this.selectionHandler, settings);
         this.prevMouse = createVector(mouseX, mouseY);
         this.prevTouches = [];
-        this.isTouchDevice = false;
     }
 
     public update() {
-        this.checkZoomHomeButton();
         this.graphHandler.update(this.prevMouse, this.prevTouches);
         this.selectionHandler.update();
         this.transformHandler.update(this.prevMouse, this.prevTouches);
-        
-        if (!this.isTouchDevice && touches.length) {
-            this.isTouchDevice = true;
-        }
-        
         this.setPreviousValues();
     }
 
@@ -35,34 +27,38 @@ class InputHandler {
         this.prevTouches = touches as Touches;
     }
 
-    public draw() {
+    public draw(hideInstructions: boolean) {
         this.selectionHandler.draw();
-        if (this.isTouchDevice) {
-            this.drawTouchButtons();
-        }
+        this.drawInstructions(hideInstructions);
+        this.drawButtons(hideInstructions);
     }
 
-    private checkZoomHomeButton() {
-        const d = (height + width) * .05;
-        const x = d * .7;
-        const y = height * .1;
+    private drawInstructions(hideInstruction: boolean) {
+        if (hideInstruction) return;
+        
+        const size = min((height + width) * .01, 40);
+        const y = (height - 80) - size * 1.1;
 
-        if (dist(x, y, mouseX, mouseY) < d) {
-            this.graphHandler.zoomHome();
-        }
+        push()
+        textSize(size);
+        fill(theme.neutral);
+        textAlign(LEFT, CENTER);
+        text('Nytt pussel', width * .01, y);
+        textAlign(RIGHT, CENTER);
+        text('Inställningar', width * .99, y);
+        pop();
     }
 
-    private drawTouchButtons() {
-        this.drawButton(height * .1, icon["home solid"]);
+    private drawButtons(hideInstructions: boolean) {
+        this.drawButton(height * .08, icon["home solid"], 'Zooma hem', hideInstructions);
     }
     
-    private drawButton(y: number, icon: string) {
-        const d = (height + width) * .03;
+    private drawButton(y: number, icon: string, instruction: string, hideInstructions: boolean) {
+        const d = (height + width) * .02;
         const x = d * .7;
         
         push();
-        strokeWeight(d * .1);
-        stroke('black');
+        noStroke();
         fill(theme.darkdrop);
         circle(x, y, d);
         pop();
@@ -74,6 +70,20 @@ class InputHandler {
         textSize(size);
         textAlign(CENTER, CENTER);
         text(icon, x, y - d * .06);
+        pop();
+        
+    
+        if (mouseIsPressed && dist(x, y, mouseX, mouseY) < d * .5) {
+            this.graphHandler.zoomHome();
+        }
+
+        if (hideInstructions) return;
+        
+        push()
+        textSize(size * 0.7);
+        textAlign(LEFT, CENTER);
+        fill(theme.neutral);
+        text(instruction, x * 2, y - size * 0.1);
         pop();
     }
 }
