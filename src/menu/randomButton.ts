@@ -11,13 +11,13 @@ class RandomButton {
     private gameMenu: IGameMenu;
     private button: p5.Element;
     private isLoading: boolean;
-    private imageCache: Record<string, PexelsImage[] | undefined> = {
+    private imageGroupCache: Record<string, PexelsImage[] | undefined> = {
         'wind+pirate': undefined,
         'happy+sun': undefined,
         'water+house': undefined,
         'earth+totem': undefined,
         'magic+snow': undefined,
-        'animal+love': undefined
+        'animal+love': undefined,
     };
 
     constructor(div: p5.Element, gameMenu: IGameMenu) {
@@ -25,6 +25,7 @@ class RandomButton {
         this.isLoading = false;
         // todo: how do we hide the key?
         this.API_KEY = '563492ad6f91700001000001e9543e64cc6240f3a18b3b0d9f42629d';
+        this.loadCacheFromLS();
 
         this.button = createElement('label');
         this.button.addClass('button');
@@ -39,11 +40,12 @@ class RandomButton {
             this.isLoading = true;
             this.button.html('Skapar pussel ...');
 
-            const searchTerm = random(Object.keys(this.imageCache));
-            let imageGroup = this.imageCache[searchTerm];
+            const searchTerm = random(Object.keys(this.imageGroupCache));
+            let imageGroup = this.imageGroupCache[searchTerm];
             if (!imageGroup) {
                 imageGroup = await this.fetchImageGroupFromAPI(searchTerm);
-                this.imageCache[searchTerm] = imageGroup;
+                this.imageGroupCache[searchTerm] = imageGroup;
+                this.saveCacheToLS();
             }
             
             // todo: ibland är image undefined...
@@ -55,6 +57,29 @@ class RandomButton {
             this.isLoading = false;
             this.button.html('Slumpa bild');
             console.error(error);
+        }
+    }
+
+    private saveCacheToLS() {
+        localStorage.imageGroupCache = JSON.stringify(this.imageGroupCache);
+        localStorage.imageGroupCacheDate = new Date().toJSON();
+    }
+    
+    private loadCacheFromLS() {
+        const imageGroupCache = localStorage.getItem('imageGroupCache');
+        const cacheDateString = localStorage.getItem('imageGroupCacheDate');
+        if (imageGroupCache && cacheDateString) {
+            const cacheDate = new Date(cacheDateString);
+            if (daysBetweenDates(cacheDate, new Date()) > 7) {
+                localStorage.removeItem('imageGroupCache');
+                localStorage.removeItem('imageGroupCacheDate');
+            } else {
+                this.imageGroupCache = {
+                    ...this.imageGroupCache,
+                    ...JSON.parse(imageGroupCache)
+                };
+            }
+
         }
     }
 

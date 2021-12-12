@@ -63,3 +63,9 @@ function pointBetween(v0: Point, v1: Point, amount?: number): p5.Vector {
         lerp(v0.y, v1.y, amount || .5),
     );
 }
+
+function daysBetweenDates(date1: Date, date2: Date) {
+    const ONE_DAY = 1000 * 60 * 60 * 24;
+    const differenceMs = Math.abs(date1.getDate() - date2.getDate());
+    return Math.round(differenceMs / ONE_DAY);
+}
