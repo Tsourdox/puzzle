@@ -24,9 +24,9 @@ class TransformHandler implements ITransformHandler {
         return this.puzzle.pieces.filter(p => p.isSelected);
     }
     
-    public update(prevMouse: p5.Vector, prevTouches: Touches) {
-        this.handlePieceRotation();
-        this.handlePieceTranslation(prevMouse, prevTouches);
+    public update(prevMouse: p5.Vector, prevTouches: Touches, isTouchInputDisabled: boolean) {
+        this.handlePieceRotation(prevTouches, isTouchInputDisabled);
+        this.handlePieceTranslation(prevMouse, prevTouches, isTouchInputDisabled);
         this.handlePieceExploding();
         this.setPreviousValues();
     }
@@ -49,27 +49,30 @@ class TransformHandler implements ITransformHandler {
 
     /** Will also translate connected pieces */
     public translatePiece(piece: Piece, translation: p5.Vector) {
-        if (touches.length > 1) return;
         const pieces = getConnectedPieces(piece, this.puzzle);
         pieces.forEach(p => p.translation = p5.Vector.add(p.translation, translation));
     }
 
-    private handlePieceTranslation(prevMouse: p5.Vector, prevTouches: Touches) {
+    private handlePieceTranslation(prevMouse: p5.Vector, prevTouches: Touches, isTouchInputDisabled: boolean) {
         // Wait to next frame when input is touch
         if (touches.length && !prevTouches.length) return;
         // Dont move pieces when using multi touch gestures
-        if (touches.length > 1) return;
+        if (touches.length > 1 || isTouchInputDisabled) return;
+        
         // Dragging with mouse or touch
         const isMassSelecting = keyIsDown(this.settings.getValue('markera fler'));
-        if (mouseIsPressed && mouseButton === LEFT && !this.selection.isDragSelecting && !isMassSelecting) {
+        if ((mouseIsPressed && mouseButton === LEFT || touches.length) && !this.selection.isDragSelecting && !isMassSelecting) {
+            // prevent touch translate bug after rotating
+            if (abs(mouseX-prevMouse.x) > width * .1) return;
+            
             const movedX = (mouseX - prevMouse.x) / this.graph.scale;
             const movedY = (mouseY - prevMouse.y) / this.graph.scale;
             this.translatePieces(movedX, movedY);
         }
     }
 
-    private handlePieceRotation() {
-        // Keyboard rotation
+    private handlePieceRotation(prevTouches: Touches, isTouchInputDisabled: boolean) {
+        // Keyboard
         const userSpeed = this.settings.getValue('rotationshastighet');
         const rotation = 2 / frameRate() * userSpeed;
         if (keyIsDown(this.settings.getValue('rotera vänster'))) {
@@ -79,7 +82,17 @@ class TransformHandler implements ITransformHandler {
             this.rotatePieces(rotation);
         }
 
-        // Scroll wheel rotation
+        // Touch
+        if (touches.length === 2 && prevTouches.length === 2 && isTouchInputDisabled) {
+            const [t1, t2] = touches as Touches;
+            const pinchDist = dist(t1.x, t1.y, t2.x, t2.y);
+            const [p1, p2] = prevTouches;
+            const prevPinchDist = dist(p1.x, p1.y, p2.x, p2.y);
+            const pinchDelta = prevPinchDist - pinchDist;
+            this.rotatePieces(rotation * pinchDelta * -.5);
+        }
+
+        // Scroll
         if (this.puzzle.selectedPieces) {
             const rotation = scrollDelta * 0.005 * userSpeed;
             this.rotatePieces(rotation)

@@ -30,9 +30,9 @@ class GraphHandler implements IGraph, ISerializableGraph {
         this._isModified = true;
     }
 
-    update(prevMouse: p5.Vector, prevTouches: Touches) {
-        this.handleTranslation(prevMouse, prevTouches);
-        this.handleScaling(prevTouches);
+    update(prevMouse: p5.Vector, prevTouches: Touches, isTouchDisabled: boolean) {
+        this.handleTranslation(prevMouse, prevTouches, isTouchDisabled);
+        this.handleScaling(prevTouches, isTouchDisabled);
 
         if (keyIsDown(this.settings.getValue('zooma hem'))) {
             this.zoomHome();
@@ -45,14 +45,14 @@ class GraphHandler implements IGraph, ISerializableGraph {
         }
     }
 
-    private handleScaling(prevTouches: Touches) {
+    private handleScaling(prevTouches: Touches, isTouchDisabled: boolean) {
         let zoomDelta = 0;        
         // Mouse
         if (!this.isZoomDisabled && scrollDelta !== 0) {
             zoomDelta = scrollDelta;
         }
         // Touch
-        if (prevTouches.length === 2 && touches.length === 2) {
+        if (prevTouches.length === 2 && touches.length === 2 && !isTouchDisabled) {
             const [t1, t2] = touches as Touches;
             const pinchDist = dist(t1.x, t1.y, t2.x, t2.y);
             const [p1, p2] = prevTouches;
@@ -84,9 +84,9 @@ class GraphHandler implements IGraph, ISerializableGraph {
         this.setScale(1, this.getHomeTranslation(1));
     }
 
-    private handleTranslation(prevMouse: p5.Vector, prevTouches: Touches) {
+    private handleTranslation(prevMouse: p5.Vector, prevTouches: Touches, isTouchDisabled: boolean) {
         // Touch
-        if (prevTouches.length === 2 && touches.length === 2) {
+        if (prevTouches.length === 2 && touches.length === 2 && !isTouchDisabled) {
             const [t1, t2] = touches as Touches;
             const [p1, p2] = prevTouches;
             const currentMid = pointBetween(t1, t2);

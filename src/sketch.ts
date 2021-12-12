@@ -30,6 +30,7 @@ function preload() {
 }
 
 function setup() {
+    preventDefaultEvents();
     createCanvas(windowWidth, windowHeight);
     frameRate(120);
     getThemeFromCSS();
@@ -56,8 +57,9 @@ function getThemeFromCSS() {
         primary: rootStyle.getPropertyValue('--primary'),
         darkened: rootStyle.getPropertyValue('--darkened'),
         neutral: rootStyle.getPropertyValue('--neutral'),
+        background: rootStyle.getPropertyValue('--background'),
         backdrop: rootStyle.getPropertyValue('--backdrop'),
-        background: rootStyle.getPropertyValue('--background')
+        darkdrop: rootStyle.getPropertyValue('--darkdrop'),
     };
 }
 
@@ -79,5 +81,11 @@ function mousePressed() {
     // }
 }
 
-// Prevent context menu when right clicking
-document.oncontextmenu = () => false;
+function preventDefaultEvents() {
+    // Prevent context menu when right clicking
+    document.oncontextmenu = () => false;
+    // Prenent magnifying glass
+    document.querySelector('canvas')?.addEventListener("touchstart", (e) =>
+        e.preventDefault()
+    );
+}

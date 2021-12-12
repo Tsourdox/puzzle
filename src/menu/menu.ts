@@ -7,7 +7,6 @@ type MenuName = "game" | "settings" | "closed";
 
 class Menu implements IMenu {
     private menuName: MenuName;
-    private background: p5.Color;
     private foreground: p5.Color;
     private height: number;
     private puzzle: IGeneratePuzzle;
@@ -18,7 +17,6 @@ class Menu implements IMenu {
 
     constructor(puzzle: IGeneratePuzzle) {
         this.puzzle = puzzle;
-        this.background = color('rgba(10, 10, 10, 0.92)');
         this.foreground = color(200);
         this.height = 80;
         this.fps = new FPS();
@@ -109,7 +107,7 @@ class Menu implements IMenu {
 
     private drawMenuBar() {
         push();
-        fill(this.background);
+        fill(theme.darkdrop);
         const y = this.isOpen ? 0 : height - this.height;
         const menuHeight = this.isOpen ? height : this.height;
         rect(0, y, width, menuHeight);

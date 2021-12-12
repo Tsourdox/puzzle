@@ -17,4 +17,5 @@ interface ITheme {
     neutral: string;
     background: string;
     backdrop: string;
+    darkdrop: string;
 }

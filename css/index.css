@@ -8,7 +8,8 @@
     --darkened: rgb(95, 43, 110);
     --neutral: rgb(200, 200, 200);
     --background: rgb(40, 40, 40);
-    --backdrop: rgba(60, 60, 60, 0.8)
+    --backdrop: rgba(60, 60, 60, 0.8);
+    --darkdrop: rgba(10, 10, 10, 0.92);
 }
 
 * {
