@@ -18,6 +18,7 @@ class RandomButton {
         'earth+totem': undefined,
         'magic+snow': undefined,
         'animal+love': undefined,
+        'graffiti+wall': undefined,
     };
 
     constructor(div: p5.Element, gameMenu: IGameMenu) {
