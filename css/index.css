@@ -11,6 +11,14 @@
     --backdrop: rgba(60, 60, 60, 0.8)
 }
 
+* {
+    -webkit-touch-callout: none; /* iOS Safari */
+    -webkit-user-select: none; /* Safari */
+    -moz-user-select: none; /* Old versions of Firefox */
+    -ms-user-select: none; /* Internet Explorer/Edge */
+    user-select: none;
+}
+
 html, body, canvas {
     height: 100%;
     width: 100%;
