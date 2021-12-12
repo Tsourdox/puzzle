@@ -24,9 +24,9 @@ class TransformHandler implements ITransformHandler {
         return this.puzzle.pieces.filter(p => p.isSelected);
     }
     
-    public update(prevMouse: p5.Vector, prevTouches: Touches, isTouchInputDisabled: boolean) {
-        this.handlePieceRotation(prevTouches, isTouchInputDisabled);
-        this.handlePieceTranslation(prevMouse, prevTouches, isTouchInputDisabled);
+    public update(prevMouse: p5.Vector, prevTouches: Touches) {
+        this.handlePieceRotation(prevTouches);
+        this.handlePieceTranslation(prevMouse, prevTouches);
         this.handlePieceExploding();
         this.setPreviousValues();
     }
@@ -53,11 +53,11 @@ class TransformHandler implements ITransformHandler {
         pieces.forEach(p => p.translation = p5.Vector.add(p.translation, translation));
     }
 
-    private handlePieceTranslation(prevMouse: p5.Vector, prevTouches: Touches, isTouchInputDisabled: boolean) {
+    private handlePieceTranslation(prevMouse: p5.Vector, prevTouches: Touches) {
         // Wait to next frame when input is touch
         if (touches.length && !prevTouches.length) return;
         // Dont move pieces when using multi touch gestures
-        if (touches.length > 1 || isTouchInputDisabled) return;
+        if (touches.length > 1) return;
         
         // Dragging with mouse or touch
         const isMassSelecting = keyIsDown(this.settings.getValue('markera fler'));
@@ -70,7 +70,7 @@ class TransformHandler implements ITransformHandler {
         }
     }
 
-    private handlePieceRotation(prevTouches: Touches, isTouchInputDisabled: boolean) {
+    private handlePieceRotation(prevTouches: Touches) {
         // Keyboard
         const userSpeed = this.settings.getValue('rotationshastighet');
         const rotation = 2 / frameRate() * userSpeed;
@@ -80,22 +80,12 @@ class TransformHandler implements ITransformHandler {
         if (keyIsDown(this.settings.getValue('rotera höger'))) {
             this.rotatePieces(rotation);
         }
-
-        // Touch (rotate button)
-        if (touches.length === 2 && prevTouches.length === 2 && isTouchInputDisabled) {
-            const [t1, t2] = touches as Touches;
-            const pinchDist = dist(t1.x, t1.y, t2.x, t2.y);
-            const [p1, p2] = prevTouches;
-            const prevPinchDist = dist(p1.x, p1.y, p2.x, p2.y);
-            const pinchDelta = prevPinchDist - pinchDist;
-            this.rotatePieces(rotation * pinchDelta * -.5);
-        }
         // Touch (3 finger drag)
         if (touches.length === 3 && prevTouches.length === 3) {
             const [t1, t2, t3] = touches as Touches;
             const [p1, p2, p3] = prevTouches;
             const delta = (t1.x + t2.x + t3.x) - (p1.x + p2.x + p3.x);
-            this.rotatePieces(rotation * delta * .5);
+            this.rotatePieces(rotation * delta * .2 * userSpeed);
         }
 
         // Scroll

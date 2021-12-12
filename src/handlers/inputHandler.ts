@@ -7,8 +7,6 @@ class InputHandler {
     private prevMouse: p5.Vector;
     private prevTouches: Touches;
     private isTouchDevice: boolean;
-    private touchIndexActivatingRotation?: number;
-    private rotateButtonY: number;
 
     constructor(puzzle: IPuzzle, settings: IReadableSettings) {
         this.graphHandler = new GraphHandler(puzzle, settings);
@@ -17,20 +15,13 @@ class InputHandler {
         this.prevMouse = createVector(mouseX, mouseY);
         this.prevTouches = [];
         this.isTouchDevice = false;
-        this.rotateButtonY = height * .7;
-    }
-
-    private get isTouchingRotateButton() {
-        return this.touchIndexActivatingRotation !== undefined;
     }
 
     public update() {
-        this.checkIfTouchingRotateButton();
-        this.moveRotateButton();
-        const isTouchInputDisabled = this.isTouchingRotateButton;
-        this.graphHandler.update(this.prevMouse, this.prevTouches, isTouchInputDisabled);
-        this.selectionHandler.update(isTouchInputDisabled);
-        this.transformHandler.update(this.prevMouse, this.prevTouches, isTouchInputDisabled);
+        this.checkZoomHomeButton();
+        this.graphHandler.update(this.prevMouse, this.prevTouches);
+        this.selectionHandler.update();
+        this.transformHandler.update(this.prevMouse, this.prevTouches);
         
         if (!this.isTouchDevice && touches.length) {
             this.isTouchDevice = true;
@@ -47,44 +38,32 @@ class InputHandler {
     public draw() {
         this.selectionHandler.draw();
         if (this.isTouchDevice) {
-            this.drawTouchRotateButton();
+            this.drawTouchButtons();
         }
     }
 
-    private moveRotateButton() {
-        if (this.prevTouches.length && this.touchIndexActivatingRotation !== undefined) {
-            const prevTouch = this.prevTouches[this.touchIndexActivatingRotation];
-            if (prevTouch) {
-                const currentY = (touches as Touches)[this.touchIndexActivatingRotation].y;
-                const deltaY = currentY - prevTouch.y;
-                this.rotateButtonY = max(height * .15, min(this.rotateButtonY + deltaY, height * .75));
-            }
-        }
-    }
-
-    private checkIfTouchingRotateButton() {
+    private checkZoomHomeButton() {
         const d = (height + width) * .05;
         const x = d * .7;
-        const y = this.rotateButtonY;
+        const y = height * .1;
 
-        for (const touch of touches as Touches) {
-            if (dist(x, y, touch.x, touch.y) < d) {
-                this.touchIndexActivatingRotation = touches.indexOf(touch);
-                return;
-            }
+        if (dist(x, y, mouseX, mouseY) < d) {
+            this.graphHandler.zoomHome();
         }
-        delete this.touchIndexActivatingRotation;
     }
 
-    private drawTouchRotateButton() {
-        const d = (height + width) * .05;
+    private drawTouchButtons() {
+        this.drawButton(height * .1, icon["home solid"]);
+    }
+    
+    private drawButton(y: number, icon: string) {
+        const d = (height + width) * .03;
         const x = d * .7;
-        const y = this.rotateButtonY;
         
         push();
         strokeWeight(d * .1);
-        stroke(this.isTouchingRotateButton ? theme.darkened : 'black');
-        fill(this.isTouchingRotateButton ? theme.primary : theme.darkdrop);
+        stroke('black');
+        fill(theme.darkdrop);
         circle(x, y, d);
         pop();
 
@@ -93,28 +72,8 @@ class InputHandler {
         fill(theme.neutral);
         textFont(fonts.icons);
         textSize(size);
-        text
         textAlign(CENTER, CENTER);
-        translate(x, y - size * 0.25);
-        
-        push();
-        rotate(PI * -.43);
-        text(icon["Undo solid"], -size * 0.25, 0);
+        text(icon, x, y - d * .06);
         pop();
-        
-        rotate(PI * .43);
-        text(icon["Redo solid"], size * 0.25, 0);
-        pop();
-
-        if (this.isTouchingRotateButton) {
-            push()
-            textSize(size * 0.35);
-            textAlign(LEFT, CENTER);
-            strokeWeight(size * 0.1);
-            stroke(theme.darkened);
-            fill(theme.primary);
-            text('Dra på skärmen för att rotera pusselbit', x * 2, y);
-            pop();
-        }
     }
 }

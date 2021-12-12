@@ -31,14 +31,14 @@ class SelectionHandler implements ISelectionHandler {
         return enoughTimePassed || enoughDistMoved;
     }
 
-    public update(isTouchDisabled: boolean) {
-        this.handlePieceSelection(isTouchDisabled);
-        this.handleDragSelection(isTouchDisabled);
+    public update() {
+        this.handlePieceSelection();
+        this.handleDragSelection();
         this.prevMouseIsPressed = mouseIsPressed;
     }
 
-    private handleDragSelection(isTouchDisabled: boolean) {
-        if (touches.length > 1 || isTouchDisabled) delete this.dragSelectionOrigin;
+    private handleDragSelection() {
+        if (touches.length > 1) delete this.dragSelectionOrigin;
 
         const didPress = !this.prevMouseIsPressed && mouseIsPressed;
         const didRelease = this.prevMouseIsPressed && !mouseIsPressed;
@@ -60,9 +60,9 @@ class SelectionHandler implements ISelectionHandler {
         }
     }
 
-    private handlePieceSelection(isTouchDisabled: boolean) {
+    private handlePieceSelection() {
         const didPress = !this.prevMouseIsPressed && mouseIsPressed;
-        if (touches.length > 1 || touches.length === 1 && isTouchDisabled) return;
+        if (touches.length > 1) return;
         
         // Select by clicking
         if (didPress && mouseButton === LEFT) {
