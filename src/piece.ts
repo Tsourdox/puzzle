@@ -46,8 +46,8 @@ class Piece implements ISerializablePiece {
         this._connectedSides = [];
         this.graphicNeedsUpdating = false;
         this.graphics = createGraphics(
-            this.size.x + offset * 2,
-            this.size.y + offset * 2
+            round(this.size.x + offset * 2),
+            round(this.size.y + offset * 2)
         );
         this.clippingMask = this.createClippingMask();
         this.updateGraphics();

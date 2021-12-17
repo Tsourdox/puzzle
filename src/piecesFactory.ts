@@ -29,8 +29,8 @@ class PiecesFactory {
         // Create offset around image before croping piece-images,
         // because Safari makes edge pieces transparent.
         // For some reason offset * 2 is not enough, why?
-        const imageWithOffset = createImage(w + offset * 3, h + offset * 3);
-        imageWithOffset.copy(this.image, 0, 0, w, h, offset, offset, w, h);
+        const imageWithOffset = createImage(round(w + offset * 3), round(h + offset * 3));
+        imageWithOffset.copy(this.image, 0, 0, w, h, round(offset), round(offset), w, h);
         
         for (const sides of this.generatePiecesOutlines()) {
             const origin = sides.top[0];
