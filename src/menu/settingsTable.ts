@@ -22,7 +22,7 @@ class SettingsTable {
             } else if (key === 'visa fps räknare' || key === 'invertera zoom') {
                 rowContent = this.createToggleSwitch(value, key);
             } else if (key === 'bakgrundsfärg') {
-                rowContent = this.createColorPicker(value, key, [20, 40, 80]);
+                rowContent = this.createColorPicker(value, key, [20, 40, 60]);
             } else {
                 rowContent = this.createKeyBinding(value, key);
             }

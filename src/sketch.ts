@@ -75,6 +75,7 @@ function mouseWheel(event: any) {
 }
 
 function mousePressed() {
+    (window as any).userStartAudio();
     // if (!music.love.isPlaying()) {
     //     music.love.setVolume(0.5);
     //     music.love.loop();

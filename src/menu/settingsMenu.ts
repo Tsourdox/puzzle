@@ -10,7 +10,6 @@ class SettingsMenu implements IWritableSettings, IReadableSettings {
         'stapla bitar': SPACE,
         'sprid bitar': KEY_C,
         'markera fler': SHIFT,
-        'zooma hem': KEY_H,
         'invertera zoom': 0,
         'visa fps räknare': 0,
         'bakgrundsfärg': 40,

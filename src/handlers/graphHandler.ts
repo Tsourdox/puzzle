@@ -34,10 +34,6 @@ class GraphHandler implements IGraph, ISerializableGraph {
         this.handleTranslation(prevMouse, prevTouches);
         this.handleScaling(prevTouches);
 
-        if (keyIsDown(this.settings.getValue('zooma hem'))) {
-            this.zoomHome();
-        }
-
         // Prevent non-intended zoom when a piece connects from scrolling
         this.isZoomDisabled = max(0, this.isZoomDisabled - 1);
         if (this.puzzle.selectedPieces.length) {

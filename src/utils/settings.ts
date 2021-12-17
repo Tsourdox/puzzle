@@ -2,7 +2,6 @@ interface ISettingsMap {
     'rotationshastighet': number;
     'rotera vänster': number;
     'rotera höger': number;
-    'zooma hem': number;
     'stapla bitar': number;
     'sprid bitar': number;
     'markera fler': number;

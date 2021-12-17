@@ -86,7 +86,7 @@ class Puzzle implements IPuzzle, IGeneratePuzzle, ISerializablePuzzle {
         this.drawPieces();
         pop();
         
-        const hideInstruction = Boolean(this.piecesFactory); 
+        const hideInstruction = Boolean(this.piecesFactory || this.menu.isOpen); 
         this.inputHandler.draw(hideInstruction);
         this.menu.draw();
     }
