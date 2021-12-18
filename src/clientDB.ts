@@ -5,7 +5,7 @@ class ClientDB {
     private readonly storeName = 'main';
     private db?: IDBDatabase;
 
-    private init(): Promise<void> {
+    public init(): Promise<void> {
         return new Promise((resolve, reject) => {
             const request = indexedDB.open(this.dbName, 2);
             request.onerror = reject;
@@ -13,10 +13,9 @@ class ClientDB {
                 this.db = e.target.result
                 resolve();
             };
-            request.onupgradeneeded = async (e: any) => {
+            request.onupgradeneeded = (e: any) => {
                 const db = e.target.result;
-                await db.deleteObjectStore('main');
-                await db.createObjectStore('main', { autoIncrement: true });
+                db.createObjectStore('main', { autoIncrement: true });
                 resolve();
             }
         });
@@ -24,8 +23,8 @@ class ClientDB {
 
     private loadFromStore<T>(key: DBKey): Promise<T> {
         return new Promise(async (resolve, reject) => {
-            if (!this.db) await this.init();
-            const trans = this.db!.transaction(this.storeName, 'readwrite');
+            if (!this.db) throw new Error('Init must be called before loading data from the store');
+            const trans = this.db.transaction(this.storeName, 'readwrite');
             const store = trans.objectStore(this.storeName);
             const request = store.get(key);
             request.onsuccess = (e: any) => {
@@ -41,8 +40,8 @@ class ClientDB {
 
     private saveToStore<T>(data: T, key: DBKey) {
         return new Promise<void>(async (resolve, reject) => {
-            if (!this.db) await this.init();
-            const trans = this.db!.transaction(this.storeName, 'readwrite');
+            if (!this.db) throw new Error('Init must be called before saving data to the store');
+            const trans = this.db.transaction(this.storeName, 'readwrite');
             const store = trans.objectStore(this.storeName);
             const request = store.put(data, key);
             request.onsuccess = () => resolve();

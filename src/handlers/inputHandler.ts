@@ -29,12 +29,11 @@ class InputHandler {
 
     public draw(hideInstructions: boolean) {
         this.selectionHandler.draw();
-        this.drawInstructions(hideInstructions);
+        if (hideInstructions) return;
+        this.drawInstructions();
     }
 
-    private drawInstructions(hideInstruction: boolean) {
-        if (hideInstruction) return;
-        
+    private drawInstructions() {
         const size = min((height + width) * .012, 40);
         const y = (height / 2);
         const x = (width / 2);

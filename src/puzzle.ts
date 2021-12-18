@@ -32,14 +32,6 @@ class Puzzle implements IPuzzle, IGeneratePuzzle, ISerializablePuzzle {
         this.networkSerializer = new NetworkSerializer(this, this.inputHandler.graphHandler);
         const { selectionHandler, transformHandler } = this.inputHandler;
         this.pieceConnetor = new PieceConnector(this, selectionHandler, transformHandler);
-        this.loadPuzzle();
-    }
-
-    private async loadPuzzle() {
-        const loadStateFound = await this.networkSerializer.loadPuzzle();
-        if (!loadStateFound) {
-            // todo....
-        }
     }
 
     public generateNewPuzzle(image: p5.Image, x: number, y: number) {
@@ -65,6 +57,8 @@ class Puzzle implements IPuzzle, IGeneratePuzzle, ISerializablePuzzle {
 
     public update() {
         this.menu.update();
+        if (this.networkSerializer.isLoading) return;
+        
         this.networkSerializer.update();
         if (!this.menu.isOpen) {
             this.inputHandler.update();

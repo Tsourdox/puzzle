@@ -37,12 +37,16 @@ class NetworkSerializer {
     private graph: ISerializableGraph
     private sendTimeout: number;
     private clientDB: ClientDB;
+    private _isLoading: boolean;
+    public get isLoading() { return this._isLoading }
 
     constructor(puzzle: ISerializablePuzzle, graph: ISerializableGraph) {
         this.puzzle = puzzle;
         this.graph = graph;
         this.sendTimeout = this.TIMEOUT;
         this.clientDB = new ClientDB();
+        this._isLoading = true;
+        this.loadPuzzle();
     }
 
     public update() {
@@ -81,9 +85,9 @@ class NetworkSerializer {
         // todo: send to server
     }
 
-    /** Returns true if a loading state was found otherwise false */
-    public async loadPuzzle(): Promise<boolean> {
+    private async loadPuzzle() {
         try {
+            await this.clientDB.init();
             const puzzleData = await this.clientDB.loadPuzzle();
             const graphData = await this.clientDB.loadGraph();
             const piecesData = await this.clientDB.loadPieces();
@@ -95,10 +99,10 @@ class NetworkSerializer {
                 }
             });
             
-            return true;   
+            this._isLoading = false;   
         } catch (error) {
             console.error(error);
-            return false;
+            this._isLoading = false;
         }
     }
 }
