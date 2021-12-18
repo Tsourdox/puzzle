@@ -121,8 +121,14 @@ class Menu implements IMenu {
         const halfMenu = (this.height / 2) + offset;
         textFont(fonts.icons);
         textSize(50);
-        text(icon["Puzzle Piece solid"], halfMenu, height - halfMenu);
         text(icon["cog solid"], width - halfMenu, height - halfMenu);
+        
+        text(icon["Puzzle Piece solid"], halfMenu, height - halfMenu);
+        strokeWeight(4);
+        stroke(theme.darkdrop);
+        fill(theme.neutral);
+        textSize(20);
+        text(icon["plus solid"], halfMenu + 8, height - halfMenu + 18);
         pop();
         
         push();
