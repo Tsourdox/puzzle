@@ -28,7 +28,6 @@ class Piece implements ISerializablePiece {
     private offset: number;
     private _isSelected: boolean;
     private graphicNeedsUpdating: boolean;
-    private clippingMask: p5.Image;
 
     constructor(id: number, image: p5.Image, origin: p5.Vector, size: p5.Vector, sides: Sides, offset: number) {
         this.id = id;
@@ -49,7 +48,7 @@ class Piece implements ISerializablePiece {
             round(this.size.x + offset * 2),
             round(this.size.y + offset * 2)
         );
-        this.clippingMask = this.createClippingMask();
+        this.image.mask(this.createClippingMask());
         this.updateGraphics();
     }
 
@@ -103,8 +102,6 @@ class Piece implements ISerializablePiece {
     
     private updateGraphics() {
         this.graphicNeedsUpdating = false;
-
-        this.image.mask(this.clippingMask);
         this.graphics.clear();
         this.graphics.image(this.image, 0, 0);
         
