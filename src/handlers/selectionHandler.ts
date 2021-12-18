@@ -71,7 +71,7 @@ class SelectionHandler implements ISelectionHandler {
                 const selectMore = keyIsDown(this.settings.getValue('markera fler'));
                 const mouseOverSelectedPiece = this.isMouseOverAnyPiece(this.puzzle.selectedPieces);
                 if (!mouseOverSelectedPiece && !selectMore) {
-                    this.select(this.puzzle.selectedPieces[0], false);
+                    this.deselectAllPieces();
                 }
             }
 
@@ -118,6 +118,12 @@ class SelectionHandler implements ISelectionHandler {
             for (const piece of this.puzzle.selectedPieces) {
                 this.select(piece, false);
             }
+        }
+    }
+
+    private deselectAllPieces() {
+        for (const piece of this.puzzle.selectedPieces) {
+            piece.isSelected = false;
         }
     }
 
