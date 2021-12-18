@@ -43,7 +43,7 @@ class SelectionHandler implements ISelectionHandler {
         const didPress = !this.prevMouseIsPressed && mouseIsPressed;
         const didRelease = this.prevMouseIsPressed && !mouseIsPressed;
 
-        if (didPress && mouseButton === LEFT) {
+        if (didPress && (mouseButton === LEFT || touches.length)) {
             const mouseOverAnyPiece = this.isMouseOverAnyPiece(this.puzzle.pieces);
             if (!mouseOverAnyPiece || keyIsDown(this.settings.getValue('markera fler'))) {
                 this.dragSelectionOrigin = createVector(mouseX, mouseY);
@@ -65,7 +65,7 @@ class SelectionHandler implements ISelectionHandler {
         if (touches.length > 1) return;
 
         // Select by clicking
-        if (didPress && mouseButton === LEFT) {
+        if (didPress && (mouseButton === LEFT || touches.length)) {
             // Deselection
             if (this.puzzle.selectedPieces.length) {
                 const selectMore = keyIsDown(this.settings.getValue('markera fler'));

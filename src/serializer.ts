@@ -97,9 +97,9 @@ class NetworkSerializer {
                 for (const pieceData of piecesData) {
                     this.puzzle.pieces[pieceData.id].deserialize(pieceData);
                 }
+                this._isLoading = false;   
             });
             
-            this._isLoading = false;   
         } catch (error) {
             console.error(error);
             this._isLoading = false;

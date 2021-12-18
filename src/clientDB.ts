@@ -1,7 +1,7 @@
 type DBKey = 'puzzle' | 'graph' | 'pieces';
 
 class ClientDB {
-    private readonly dbName = 'application';
+    private readonly dbName = 'puzzelin';
     private readonly storeName = 'main';
     private db?: IDBDatabase;
 
