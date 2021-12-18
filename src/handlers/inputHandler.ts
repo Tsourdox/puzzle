@@ -30,7 +30,6 @@ class InputHandler {
     public draw(hideInstructions: boolean) {
         this.selectionHandler.draw();
         this.drawInstructions(hideInstructions);
-        this.drawButtons(hideInstructions);
     }
 
     private drawInstructions(hideInstruction: boolean) {
@@ -46,44 +45,6 @@ class InputHandler {
         text('Nytt pussel', width * .01, y);
         textAlign(RIGHT, CENTER);
         text('Inställningar', width * .99, y);
-        pop();
-    }
-
-    private drawButtons(hideInstructions: boolean) {
-        this.drawButton(height * .08, icon["home solid"], 'Zooma hem', hideInstructions);
-    }
-    
-    private drawButton(y: number, icon: string, instruction: string, hideInstructions: boolean) {
-        const d = (height + width) * .02;
-        const x = d * .7;
-        
-        push();
-        noStroke();
-        fill(theme.darkdrop);
-        circle(x, y, d);
-        pop();
-
-        const size = d * .7;
-        push();
-        fill(theme.neutral);
-        textFont(fonts.icons);
-        textSize(size);
-        textAlign(CENTER, CENTER);
-        text(icon, x, y - d * .06);
-        pop();
-        
-    
-        if (mouseIsPressed && dist(x, y, mouseX, mouseY) < d * .5) {
-            this.graphHandler.zoomHome();
-        }
-
-        if (hideInstructions) return;
-        
-        push()
-        textSize(size * 0.7);
-        textAlign(LEFT, CENTER);
-        fill(theme.neutral);
-        text(instruction, x * 2, y - size * 0.1);
         pop();
     }
 }
