@@ -1,16 +1,15 @@
 # Puzzelin
 
-An online puzzle for family and friends. This is still a work in progess but the app should be relative stable and playable in Chrome for now.
+An online puzzle for family and friends. This is still a work in progess but the app should be relative stable and playable as single play in Chrome, Safari and on iPad.
 
 **[Try it out!](https://puzzelin.netlify.app)**
 
 ## Browser & Device Compatibility
-- 🟢 **Chrome** - Good Support;
+- 🟢 **Chrome** - Good FPS & Full Support;
 - 🟡 **Firefox** - Bad FPS;
-
 - 🟡 **Edge** - To be determined;
-- 🟡 **Safari** - Bad FPS, can't load large images;
-- 🔴 **iPad** - Missing inputs: rotation, zoom-to-home, etc;
+- 🟡 **Safari** - Ok FPS & can't load large images;
+- 🟢 **iPad** - OK FPS & Good touch suppport;
 
 ## Installation
 
