@@ -96,7 +96,7 @@ class TransformHandler implements ITransformHandler {
 
         // Scroll
         if (this.puzzle.selectedPieces) {
-            const rotation = scrollDelta * 0.005 * userSpeed;
+            const rotation = scrollDelta * 0.01 * userSpeed;
             this.rotatePieces(rotation)
         }
     }

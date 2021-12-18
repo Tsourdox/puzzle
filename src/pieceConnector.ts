@@ -18,15 +18,15 @@ class PieceConnector {
     }
 
     private checkForConnectedPieces() {
-        const limit = this.puzzle.pieceSize.mag() / 10;
         for (const piece of this.puzzle.pieces) {
             if (piece.isSelected) {
-                this.checkPieceConnection(piece, limit);
+                this.checkPieceConnection(piece);
             }
         }
     }
 
-    private checkPieceConnection(piece: Piece, limit: number) {
+    private checkPieceConnection(piece: Piece) {
+        const limit = this.puzzle.pieceSize.mag() / 8;
         const length = this.puzzle.pieces.length;
         const { x } = this.puzzle.pieceCount;
         
@@ -57,12 +57,12 @@ class PieceConnector {
             const distA = pcA.dist(acA);
             const distB = pcB.dist(acB);
             if (distA + distB < limit) {
-                this.connectPieces(piece, adjecentPiece, side, limit);
+                this.connectPieces(piece, adjecentPiece, side);
             }
         }
     }
 
-    private connectPieces(piece: Piece, adjecentPiece: Piece, side: Side, limit: number) {
+    private connectPieces(piece: Piece, adjecentPiece: Piece, side: Side) {
         // First matching side found
         if (piece.isSelected) {
             // Remove selection & play click sound
@@ -81,7 +81,7 @@ class PieceConnector {
 
             // Check all connected pieces
             const connectedPieces = getConnectedPieces(piece, this.puzzle);
-            connectedPieces.forEach(p => this.checkPieceConnection(p, limit));
+            connectedPieces.forEach(p => this.checkPieceConnection(p));
         }
 
         // Add to connected side list
