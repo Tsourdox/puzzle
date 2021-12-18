@@ -69,3 +69,18 @@ function daysBetweenDates(date1: Date, date2: Date) {
     const differenceMs = Math.abs(date1.getDate() - date2.getDate());
     return Math.round(differenceMs / ONE_DAY);
 }
+
+/* Will only check max 3 points */
+function getMostDistantPoints(...[v0, v1, v2]: Point[]): [Point, Point] {
+    if (v2) {
+        const d01 = dist(v0.x, v0.y, v1.x, v1.y);
+        const d02 = dist(v0.x, v0.y, v2.x, v2.y);
+        const d12 = dist(v1.x, v1.y, v2.x, v2.y);
+        const maxDist = max([d01, d02, d12]);
+        if (d01 === maxDist) return [v0, v1];
+        if (d02 === maxDist) return [v0, v2];
+        else return [v1, v2];
+    } else {
+        return [v0, v1];
+    }
+}

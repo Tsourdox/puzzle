@@ -35,16 +35,20 @@ class InputHandler {
     private drawInstructions(hideInstruction: boolean) {
         if (hideInstruction) return;
         
-        const size = min((height + width) * .01, 40);
-        const y = (height - 80) - size * 1.1;
+        const size = min((height + width) * .012, 40);
+        const y = (height / 2);
+        const x = (width / 2);
 
         push()
-        textSize(size);
         fill(theme.neutral);
-        textAlign(LEFT, CENTER);
-        text('Nytt pussel', width * .01, y);
-        textAlign(RIGHT, CENTER);
-        text('Inställningar', width * .99, y);
+        textAlign(CENTER, CENTER);
+        
+        textSize(size * 1.6);
+        text('FÖR ENHETER MED TOUCH', x, y - y * .4);
+        textSize(size);
+        text('1 FINGER - MARKERA OCH FLYTTA BITAR', x, y - y * .1);
+        text('2 FINGRAR - ROTERA MARKERADE BITAR', x, y);
+        text('3 FINGRAR - ZOOMA OCH PANORERA VYN', x, y + y * .1);
         pop();
     }
 }

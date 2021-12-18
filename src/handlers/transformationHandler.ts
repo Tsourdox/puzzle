@@ -80,12 +80,18 @@ class TransformHandler implements ITransformHandler {
         if (keyIsDown(this.settings.getValue('rotera höger'))) {
             this.rotatePieces(rotation);
         }
-        // Touch (3 finger drag)
-        if (touches.length === 3 && prevTouches.length === 3) {
-            const [t1, t2, t3] = touches as Touches;
-            const [p1, p2, p3] = prevTouches;
-            const delta = (t1.x + t2.x + t3.x) - (p1.x + p2.x + p3.x);
-            this.rotatePieces(rotation * delta * .2 * userSpeed);
+
+        const threeFingerRotation = this.settings.getValue('rotera med 3 fingrar');
+        // Touch
+        if (
+            !threeFingerRotation && prevTouches.length === 2 && touches.length === 2 ||
+            threeFingerRotation && touches.length === 3 && prevTouches.length === 3
+        ) {
+            const [t1, t2] = getMostDistantPoints(...(touches as Touches));
+            const [p1, p2] = getMostDistantPoints(...prevTouches);
+            const angle = angleBetween(t1, t2);
+            const prevAngle = angleBetween(p1, p2);
+            this.rotatePieces((angle - prevAngle) * 3 * userSpeed);
         }
 
         // Scroll
