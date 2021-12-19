@@ -237,7 +237,7 @@ class Piece implements ISerializablePiece {
 
     public deserialize(piece: PieceData) {
         this._rotation = piece.rotation;
-        this._connectedSides = piece.connectedSides;
+        this._connectedSides = piece.connectedSides || [];
         this._translation = toVector(piece.translation);
         this._isSelected = piece.isSelected;
         this.elevation = piece.elevation;

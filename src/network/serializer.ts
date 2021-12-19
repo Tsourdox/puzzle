@@ -6,6 +6,7 @@ interface ISerializable<T> {
 
 interface ISerializablePuzzle extends ISerializable<PuzzleData> {
     pieces: ReadonlyArray<ISerializablePiece>;
+    roomCode: string;
 }
 
 interface ISerializablePiece extends ISerializable<PieceData> {}
@@ -15,13 +16,14 @@ interface PuzzleData {
     image: string;
     pieceCount: Point;
     seed: number;
+    roomCode: string;
 }
 
 interface PieceData {
     id: number;
     rotation: number;
     translation: Point;
-    connectedSides: number[];
+    connectedSides?: number[];
     isSelected: boolean;
     elevation: number;
 }
@@ -31,12 +33,18 @@ interface GraphData {
     translation: Point;
 }
 
+interface RoomData {
+    puzzle: PuzzleData;
+    pieces: PieceData[];
+}
+
 class NetworkSerializer {
     private readonly TIMEOUT = 100; //ms
     private puzzle: ISerializablePuzzle
     private graph: ISerializableGraph
     private sendTimeout: number;
     private clientDB: ClientDB;
+    private firebaseDB: FirebaseDB;
     private _isLoading: boolean;
     public get isLoading() { return this._isLoading }
 
@@ -45,20 +53,22 @@ class NetworkSerializer {
         this.graph = graph;
         this.sendTimeout = this.TIMEOUT;
         this.clientDB = new ClientDB();
-        this._isLoading = true;
+        this.firebaseDB = new FirebaseDB();
+        this._isLoading = false;
         this.loadPuzzle();
+        this.listenToFirebaseDBChanges(puzzle.roomCode);
     }
 
     public update() {
         if (this.puzzle.isModified) {
-            this.sendInitialData();
+            this.saveInitialData();
             this.puzzle.isModified = false;
         }
 
         if (this.sendTimeout <= 0) {
             this.sendTimeout = this.TIMEOUT;
             if (this.graph.isModified) {
-                this.sendGraphData();
+                this.saveGraphDataToClientDB();
             }
             this.sendIncrementalPuzzleData();
         }
@@ -66,43 +76,70 @@ class NetworkSerializer {
         this.sendTimeout -= deltaTime;
     }
     
-    private sendInitialData() {
+    private saveInitialData() {
         const puzzleData = this.puzzle.serialize();
         this.clientDB.savePuzzle(puzzleData);
-        this.sendGraphData();
-        // todo: send to server
+        this.saveGraphDataToClientDB();
+        this.firebaseDB.savePuzzleData(puzzleData.roomCode, puzzleData);
+    }
+    
+    private listenToFirebaseDBChanges(roomCode: string) {
+        this.firebaseDB.listenToPuzzleUpdates(roomCode, (puzzle) => {
+            this.puzzle.deserialize(puzzle, () => this._isLoading = false);
+        });
+        this.firebaseDB.listenToPiecesUpdates(roomCode, (piecesData) => {
+            this.deserializePieces(piecesData);
+        });
     }
 
-    private sendGraphData() {
+    private saveGraphDataToClientDB() {
         const graphData = this.graph.serialize();
         this.clientDB.saveGraph(graphData);
     }
 
     private sendIncrementalPuzzleData() {
-        const { pieces } = this.puzzle;
+        const { pieces, roomCode } = this.puzzle;
         const piecesData = pieces.filter(p => p.isModified).map(p => p.serialize());
         this.clientDB.savePieces(piecesData);
-        // todo: send to server
+        
+        // todo...
+        const allPiecesData = pieces.map(p => p.serialize());
+        this.firebaseDB.savePiecesData(roomCode, allPiecesData);
     }
 
     private async loadPuzzle() {
         try {
+            this._isLoading = true;
             await this.clientDB.init();
-            const puzzleData = await this.clientDB.loadPuzzle();
             const graphData = await this.clientDB.loadGraph();
-            const piecesData = await this.clientDB.loadPieces();
-            
-            this.puzzle.deserialize(puzzleData, () => {
-                this.graph.deserialize(graphData);
-                for (const pieceData of piecesData) {
-                    this.puzzle.pieces[pieceData.id].deserialize(pieceData);
-                }
-                this._isLoading = false;   
-            });
-            
+            const roomData = await this.firebaseDB.getRoomData(this.puzzle.roomCode);
+            if (roomData) {
+                this.deserializeAll(roomData.puzzle, roomData.pieces, graphData);
+            } else {
+                const puzzleData = await this.clientDB.loadPuzzle();
+                const piecesData = await this.clientDB.loadPieces();
+                this.deserializeAll(puzzleData, piecesData, graphData);
+            }
         } catch (error) {
             console.error(error);
             this._isLoading = false;
+        }
+    }
+
+    private deserializeAll(puzzleData: PuzzleData, piecesData: PieceData[], graphData: GraphData) {
+        this.graph.deserialize(graphData);
+        this.puzzle.deserialize(puzzleData, () => {
+            this.deserializePieces(piecesData);
+            this._isLoading = false;   
+        });
+    }
+
+    private deserializePieces(piecesData?: PieceData[]) {
+        if (!this.puzzle.pieces.length) return;
+        for (const pieceData of piecesData || []) {
+            if (piecesData) {
+                this.puzzle.pieces[pieceData.id].deserialize(pieceData);
+            }
         }
     }
 }

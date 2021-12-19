@@ -84,3 +84,14 @@ function getMostDistantPoints(...[v0, v1, v2]: Point[]): [Point, Point] {
         return [v0, v1];
     }
 }
+
+function getRandomRoomCode() {
+    const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    let code = "";
+
+    for (let i = 0; i < 3 ; i++) {
+        const randomCharIndex = Math.floor(Math.random() * characters.length);
+        code += characters.charAt(randomCharIndex);
+    }
+    return code;
+}
