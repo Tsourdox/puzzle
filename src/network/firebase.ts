@@ -29,7 +29,6 @@ class FirebaseDB {
         for (const [key, piece] of Object.entries(roomData.pieces)) {
             this.pieceRefs[piece.id] = firebase.child(firebase.ref(this.db, 'rooms/' + code + '/pieces'), key); 
         }
-        console.log('GET PUZZLE', roomData);
         return roomData;
     }
 
@@ -61,11 +60,9 @@ class FirebaseDB {
         onValue(ref(this.db, 'rooms/' + code + '/puzzle'), (snapshot) => {
             if (snapshot.val()) {
                 onUpdate(snapshot.val());
-            } else {
-                console.log('No value at', code);
             }
         }, (errorObject) => {
-            console.log('The read failed: ' + errorObject.name);
+            console.error('The read failed: ' + errorObject.name);
         });
     }
     
@@ -76,7 +73,7 @@ class FirebaseDB {
                 onUpdate(piece);
             }
         }, (errorObject) => {
-            console.log('The read failed: ' + errorObject.name);
+            console.error('The read failed: ' + errorObject.name);
         });
     }
 }
