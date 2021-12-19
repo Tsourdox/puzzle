@@ -1,7 +1,9 @@
-const { initializeApp, getDatabase, ref, onValue, onChildChanged, off } = firebase;
+const { initializeApp, getDatabase, ref, onValue, onChildChanged, off} = firebase;
 
 class FirebaseDB {
     private db: ReturnType<typeof getDatabase>;
+    private clientId: string;
+    private pieceRefs: (ReturnType<typeof firebase.push> | ReturnType<typeof firebase.child>)[];
     
     constructor() {
         // Your web app's Firebase configuration
@@ -16,28 +18,45 @@ class FirebaseDB {
         };
         const app = initializeApp(firebaseConfig);
         this.db = getDatabase(app);
+        this.clientId = random().toString().split('.')[1];
+        this.pieceRefs = [];
+    }
+
+    public async getRoomData(code: string): Promise<RoomData | null> {
+        const snapshot = await firebase.get(ref(this.db, 'rooms/' + code));
+        if (!snapshot.exists()) return null;
+        const roomData = snapshot.val() as RoomData;
+        for (const [key, piece] of Object.entries(roomData.pieces)) {
+            this.pieceRefs[piece.id] = firebase.child(firebase.ref(this.db, 'rooms/' + code + '/pieces'), key); 
+        }
+        console.log('GET PUZZLE', roomData);
+        return roomData;
     }
 
     public savePuzzleData(code: string, puzzle: PuzzleData) {
         const roomData: RoomData = {
             puzzle,
-            pieces: []
+            pieces: {}
         };
-        console.log('SEND', roomData, code);
         firebase.update(ref(this.db, 'rooms/' + code), roomData);
-    }
-
-    public savePiecesData(code: string, pieces: PieceData[]) {
-        const roomData: Pick<RoomData, 'pieces'> = { pieces };
-        firebase.update(ref(this.db, 'rooms/' + code), roomData);
-    }
-
-    public async getRoomData(code: string): Promise<RoomData | null> {
-        const snapshot = await firebase.get(ref(this.db, 'rooms/' + code));
-        if (snapshot.exists()) {
-            return snapshot.val() as RoomData;
+        
+        // Create empty
+        const totalPieces = puzzle.pieceCount.x * puzzle.pieceCount.y;
+        for (let i = 0; i < totalPieces; i++) {
+            const pieceRef = firebase.push(ref(this.db, 'rooms/' + code + '/pieces'), {});
+            this.pieceRefs[i] = pieceRef;
         }
-        return null;
+    }
+
+    public savePiecesData(pieces: PieceData[]) {
+        try {
+            const pieceUpdates = pieces.map(p => ({ ...p, updatedBy: this.clientId }));
+            for (const piece of pieceUpdates) {
+                firebase.set(this.pieceRefs[piece.id], piece);
+            }
+        } catch (err) {
+            console.error(err);
+        }
     }
     
     public listenToPuzzleUpdates(code: string, onUpdate: (puzzleData: PuzzleData) => void) {
@@ -48,15 +67,18 @@ class FirebaseDB {
                 console.log('No value at', code);
             }
         }, (errorObject) => {
-          console.log('The read failed: ' + errorObject.name);
+            console.log('The read failed: ' + errorObject.name);
         });
     }
     
-    public listenToPiecesUpdates(code: string, onUpdate: (piecesData: PieceData[]) => void) {
-        onValue(ref(this.db, 'rooms/' + code + '/pieces'), (snapshot) => {
-          onUpdate(snapshot.val());
+    public listenToPiecesUpdates(code: string, onUpdate: (piecesData: PieceData) => void) {
+        onChildChanged(ref(this.db, 'rooms/' + code + '/pieces'), (snapshot) => {
+            const piece = snapshot.val();
+            if (piece.updatedBy !== this.clientId) {
+                onUpdate(piece);
+            }
         }, (errorObject) => {
-          console.log('The read failed: ' + errorObject.name);
+            console.log('The read failed: ' + errorObject.name);
         });
     }
 }

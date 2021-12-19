@@ -24,7 +24,6 @@ interface PieceData {
     rotation: number;
     translation: Point;
     connectedSides?: number[];
-    isSelected: boolean;
     elevation: number;
 }
 
@@ -35,7 +34,7 @@ interface GraphData {
 
 interface RoomData {
     puzzle: PuzzleData;
-    pieces: PieceData[];
+    pieces: Record<string, PieceData>;
 }
 
 class NetworkSerializer {
@@ -87,8 +86,8 @@ class NetworkSerializer {
         this.firebaseDB.listenToPuzzleUpdates(roomCode, (puzzle) => {
             this.puzzle.deserialize(puzzle, () => this._isLoading = false);
         });
-        this.firebaseDB.listenToPiecesUpdates(roomCode, (piecesData) => {
-            this.deserializePieces(piecesData);
+        this.firebaseDB.listenToPiecesUpdates(roomCode, (pieceData) => {
+            this.puzzle.pieces[pieceData.id].deserialize(pieceData);
         });
     }
 
@@ -98,13 +97,12 @@ class NetworkSerializer {
     }
 
     private sendIncrementalPuzzleData() {
-        const { pieces, roomCode } = this.puzzle;
+        const { pieces } = this.puzzle;
         const piecesData = pieces.filter(p => p.isModified).map(p => p.serialize());
-        this.clientDB.savePieces(piecesData);
-        
-        // todo...
-        const allPiecesData = pieces.map(p => p.serialize());
-        this.firebaseDB.savePiecesData(roomCode, allPiecesData);
+        if (piecesData.length) {
+            this.clientDB.savePieces(piecesData);
+            this.firebaseDB.savePiecesData(piecesData);
+        }
     }
 
     private async loadPuzzle() {
@@ -114,7 +112,7 @@ class NetworkSerializer {
             const graphData = await this.clientDB.loadGraph();
             const roomData = await this.firebaseDB.getRoomData(this.puzzle.roomCode);
             if (roomData) {
-                this.deserializeAll(roomData.puzzle, roomData.pieces, graphData);
+                this.deserializeAll(roomData.puzzle, Object.values(roomData.pieces), graphData);
             } else {
                 const puzzleData = await this.clientDB.loadPuzzle();
                 const piecesData = await this.clientDB.loadPieces();
@@ -134,12 +132,10 @@ class NetworkSerializer {
         });
     }
 
-    private deserializePieces(piecesData?: PieceData[]) {
+    private deserializePieces(piecesData: PieceData[]) {
         if (!this.puzzle.pieces.length) return;
-        for (const pieceData of piecesData || []) {
-            if (piecesData) {
-                this.puzzle.pieces[pieceData.id].deserialize(pieceData);
-            }
+        for (const pieceData of piecesData) {
+            this.puzzle.pieces[pieceData.id].deserialize(pieceData);
         }
     }
 }

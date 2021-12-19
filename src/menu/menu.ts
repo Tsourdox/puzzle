@@ -143,7 +143,7 @@ class Menu implements IMenu {
         push();
         textSize(20);
         textAlign(LEFT, TOP);
-        text(`ROOM: ${roomCode}`, 10, 6);
+        text(`RUM: ${roomCode}`, 10, 6);
         pop();
     }
 }

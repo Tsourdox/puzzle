@@ -230,7 +230,6 @@ class Piece implements ISerializablePiece {
             rotation: this.rotation,
             translation: toPoint(this.translation),
             connectedSides: this.connectedSides,
-            isSelected: this.isSelected,
             elevation: this.elevation
         };
     }
@@ -239,11 +238,6 @@ class Piece implements ISerializablePiece {
         this._rotation = piece.rotation;
         this._connectedSides = piece.connectedSides || [];
         this._translation = toVector(piece.translation);
-        this._isSelected = piece.isSelected;
         this.elevation = piece.elevation;
-
-        if (piece.isSelected) {
-            this.graphicNeedsUpdating = true;
-        }
     }
 }
