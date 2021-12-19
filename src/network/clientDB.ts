@@ -16,7 +16,6 @@ class ClientDB {
             request.onupgradeneeded = (e: any) => {
                 const db = e.target.result;
                 db.createObjectStore('main', { autoIncrement: true });
-                resolve();
             }
         });
     }
@@ -29,7 +28,7 @@ class ClientDB {
             const request = store.get(key);
             request.onsuccess = (e: any) => {
                 if (!e.target.result) {
-                    reject(new Error('No data'));
+                    reject(new Error('No data to load from Client DB'));
                 } else {
                     resolve(e.target.result);
                 }
