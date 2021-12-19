@@ -21,10 +21,8 @@ class Puzzle implements IPuzzle, IGeneratePuzzle, ISerializablePuzzle {
     private pieceConnetor: PieceConnector;
     private menu: Menu;
     private piecesFactory?: PiecesFactory;
-    public roomCode: string;
 
     constructor() {
-        this.roomCode = "XY7G";
         this.pieces = [];
         this.pieceCount = createVector(0, 0);
         this.pieceSize = createVector(0, 0);
@@ -84,7 +82,7 @@ class Puzzle implements IPuzzle, IGeneratePuzzle, ISerializablePuzzle {
         
         const hideInstruction = Boolean(this.piecesFactory || this.menu.isOpen); 
         this.inputHandler.draw(hideInstruction);
-        this.menu.draw(this.roomCode);
+        this.menu.draw(this.networkSerializer.roomCode);
     }
 
     private drawPieces() {
@@ -98,7 +96,6 @@ class Puzzle implements IPuzzle, IGeneratePuzzle, ISerializablePuzzle {
             pieceCount: toPoint(this.pieceCount),
             seed: this.piecesFactory?.seed || 0,
             image: (this.image as any)?.canvas.toDataURL() || 'no-image',
-            roomCode: this.roomCode,
         };
     }
 
@@ -112,9 +109,6 @@ class Puzzle implements IPuzzle, IGeneratePuzzle, ISerializablePuzzle {
                     this.pieceSize = createVector(image.width / x, image.height / y);
                     this.piecesFactory = new PiecesFactory(x, y, image, puzzle.seed);
                     this.pieces = this.piecesFactory.createAllPieces(true);
-                    if (puzzle.roomCode) {
-                        this.roomCode = puzzle.roomCode
-                    }
                     resolve();
                 });
             } catch (error) {

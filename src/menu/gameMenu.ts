@@ -23,6 +23,7 @@ class GameMenu implements IGameMenu {
         this.sizeToggle = new SizeToggle(this.div);
         new RandomButton(this.div, this);
         new FileButton(this.div, this);
+        new JoinRoomButton(this.div, menu);
     }
     
     public useImage(image: p5.Image) {

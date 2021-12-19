@@ -10,7 +10,6 @@ type DeserializeOptions = {
 
 interface ISerializablePuzzle extends ISerializable<PuzzleData> {
     pieces: ReadonlyArray<ISerializablePiece>;
-    roomCode: string;
 }
 
 interface ISerializablePiece extends ISerializable<PieceData> {}
@@ -20,7 +19,6 @@ interface PuzzleData {
     image: string;
     pieceCount: Point;
     seed: number;
-    roomCode: string;
 }
 
 interface PieceData {
@@ -50,16 +48,33 @@ class NetworkSerializer {
     private firebaseDB: FirebaseDB;
     private _isLoading: boolean;
     public get isLoading() { return this._isLoading }
+    public roomCode: string;
 
     constructor(puzzle: ISerializablePuzzle, graph: ISerializableGraph) {
         this.puzzle = puzzle;
         this.graph = graph;
+        this.roomCode = "XY7G";
         this.sendTimeout = this.TIMEOUT;
         this.clientDB = new ClientDB();
         this.firebaseDB = new FirebaseDB();
         this._isLoading = false;
-        this.listenToFirebaseDBChanges(puzzle.roomCode);
-        this.loadPuzzle();
+        this.initLocalStorage();
+        this.listenToFirebaseDBChanges(this.roomCode);
+        this.loadPuzzle(false);
+    }
+
+    private initLocalStorage() {
+        const roomCode = localStorage.getItem('room-code');
+        if (roomCode) this.roomCode = roomCode;
+        window.addEventListener('storage', () => this.changeRoom());
+    }
+
+    private changeRoom() {
+        const roomCode = localStorage.getItem('room-code');
+        if (roomCode && roomCode !== this.roomCode) {
+            this.roomCode = roomCode;
+            this.loadPuzzle(true);
+        }
     }
 
     public update() {
@@ -83,7 +98,7 @@ class NetworkSerializer {
         const puzzleData = this.puzzle.serialize();
         this.clientDB.savePuzzle(puzzleData);
         this.saveGraphDataToClientDB();
-        this.firebaseDB.savePuzzleData(puzzleData.roomCode, puzzleData);
+        this.firebaseDB.savePuzzleData(this.roomCode, puzzleData);
     }
     
     private listenToFirebaseDBChanges(roomCode: string) {
@@ -107,19 +122,20 @@ class NetworkSerializer {
         const piecesData = pieces.filter(p => p.isModified).map(p => p.serialize());
         if (piecesData.length) {
             this.clientDB.savePieces(piecesData);
-            this.firebaseDB.savePiecesData(this.puzzle.roomCode, piecesData);
+            this.firebaseDB.savePiecesData(this.roomCode, piecesData);
         }
     }
 
-    private async loadPuzzle() {
+    private async loadPuzzle(roomWasChanged: boolean) {
         try {
             this._isLoading = true;
             await this.clientDB.init();
             const graphData = await this.clientDB.loadGraph();
-            const roomData = await this.firebaseDB.getRoomData(this.puzzle.roomCode);
+            const roomData = await this.firebaseDB.getRoomData(this.roomCode);
+            console.log(roomData);
             if (roomData) {
                 await this.deserializeAll(roomData.puzzle, Object.values(roomData.pieces), graphData);
-            } else {
+            } else if (!roomWasChanged) {
                 const puzzleData = await this.clientDB.loadPuzzle();
                 const piecesData = await this.clientDB.loadPieces();
                 await this.deserializeAll(puzzleData, piecesData, graphData);

@@ -6,6 +6,7 @@
 :root {
     --primary: rgb(186, 72, 218);
     --darkened: rgb(95, 43, 110);
+    --faded: rgb(57, 34, 63);
     --neutral: rgb(200, 200, 200);
     --background: rgb(40, 40, 40);
     --backdrop: rgba(60, 60, 60, 0.8);
@@ -43,10 +44,6 @@ html, body, canvas {
     flex-direction: column;
     justify-content: center;
     align-items: center;
-}
-
-.hidden {
-    display: none;
 }
 
 .button, .toggle-button {
@@ -105,6 +102,10 @@ html, body, canvas {
     font-size: 2.2rem;
     color: var(--neutral);
     font-weight: normal;
+}
+
+.hidden {
+    display: none;
 }
 
 /******************************/
