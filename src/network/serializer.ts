@@ -1,8 +1,12 @@
 interface ISerializable<T> {
     isModified: boolean;
     serialize: () => T;
-    deserialize: (object: T, done?: Function) => void;
+    deserialize: (object: T, options?: DeserializeOptions) => Promise<void>;
 }
+
+type DeserializeOptions = {
+    lerp?: boolean;
+} | undefined;
 
 interface ISerializablePuzzle extends ISerializable<PuzzleData> {
     pieces: ReadonlyArray<ISerializablePiece>;
@@ -54,8 +58,8 @@ class NetworkSerializer {
         this.clientDB = new ClientDB();
         this.firebaseDB = new FirebaseDB();
         this._isLoading = false;
-        this.loadPuzzle();
         this.listenToFirebaseDBChanges(puzzle.roomCode);
+        this.loadPuzzle();
     }
 
     public update() {
@@ -83,8 +87,10 @@ class NetworkSerializer {
     }
     
     private listenToFirebaseDBChanges(roomCode: string) {
-        this.firebaseDB.listenToPuzzleUpdates(roomCode, (puzzle) => {
-            this.puzzle.deserialize(puzzle, () => this._isLoading = false);
+        this.firebaseDB.listenToPuzzleUpdates(roomCode, async (puzzle) => {
+            if (!this.isLoading) {
+                await this.puzzle.deserialize(puzzle)
+            }
         });
         this.firebaseDB.listenToPiecesUpdates(roomCode, (pieceData) => {
             this.puzzle.pieces[pieceData.id].deserialize(pieceData);
@@ -112,30 +118,29 @@ class NetworkSerializer {
             const graphData = await this.clientDB.loadGraph();
             const roomData = await this.firebaseDB.getRoomData(this.puzzle.roomCode);
             if (roomData) {
-                this.deserializeAll(roomData.puzzle, Object.values(roomData.pieces), graphData);
+                await this.deserializeAll(roomData.puzzle, Object.values(roomData.pieces), graphData);
             } else {
                 const puzzleData = await this.clientDB.loadPuzzle();
                 const piecesData = await this.clientDB.loadPieces();
-                this.deserializeAll(puzzleData, piecesData, graphData);
+                await this.deserializeAll(puzzleData, piecesData, graphData);
             }
         } catch (error) {
             console.error(error);
-            this._isLoading = false;
         }
+        this._isLoading = false;
     }
 
-    private deserializeAll(puzzleData: PuzzleData, piecesData: PieceData[], graphData: GraphData) {
+    private async deserializeAll(puzzleData: PuzzleData, piecesData: PieceData[], graphData: GraphData) {
         this.graph.deserialize(graphData);
-        this.puzzle.deserialize(puzzleData, () => {
-            this.deserializePieces(piecesData);
-            this._isLoading = false;   
-        });
+        await this.puzzle.deserialize(puzzleData)
+        this.deserializePieces(piecesData);
+        this._isLoading = false;   
     }
 
     private deserializePieces(piecesData: PieceData[]) {
         if (!this.puzzle.pieces.length) return;
         for (const pieceData of piecesData) {
-            this.puzzle.pieces[pieceData.id].deserialize(pieceData);
+            this.puzzle.pieces[pieceData.id].deserialize(pieceData, { lerp: false });
         }
     }
 }

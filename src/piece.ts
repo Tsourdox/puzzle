@@ -17,7 +17,9 @@ class Piece implements ISerializablePiece {
     public isModified: boolean;
     public elevation: number;
     private _rotation: number;
+    private nextRotation: number;
     private _translation: p5.Vector;
+    private nextTranslation: p5.Vector;
     private _connectedSides: Side[];
     private graphics: p5.Graphics;
     private image: p5.Image;
@@ -28,13 +30,17 @@ class Piece implements ISerializablePiece {
     private offset: number;
     private _isSelected: boolean;
     private graphicNeedsUpdating: boolean;
+    private lerpTime: number;
 
     constructor(id: number, image: p5.Image, origin: p5.Vector, size: p5.Vector, sides: Sides, offset: number) {
         this.id = id;
         this.isModified = false;
         this.elevation = id;
         this._rotation = 0;
+        this.nextRotation = 0;
         this._translation = createVector(0, 0);
+        this.nextTranslation = createVector(0, 0);
+        this.lerpTime = 100;
         this.image = image;
         this.origin = origin;
         this.size = size;
@@ -199,6 +205,12 @@ class Piece implements ISerializablePiece {
     }
 
     public update() {
+        if (this.lerpTime < 100) {
+            this.lerpTime += deltaTime;
+            const t = min(1, this.lerpTime / 100);
+            this._translation.lerp(this.nextTranslation, t);
+            this._rotation = lerp(this._rotation, this.nextRotation, t);
+        }
         if (this.graphicNeedsUpdating) {
             this.updateGraphics();
         }
@@ -234,10 +246,16 @@ class Piece implements ISerializablePiece {
         };
     }
 
-    public deserialize(piece: PieceData) {
-        this._rotation = piece.rotation;
+    public async deserialize(piece: PieceData, options: DeserializeOptions) {
         this._connectedSides = piece.connectedSides || [];
-        this._translation = toVector(piece.translation);
         this.elevation = piece.elevation;
+        if (options?.lerp) {
+            this.nextRotation = piece.rotation;
+            this.nextTranslation = toVector(piece.translation);
+            this.lerpTime = 0;
+        } else {
+            this._rotation = piece.rotation;
+            this._translation = toVector(piece.translation);
+        }
     }
 }

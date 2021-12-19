@@ -102,18 +102,24 @@ class Puzzle implements IPuzzle, IGeneratePuzzle, ISerializablePuzzle {
         };
     }
 
-    public deserialize(puzzle: PuzzleData, done?: Function) {
-        loadImage(puzzle.image, (image) => {
-            const { x, y } = puzzle.pieceCount;
-            this.image = image;
-            this.pieceCount = createVector(x, y);
-            this.pieceSize = createVector(image.width / x, image.height / y);
-            this.piecesFactory = new PiecesFactory(x, y, image, puzzle.seed);
-            this.pieces = this.piecesFactory.createAllPieces(true);
-            if (puzzle.roomCode) {
-                this.roomCode = puzzle.roomCode
+    public deserialize(puzzle: PuzzleData) {
+        return new Promise<void>((resolve, reject) => {
+            try {
+                loadImage(puzzle.image, (image) => {
+                    const { x, y } = puzzle.pieceCount;
+                    this.image = image;
+                    this.pieceCount = createVector(x, y);
+                    this.pieceSize = createVector(image.width / x, image.height / y);
+                    this.piecesFactory = new PiecesFactory(x, y, image, puzzle.seed);
+                    this.pieces = this.piecesFactory.createAllPieces(true);
+                    if (puzzle.roomCode) {
+                        this.roomCode = puzzle.roomCode
+                    }
+                    resolve();
+                });
+            } catch (error) {
+                reject(error);
             }
-            done!();
-        });
+        })
     }
 }
