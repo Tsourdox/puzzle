@@ -39,20 +39,18 @@ class FirebaseDB {
             pieces: {}
         };
         firebase.update(ref(this.db, 'rooms/' + code), roomData);
-        
-        // Create empty
-        const totalPieces = puzzle.pieceCount.x * puzzle.pieceCount.y;
-        for (let i = 0; i < totalPieces; i++) {
-            const pieceRef = firebase.push(ref(this.db, 'rooms/' + code + '/pieces'), {});
-            this.pieceRefs[i] = pieceRef;
-        }
     }
 
-    public savePiecesData(pieces: PieceData[]) {
+    public savePiecesData(code: string, pieces: PieceData[]) {
         try {
             const pieceUpdates = pieces.map(p => ({ ...p, updatedBy: this.clientId }));
             for (const piece of pieceUpdates) {
-                firebase.set(this.pieceRefs[piece.id], piece);
+                if (this.pieceRefs[piece.id]) {
+                    firebase.set(this.pieceRefs[piece.id], piece);
+                } else {
+                    const pieceRef = firebase.push(ref(this.db, 'rooms/' + code + '/pieces'));
+                    this.pieceRefs[piece.id] = pieceRef;
+                }
             }
         } catch (err) {
             console.error(err);

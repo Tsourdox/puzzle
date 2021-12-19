@@ -101,7 +101,7 @@ class NetworkSerializer {
         const piecesData = pieces.filter(p => p.isModified).map(p => p.serialize());
         if (piecesData.length) {
             this.clientDB.savePieces(piecesData);
-            this.firebaseDB.savePiecesData(piecesData);
+            this.firebaseDB.savePiecesData(this.puzzle.roomCode, piecesData);
         }
     }
 
