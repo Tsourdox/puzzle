@@ -15,5 +15,6 @@
 }
 
 .room-code-input:focus {
-    outline: var(--primary) .2rem solid;
+    outline: none;
+    border: var(--primary) .2rem solid;
 }
