@@ -99,8 +99,19 @@ class Puzzle implements IPuzzle, IGeneratePuzzle, ISerializablePuzzle {
         };
     }
 
+    private resetPuzzle() {
+        this.pieceCount = createVector(0, 0);
+        this.pieceSize = createVector(0, 0);
+        this.pieces = [];
+        delete this.piecesFactory;
+    }
+
     public deserialize(puzzle: PuzzleData) {
         return new Promise<void>((resolve, reject) => {
+            if (!puzzle) {
+                this.resetPuzzle()
+                return;
+            }
             try {
                 loadImage(puzzle.image, (image) => {
                     const { x, y } = puzzle.pieceCount;

@@ -20,6 +20,17 @@ class ClientDB {
         });
     }
 
+    public clear(): Promise<void> {
+        return new Promise(async (resolve, reject) => {
+            if (!this.db) throw new Error('Init must be called before loading data from the store');
+            const trans = this.db.transaction(this.storeName, 'readwrite');
+            const store = trans.objectStore(this.storeName);
+            const request = store.clear();
+            request.onsuccess = () => resolve();
+            request.onerror = reject;
+        });
+    }
+
     private loadFromStore<T>(key: DBKey): Promise<T> {
         return new Promise(async (resolve, reject) => {
             if (!this.db) throw new Error('Init must be called before loading data from the store');

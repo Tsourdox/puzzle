@@ -132,7 +132,11 @@ class NetworkSerializer {
             await this.clientDB.init();
             const graphData = await this.clientDB.loadGraph();
             const roomData = await this.firebaseDB.getRoomData(this.roomCode);
-            console.log(roomData);
+            
+            if (roomWasChanged) {
+                this.puzzle.deserialize(undefined as any);
+            }
+            
             if (roomData) {
                 await this.deserializeAll(roomData.puzzle, Object.values(roomData.pieces), graphData);
             } else if (!roomWasChanged) {
@@ -147,16 +151,12 @@ class NetworkSerializer {
     }
 
     private async deserializeAll(puzzleData: PuzzleData, piecesData: PieceData[], graphData: GraphData) {
-        this.graph.deserialize(graphData);
+        await this.graph.deserialize(graphData);
         await this.puzzle.deserialize(puzzleData)
-        this.deserializePieces(piecesData);
-        this._isLoading = false;   
-    }
-
-    private deserializePieces(piecesData: PieceData[]) {
         if (!this.puzzle.pieces.length) return;
         for (const pieceData of piecesData) {
-            this.puzzle.pieces[pieceData.id].deserialize(pieceData, { lerp: false });
+            await this.puzzle.pieces[pieceData.id].deserialize(pieceData, { lerp: false });
         }
+        this._isLoading = false;   
     }
 }
