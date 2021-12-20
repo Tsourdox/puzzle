@@ -31,6 +31,7 @@ class Piece implements ISerializablePiece {
     private _isSelected: boolean;
     private graphicNeedsUpdating: boolean;
     private lerpTime: number;
+    private LERP_DELAY = NETWORK_TIMEOUT * 3;
 
     constructor(id: number, image: p5.Image, origin: p5.Vector, size: p5.Vector, sides: Sides, offset: number) {
         this.id = id;
@@ -40,7 +41,7 @@ class Piece implements ISerializablePiece {
         this.nextRotation = 0;
         this._translation = createVector(0, 0);
         this.nextTranslation = createVector(0, 0);
-        this.lerpTime = 100;
+        this.lerpTime = this.LERP_DELAY;
         this.image = image;
         this.origin = origin;
         this.size = size;
@@ -205,9 +206,9 @@ class Piece implements ISerializablePiece {
     }
 
     public update() {
-        if (this.lerpTime < 100) {
+        if (this.lerpTime < this.LERP_DELAY) {
             this.lerpTime += deltaTime;
-            const t = min(1, this.lerpTime / 100);
+            const t = min(1, this.lerpTime / this.LERP_DELAY);
             this._translation.lerp(this.nextTranslation, t);
             this._rotation = lerp(this._rotation, this.nextRotation, t);
         }

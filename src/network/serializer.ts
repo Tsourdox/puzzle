@@ -39,8 +39,8 @@ interface RoomData {
     pieces: Record<string, PieceData>;
 }
 
+const NETWORK_TIMEOUT = 50; //ms
 class NetworkSerializer {
-    private readonly TIMEOUT = 100; //ms
     private puzzle: ISerializablePuzzle
     private graph: ISerializableGraph
     private sendTimeout: number;
@@ -54,7 +54,7 @@ class NetworkSerializer {
         this.puzzle = puzzle;
         this.graph = graph;
         this.roomCode = "XY7G";
-        this.sendTimeout = this.TIMEOUT;
+        this.sendTimeout = NETWORK_TIMEOUT;
         this.clientDB = new ClientDB();
         this.firebaseDB = new FirebaseDB();
         this._isLoading = false;
@@ -84,7 +84,7 @@ class NetworkSerializer {
         }
 
         if (this.sendTimeout <= 0) {
-            this.sendTimeout = this.TIMEOUT;
+            this.sendTimeout = NETWORK_TIMEOUT;
             if (this.graph.isModified) {
                 this.saveGraphDataToClientDB();
             }
@@ -108,7 +108,7 @@ class NetworkSerializer {
             }
         });
         this.firebaseDB.listenToPiecesUpdates(roomCode, (pieceData) => {
-            this.puzzle.pieces[pieceData.id].deserialize(pieceData);
+            this.puzzle.pieces[pieceData.id].deserialize(pieceData, { lerp: true });
         });
     }
 
