@@ -53,7 +53,7 @@ class NetworkSerializer {
     constructor(puzzle: ISerializablePuzzle, graph: ISerializableGraph) {
         this.puzzle = puzzle;
         this.graph = graph;
-        this._roomCode = "XY7G";
+        this._roomCode = getRandomRoomCode();
         this.sendTimeout = NETWORK_TIMEOUT;
         this.clientDB = new ClientDB();
         this.firebaseDB = new FirebaseDB();
@@ -70,7 +70,11 @@ class NetworkSerializer {
 
     private initLocalStorage() {
         const roomCode = localStorage.getItem('room-code');
-        if (roomCode) this._roomCode = roomCode;
+        if (roomCode) {
+            this._roomCode = roomCode;
+        } else {
+            localStorage.setItem('room-code', this._roomCode);
+        }
         window.addEventListener('storage', () => this.changeRoom());
     }
 
