@@ -4,6 +4,8 @@ class FirebaseDB {
     private db: ReturnType<typeof getDatabase>;
     private clientId: string;
     private pieceRefs: (ReturnType<typeof firebase.push> | ReturnType<typeof firebase.child>)[];
+    private _isOnline: boolean;
+    public get isOnline() { return this._isOnline };
     
     constructor() {
         // Your web app's Firebase configuration
@@ -16,10 +18,12 @@ class FirebaseDB {
             appId: "1:946157006607:web:3991b8e8272c940d3d187a",
             databaseURL: "https://puzzelin-f0c28-default-rtdb.europe-west1.firebasedatabase.app",
         };
+        
         const app = initializeApp(firebaseConfig);
         this.db = getDatabase(app);
         this.clientId = random().toString().split('.')[1];
         this.pieceRefs = [];
+        this._isOnline = false;
     }
 
     public async getRoomData(code: string): Promise<RoomData | null> {
@@ -75,6 +79,38 @@ class FirebaseDB {
         }, (errorObject) => {
             console.error('The read failed: ' + errorObject.name);
         });
+    }
+
+    public async init() {
+        if (!this.isOnline) {
+            await this.listenForOnlineConnection();
+        } 
+    }
+
+    private listenForOnlineConnection() {
+        return new Promise<void>((resolve) => {
+            let isFirstSnapshot = true;
+            let isFullfilled = false;
+            
+            const connectedRef = ref(this.db, ".info/connected");
+            onValue(connectedRef, (snapshot) => {
+                this._isOnline = Boolean(snapshot.val());
+                
+                // Resolve on second response since the first is always offline
+                if (!isFirstSnapshot && !isFullfilled) {
+                    isFullfilled = true;
+                    return resolve();
+                }
+                
+                // In case we are offline wait a maximum of 500ms before resolving
+                isFirstSnapshot = false;
+                setTimeout(() => {
+                    if (isFullfilled) return;
+                    isFullfilled = true;
+                    resolve()
+                }, 500);
+            });
+        })
     }
 }
 

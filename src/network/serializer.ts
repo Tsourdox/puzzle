@@ -48,31 +48,36 @@ class NetworkSerializer {
     private firebaseDB: FirebaseDB;
     private _isLoading: boolean;
     public get isLoading() { return this._isLoading }
-    public roomCode: string;
+    private _roomCode: string;
 
     constructor(puzzle: ISerializablePuzzle, graph: ISerializableGraph) {
         this.puzzle = puzzle;
         this.graph = graph;
-        this.roomCode = "XY7G";
+        this._roomCode = "XY7G";
         this.sendTimeout = NETWORK_TIMEOUT;
         this.clientDB = new ClientDB();
         this.firebaseDB = new FirebaseDB();
         this._isLoading = false;
         this.initLocalStorage();
-        this.listenToFirebaseDBChanges(this.roomCode);
+        this.listenToFirebaseDBChanges(this._roomCode);
         this.loadPuzzle(false);
+    }
+
+    public get roomCode() {
+        if (!this.firebaseDB.isOnline) return 'OFFLINE';
+        return this._roomCode;
     }
 
     private initLocalStorage() {
         const roomCode = localStorage.getItem('room-code');
-        if (roomCode) this.roomCode = roomCode;
+        if (roomCode) this._roomCode = roomCode;
         window.addEventListener('storage', () => this.changeRoom());
     }
 
     private changeRoom() {
         const roomCode = localStorage.getItem('room-code');
-        if (roomCode && roomCode !== this.roomCode) {
-            this.roomCode = roomCode;
+        if (roomCode && roomCode !== this._roomCode) {
+            this._roomCode = roomCode;
             this.loadPuzzle(true);
         }
     }
@@ -95,10 +100,16 @@ class NetworkSerializer {
     }
     
     private saveInitialData() {
+        console.log('Save Puzzle');
         const puzzleData = this.puzzle.serialize();
-        this.clientDB.savePuzzle(puzzleData);
+        if (this.firebaseDB.isOnline) {
+            console.log('firebase', this._roomCode);
+            this.firebaseDB.savePuzzleData(this._roomCode, puzzleData);
+        } else {
+            console.log('client');
+            this.clientDB.savePuzzle(puzzleData);
+        }
         this.saveGraphDataToClientDB();
-        this.firebaseDB.savePuzzleData(this.roomCode, puzzleData);
     }
     
     private listenToFirebaseDBChanges(roomCode: string) {
@@ -121,25 +132,33 @@ class NetworkSerializer {
         const { pieces } = this.puzzle;
         const piecesData = pieces.filter(p => p.isModified).map(p => p.serialize());
         if (piecesData.length) {
-            this.clientDB.savePieces(piecesData);
-            this.firebaseDB.savePiecesData(this.roomCode, piecesData);
+            if (this.firebaseDB.isOnline) {
+                this.firebaseDB.savePiecesData(this._roomCode, piecesData);
+            } else {
+                this.clientDB.savePieces(piecesData);
+            }
         }
     }
 
     private async loadPuzzle(roomWasChanged: boolean) {
         try {
             this._isLoading = true;
-            await this.clientDB.init();
-            const graphData = await this.clientDB.loadGraph();
-            const roomData = await this.firebaseDB.getRoomData(this.roomCode);
-            
             if (roomWasChanged) {
                 this.puzzle.deserialize(undefined as any);
             }
+
+            // Wait for connections to DB's to be established
+            await this.clientDB.init();
+            await this.firebaseDB.init();
+
+            const graphData = await this.clientDB.loadGraph();
             
-            if (roomData) {
-                await this.deserializeAll(roomData.puzzle, Object.values(roomData.pieces), graphData);
-            } else if (!roomWasChanged) {
+            if (this.firebaseDB.isOnline) {
+                const roomData = await this.firebaseDB.getRoomData(this._roomCode);
+                if (roomData) {
+                    await this.deserializeAll(roomData.puzzle, Object.values(roomData.pieces), graphData);
+                }
+            } else {
                 const puzzleData = await this.clientDB.loadPuzzle();
                 const piecesData = await this.clientDB.loadPieces();
                 await this.deserializeAll(puzzleData, piecesData, graphData);

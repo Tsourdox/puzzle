@@ -143,7 +143,11 @@ class Menu implements IMenu {
         push();
         textSize(20);
         textAlign(LEFT, TOP);
-        text(`RUM: ${roomCode}`, 10, 6);
+        if (roomCode === 'OFFLINE') {
+            text(roomCode, 10, 6);
+        } else {
+            text(`RUM: ${roomCode}`, 10, 6);
+        }
         pop();
     }
 }
