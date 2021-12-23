@@ -81,7 +81,11 @@ class GraphHandler implements IGraph, ISerializableGraph {
     }
 
     public zoomHome() {
-        this.setScale(1, this.getHomeTranslation(1));
+        const { image } = this.puzzle;
+        const widthRatio = width / (image?.width || width) ; 
+        const heightRatio = height / (image?.height || height);
+        const scale = min(widthRatio, heightRatio) * 0.8;
+        this.setScale(scale, this.getHomeTranslation(scale));
     }
 
     private handleTranslation(prevMouse: p5.Vector, prevTouches: Touches) {
