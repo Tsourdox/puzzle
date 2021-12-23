@@ -21,16 +21,13 @@
     user-select: none;
 }
 
-html, body, canvas {
+html, body, canvas, main {
     height: 100%;
     width: 100%;
     margin: 0;
     background: var(--background);
-    overflow: hidden;
     font-family: 'primary';
     text-transform: uppercase;
-    position: fixed;
-    left: 0; right: 0; top: 0; bottom: 0;
     touch-action: none;
 }
 

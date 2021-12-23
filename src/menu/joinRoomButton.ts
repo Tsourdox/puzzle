@@ -38,6 +38,7 @@ class JoinRoomButton {
         this.label.removeClass('hidden');
         this.roomCodeInput.addClass('hidden');
         this.roomCodeInput.value('');
+        this.roomCodeInput.elt.blur();
         localStorage.setItem('room-code', roomCode);
         window.dispatchEvent(new Event('storage'));
         this.menu.setOpenMenu('closed');

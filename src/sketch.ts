@@ -64,7 +64,10 @@ function getThemeFromCSS() {
 }
 
 function setFullScreenCanvas() {
-    resizeCanvas(window.innerWidth, window.innerHeight, true);
+    const main = document.querySelector('main');
+    const width = main?.clientWidth || window.innerWidth;
+    const height = main?.clientHeight || window.innerHeight;
+    resizeCanvas(width, height, true);
 }
 
 //-----------------------------------------//
