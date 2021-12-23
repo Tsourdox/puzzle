@@ -78,11 +78,12 @@ class NetworkSerializer {
         window.addEventListener('storage', () => this.changeRoom());
     }
 
-    private changeRoom() {
+    private async changeRoom() {
         const roomCode = localStorage.getItem('room-code');
         if (roomCode && roomCode !== this._roomCode) {
             this._roomCode = roomCode;
-            this.loadPuzzle(true);
+            this.listenToFirebaseDBChanges(this._roomCode);
+            await this.loadPuzzle(true);
         }
     }
 
@@ -104,13 +105,10 @@ class NetworkSerializer {
     }
     
     private saveInitialData() {
-        console.log('Save Puzzle');
         const puzzleData = this.puzzle.serialize();
         if (this.firebaseDB.isOnline) {
-            console.log('firebase', this._roomCode);
             this.firebaseDB.savePuzzleData(this._roomCode, puzzleData);
         } else {
-            console.log('client');
             this.clientDB.savePuzzle(puzzleData);
         }
         this.saveGraphDataToClientDB();

@@ -1,9 +1,11 @@
-const { initializeApp, getDatabase, ref, onValue, onChildChanged, off} = firebase;
+const { initializeApp, getDatabase, ref, onValue, onChildChanged, off } = firebase;
 
 class FirebaseDB {
     private db: ReturnType<typeof getDatabase>;
     private clientId: string;
     private pieceRefs: (ReturnType<typeof firebase.push> | ReturnType<typeof firebase.child>)[];
+    private currentPuzzleRef?: ReturnType<typeof ref>;
+    private currentPieceRef?: ReturnType<typeof ref>;
     private _isOnline: boolean;
     public get isOnline() { return this._isOnline };
     
@@ -30,6 +32,7 @@ class FirebaseDB {
         const snapshot = await firebase.get(ref(this.db, 'rooms/' + code));
         if (!snapshot.exists()) return null;
         const roomData = snapshot.val() as RoomData;
+        roomData.pieces = roomData.pieces || [];
         for (const [key, piece] of Object.entries(roomData.pieces)) {
             this.pieceRefs[piece.id] = firebase.child(firebase.ref(this.db, 'rooms/' + code + '/pieces'), key); 
         }
@@ -61,7 +64,10 @@ class FirebaseDB {
     }
     
     public listenToPuzzleUpdates(code: string, onUpdate: (puzzleData: PuzzleData) => void) {
-        onValue(ref(this.db, 'rooms/' + code + '/puzzle'), (snapshot) => {
+        if (this.currentPuzzleRef) off(this.currentPuzzleRef, 'child_changed');
+
+        this.currentPuzzleRef = ref(this.db, 'rooms/' + code + '/puzzle');
+        onValue(this.currentPuzzleRef, (snapshot) => {
             if (snapshot.val()) {
                 onUpdate(snapshot.val());
             }
@@ -71,7 +77,10 @@ class FirebaseDB {
     }
     
     public listenToPiecesUpdates(code: string, onUpdate: (piecesData: PieceData) => void) {
-        onChildChanged(ref(this.db, 'rooms/' + code + '/pieces'), (snapshot) => {
+        if (this.currentPieceRef) off(this.currentPieceRef, 'child_changed');
+        
+        this.currentPieceRef = ref(this.db, 'rooms/' + code + '/pieces');
+        onChildChanged(this.currentPieceRef, (snapshot) => {
             const piece = snapshot.val();
             if (piece.updatedBy !== this.clientId) {
                 onUpdate(piece);
@@ -82,6 +91,7 @@ class FirebaseDB {
     }
 
     public async init() {
+        this.pieceRefs = [];
         if (!this.isOnline) {
             await this.listenForOnlineConnection();
         } 
