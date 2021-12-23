@@ -104,6 +104,7 @@ class Puzzle implements IPuzzle, IGeneratePuzzle, ISerializablePuzzle {
         this.pieceSize = createVector(0, 0);
         this.pieces = [];
         delete this.piecesFactory;
+        this.inputHandler.graphHandler.zoomHome();
     }
 
     public deserialize(puzzle: PuzzleData) {
