@@ -254,6 +254,13 @@ class Piece implements ISerializablePiece {
             this.nextRotation = piece.rotation;
             this.nextTranslation = toVector(piece.translation);
             this.lerpTime = 0;
+            const deltaRotation = piece.rotation - this._rotation;
+            if (abs(deltaRotation) > PI * 2) {
+                // If rotation is more than a full rotation it needs to be
+                // normalized before lerp to make the rotation smooth
+                const rotations = Math.round(deltaRotation / (PI * 2));
+                this._rotation += (PI * 2) * rotations;
+            }
         } else {
             this._rotation = piece.rotation;
             this._translation = toVector(piece.translation);
