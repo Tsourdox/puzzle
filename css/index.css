@@ -140,3 +140,9 @@ html, body, canvas, main {
     20% { color: var(--darkened); }
     40%, 100% { color: var(--neutral); }
 }
+
+@media (max-width: 1024px) {
+    #p5_loading h1 {
+        font-size: 5rem;
+    }
+}
