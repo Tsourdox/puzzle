@@ -95,7 +95,7 @@ class Puzzle implements IPuzzle, IGeneratePuzzle, ISerializablePuzzle {
         return {
             pieceCount: toPoint(this.pieceCount),
             seed: this.piecesFactory?.seed || 0,
-            image: (this.image as any)?.canvas.toDataURL() || 'no-image',
+            image: (this.image as any)?.canvas.toDataURL('image/jpeg', .85) || 'no-image',
         };
     }
 

@@ -19,9 +19,10 @@ class FileButton {
     private handleFileSelect(file: { type: string, data: string }) {
         if (file.type === 'image') {
             this.label.html('Skapar pussel ...');
-            loadImage(file.data, (file) => {
+            loadImage(file.data, (image) => {
                 this.label.html('Välj egen bild');
-                this.gameMenu.useImage(file);
+                resizeImage(image);
+                this.gameMenu.useImage(image);
             });
         }
     }

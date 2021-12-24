@@ -103,6 +103,7 @@ class RandomButton {
     private loadImageComplete = (image: p5.Image) => {
         this.isLoading = false;
         this.button.html('Slumpa bild');
+        resizeImage(image);
         this.gameMenu.useImage(image);
     }
 

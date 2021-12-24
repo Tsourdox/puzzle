@@ -95,3 +95,14 @@ function getRandomRoomCode() {
     }
     return code;
 }
+
+function resizeImage(image: p5.Image, maxRes = 6000000) {
+    let width = image.width;
+    let height = image.height;
+    const imageRes = width * height;
+    const ratio = (maxRes / imageRes) + (1 - maxRes / imageRes) * .5;
+    if (ratio < 1) {
+        width *= ratio;
+        image.resize(round(width), 0)
+    }
+}
