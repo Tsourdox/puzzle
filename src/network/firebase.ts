@@ -49,15 +49,18 @@ class FirebaseDB {
 
     public savePiecesData(code: string, pieces: PieceData[]) {
         try {
+            const piecesRef = ref(this.db, 'rooms/' + code + '/pieces');
+            const updates: Record<string, PieceData> = {};
             const pieceUpdates = pieces.map(p => ({ ...p, updatedBy: this.clientId }));
             for (const piece of pieceUpdates) {
-                if (this.pieceRefs[piece.id]) {
-                    firebase.set(this.pieceRefs[piece.id], piece);
-                } else {
-                    const pieceRef = firebase.push(ref(this.db, 'rooms/' + code + '/pieces'));
+                if (!this.pieceRefs[piece.id]) {
+                    const pieceRef = firebase.push(piecesRef);
                     this.pieceRefs[piece.id] = pieceRef;
                 }
+                
+                updates[this.pieceRefs[piece.id].key!] = piece;
             }
+            firebase.update(piecesRef, updates);
         } catch (err) {
             console.error(err);
         }
