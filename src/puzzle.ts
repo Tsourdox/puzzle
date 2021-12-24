@@ -82,7 +82,7 @@ class Puzzle implements IPuzzle, IGeneratePuzzle, ISerializablePuzzle {
         
         const hideInstruction = Boolean(this.piecesFactory || this.menu.isOpen); 
         this.inputHandler.draw(hideInstruction);
-        this.menu.draw();
+        this.menu.draw(this.networkSerializer.roomCode);
     }
 
     private drawPieces() {
@@ -95,19 +95,36 @@ class Puzzle implements IPuzzle, IGeneratePuzzle, ISerializablePuzzle {
         return {
             pieceCount: toPoint(this.pieceCount),
             seed: this.piecesFactory?.seed || 0,
-            image: (this.image as any)?.canvas.toDataURL() || 'no-image'
+            image: (this.image as any)?.canvas.toDataURL() || 'no-image',
         };
     }
 
-    public deserialize(puzzle: PuzzleData, done?: Function) {
-        loadImage(puzzle.image, (image) => {
-            const { x, y } = puzzle.pieceCount;
-            this.image = image;
-            this.pieceCount = createVector(x, y);
-            this.pieceSize = createVector(image.width / x, image.height / y);
-            this.piecesFactory = new PiecesFactory(x, y, image, puzzle.seed);
-            this.pieces = this.piecesFactory.createAllPieces();
-            done!();
-        });
+    private resetPuzzle() {
+        this.pieceCount = createVector(0, 0);
+        this.pieceSize = createVector(0, 0);
+        this.pieces = [];
+        delete this.piecesFactory;
+    }
+
+    public deserialize(puzzle: PuzzleData) {
+        return new Promise<void>((resolve, reject) => {
+            if (!puzzle) {
+                this.resetPuzzle()
+                return;
+            }
+            try {
+                loadImage(puzzle.image, (image) => {
+                    const { x, y } = puzzle.pieceCount;
+                    this.image = image;
+                    this.pieceCount = createVector(x, y);
+                    this.pieceSize = createVector(image.width / x, image.height / y);
+                    this.piecesFactory = new PiecesFactory(x, y, image, puzzle.seed);
+                    this.pieces = this.piecesFactory.createAllPieces(true);
+                    resolve();
+                });
+            } catch (error) {
+                reject(error);
+            }
+        })
     }
 }

@@ -1,0 +1,20 @@
+.room-code-input {
+    padding: .4 1rem .4 1.5rem;
+    background: var(--faded);
+    color: var(--primary);
+    font-size: 3rem;
+    border-radius: 2rem;
+    font-family: primary;
+    letter-spacing: 1rem;
+    width: auto;
+    margin-top: 1rem;
+    border: none;
+    text-align: center;
+    text-transform: uppercase;
+    width: 18rem;
+}
+
+.room-code-input:focus {
+    outline: none;
+    border: var(--primary) .2rem solid;
+}

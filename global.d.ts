@@ -3,14 +3,18 @@
 
 import module = require('p5');
 import * as p5Global from 'p5/global'
+import * as app from './node_modules/@firebase/app/dist/app-public';
+import * as database from './node_modules/@firebase/database/dist/public';
 
 export = module;
 export as namespace p5;
 declare global {
     interface Window {
         p5: typeof module,
+        firebase: typeof app & typeof database;
     }
-
+    const firebase: typeof app & typeof database;
+    
     /**
      *   Loads a sound file from a path and creates a
      *   p5.SoundFile from it. The sound may not be immediately

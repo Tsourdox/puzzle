@@ -6,13 +6,14 @@
 :root {
     --primary: rgb(186, 72, 218);
     --darkened: rgb(95, 43, 110);
+    --faded: rgb(57, 34, 63);
     --neutral: rgb(200, 200, 200);
     --background: rgb(40, 40, 40);
     --backdrop: rgba(60, 60, 60, 0.8);
     --darkdrop: rgba(10, 10, 10, 0.92);
 }
 
-* {
+*:not(input) {
     -webkit-touch-callout: none; /* iOS Safari */
     -webkit-user-select: none; /* Safari */
     -moz-user-select: none; /* Old versions of Firefox */
@@ -20,17 +21,16 @@
     user-select: none;
 }
 
-html, body, canvas {
+html, body, canvas, main {
     height: 100%;
     width: 100%;
     margin: 0;
     background: var(--background);
-    overflow: hidden;
     font-family: 'primary';
     text-transform: uppercase;
-    position: fixed;
-    left: 0; right: 0; top: 0; bottom: 0;
     touch-action: none;
+    position: fixed;
+    top: 0; right: 0; bottom: 0; left: 0;
 }
 
 /******************************/
@@ -43,10 +43,6 @@ html, body, canvas {
     flex-direction: column;
     justify-content: center;
     align-items: center;
-}
-
-.hidden {
-    display: none;
 }
 
 .button, .toggle-button {
@@ -107,6 +103,10 @@ html, body, canvas {
     font-weight: normal;
 }
 
+.hidden {
+    display: none;
+}
+
 /******************************/
 /******* LOADING SCREEN *******/
 /******************************/
@@ -139,4 +139,10 @@ html, body, canvas {
     0% { color: var(--neutral); }
     20% { color: var(--darkened); }
     40%, 100% { color: var(--neutral); }
+}
+
+@media (max-width: 1024px) {
+    #p5_loading h1 {
+        font-size: 5rem;
+    }
 }

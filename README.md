@@ -1,6 +1,6 @@
 # Puzzelin
 
-An online puzzle for family and friends. This is still a work in progess but the app should be relatively stable and playable as single play in Chrome, Safari and on iPad. Online version is in the making!
+An online puzzle for family and friends. This is still a work in progess but the app should be relatively stable and playable in Chrome, Safari and on iPad.
 
 **[Try it out!](https://puzzelin.netlify.app)**
 

@@ -63,6 +63,7 @@ class PieceConnector {
     }
 
     private connectPieces(piece: Piece, adjecentPiece: Piece, side: Side) {
+        let wasSelected = piece.isSelected;
         // First matching side found
         if (piece.isSelected) {
             // Remove selection & play click sound
@@ -78,15 +79,17 @@ class PieceConnector {
             const ucA = piece.getTrueCorners()[side];
             const deltaTranslation = p5.Vector.sub(acA, ucA);
             this.transformHandler.translatePiece(piece, deltaTranslation);
-
-            // Check all connected pieces
-            const connectedPieces = getConnectedPieces(piece, this.puzzle);
-            connectedPieces.forEach(p => this.checkPieceConnection(p));
         }
 
         // Add to connected side list
         const oppositeSide = (side+2)%4;
-        adjecentPiece.connectedSides.push(oppositeSide);
-        piece.connectedSides.push(side);
+        adjecentPiece.connectedSides = [...adjecentPiece.connectedSides, oppositeSide];
+        piece.connectedSides = [...piece.connectedSides, side];
+
+        // Check all connected pieces
+        if (wasSelected) {
+            const connectedPieces = getConnectedPieces(piece, this.puzzle);
+            connectedPieces.forEach(p => this.checkPieceConnection(p));
+        }
     }
 }

@@ -91,14 +91,14 @@ class Menu implements IMenu {
         this.prevMouseIsPressed = mouseIsPressed;
     }
 
-    public draw() {
+    public draw(roomCode: string) {
         push();
         fill(this.foreground);
         textAlign(CENTER, CENTER);
         
         this.drawMenuBar();
         this.drawContent();
-        this.drawRoomCode();
+        this.drawRoomCode(roomCode);
         if (this.settingsMenu.showFPS) {
             this.fps.draw();
         }
@@ -139,11 +139,15 @@ class Menu implements IMenu {
         pop();
     }
 
-    private drawRoomCode() {
+    private drawRoomCode(roomCode: string) {
         push();
         textSize(20);
         textAlign(LEFT, TOP);
-        text("ROOM: XY7G", 10, 6);
+        if (roomCode === 'OFFLINE') {
+            text(roomCode, 10, 6);
+        } else {
+            text(`RUM: ${roomCode}`, 10, 6);
+        }
         pop();
     }
 }

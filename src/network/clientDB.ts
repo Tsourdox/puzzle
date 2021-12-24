@@ -16,8 +16,18 @@ class ClientDB {
             request.onupgradeneeded = (e: any) => {
                 const db = e.target.result;
                 db.createObjectStore('main', { autoIncrement: true });
-                resolve();
             }
+        });
+    }
+
+    public clear(): Promise<void> {
+        return new Promise(async (resolve, reject) => {
+            if (!this.db) throw new Error('Init must be called before loading data from the store');
+            const trans = this.db.transaction(this.storeName, 'readwrite');
+            const store = trans.objectStore(this.storeName);
+            const request = store.clear();
+            request.onsuccess = () => resolve();
+            request.onerror = reject;
         });
     }
 
@@ -29,7 +39,7 @@ class ClientDB {
             const request = store.get(key);
             request.onsuccess = (e: any) => {
                 if (!e.target.result) {
-                    reject(new Error('No data'));
+                    reject(new Error('No data to load from Client DB'));
                 } else {
                     resolve(e.target.result);
                 }

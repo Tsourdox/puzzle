@@ -4,7 +4,8 @@ class SizeToggle {
   private buttons: p5.Element[] = [];
 
   constructor(div: p5.Element) {
-      this._selectedSize = 'xs';
+      const prevSize = localStorage.getItem('puzzlesSize');
+      this._selectedSize = prevSize as PuzzleSize || 'xs';
 
       const container = createElement('div');
       container.addClass('toggle-container');
@@ -45,5 +46,6 @@ class SizeToggle {
     button.addClass('selected');
     
     this._selectedSize = size;
+    localStorage.setItem('puzzlesSize', size);
   }
 }

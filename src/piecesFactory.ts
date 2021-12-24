@@ -19,7 +19,7 @@ class PiecesFactory {
         this.offsetPoints();
     }
 
-    public createAllPieces(): Piece[] {
+    public createAllPieces(preventModifyFlag?: boolean): Piece[] {
         const pieces: Piece[] = [];
         const offset = this.offset * 4;
 
@@ -46,6 +46,10 @@ class PiecesFactory {
         }
         
         this.shufflePieces(pieces);
+        if (preventModifyFlag) {
+            pieces.forEach(p => p.isModified = false);
+        }
+
         return pieces;
     }
 

@@ -20,10 +20,17 @@
         <link rel="stylesheet" href="./css/toggle-switch.css">
         <link rel="stylesheet" href="./css/color-picker.css">
         <link rel="stylesheet" href="./css/key-binding.css">
+        <link rel="stylesheet" href="./css/room-input.css">
+        
+        <script type="module">
+            import * as app from 'https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js';
+            import * as database from 'https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js';
+            window.firebase = { ...app, ...database };
+        </script>
         
         <script src="https://cdn.jsdelivr.net/npm/p5@1.1.9/lib/p5.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/p5@1.1.9/lib/addons/p5.sound.js"></script>
-        <script src="build/bundle.js"></script>
+        <script defer src="build/bundle.js"></script>
     </head>
     <body>
         <div id="p5_loading">
