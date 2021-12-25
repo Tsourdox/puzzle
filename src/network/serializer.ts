@@ -58,7 +58,7 @@ class NetworkSerializer {
         this.sendTimeout = NETWORK_TIMEOUT;
         this.clientDB = new ClientDB();
         this.firebaseDB = new FirebaseDB();
-        this._isLoading = false;
+        this._isLoading = true;
         this.initLocalStorage();
         this.listenToFirebaseDBChanges(this._roomCode);
         this.loadPuzzle(false);
@@ -82,6 +82,7 @@ class NetworkSerializer {
     private async changeRoom() {
         const roomCode = localStorage.getItem('room-code');
         if (roomCode && roomCode !== this._roomCode) {
+            this._isLoading = true;
             this._roomCode = roomCode;
             this.listenToFirebaseDBChanges(this._roomCode);
             await this.loadPuzzle(true);
@@ -117,11 +118,11 @@ class NetworkSerializer {
     
     private listenToFirebaseDBChanges(roomCode: string) {
         this.firebaseDB.listenToPuzzleUpdates(roomCode, async (puzzle) => {
-            if (!this.isLoading) {
-                await this.puzzle.deserialize(puzzle)
-            }
+            if (this.isLoading) return;
+            await this.puzzle.deserialize(puzzle)
         });
         this.firebaseDB.listenToPiecesUpdates(roomCode, (pieceData) => {
+            if (this.isLoading) return;
             this.puzzle.pieces[pieceData.id].deserialize(pieceData, { lerp: true });
         });
     }
