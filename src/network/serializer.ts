@@ -19,6 +19,7 @@ interface PuzzleData {
     image: string;
     pieceCount: Point;
     seed: number;
+    updatedBy?: string;
 }
 
 interface PieceData {

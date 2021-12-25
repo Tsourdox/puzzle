@@ -41,7 +41,7 @@ class FirebaseDB {
 
     public savePuzzleData(code: string, puzzle: PuzzleData) {
         const roomData: RoomData = {
-            puzzle,
+            puzzle: { ...puzzle, updatedBy: this.clientId },
             pieces: {}
         };
         firebase.update(ref(this.db, 'rooms/' + code), roomData);
@@ -71,8 +71,9 @@ class FirebaseDB {
 
         this.currentPuzzleRef = ref(this.db, 'rooms/' + code + '/puzzle');
         onValue(this.currentPuzzleRef, (snapshot) => {
-            if (snapshot.val()) {
-                onUpdate(snapshot.val());
+            const puzzleData = snapshot.val() as PuzzleData;
+            if (puzzleData && puzzleData.updatedBy !== this.clientId) {
+                onUpdate(puzzleData);
             }
         }, (errorObject) => {
             console.error('The read failed: ' + errorObject.name);
