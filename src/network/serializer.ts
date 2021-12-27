@@ -1,44 +1,4 @@
-interface ISerializable<T> {
-    isModified: boolean;
-    serialize: () => T;
-    deserialize: (object: T, options?: DeserializeOptions) => Promise<void>;
-}
 
-type DeserializeOptions = {
-    lerp?: boolean;
-} | undefined;
-
-interface ISerializablePuzzle extends ISerializable<PuzzleData> {
-    pieces: ReadonlyArray<ISerializablePiece>;
-}
-
-interface ISerializablePiece extends ISerializable<PieceData> {}
-interface ISerializableGraph extends ISerializable<GraphData> {}
-
-interface PuzzleData {
-    image: string;
-    pieceCount: Point;
-    seed: number;
-    updatedBy?: string;
-}
-
-interface PieceData {
-    id: number;
-    rotation: number;
-    translation: Point;
-    connectedSides?: number[];
-    elevation: number;
-}
-
-interface GraphData {
-    scale: number;
-    translation: Point;
-}
-
-interface RoomData {
-    puzzle: PuzzleData;
-    pieces: Record<string, PieceData>;
-}
 
 const NETWORK_TIMEOUT = 50; //ms
 class NetworkSerializer {
@@ -144,10 +104,10 @@ class NetworkSerializer {
         }
     }
 
-    private async loadPuzzle(roomWasChanged: boolean) {
+    private async loadPuzzle(roomChanged: boolean) {
         try {
             this._isLoading = true;
-            if (roomWasChanged) {
+            if (roomChanged) {
                 this.puzzle.deserialize(undefined as any);
             }
 
@@ -160,12 +120,12 @@ class NetworkSerializer {
             if (this.firebaseDB.isOnline) {
                 const roomData = await this.firebaseDB.getRoomData(this._roomCode);
                 if (roomData) {
-                    await this.deserializeAll(roomData.puzzle, Object.values(roomData.pieces), graphData);
+                    await this.deserializeAll(roomData.puzzle, Object.values(roomData.pieces), graphData, roomChanged);
                 }
             } else {
                 const puzzleData = await this.clientDB.loadPuzzle();
                 const piecesData = await this.clientDB.loadPieces();
-                await this.deserializeAll(puzzleData, piecesData, graphData);
+                await this.deserializeAll(puzzleData, piecesData, graphData, roomChanged);
             }
         } catch (error) {
             console.error(error);
@@ -173,9 +133,9 @@ class NetworkSerializer {
         this._isLoading = false;
     }
 
-    private async deserializeAll(puzzleData: PuzzleData, piecesData: PieceData[], graphData: GraphData) {
+    private async deserializeAll(puzzleData: PuzzleData, piecesData: DeserializedPieceData[], graphData: GraphData, roomChanged: boolean) {
         await this.graph.deserialize(graphData);
-        await this.puzzle.deserialize(puzzleData)
+        await this.puzzle.deserialize(puzzleData, { roomChanged })
         if (!this.puzzle.pieces.length) return;
         for (const pieceData of piecesData) {
             await this.puzzle.pieces[pieceData.id].deserialize(pieceData, { lerp: false });

@@ -103,7 +103,7 @@ class Puzzle implements IPuzzle, IGeneratePuzzle, ISerializablePuzzle {
         delete this.piecesFactory;
     }
 
-    public deserialize(puzzle: PuzzleData) {
+    public deserialize(puzzle: PuzzleData, options: DeserializeOptions) {
         return new Promise<void>((resolve, reject) => {
             if (!puzzle) {
                 this.resetPuzzle()
@@ -117,7 +117,9 @@ class Puzzle implements IPuzzle, IGeneratePuzzle, ISerializablePuzzle {
                     this.pieceSize = createVector(image.width / x, image.height / y);
                     this.piecesFactory = new PiecesFactory(x, y, image, puzzle.seed);
                     this.pieces = this.piecesFactory.createAllPieces(true);
-                    this.inputHandler.graphHandler.zoomHome();
+                    if (options?.roomChanged) {
+                        this.inputHandler.graphHandler.zoomHome();
+                    }
                     resolve();
                 });
             } catch (error) {

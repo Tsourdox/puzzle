@@ -1,5 +1,12 @@
 const { initializeApp, getDatabase, ref, onValue, onChildChanged, off } = firebase;
 
+interface RoomData<P> {
+    puzzle: PuzzleData;
+    pieces: Record<string, P>;
+}
+
+interface StoredPieceData extends PieceData { selectedBy: string, updatedBy: string };
+
 class FirebaseDB {
     private db: ReturnType<typeof getDatabase>;
     private clientId: string;
@@ -23,42 +30,59 @@ class FirebaseDB {
         
         const app = initializeApp(firebaseConfig);
         this.db = getDatabase(app);
-        this.clientId = random().toString().split('.')[1];
         this.pieceRefs = [];
         this._isOnline = false;
+        
+        this.clientId = localStorage.getItem('clientId') || random().toString().split('.')[1];
+        localStorage.setItem('clientId', this.clientId);
     }
 
-    public async getRoomData(code: string): Promise<RoomData | null> {
+    public async getRoomData(code: string): Promise<RoomData<DeserializedPieceData> | null> {
         const snapshot = await firebase.get(ref(this.db, 'rooms/' + code));
         if (!snapshot.exists()) return null;
-        const roomData = snapshot.val() as RoomData;
-        roomData.pieces = roomData.pieces || [];
-        for (const [key, piece] of Object.entries(roomData.pieces)) {
+        const storedRoomData = snapshot.val() as RoomData<StoredPieceData>;
+        storedRoomData.pieces = storedRoomData.pieces || [];
+        for (const [key, piece] of Object.entries(storedRoomData.pieces)) {
             this.pieceRefs[piece.id] = firebase.child(firebase.ref(this.db, 'rooms/' + code + '/pieces'), key); 
+        }
+
+        const roomData: RoomData<DeserializedPieceData> = {
+            puzzle: storedRoomData.puzzle,
+            pieces: {}
+        };
+        for (const [key, { selectedBy, ...pieceData }] of Object.entries(storedRoomData.pieces)) {
+            roomData.pieces[key] = {
+                ...pieceData,
+                isSelectedByOther: Boolean(selectedBy && selectedBy !== this.clientId),
+                isSelected: Boolean(selectedBy && selectedBy == this.clientId),
+            }; 
         }
         return roomData;
     }
 
     public savePuzzleData(code: string, puzzle: PuzzleData) {
-        const roomData: RoomData = {
+        const roomData: RoomData<StoredPieceData> = {
             puzzle: { ...puzzle, updatedBy: this.clientId },
             pieces: {}
         };
         firebase.update(ref(this.db, 'rooms/' + code), roomData);
     }
 
-    public savePiecesData(code: string, pieces: PieceData[]) {
+    public savePiecesData(code: string, pieces: SerializedPieceData[]) {
         try {
             const piecesRef = ref(this.db, 'rooms/' + code + '/pieces');
-            const updates: Record<string, PieceData> = {};
+            const updates: Record<string, StoredPieceData> = {};
             const pieceUpdates = pieces.map(p => ({ ...p, updatedBy: this.clientId }));
-            for (const piece of pieceUpdates) {
+            for (const { isSelected, ...piece } of pieceUpdates) {
                 if (!this.pieceRefs[piece.id]) {
                     const pieceRef = firebase.push(piecesRef);
                     this.pieceRefs[piece.id] = pieceRef;
                 }
                 
-                updates[this.pieceRefs[piece.id].key!] = piece;
+                updates[this.pieceRefs[piece.id].key!] = {
+                    ...piece,
+                    selectedBy: isSelected ? this.clientId : ""
+                };
             }
             firebase.update(piecesRef, updates);
         } catch (err) {
@@ -80,14 +104,18 @@ class FirebaseDB {
         });
     }
     
-    public listenToPiecesUpdates(code: string, onUpdate: (piecesData: PieceData) => void) {
+    public listenToPiecesUpdates(code: string, onUpdate: (piecesData: DeserializedPieceData) => void) {
         if (this.currentPieceRef) off(this.currentPieceRef, 'child_changed');
         
         this.currentPieceRef = ref(this.db, 'rooms/' + code + '/pieces');
         onChildChanged(this.currentPieceRef, (snapshot) => {
-            const piece = snapshot.val();
-            if (piece.updatedBy !== this.clientId) {
-                onUpdate(piece);
+            const { selectedBy, updatedBy, ...piece } = snapshot.val() as StoredPieceData;
+            if (updatedBy !== this.clientId) {
+                onUpdate({
+                    ...piece,
+                    isSelectedByOther: Boolean(selectedBy && selectedBy !== this.clientId),
+                    isSelected: Boolean(selectedBy && selectedBy === this.clientId),
+                });
             }
         }, (errorObject) => {
             console.error('The read failed: ' + errorObject.name);

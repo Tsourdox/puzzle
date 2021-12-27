@@ -67,9 +67,9 @@ class ClientDB {
         return await this.loadFromStore<GraphData>('graph');
     }
 
-    public async loadPieces(): Promise<PieceData[]> {
+    public async loadPieces(): Promise<DeserializedPieceData[]> {
         try {
-            return await this.loadFromStore<PieceData[]>('pieces');
+            return await this.loadFromStore<DeserializedPieceData[]>('pieces');
         } catch (error: unknown) {
             return [];
         }

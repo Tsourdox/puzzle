@@ -133,7 +133,7 @@ class SelectionHandler implements ISelectionHandler {
         const pieces = getConnectedPieces(piece, this.puzzle);
         pieces.forEach(piece => {
             piece.isSelected = value;
-            if (value) {
+            if (piece.isSelected) {
                 piece.elevation = maxElev + 1;
             }
         });

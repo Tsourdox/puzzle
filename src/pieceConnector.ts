@@ -45,6 +45,9 @@ class PieceConnector {
             // Find adjecentPiece
             const adjecentPiece = getAdjecentPiece(piece, side, this.puzzle);
             
+            // Dont check pieces selected by others
+            if (adjecentPiece.isSelectedByOther) continue;
+            
             // Find matching edges
             const pieceCorners = piece.getTrueCorners();
             const adjecentCorners = adjecentPiece.getTrueCorners();

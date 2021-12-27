@@ -29,6 +29,7 @@ class Piece implements ISerializablePiece {
     private center: p5.Vector;
     private offset: number;
     private _isSelected: boolean;
+    private _isSelectedByOther: boolean;
     private graphicNeedsUpdating: boolean;
     private lerpTime: number;
     private LERP_DELAY = NETWORK_TIMEOUT * 3;
@@ -49,6 +50,7 @@ class Piece implements ISerializablePiece {
         this.offset = offset;
         this.center = getAverageCenter(this.getCorners());
         this._isSelected = false;
+        this._isSelectedByOther = false;
         this._connectedSides = [];
         this.graphicNeedsUpdating = false;
         this.graphics = createGraphics(
@@ -70,9 +72,7 @@ class Piece implements ISerializablePiece {
         this._rotation = value;
         this.isModified = true;
     }
-    public get rotation() {
-        return this._rotation;
-    }
+    public get rotation() { return this._rotation }
     
     public set translation(value: p5.Vector) {
         if (!this.translation.equals(value)) {
@@ -80,41 +80,40 @@ class Piece implements ISerializablePiece {
             this.isModified = true;
         }
     }
-    public get translation() {
-        return this._translation;
-    }
+    public get translation() { return this._translation }
 
     public set connectedSides(value: number[]) {
         this._connectedSides = value;
         this.isModified = true;
         this.graphicNeedsUpdating = true;
     }
-    public get connectedSides() {
-        return this._connectedSides;
-    }
+    public get connectedSides() { return this._connectedSides }
 
     public set isSelected(value: boolean) {
-        if (this._isSelected !== value) {
+        if (this._isSelected !== value && !this.isSelectedByOther) {
             this._isSelected = value;
             this.isModified = true;
             this.graphicNeedsUpdating = true;
         }
     }
-    public get isSelected() {
-        return this._isSelected;
-    }
+    public get isSelected() { return this._isSelected }
+    public get isSelectedByOther() { return this._isSelectedByOther }
 
-    public getOrigin() {
-        return this.origin.copy();
-    }
+    public getOrigin() { return this.origin.copy() }
     
     private updateGraphics() {
         this.graphicNeedsUpdating = false;
+        if (this._isSelectedByOther) {
+            this.graphics.tint(150);
+        } else {
+            this.graphics.noTint();
+        }
+        
         this.graphics.clear();
         this.graphics.image(this.image, 0, 0);
         
-        if (this.isSelected) {
-            this.updateSelectionOutline();
+        if (this.isSelected || this._isSelectedByOther) {
+            this.drawSelectionOutline();
         }
     }
 
@@ -143,11 +142,11 @@ class Piece implements ISerializablePiece {
         return image;
     }
 
-    private updateSelectionOutline() {
+    private drawSelectionOutline() {
         const { top, right, bottom, left } = this.sides;
         this.graphics.push();
         this.graphics.translate(this.offset, this.offset)
-        this.graphics.stroke(theme.primary);
+        this.graphics.stroke(this._isSelectedByOther ? theme.neutral: theme.primary);
         this.graphics.strokeWeight(this.size.mag() / 60);
         this.graphics.noFill();
         if (!this.connectedSides.includes(Side.Top)) {
@@ -237,20 +236,27 @@ class Piece implements ISerializablePiece {
         translate(this.translation.x, this.translation.y)
     }
 
-    public serialize(): PieceData {
+    public serialize(): SerializedPieceData {
         this.isModified = false;
         return {
             id: this.id,
             rotation: this.rotation,
             translation: toPoint(this.translation),
             connectedSides: this.connectedSides,
-            elevation: this.elevation
+            elevation: this.elevation,
+            isSelected: this.isSelected,
         };
     }
 
-    public async deserialize(piece: PieceData, options: DeserializeOptions) {
+    public async deserialize(piece: DeserializedPieceData, options: DeserializeOptions) {
+        if (this._isSelectedByOther !== piece.isSelectedByOther || this.isSelected !== piece.isSelected) {
+            this.graphicNeedsUpdating = true;
+        }
+        this._isSelectedByOther = piece.isSelectedByOther;
+        this._isSelected = piece.isSelected;
         this._connectedSides = piece.connectedSides || [];
         this.elevation = piece.elevation;
+        
         if (options?.lerp) {
             this.nextRotation = piece.rotation;
             this.nextTranslation = toVector(piece.translation);
