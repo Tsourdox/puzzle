@@ -43,8 +43,10 @@ class NetworkSerializer {
         const roomCode = localStorage.getItem('room-code');
         if (roomCode && roomCode !== this._roomCode) {
             this._isLoading = true;
+            this.firebaseDB.cleanup(this._roomCode);
             this._roomCode = roomCode;
             this.listenToFirebaseDBChanges(this._roomCode);
+            this.puzzle.deserialize(undefined as any); // todo: better solution would be nice
             await this.loadPuzzle(true);
         }
     }
@@ -107,14 +109,11 @@ class NetworkSerializer {
     private async loadPuzzle(roomChanged: boolean) {
         try {
             this._isLoading = true;
-            if (roomChanged) {
-                this.puzzle.deserialize(undefined as any);
-            }
-
+            
             // Wait for connections to DB's to be established
             await this.clientDB.init();
             await this.firebaseDB.init();
-
+            
             const graphData = await this.clientDB.loadGraph();
             
             if (this.firebaseDB.isOnline) {

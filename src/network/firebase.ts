@@ -1,18 +1,17 @@
-const { initializeApp, getDatabase, ref, onValue, onChildChanged, off } = firebase;
+const { initializeApp, getDatabase, ref, onValue, onChildChanged, off, onDisconnect } = firebase;
 
 interface RoomData<P> {
     puzzle: PuzzleData;
     pieces: Record<string, P>;
 }
 
-interface StoredPieceData extends PieceData { selectedBy: string, updatedBy: string };
+interface StoredPieceData extends PieceData { selectedBy?: string, updatedBy: string };
 
 class FirebaseDB {
     private db: ReturnType<typeof getDatabase>;
     private clientId: string;
     private pieceRefs: (ReturnType<typeof firebase.push> | ReturnType<typeof firebase.child>)[];
-    private currentPuzzleRef?: ReturnType<typeof ref>;
-    private currentPieceRef?: ReturnType<typeof ref>;
+    private deslectUpdates: Record<string, StoredPieceData>;
     private _isOnline: boolean;
     public get isOnline() { return this._isOnline };
     
@@ -31,6 +30,7 @@ class FirebaseDB {
         const app = initializeApp(firebaseConfig);
         this.db = getDatabase(app);
         this.pieceRefs = [];
+        this.deslectUpdates = {};
         this._isOnline = false;
         
         this.clientId = localStorage.getItem('clientId') || random().toString().split('.')[1];
@@ -61,14 +61,23 @@ class FirebaseDB {
     }
 
     public savePuzzleData(code: string, puzzle: PuzzleData) {
+        const roomRef = ref(this.db, 'rooms/' + code);
         const roomData: RoomData<StoredPieceData> = {
             puzzle: { ...puzzle, updatedBy: this.clientId },
             pieces: {}
         };
-        firebase.update(ref(this.db, 'rooms/' + code), roomData);
+        firebase.update(roomRef, roomData);
     }
 
-    public savePiecesData(code: string, pieces: SerializedPieceData[]) {
+    public async cleanup(code: string) {
+        const piecesRef = ref(this.db, 'rooms/' + code + '/pieces');
+        const puzzleRef = ref(this.db, 'rooms/' + code + '/puzzle');
+        await firebase.update(piecesRef, this.deslectUpdates);  
+        off(puzzleRef, 'child_changed');
+        off(piecesRef, 'child_changed');
+    }
+
+    public async savePiecesData(code: string, pieces: SerializedPieceData[]) {
         try {
             const piecesRef = ref(this.db, 'rooms/' + code + '/pieces');
             const updates: Record<string, StoredPieceData> = {};
@@ -79,11 +88,20 @@ class FirebaseDB {
                     this.pieceRefs[piece.id] = pieceRef;
                 }
                 
-                updates[this.pieceRefs[piece.id].key!] = {
-                    ...piece,
-                    selectedBy: isSelected ? this.clientId : ""
-                };
+                const pieceRefKey = this.pieceRefs[piece.id].key;
+                if (!pieceRefKey) continue;
+                
+                updates[pieceRefKey] = { ...piece };
+                if (isSelected) updates[pieceRefKey].selectedBy = this.clientId;
+                
+                if (isSelected) {
+                    this.deslectUpdates[pieceRefKey] = { ...piece };
+                } else {
+                    delete this.deslectUpdates[pieceRefKey];
+                }
             }
+            await onDisconnect(piecesRef).cancel();
+            onDisconnect(piecesRef).update(this.deslectUpdates);
             firebase.update(piecesRef, updates);
         } catch (err) {
             console.error(err);
@@ -91,10 +109,8 @@ class FirebaseDB {
     }
     
     public listenToPuzzleUpdates(code: string, onUpdate: (puzzleData: PuzzleData) => void) {
-        if (this.currentPuzzleRef) off(this.currentPuzzleRef, 'child_changed');
-
-        this.currentPuzzleRef = ref(this.db, 'rooms/' + code + '/puzzle');
-        onValue(this.currentPuzzleRef, (snapshot) => {
+        const puzzleRef = ref(this.db, 'rooms/' + code + '/puzzle');
+        onValue(puzzleRef, (snapshot) => {
             const puzzleData = snapshot.val() as PuzzleData;
             if (puzzleData && puzzleData.updatedBy !== this.clientId) {
                 onUpdate(puzzleData);
@@ -105,10 +121,8 @@ class FirebaseDB {
     }
     
     public listenToPiecesUpdates(code: string, onUpdate: (piecesData: DeserializedPieceData) => void) {
-        if (this.currentPieceRef) off(this.currentPieceRef, 'child_changed');
-        
-        this.currentPieceRef = ref(this.db, 'rooms/' + code + '/pieces');
-        onChildChanged(this.currentPieceRef, (snapshot) => {
+        const pieceRef = ref(this.db, 'rooms/' + code + '/pieces');
+        onChildChanged(pieceRef, (snapshot) => {
             const { selectedBy, updatedBy, ...piece } = snapshot.val() as StoredPieceData;
             if (updatedBy !== this.clientId) {
                 onUpdate({
