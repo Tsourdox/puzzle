@@ -20,12 +20,12 @@ class PieceConnector {
     private checkForConnectedPieces() {
         for (const piece of this.puzzle.pieces) {
             if (piece.isSelected) {
-                this.checkPieceConnection(piece);
+                this.checkPieceConnection(piece, true);
             }
         }
     }
 
-    private checkPieceConnection(piece: Piece) {
+    private checkPieceConnection(piece: Piece, playSound: boolean) {
         const limit = this.puzzle.pieceSize.mag() / 8;
         const length = this.puzzle.pieces.length;
         const { x } = this.puzzle.pieceCount;
@@ -60,19 +60,19 @@ class PieceConnector {
             const distA = pcA.dist(acA);
             const distB = pcB.dist(acB);
             if (distA + distB < limit) {
-                this.connectPieces(piece, adjecentPiece, side);
+                this.connectPieces(piece, adjecentPiece, side, playSound);
             }
         }
     }
 
-    private connectPieces(piece: Piece, adjecentPiece: Piece, side: Side) {
-        let wasSelected = piece.isSelected;
+    private connectPieces(piece: Piece, adjecentPiece: Piece, side: Side, playSound: boolean) {
         // First matching side found
         if (piece.isSelected) {
-            // Remove selection & play click sound
-            this.selectionHandler.select(piece, false);
-            const index = floor(random(0, sounds.snaps.length));
-            sounds.snaps[index].play();
+            // Play click sound
+            if (playSound) {
+                const index = floor(random(0, sounds.snaps.length));
+                sounds.snaps[index].play();
+            }
             
             // Rotate and translate selected piece|s
             const deltaRotation = adjecentPiece.rotation - piece.rotation;
@@ -90,9 +90,10 @@ class PieceConnector {
         piece.connectedSides = [...piece.connectedSides, side];
 
         // Check all connected pieces
-        if (wasSelected) {
+        if (piece.isSelected) {
             const connectedPieces = getConnectedPieces(piece, this.puzzle);
-            connectedPieces.forEach(p => this.checkPieceConnection(p));
+            connectedPieces.forEach(p => this.checkPieceConnection(p, false));
+            this.selectionHandler.select(piece, false);
         }
     }
 }
