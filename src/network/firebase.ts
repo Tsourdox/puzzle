@@ -1,11 +1,11 @@
 const { initializeApp, getDatabase, ref, onValue, onChildChanged, off, onDisconnect } = firebase;
 
 interface RoomData<P> {
-    puzzle: PuzzleData;
+    puzzle: IPuzzleData;
     pieces: Record<string, P>;
 }
 
-interface StoredPieceData extends PieceData { selectedBy?: string, updatedBy: string };
+interface StoredPieceData extends IPieceData { selectedBy?: string, updatedBy: string };
 
 class FirebaseDB {
     private db: ReturnType<typeof getDatabase>;
@@ -37,7 +37,7 @@ class FirebaseDB {
         localStorage.setItem('clientId', this.clientId);
     }
 
-    public async getRoomData(code: string): Promise<RoomData<DeserializedPieceData> | null> {
+    public async getRoomData(code: string): Promise<RoomData<IDeserializedPieceData> | null> {
         const snapshot = await firebase.get(ref(this.db, 'rooms/' + code));
         if (!snapshot.exists()) return null;
         const storedRoomData = snapshot.val() as RoomData<StoredPieceData>;
@@ -46,7 +46,7 @@ class FirebaseDB {
             this.pieceRefs[piece.id] = firebase.child(firebase.ref(this.db, 'rooms/' + code + '/pieces'), key); 
         }
 
-        const roomData: RoomData<DeserializedPieceData> = {
+        const roomData: RoomData<IDeserializedPieceData> = {
             puzzle: storedRoomData.puzzle,
             pieces: {}
         };
@@ -54,13 +54,12 @@ class FirebaseDB {
             roomData.pieces[key] = {
                 ...pieceData,
                 isSelectedByOther: Boolean(selectedBy && selectedBy !== this.clientId),
-                isSelected: Boolean(selectedBy && selectedBy == this.clientId),
             }; 
         }
         return roomData;
     }
 
-    public savePuzzleData(code: string, puzzle: PuzzleData) {
+    public savePuzzleData(code: string, puzzle: IPuzzleData) {
         const roomRef = ref(this.db, 'rooms/' + code);
         const roomData: RoomData<StoredPieceData> = {
             puzzle: { ...puzzle, updatedBy: this.clientId },
@@ -77,7 +76,7 @@ class FirebaseDB {
         off(piecesRef, 'child_changed');
     }
 
-    public async savePiecesData(code: string, pieces: SerializedPieceData[]) {
+    public async savePiecesData(code: string, pieces: ISerializedPieceData[]) {
         try {
             const piecesRef = ref(this.db, 'rooms/' + code + '/pieces');
             const updates: Record<string, StoredPieceData> = {};
@@ -108,10 +107,10 @@ class FirebaseDB {
         }
     }
     
-    public listenToPuzzleUpdates(code: string, onUpdate: (puzzleData: PuzzleData) => void) {
+    public listenToPuzzleUpdates(code: string, onUpdate: (puzzleData: IPuzzleData) => void) {
         const puzzleRef = ref(this.db, 'rooms/' + code + '/puzzle');
         onValue(puzzleRef, (snapshot) => {
-            const puzzleData = snapshot.val() as PuzzleData;
+            const puzzleData = snapshot.val() as IPuzzleData;
             if (puzzleData && puzzleData.updatedBy !== this.clientId) {
                 onUpdate(puzzleData);
             }
@@ -120,7 +119,7 @@ class FirebaseDB {
         });
     }
     
-    public listenToPiecesUpdates(code: string, onUpdate: (piecesData: DeserializedPieceData) => void) {
+    public listenToPiecesUpdates(code: string, onUpdate: (piecesData: IDeserializedPieceData) => void) {
         const pieceRef = ref(this.db, 'rooms/' + code + '/pieces');
         onChildChanged(pieceRef, (snapshot) => {
             const { selectedBy, updatedBy, ...piece } = snapshot.val() as StoredPieceData;
@@ -128,7 +127,6 @@ class FirebaseDB {
                 onUpdate({
                     ...piece,
                     isSelectedByOther: Boolean(selectedBy && selectedBy !== this.clientId),
-                    isSelected: Boolean(selectedBy && selectedBy === this.clientId),
                 });
             }
         }, (errorObject) => {

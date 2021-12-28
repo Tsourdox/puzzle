@@ -88,7 +88,7 @@ class Puzzle implements IPuzzle, IGeneratePuzzle, ISerializablePuzzle {
         }
     }
 
-    public serialize(): PuzzleData {
+    public serialize(): IPuzzleData {
         return {
             pieceCount: toPoint(this.pieceCount),
             seed: this.piecesFactory?.seed || 0,
@@ -103,7 +103,7 @@ class Puzzle implements IPuzzle, IGeneratePuzzle, ISerializablePuzzle {
         delete this.piecesFactory;
     }
 
-    public deserialize(puzzle: PuzzleData, options: DeserializeOptions) {
+    public deserialize(puzzle: IPuzzleData, options: IDeserializeOptions) {
         return new Promise<void>((resolve, reject) => {
             if (!puzzle) {
                 this.resetPuzzle()

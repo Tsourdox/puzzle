@@ -104,7 +104,7 @@ class Piece implements ISerializablePiece {
     private updateGraphics() {
         this.graphicNeedsUpdating = false;
         if (this._isSelectedByOther) {
-            this.graphics.tint(150);
+            this.graphics.tint(150, 240);
         } else {
             this.graphics.noTint();
         }
@@ -236,7 +236,7 @@ class Piece implements ISerializablePiece {
         translate(this.translation.x, this.translation.y)
     }
 
-    public serialize(): SerializedPieceData {
+    public serialize(): ISerializedPieceData {
         this.isModified = false;
         return {
             id: this.id,
@@ -248,12 +248,11 @@ class Piece implements ISerializablePiece {
         };
     }
 
-    public async deserialize(piece: DeserializedPieceData, options: DeserializeOptions) {
-        if (this._isSelectedByOther !== piece.isSelectedByOther || this.isSelected !== piece.isSelected) {
+    public async deserialize(piece: IDeserializedPieceData, options: IDeserializeOptions) {
+        if (this._isSelectedByOther !== piece.isSelectedByOther) {
             this.graphicNeedsUpdating = true;
         }
         this._isSelectedByOther = piece.isSelectedByOther;
-        this._isSelected = piece.isSelected;
         this._connectedSides = piece.connectedSides || [];
         this.elevation = piece.elevation;
         

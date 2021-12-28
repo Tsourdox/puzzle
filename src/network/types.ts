@@ -1,46 +1,47 @@
 interface ISerializable<S, D> {
     isModified: boolean;
     serialize: () => S;
-    deserialize: (object: D, options?: DeserializeOptions) => Promise<void>;
+    deserialize: (object: D, options?: IDeserializeOptions) => Promise<void>;
 }
 
-type DeserializeOptions = {
+type IDeserializeOptions = {
     lerp?: boolean;
     roomChanged?: boolean;
 } | undefined;
 
-interface ISerializablePuzzle extends ISerializable<PuzzleData, PuzzleData> {
+interface ISerializablePuzzle extends ISerializable<IPuzzleData, IPuzzleData> {
     pieces: ReadonlyArray<ISerializablePiece>;
 }
 
-interface ISerializablePiece extends ISerializable<SerializedPieceData, DeserializedPieceData> {}
-interface ISerializableGraph extends ISerializable<GraphData, GraphData> {}
+interface ISerializablePiece extends ISerializable<ISerializedPieceData, IDeserializedPieceData> {
+    isSelectedByOther: boolean;
+}
+interface ISerializableGraph extends ISerializable<IGraphData, IGraphData> {}
 
 /* ---------------------------------------------------------------------------- */
 
-interface PuzzleData {
+interface IPuzzleData {
     image: string;
     pieceCount: Point;
     seed: number;
     updatedBy?: string;
 }
 
-interface PieceData {
+interface IPieceData {
     id: number;
     rotation: number;
     translation: Point;
     connectedSides?: number[];
     elevation: number;
 }
-interface SerializedPieceData extends PieceData {
+interface ISerializedPieceData extends IPieceData {
     isSelected: boolean
 };
-interface DeserializedPieceData extends PieceData {
-    isSelected: boolean,
+interface IDeserializedPieceData extends IPieceData {
     isSelectedByOther: boolean
 };
 
-interface GraphData {
+interface IGraphData {
     scale: number;
     translation: Point;
 }

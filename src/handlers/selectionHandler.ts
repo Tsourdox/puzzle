@@ -78,6 +78,7 @@ class SelectionHandler implements ISelectionHandler {
             // Selection
             for (const piece of sortPieces(this.puzzle.pieces, true)) {
                 if (this.isMouseOverPiece(piece)) {
+                    if (piece.isSelectedByOther) continue;
                     if (keyIsDown(this.settings.getValue('markera fler'))) {
                         this.select(piece, !piece.isSelected);
                     } else {

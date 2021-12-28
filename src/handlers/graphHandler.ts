@@ -113,14 +113,14 @@ class GraphHandler implements IGraph, ISerializableGraph {
         }
     }
 
-    public serialize(): GraphData {
+    public serialize(): IGraphData {
         return {
             scale: this.scale,
             translation: toPoint(this.translation)
         };
     }
 
-    public async deserialize(graph: GraphData) {
+    public async deserialize(graph: IGraphData) {
         this._scale = graph.scale;
         this._translation = toVector(graph.translation);
     }

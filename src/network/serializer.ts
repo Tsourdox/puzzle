@@ -1,5 +1,3 @@
-
-
 const NETWORK_TIMEOUT = 50; //ms
 class NetworkSerializer {
     private puzzle: ISerializablePuzzle
@@ -132,7 +130,7 @@ class NetworkSerializer {
         this._isLoading = false;
     }
 
-    private async deserializeAll(puzzleData: PuzzleData, piecesData: DeserializedPieceData[], graphData: GraphData, roomChanged: boolean) {
+    private async deserializeAll(puzzleData: IPuzzleData, piecesData: IDeserializedPieceData[], graphData: IGraphData, roomChanged: boolean) {
         await this.graph.deserialize(graphData);
         await this.puzzle.deserialize(puzzleData, { roomChanged })
         if (!this.puzzle.pieces.length) return;

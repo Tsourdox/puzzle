@@ -59,32 +59,32 @@ class ClientDB {
         })
     }
 
-    public async loadPuzzle(): Promise<PuzzleData> {
-        return await this.loadFromStore<PuzzleData>('puzzle');
+    public async loadPuzzle(): Promise<IPuzzleData> {
+        return await this.loadFromStore<IPuzzleData>('puzzle');
     }
 
-    public async loadGraph(): Promise<GraphData> {
-        return await this.loadFromStore<GraphData>('graph');
+    public async loadGraph(): Promise<IGraphData> {
+        return await this.loadFromStore<IGraphData>('graph');
     }
 
-    public async loadPieces(): Promise<DeserializedPieceData[]> {
+    public async loadPieces(): Promise<IDeserializedPieceData[]> {
         try {
-            return await this.loadFromStore<DeserializedPieceData[]>('pieces');
+            return await this.loadFromStore<IDeserializedPieceData[]>('pieces');
         } catch (error: unknown) {
             return [];
         }
     }
 
-    public async savePuzzle(data: PuzzleData): Promise<void> {
+    public async savePuzzle(data: IPuzzleData): Promise<void> {
         await this.saveToStore([], 'pieces');
         await this.saveToStore(data, 'puzzle');
     }
 
-    public async saveGraph(data: GraphData): Promise<void> {
+    public async saveGraph(data: IGraphData): Promise<void> {
         await this.saveToStore(data, 'graph');
     }
     
-    public async savePieces(data: PieceData[]): Promise<void> {
+    public async savePieces(data: IPieceData[]): Promise<void> {
         // preserve old data
         const pieces = await this.loadPieces();
         for (const piece of pieces) {
