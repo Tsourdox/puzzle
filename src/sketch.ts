@@ -6,6 +6,7 @@ let sounds: ISound;
 let fonts: IFonts;
 let scrollDelta = 0;
 let theme: ITheme;
+let isMobile: boolean;
 
 //-----------------------------------------//
 //------------MAIN P5 FUNCTIONS------------//
@@ -34,6 +35,7 @@ function setup() {
     createCanvas(windowWidth, windowHeight);
     frameRate(120);
     getThemeFromCSS();
+    isMobile = windowWidth < 600;
     sounds.snaps[0].setVolume(0.8);
     sounds.snaps[1].setVolume(0.1);
     sounds.snaps[2].setVolume(0.5);
@@ -45,6 +47,7 @@ function setup() {
 function draw() {
     if (window.innerWidth !== width || window.innerHeight !== height) {
         setFullScreenCanvas();
+        isMobile = windowWidth < 600;
     }
     puzzle.update();
     puzzle.draw();

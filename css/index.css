@@ -101,6 +101,7 @@ html, body, canvas, main {
     font-size: 2.2rem;
     color: var(--neutral);
     font-weight: normal;
+    text-align: center;
 }
 
 .hidden {
@@ -141,8 +142,27 @@ html, body, canvas, main {
     40%, 100% { color: var(--neutral); }
 }
 
-@media (max-width: 1024px) {
+@media (max-width: 1000px) {
     #p5_loading h1 {
         font-size: 5rem;
+    }
+}
+
+@media (max-width: 600px) {
+    #p5_loading h1 {
+        font-size: 2.6rem;
+    }
+
+    .toggle-button {
+        font-size: 1.2rem;
+        min-width: 3rem;
+    }
+    .button {
+        font-size: 1.6rem;
+    }
+    .table-row {
+        min-width: 22rem;
+        font-size: 1rem;
+        padding: .2rem;
     }
 }

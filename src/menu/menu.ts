@@ -18,7 +18,7 @@ class Menu implements IMenu {
     constructor(puzzle: IGeneratePuzzle) {
         this.puzzle = puzzle;
         this.foreground = color(200);
-        this.height = 80;
+        this.height = isMobile ? 50 : 80;
         this.fps = new FPS();
         this.gameMenu = new GameMenu(this);
         this.settingsMenu = new SettingsMenu();
@@ -97,8 +97,11 @@ class Menu implements IMenu {
         textAlign(CENTER, CENTER);
         
         this.drawMenuBar();
-        this.drawContent();
-        this.drawRoomCode(roomCode);
+        this.drawSideIcons();
+        this.drawMiddleText();
+        if (!isMobile || !this.isOpen) {
+            this.drawRoomCode(roomCode);
+        }
         if (this.settingsMenu.showFPS) {
             this.fps.draw();
         }
@@ -114,27 +117,34 @@ class Menu implements IMenu {
         pop();
     }
 
-    private drawContent() {
+    private drawSideIcons() {
+        if (isMobile && this.isOpen) return;
         push();
-        const size = 50;
+        const size = isMobile ? 30 : 50;
         const offset = size / 20;
         const halfMenu = (this.height / 2) + offset;
         textFont(fonts.icons);
-        textSize(50);
+        textSize(size);
         text(icon["cog solid"], width - halfMenu, height - halfMenu);
         
         text(icon["Puzzle Piece solid"], halfMenu, height - halfMenu);
-        strokeWeight(4);
+        strokeWeight(size * .08);
         stroke(theme.darkdrop);
         fill(theme.neutral);
-        textSize(20);
-        text(icon["plus solid"], halfMenu + 8, height - halfMenu + 18);
+        textSize(size * .4);
+        const x = halfMenu + size * .16;
+        const y = height - halfMenu + size * .36;
+        text(icon["plus solid"], x, y);
         pop();
-        
+    }
+    
+    private drawMiddleText() {
+        const openSize = isMobile ? 20 : 30;
+        const closedSize = isMobile ? 40 : 60;
         push();
         const x = width / 2;
         const y = height - this.height / 1.65;
-        textSize(this.isOpen ? 30 : 60);
+        textSize(this.isOpen ? openSize : closedSize);
         text(this.isOpen ? "STÄNG MENYN" : "PUZZELIN", x, y);
         pop();
     }

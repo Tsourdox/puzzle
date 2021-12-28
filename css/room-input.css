@@ -6,7 +6,6 @@
     border-radius: 2rem;
     font-family: primary;
     letter-spacing: 1rem;
-    width: auto;
     margin-top: 1rem;
     border: none;
     text-align: center;
@@ -17,4 +16,11 @@
 .room-code-input:focus {
     outline: none;
     border: var(--primary) .2rem solid;
+}
+
+@media (max-width: 600px) {
+    .room-code-input {
+        font-size: 2.6rem;
+        width: 15rem;
+    }
 }
