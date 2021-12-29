@@ -1,4 +1,4 @@
-const NETWORK_TIMEOUT = 50; //ms
+const NETWORK_TIMEOUT = 100; //ms
 class NetworkSerializer {
     private puzzle: ISerializablePuzzle
     private graph: ISerializableGraph
