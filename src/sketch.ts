@@ -18,11 +18,13 @@ function preload() {
     }
     sounds = {
         snaps: [
-            loadSound('../assets/sounds/snap0.wav'),
-            loadSound('../assets/sounds/snap1.wav'),
-            loadSound('../assets/sounds/snap2.wav'),
-            loadSound('../assets/sounds/snap3.wav'),
-        ]
+            loadSound('../assets/sounds/snap/snap0.wav'),
+            loadSound('../assets/sounds/snap/snap1.wav'),
+            loadSound('../assets/sounds/snap/snap2.wav'),
+            loadSound('../assets/sounds/snap/snap3.wav'),
+        ],
+        aboutToPuzzelin: loadSound('../assets/sounds/about-to-puzzelin.m4a'),
+        puzzelin: loadSound('../assets/sounds/puzzelin.m4a'),
     }
     fonts = {
         primary: loadFont('../assets/fonts/black-ops-one.ttf'),
@@ -35,11 +37,8 @@ function setup() {
     createCanvas(windowWidth, windowHeight);
     frameRate(120);
     getThemeFromCSS();
+    setSoundVolumes();
     isMobile = windowWidth < 600;
-    sounds.snaps[0].setVolume(0.8);
-    sounds.snaps[1].setVolume(0.1);
-    sounds.snaps[2].setVolume(0.5);
-    sounds.snaps[3].setVolume(0.1);
 
     puzzle = new Puzzle();
 }
@@ -52,6 +51,15 @@ function draw() {
     puzzle.update();
     puzzle.draw();
     scrollDelta = 0;
+}
+
+function setSoundVolumes() {
+    sounds.snaps[0].setVolume(0.8);
+    sounds.snaps[1].setVolume(0.1);
+    sounds.snaps[2].setVolume(0.5);
+    sounds.snaps[3].setVolume(0.1);
+    sounds.aboutToPuzzelin.setVolume(0.5);
+    sounds.puzzelin.setVolume(0.5);
 }
 
 function getThemeFromCSS() {

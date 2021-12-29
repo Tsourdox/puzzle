@@ -14,6 +14,7 @@ class Menu implements IMenu {
     private gameMenu: GameMenu;
     private settingsMenu: SettingsMenu;
     private prevMouseIsPressed: boolean;
+    private puzzelinSoundPlayed: boolean;
 
     constructor(puzzle: IGeneratePuzzle) {
         this.puzzle = puzzle;
@@ -24,6 +25,7 @@ class Menu implements IMenu {
         this.settingsMenu = new SettingsMenu();
         this.menuName = 'closed';
         this.prevMouseIsPressed = false;
+        this.puzzelinSoundPlayed = false;
     }
 
     public get settings(): IReadableSettings {
@@ -76,7 +78,14 @@ class Menu implements IMenu {
                 } else if (mouseOverSettingsIcon) {
                     this.setOpenMenu('settings');
                 } else {
-                    this.setOpenMenu('closed');
+                    if (this.isOpen) {
+                        this.setOpenMenu('closed');
+                    } else if (!this.puzzelinSoundPlayed) {
+                        sounds.aboutToPuzzelin.play();
+                        this.puzzelinSoundPlayed = true;
+                    } else if (!sounds.puzzelin.isPlaying() && !sounds.aboutToPuzzelin.isPlaying()) {
+                        sounds.puzzelin.play();
+                    }
                 }
             }
     

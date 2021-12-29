@@ -5,6 +5,8 @@ interface IMusic {
 }
 interface ISound {
     snaps: p5.SoundFile[];
+    aboutToPuzzelin: p5.SoundFile;
+    puzzelin: p5.SoundFile;
 }
 interface IFonts {
     primary: p5.Font;
