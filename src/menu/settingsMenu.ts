@@ -11,6 +11,7 @@ class SettingsMenu implements IWritableSettings, IReadableSettings {
         'stapla bitar': SPACE,
         'sprid bitar': KEY_C,
         'markera fler': SHIFT,
+        'koppla om bitar': KEY_R,
         'invertera zoom': 0,
         'visa fps räknare': 0,
         'bakgrundsfärg': 40,
@@ -75,7 +76,9 @@ class SettingsMenu implements IWritableSettings, IReadableSettings {
         if (data) {
             const savedTable = JSON.parse(data);
             for (const key of Object.keys(this.settingsMap) as ISetting[]) {
-                this.settingsMap[key] = savedTable[key];
+                if (savedTable[key]) {
+                    this.settingsMap[key] = savedTable[key];
+                }
             }
         }
     }

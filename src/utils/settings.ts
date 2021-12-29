@@ -9,6 +9,7 @@ interface ISettingsMap {
     'invertera zoom': number;
     'rotera med 3 fingrar': number;
     'bakgrundsfärg': number;
+    'koppla om bitar': number;
 }
 type ISetting = keyof ISettingsMap;
 

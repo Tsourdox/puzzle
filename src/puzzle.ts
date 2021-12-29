@@ -31,7 +31,7 @@ class Puzzle implements IPuzzle, IGeneratePuzzle, ISerializablePuzzle {
         this.inputHandler = new InputHandler(this, this.menu.settings);
         this.networkSerializer = new NetworkSerializer(this, this.inputHandler.graphHandler);
         const { selectionHandler, transformHandler } = this.inputHandler;
-        this.pieceConnetor = new PieceConnector(this, selectionHandler, transformHandler);
+        this.pieceConnetor = new PieceConnector(this, selectionHandler, transformHandler, this.menu.settings);
     }
 
     public generateNewPuzzle(image: p5.Image, x: number, y: number) {

@@ -2,19 +2,32 @@ class PieceConnector {
     private puzzle: IPuzzle;
     private selectionHandler: ISelectionHandler;
     private transformHandler: ITransformHandler;
+    private settings: IReadableSettings;
 
     constructor(
         puzzle: IPuzzle,
         selectionHandler: ISelectionHandler,
-        transformHandler: ITransformHandler
+        transformHandler: ITransformHandler,
+        settings: IReadableSettings
     ) {
         this.puzzle = puzzle;
         this.selectionHandler = selectionHandler;
         this.transformHandler = transformHandler;
+        this.settings = settings;
     }
 
     public update() {
+        this.resetConnectionForSelectedPieces();
         this.checkForConnectedPieces();
+    }
+
+    /** Sometimes pieces connects incorrectly, this resets the connections */
+    private resetConnectionForSelectedPieces() {
+        if (keyIsPressed && keyCode === this.settings.getValue('koppla om bitar')) {
+            for (const piece of this.puzzle.selectedPieces) {
+                piece.connectedSides = [];
+            }
+        }
     }
 
     private checkForConnectedPieces() {
@@ -61,7 +74,7 @@ class PieceConnector {
             const distA = pcA.dist(acA);
             const distB = pcB.dist(acB);
             if (distA + distB < limit) {
-                this.connectPiece(piece, adjecentPiece, side, playSound);
+                this.connectPiece(piece, adjecentPiece, side, playSound && !wasConnected);
                 wasConnected = true;
             }
         }
