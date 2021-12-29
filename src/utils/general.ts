@@ -86,7 +86,7 @@ function getMostDistantPoints(...[v0, v1, v2]: Point[]): [Point, Point] {
 }
 
 function getRandomRoomCode() {
-    const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    const characters = 'ABCDEFGHIJKLMNPQRSTUVWXYZ123456789';
     let code = "";
 
     for (let i = 0; i < 4; i++) {

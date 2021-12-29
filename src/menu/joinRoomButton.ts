@@ -28,7 +28,15 @@ class JoinRoomButton {
     }
 
     private handleRoomCodeChanged() {
-        const roomCode = this.roomCodeInput.value().toString().toUpperCase();
+        let roomCode = this.roomCodeInput.value().toString().toUpperCase();
+        const lastChar = roomCode[roomCode.length - 1];
+        const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+        
+        if (!characters.includes(lastChar)) {
+            roomCode = roomCode.split("").slice(0, -1).join("");
+            this.roomCodeInput.value(roomCode);
+        }
+        
         if (roomCode.length === 4) {
             setTimeout(() => this.setRoomCode(roomCode), 500);
         }
