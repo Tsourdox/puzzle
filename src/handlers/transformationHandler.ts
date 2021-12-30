@@ -81,12 +81,8 @@ class TransformHandler implements ITransformHandler {
             this.rotatePieces(rotation);
         }
 
-        const threeFingerRotation = this.settings.getValue('rotera med 3 fingrar');
         // Touch
-        if (
-            !threeFingerRotation && prevTouches.length === 2 && touches.length === 2 ||
-            threeFingerRotation && touches.length === 3 && prevTouches.length === 3
-        ) {
+        if (prevTouches.length === 2 && touches.length === 2) {
             const [t1, t2] = getMostDistantPoints(...(touches as Touches));
             const [p1, p2] = getMostDistantPoints(...prevTouches);
             const angle = angleBetween(t1, t2);

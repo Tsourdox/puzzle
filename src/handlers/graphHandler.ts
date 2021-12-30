@@ -48,11 +48,7 @@ class GraphHandler implements IGraph, ISerializableGraph {
             zoomDelta = scrollDelta;
         }
         // Touch
-        const threeFingerRotation = this.settings.getValue('rotera med 3 fingrar');
-        if (
-            threeFingerRotation && prevTouches.length === 2 && touches.length === 2 ||
-            !threeFingerRotation && prevTouches.length === 3 && touches.length === 3
-        ) {
+        if (prevTouches.length === 3 && touches.length === 3) {
             const [t1, t2] = getMostDistantPoints(...(touches as Touches));
             const [p1, p2] = getMostDistantPoints(...prevTouches);
             const pinchDist = dist(t1.x, t1.y, t2.x, t2.y);
@@ -90,11 +86,7 @@ class GraphHandler implements IGraph, ISerializableGraph {
 
     private handleTranslation(prevMouse: p5.Vector, prevTouches: Touches) {
         // Touch
-        const threeFingerRotation = this.settings.getValue('rotera med 3 fingrar');
-        if (
-            threeFingerRotation && prevTouches.length === 2 && touches.length === 2 ||
-            !threeFingerRotation && prevTouches.length === 3 && touches.length === 3
-        ) {
+        if (prevTouches.length === 3 && touches.length === 3) {
             const [t1, t2] = touches as Touches;
             const [p1, p2] = prevTouches;
             const currentMid = pointBetween(t1, t2);

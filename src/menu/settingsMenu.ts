@@ -5,7 +5,6 @@ class SettingsMenu implements IWritableSettings, IReadableSettings {
 
     private settingsMap: ISettingsMap = {
         'rotationshastighet': 1,
-        'rotera med 3 fingrar': 0,
         'rotera vänster': KEY_Z,
         'rotera höger': KEY_X,
         'stapla bitar': SPACE,

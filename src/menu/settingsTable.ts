@@ -21,8 +21,7 @@ class SettingsTable {
                 rowContent = this.createSlider(value, key);
             } else if (
                 key === 'visa fps räknare' ||
-                key === 'invertera zoom' ||
-                key === 'rotera med 3 fingrar'
+                key === 'invertera zoom'
             ) {
                 rowContent = this.createToggleSwitch(value, key);
             } else if (key === 'bakgrundsfärg') {
