@@ -15,6 +15,7 @@ class Menu implements IMenu {
     private settingsMenu: SettingsMenu;
     private prevMouseIsPressed: boolean;
     private puzzelinSoundPlayed: boolean;
+    private githubLink: HTMLLinkElement;
 
     constructor(puzzle: IGeneratePuzzle) {
         this.puzzle = puzzle;
@@ -26,6 +27,7 @@ class Menu implements IMenu {
         this.menuName = 'closed';
         this.prevMouseIsPressed = false;
         this.puzzelinSoundPlayed = false;
+        this.githubLink = document.querySelector<HTMLLinkElement>('.github-link')!;
     }
 
     public get settings(): IReadableSettings {
@@ -45,6 +47,7 @@ class Menu implements IMenu {
         if (this.menuName === name || name === 'closed') {
             this.gameMenu.close();
             this.settingsMenu.close();
+            this.githubLink.classList.add('hidden');
             this.menuName = 'closed';
             return;
         }
@@ -55,6 +58,9 @@ class Menu implements IMenu {
         } else if (name === 'settings') {
             this.gameMenu.close();
             this.settingsMenu.open();
+        }
+        if (!isMobile) {
+            this.githubLink.classList.remove('hidden');
         }
         this.menuName = name;
     }
@@ -75,13 +81,9 @@ class Menu implements IMenu {
             if (didPress) {
                 if (mouseOverGameIcon) {
                     this.setOpenMenu('game');
-                } else if (mouseOverRightIcon) {
-                    if (this.isOpen) {
-                        window.open('https://github.com/tsourdox/puzzle', '_blank')?.focus();
-                    } else {
-                        this.setOpenMenu('settings');
-                    }
-                } else {
+                } else if (mouseOverRightIcon && !this.isOpen) {
+                    this.setOpenMenu('settings');
+                } else if (mouseOverText) {
                     if (this.isOpen) {
                         this.setOpenMenu('closed');
                     } else if (!this.puzzelinSoundPlayed) {
@@ -136,8 +138,10 @@ class Menu implements IMenu {
         const halfMenu = (this.height / 2) + offset;
         textFont(fonts.icons);
         textSize(size);
-        const rightIcon = this.isOpen ? icon["GitHub brands"] : icon["cog solid"];
-        text(rightIcon, width - halfMenu, height - halfMenu);
+    
+        if (!this.isOpen) {
+            text(icon["cog solid"], width - halfMenu, height - halfMenu);
+        }
         
         text(icon["Puzzle Piece solid"], halfMenu, height - halfMenu);
         strokeWeight(size * .08);

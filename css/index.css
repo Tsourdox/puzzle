@@ -104,6 +104,21 @@ html, body, canvas, main {
     text-align: center;
 }
 
+.github-link {
+    position: fixed;
+    z-index: 100;
+    color: white;
+    opacity: .85;
+    
+    bottom: 0;
+    right: 0;
+}
+.github-link img {
+    padding: 18px;
+    height: 44px;
+    width: 44px;
+}
+
 .hidden {
     display: none;
 }

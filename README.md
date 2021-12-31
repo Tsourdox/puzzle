@@ -2,7 +2,7 @@
 
 An online puzzle for family and friends. This is still a work in progess but the app should be relatively stable and playable in Chrome, Safari and on iPad or mobile devices.
 
-**[Try it out!](https://puzzelin.netlify.app)**
+**[Try it out!](https://puzzelin.se)**
 
 ## Browser & Device Compatibility
 Mouse (+Keyboard) or Touch is all fully supported.
