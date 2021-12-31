@@ -68,15 +68,19 @@ class Menu implements IMenu {
         
         if (mouseOverMenu) {
             const mouseOverGameIcon = mouseX < this.height;
-            const mouseOverSettingsIcon = mouseX > width - this.height;
+            const mouseOverRightIcon = mouseX > width - this.height;
             const offset = this.height * 1.5;
             const mouseOverText = mouseX > width / 2 - offset && mouseX < width / 2 + offset;
             
             if (didPress) {
                 if (mouseOverGameIcon) {
                     this.setOpenMenu('game');
-                } else if (mouseOverSettingsIcon) {
-                    this.setOpenMenu('settings');
+                } else if (mouseOverRightIcon) {
+                    if (this.isOpen) {
+                        window.open('https://github.com/tsourdox/puzzle', '_blank')?.focus();
+                    } else {
+                        this.setOpenMenu('settings');
+                    }
                 } else {
                     if (this.isOpen) {
                         this.setOpenMenu('closed');
@@ -89,7 +93,7 @@ class Menu implements IMenu {
                 }
             }
     
-            if (mouseOverGameIcon || mouseOverSettingsIcon || (mouseOverText && this.isOpen)) {
+            if (mouseOverGameIcon || mouseOverRightIcon || (mouseOverText && this.isOpen)) {
                 cursor('pointer');
             } else {
                 cursor('auto');
@@ -108,9 +112,7 @@ class Menu implements IMenu {
         this.drawMenuBar();
         this.drawSideIcons();
         this.drawMiddleText();
-        if (!isMobile || !this.isOpen) {
-            this.drawRoomCode(roomCode);
-        }
+        this.drawRoomCode(roomCode);
         if (this.settingsMenu.showFPS) {
             this.fps.draw();
         }
@@ -134,7 +136,8 @@ class Menu implements IMenu {
         const halfMenu = (this.height / 2) + offset;
         textFont(fonts.icons);
         textSize(size);
-        text(icon["cog solid"], width - halfMenu, height - halfMenu);
+        const rightIcon = this.isOpen ? icon["GitHub brands"] : icon["cog solid"];
+        text(rightIcon, width - halfMenu, height - halfMenu);
         
         text(icon["Puzzle Piece solid"], halfMenu, height - halfMenu);
         strokeWeight(size * .08);
@@ -159,6 +162,7 @@ class Menu implements IMenu {
     }
 
     private drawRoomCode(roomCode: string) {
+        if (isMobile && this.isOpen) return;
         push();
         textSize(20);
         textAlign(LEFT, TOP);
