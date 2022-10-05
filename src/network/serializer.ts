@@ -17,7 +17,7 @@ class NetworkSerializer {
         this.clientDB = new ClientDB();
         this.firebaseDB = new FirebaseDB();
         this._isLoading = true;
-        this.initLocalStorage();
+        this.initPreselectedRoom();
         this.listenToFirebaseDBChanges(this._roomCode);
         this.loadPuzzle(false);
     }
@@ -26,11 +26,28 @@ class NetworkSerializer {
         if (!this.firebaseDB.isOnline) return 'OFFLINE';
         return this._roomCode;
     }
+    
+    private saveRoomToQueryString(roomCode : string) {
+        const params = new URLSearchParams(location.search);
+        params.set('r', roomCode);
+        window.history.replaceState({}, '', `${location.pathname}?${params.toString()}`);
+    }
+    
+    private getRoomFromQueryString() : string | null {
+        const params = new URLSearchParams(location.search);
+        return params.get('r');
+    }
 
-    private initLocalStorage() {
-        const roomCode = localStorage.getItem('room-code');
-        if (roomCode) {
-            this._roomCode = roomCode;
+    private initPreselectedRoom() {
+        const queryRoomCode = this.getRoomFromQueryString();
+        const lsRoomCode = localStorage.getItem('room-code');
+        
+        if (queryRoomCode) {
+            this._roomCode = queryRoomCode;
+            localStorage.setItem('room-code', queryRoomCode);
+        }
+        else if (lsRoomCode) {
+            this._roomCode = lsRoomCode;
         } else {
             localStorage.setItem('room-code', this._roomCode);
         }
@@ -40,6 +57,7 @@ class NetworkSerializer {
     private async changeRoom() {
         const roomCode = localStorage.getItem('room-code');
         if (roomCode && roomCode !== this._roomCode) {
+            this.saveRoomToQueryString(roomCode);
             this._isLoading = true;
             this.firebaseDB.cleanup(this._roomCode);
             this._roomCode = roomCode;
