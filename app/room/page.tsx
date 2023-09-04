@@ -1,13 +1,11 @@
-import { AppBar } from '@/components/AppBar';
-import PuzzleCanvas from '@/components/PuzzleCanvas';
+'use client';
 
-export default function PuzzlePage() {
-  return (
-    <>
-      <main className="relative flex-1 bg-neutral-800">
-        <PuzzleCanvas />
-      </main>
-      <AppBar />
-    </>
-  );
+import usePuzzle from '@/hooks/usePuzzle';
+import { useRef } from 'react';
+
+export default function PuzzleCanvas() {
+  const containerRef = useRef<HTMLDivElement>(null);
+  usePuzzle(containerRef);
+
+  return <div ref={containerRef} className="relative flex-1" />;
 }
