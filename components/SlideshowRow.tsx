@@ -1,5 +1,5 @@
-import { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import Image from 'next/image';
+import Link from 'next/link';
 import ScrollBox from './ScrollBox';
 
 interface PexelsImage {
@@ -18,31 +18,31 @@ interface Props {
 
 const API_KEY = '563492ad6f91700001000001e9543e64cc6240f3a18b3b0d9f42629d';
 
-export function SlideshowRow({ title, searchTerm, images }: Props) {
-  const [pexelImages, setPexelImages] = useState<PexelsImage[]>([]);
+export default async function SlideshowRow({
+  title,
+  searchTerm,
+  images,
+}: Props) {
+  const fetchImageGroupFromAPI = async () => {
+    if (!searchTerm) return [];
 
-  useEffect(() => {
-    if (!searchTerm) return;
+    const domain = 'https://api.pexels.com/';
+    const path = 'v1/search';
+    const page = Math.ceil(Math.random() * 5);
+    const query = `?query=${searchTerm}&orientation=landscape&per_page=30&page=${page}`;
+    const url = `${domain}${path}${query}`;
+    const response = await fetch(url, {
+      headers: { Authorization: API_KEY },
+    });
 
-    const fetchImageGroupFromAPI = async () => {
-      const domain = 'https://api.pexels.com/';
-      const path = 'v1/search';
-      const page = Math.ceil(Math.random() * 5);
-      const query = `?query=${searchTerm}&orientation=landscape&per_page=30&page=${page}`;
-      const url = `${domain}${path}${query}`;
-      const response = await fetch(url, {
-        headers: { Authorization: API_KEY },
-      });
-      const images = (await response.json()).photos as PexelsImage[];
-      setPexelImages(images);
-    };
+    return (await response.json()).photos as PexelsImage[];
+  };
 
-    fetchImageGroupFromAPI();
-  }, [searchTerm]);
+  const pexelImages = await fetchImageGroupFromAPI();
 
   return (
     <section className="flex flex-col gap-4">
-      <h2 className="text-3xl capitalize font-semibold text-neutral-200 ml-20 pl-2">
+      <h2 className="text-3xl capitalize font-semibold text-neutral-200 ml-20 pl-2 font-sans">
         {title}
       </h2>
       <ScrollBox>
@@ -60,10 +60,16 @@ export function SlideshowRow({ title, searchTerm, images }: Props) {
 function ImageLink({ imageSrc }: { imageSrc: string }) {
   return (
     <Link
-      to={'room/' + Math.random().toString().slice(4, 8)}
+      href={'room/' /* + Math.random().toString().slice(4, 8) */}
       className="w-80 aspect-square flex-none"
     >
-      <img src={imageSrc} className="w-full h-full object-cover rounded-3xl" />
+      <Image
+        src={imageSrc}
+        alt=""
+        width={300}
+        height={300}
+        className="w-full h-full object-cover rounded-3xl"
+      />
     </Link>
   );
 }
