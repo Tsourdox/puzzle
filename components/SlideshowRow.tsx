@@ -60,7 +60,7 @@ export default async function SlideshowRow({
 function ImageLink({ imageSrc }: { imageSrc: string }) {
   return (
     <Link
-      href={'room/' /* + Math.random().toString().slice(4, 8) */}
+      href={'room/' + Math.random().toString().slice(4, 9)}
       className="w-80 aspect-square flex-none"
     >
       <Image

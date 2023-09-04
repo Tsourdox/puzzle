@@ -1,10 +1,16 @@
 import { AppBar } from '@/components/AppBar';
 import type { Metadata } from 'next';
 
-export const metadata: Metadata = {
-  title: 'Puzzelin Room',
-  description: 'Active puzzle canvas in a room',
+type Props = {
+  params: { code: string };
 };
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  return {
+    title: `Puzzelin - In Room ${params.code}`,
+    description: 'Solve the puzzle by clicking, scrolling & dragging.',
+  };
+}
 
 export default function Layout({ children }: { children: React.ReactNode }) {
   return (

@@ -4,7 +4,7 @@ export default function HomePage() {
   return (
     <div className="flex flex-col gap-12">
       <SlideshowRow
-        title="Dina påbörjade pussel"
+        title="Fortsätt pussla"
         images={['/images/bear.jpg', '/images/rocket.jpg']}
       />
       <SlideshowRow title="Katter" searchTerm="cats" />

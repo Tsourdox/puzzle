@@ -9,7 +9,7 @@ const myFont = localFont({
 });
 
 export const metadata: Metadata = {
-  title: 'Puzzelin',
+  title: 'Puzzelin - Ett Online Pussel',
   description: 'Ett online pussel för dig och dina vänner!',
 };
 
