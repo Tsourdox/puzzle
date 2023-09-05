@@ -1,6 +1,6 @@
 import SlideshowRow from './SlideshowRow';
 
-export default function HomePage() {
+export default function Slideshows() {
   return (
     <div className="flex flex-col gap-12">
       <SlideshowRow
