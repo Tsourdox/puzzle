@@ -1,34 +1,39 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# Puzzelin
 
-## Getting Started
+An online puzzle for family and friends. This is still a work in progess but the app should be relatively stable and playable in Chrome, Safari and on iPad or mobile devices.
 
-First, run the development server:
+**[Try it out!](https://puzzelin.se)**
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-```
+## Browser & Device Compatibility
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Mouse (+Keyboard) or Touch is all fully supported.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+🟢 **Chrome** - Good FPS;\
+🟢 **Safari** - Good FPS;\
+🟢 **iPad** - Good FPS, won't load images sometimes;\
+🟢 **Mobile** - Good FPS, screen size not ideal;\
+🟡 **Edge** - To be determined;\
+🔴 **Firefox** - Really bad FPS;
 
-This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
+## Installation
 
-## Learn More
+Run `npm install` followed by `npm start` and you should be good to go!
 
-To learn more about Next.js, take a look at the following resources:
+## About the code
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- **Frontend Stack:** [HMTL, CSS, Typescript, P5.js];
+- **Backend Stack:** Firebase for realtime communication;
+- **Paradigm:** Mostly OOP, with some helper functions;
+- **Modules:** Configured to run "module-less";
+- **Class Diagram:** Slightly outdated, but communicates the gernal architecture of the codebase:
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
+<img src="./documentation/puzzelin-uml.png">
 
-## Deploy on Vercel
+## Links used to solve certain problems:
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+- [Determine if a point is inside a curve](https://scicomp.stackexchange.com/questions/16343/how-to-determine-if-a-point-is-outside-or-inside-a-curve#:~:text=There's%20a%20simple%20test%20to,region%3B%20otherwise%2C%20it's%20outside.)
+- [Fill p5 shape with image](https://stackoverflow.com/questions/60179313/how-to-fill-p5-js-shape-with-an-image)
+- [Find Bezier Points](https://stackoverflow.com/questions/7715788/find-bezier-control-points-for-curve-passing-through-n-points)
+- [Zoom effect with p5](https://stackoverflow.com/questions/57131714/create-zoom-effect-with-p5-js)
+- [Rotate points around origin](https://stackoverflow.com/questions/45357715/how-to-rotate-point-around-another-one/45360970)
+- [Transformations in p5](https://genekogan.com/code/p5js-transformations/)
