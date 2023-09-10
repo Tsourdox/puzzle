@@ -1,4 +1,5 @@
 import type { IPuzzle } from '../puzzle';
+import { Line, pointSideLocationOfLine, sum } from '../utils/general';
 import { ISettingsMap, settings } from '../utils/settings';
 import type { IGraph } from './graphHandler';
 
@@ -22,8 +23,8 @@ export default class SelectionHandler implements ISelectionHandler {
     this.graph = graph;
     this.settings = settings;
     this.prevMouseIsPressed = false;
-    this.dragSelectionFill = puzzle.canvas.color('rgba(200,200,200,0.3)');
-    this.dragSelectionStroke = puzzle.canvas.color('rgba(255,255,255,0.6)');
+    this.dragSelectionFill = puzzle.p.color('rgba(200,200,200,0.3)');
+    this.dragSelectionStroke = puzzle.p.color('rgba(255,255,255,0.6)');
     this.timeSincePress = 0;
   }
 

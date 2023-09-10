@@ -9,7 +9,7 @@ export default function usePuzzle(containerRef: RefObject<HTMLElement>) {
     if (!containerRef.current) throw Error('Could not mount canvas');
     const { width, height } = containerRef.current.getBoundingClientRect();
 
-    const sketch = (p: P5) => {
+    const sketch = (canvas: P5) => {
       let puzzle: Puzzle;
 
       function setSoundVolumes() {
@@ -42,7 +42,7 @@ export default function usePuzzle(containerRef: RefObject<HTMLElement>) {
           ?.addEventListener('touchstart', (e) => e.preventDefault());
       }
 
-      p.preload = () => {
+      canvas.preload = () => {
         // music = {
         //   dreaming: p.loadSound('../assets/music/dreaming-big.mp3'),
         //   love: p.loadSound('../assets/music/love-in-the-air.mp3'),
@@ -61,34 +61,28 @@ export default function usePuzzle(containerRef: RefObject<HTMLElement>) {
         //   puzzelin: p.loadSound('../assets/sounds/puzzelin.m4a'),
         // };
         globals.fonts = {
-          primary: p.loadFont('/fonts/black-ops-one.ttf'),
-          icons: p.loadFont('/fonts/font-awesome.otf'),
+          primary: canvas.loadFont('/fonts/black-ops-one.ttf'),
+          icons: canvas.loadFont('/fonts/font-awesome.otf'),
         };
       };
 
       // The sketch setup method
-      p.setup = () => {
-        p.createCanvas(width, height);
-        p.frameRate(120);
+      canvas.setup = () => {
+        canvas.createCanvas(width, height);
+        canvas.frameRate(120);
         preventDefaultEvents();
         getThemeFromCSS();
         // setSoundVolumes();
-        globals.isMobile = p.windowWidth < 600;
+        globals.isMobile = canvas.windowWidth < 600;
 
-        puzzle = new Puzzle(p);
+        puzzle = new Puzzle(canvas);
       };
 
       // The sketch draw method
-      p.draw = () => {
-        const offset = 40;
-        const size = 40;
-        p.fill('blue');
-        p.rect(offset, offset, size, size);
-        p.rect(p.width - offset - size, p.height - offset - size, size, size);
-
-        if (p.mouseIsPressed) {
-          p.fill('blue');
-          p.circle(p.mouseX, p.mouseY, 30);
+      canvas.draw = () => {
+        if (canvas.mouseIsPressed) {
+          canvas.fill('blue');
+          canvas.circle(canvas.mouseX, canvas.mouseY, 30);
         }
         // if (window.innerWidth !== width || window.innerHeight !== height) {
         //   setFullScreenCanvas();
@@ -99,14 +93,14 @@ export default function usePuzzle(containerRef: RefObject<HTMLElement>) {
         // scrollDelta = 0;
       };
 
-      p.windowResized = () => {
+      canvas.windowResized = () => {
         const { width, height } = containerRef.current!.getBoundingClientRect();
         console.log({ width, height });
-        p.resizeCanvas(width, height);
+        canvas.resizeCanvas(width, height);
       };
     };
 
-    const p5 = new P5(sketch, containerRef.current);
-    return () => p5.remove();
+    const canvas = new P5(sketch, containerRef.current);
+    return () => canvas.remove();
   }, [containerRef]);
 }

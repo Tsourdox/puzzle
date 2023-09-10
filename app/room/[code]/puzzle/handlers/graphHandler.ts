@@ -1,4 +1,10 @@
 import { IPuzzle } from '../puzzle';
+import {
+  getMostDistantPoints,
+  pointBetween,
+  toPoint,
+  toVector,
+} from '../utils/general';
 import { ISettingsMap, settings } from '../utils/settings';
 import { Touches } from './inputHandler';
 
@@ -16,12 +22,11 @@ export default class GraphHandler implements IGraph, ISerializableGraph {
   private isZoomDisabled: number;
 
   constructor(puzzle: IPuzzle) {
-    const { createVector } = puzzle.canvas;
     this.puzzle = puzzle;
     this.settings = settings;
     this._isModified = false;
     this._scale = 1;
-    this._translation = createVector(0, 0);
+    this._translation = puzzle.p.createVector(0, 0);
     this.isZoomDisabled = 0;
   }
 
@@ -81,17 +86,18 @@ export default class GraphHandler implements IGraph, ISerializableGraph {
   }
 
   private getHomeTranslation(scale: number) {
-    if (!this.puzzle.image) return createVector(0, 0);
-    const homeX = (width / scale - this.puzzle.image.width) * 0.5;
-    const homeY = ((height - 80) / scale - this.puzzle.image.height) * 0.5;
-    return createVector(homeX, homeY);
+    const { image, p } = this.puzzle;
+    if (!image) return p.createVector(0, 0);
+    const homeX = (p.width / scale - image.width) * 0.5;
+    const homeY = ((p.height - 80) / scale - image.height) * 0.5;
+    return p.createVector(homeX, homeY);
   }
 
   public zoomHome() {
-    const { image } = this.puzzle;
-    const widthRatio = width / (image?.width || width);
-    const heightRatio = height / (image?.height || height);
-    const scale = min(widthRatio, heightRatio) * 0.8;
+    const { image, p } = this.puzzle;
+    const widthRatio = p.width / (image?.width || p.width);
+    const heightRatio = p.height / (image?.height || p.height);
+    const scale = p.min(widthRatio, heightRatio) * 0.8;
     this.setScale(scale, this.getHomeTranslation(scale));
   }
 

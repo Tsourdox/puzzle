@@ -2,7 +2,7 @@ import { getRandomRoomCode } from '../utils/general';
 import ClientDB from './clientDB';
 import { FirebaseDB } from './firebase';
 
-const NETWORK_TIMEOUT = 100; //ms
+export const NETWORK_TIMEOUT = 100; //ms
 
 export default class NetworkSerializer {
   private puzzle: ISerializablePuzzle;

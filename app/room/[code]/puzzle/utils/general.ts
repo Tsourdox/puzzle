@@ -1,9 +1,9 @@
-interface Point {
+export interface Point {
   x: number;
   y: number;
 }
 
-interface Line {
+export interface Line {
   start: p5.Vector;
   end: p5.Vector;
 }

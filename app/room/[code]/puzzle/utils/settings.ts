@@ -1,3 +1,5 @@
+import { KEY_C, KEY_R, KEY_X, KEY_Z, SPACE } from './keys';
+
 export interface ISettingsMap {
   rotationshastighet: number;
   'rotera vänster': number;
@@ -14,12 +16,12 @@ export type ISetting = keyof ISettingsMap;
 
 export const settings: ISettingsMap = {
   rotationshastighet: 1,
-  'rotera vänster': 10, // KEY_Z,
-  'rotera höger': 10, // KEY_X,
-  'stapla bitar': 10, // SPACE,
-  'sprid bitar': 10, // KEY_C,
-  'markera fler': 10, // SHIFT,
-  'koppla om bitar': 10, // KEY_R,
+  'rotera vänster': KEY_Z,
+  'rotera höger': KEY_X,
+  'stapla bitar': SPACE,
+  'sprid bitar': KEY_C,
+  'markera fler': 88, // TODO: SHIFT,
+  'koppla om bitar': KEY_R,
   'invertera zoom': 0,
   'visa fps räknare': 0,
   bakgrundsfärg: 40,

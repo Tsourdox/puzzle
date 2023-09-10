@@ -20,7 +20,7 @@ export default class InputHandler {
       this.graphHandler,
       this.selectionHandler,
     );
-    const { createVector, mouseX, mouseY } = puzzle.canvas;
+    const { createVector, mouseX, mouseY } = puzzle.p;
     this.prevMouse = createVector(mouseX, mouseY);
     this.prevTouches = [];
   }

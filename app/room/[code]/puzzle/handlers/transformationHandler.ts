@@ -1,4 +1,9 @@
 import type { IPuzzle } from '../puzzle';
+import {
+  angleBetween,
+  getAverageCenter,
+  getMostDistantPoints,
+} from '../utils/general';
 import { ISettingsMap, settings } from '../utils/settings';
 import type { IGraph } from './graphHandler';
 import type { Touches } from './inputHandler';

@@ -1,11 +1,13 @@
 import P5 from 'p5';
 import InputHandler from './handlers/inputHandler';
 import RoomCode from './menu/roomCode';
+import Piece from './piece';
 import PieceConnector from './pieceConnector';
+import PiecesFactory from './piecesFactory';
 import { toPoint } from './utils/general';
 
 export interface IPuzzle {
-  canvas: P5;
+  p: P5;
   image?: p5.Image;
   pieces: ReadonlyArray<Piece>;
   pieceCount: p5.Vector;
@@ -20,7 +22,7 @@ export interface IGeneratePuzzle {
 export default class Puzzle
   implements IPuzzle, IGeneratePuzzle, ISerializablePuzzle
 {
-  public canvas: P5;
+  public p: P5;
   public image?: p5.Image;
   public pieces: ReadonlyArray<Piece>;
   public pieceCount: p5.Vector;
@@ -33,7 +35,7 @@ export default class Puzzle
   private roomCode: RoomCode;
 
   constructor(canvas: P5) {
-    this.canvas = canvas;
+    this.p = canvas;
     this.pieces = [];
     this.pieceCount = canvas.createVector(0, 0);
     this.pieceSize = canvas.createVector(0, 0);
@@ -50,16 +52,20 @@ export default class Puzzle
       transformHandler,
     );
     this.roomCode = new RoomCode();
+
+    this.p.loadImage('/images/bear.jpg', (image) => {
+      this.generateNewPuzzle(image, 8, 8);
+    });
   }
 
   public generateNewPuzzle(image: p5.Image, x: number, y: number) {
     this.isModified = true;
     this.image = image;
-    this.pieceCount = createVector(x, y);
-    this.pieceSize = createVector(image.width / x, image.height / y);
+    this.pieceCount = this.p.createVector(x, y);
+    this.pieceSize = this.p.createVector(image.width / x, image.height / y);
     this.pieces.forEach((p) => p.cleanup());
 
-    this.piecesFactory = new PiecesFactory(x, y, image);
+    this.piecesFactory = new PiecesFactory(this.p, x, y, image);
     this.pieces = this.piecesFactory.createAllPieces();
     this.inputHandler.graphHandler.zoomHome();
   }
@@ -130,7 +136,13 @@ export default class Puzzle
           this.image = image;
           this.pieceCount = createVector(x, y);
           this.pieceSize = createVector(image.width / x, image.height / y);
-          this.piecesFactory = new PiecesFactory(x, y, image, puzzle.seed);
+          this.piecesFactory = new PiecesFactory(
+            this.p,
+            x,
+            y,
+            image,
+            puzzle.seed,
+          );
           this.pieces = this.piecesFactory.createAllPieces(true);
           if (options?.roomChanged) {
             this.inputHandler.graphHandler.zoomHome();
