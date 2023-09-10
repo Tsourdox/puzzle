@@ -1,5 +1,7 @@
 import { IPuzzle } from '../puzzle';
 import GraphHandler from './graphHandler';
+import SelectionHandler from './selectionHandler';
+import TransformHandler from './transformationHandler';
 
 export type Touches = Array<{ x: number; y: number }>;
 
@@ -18,6 +20,7 @@ export default class InputHandler {
       this.graphHandler,
       this.selectionHandler,
     );
+    const { createVector, mouseX, mouseY } = puzzle.canvas;
     this.prevMouse = createVector(mouseX, mouseY);
     this.prevTouches = [];
   }
@@ -34,27 +37,7 @@ export default class InputHandler {
     this.prevTouches = touches as Touches;
   }
 
-  public draw(hideInstructions: boolean) {
+  public draw() {
     this.selectionHandler.draw();
-    if (hideInstructions) return;
-    this.drawInstructions();
-  }
-
-  private drawInstructions() {
-    const size = min((height + width) * 0.012, 40);
-    const y = height / 2;
-    const x = width / 2;
-
-    push();
-    fill(theme.neutral);
-    textAlign(CENTER, CENTER);
-
-    textSize(size * 1.6);
-    text('FÖR ENHETER MED TOUCH', x, y - y * 0.4);
-    textSize(size);
-    text('1 FINGER - MARKERA OCH FLYTTA BITAR', x, y - y * 0.1);
-    text('2 FINGRAR - ROTERA MARKERADE BITAR', x, y);
-    text('3 FINGRAR - ZOOMA OCH PANORERA VYN', x, y + y * 0.1);
-    pop();
   }
 }

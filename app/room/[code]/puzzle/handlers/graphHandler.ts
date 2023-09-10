@@ -2,7 +2,7 @@ import { IPuzzle } from '../puzzle';
 import { ISettingsMap, settings } from '../utils/settings';
 import { Touches } from './inputHandler';
 
-interface IGraph {
+export interface IGraph {
   scale: number;
   translation: p5.Vector;
 }
@@ -16,6 +16,7 @@ export default class GraphHandler implements IGraph, ISerializableGraph {
   private isZoomDisabled: number;
 
   constructor(puzzle: IPuzzle) {
+    const { createVector } = puzzle.canvas;
     this.puzzle = puzzle;
     this.settings = settings;
     this._isModified = false;
@@ -68,7 +69,7 @@ export default class GraphHandler implements IGraph, ISerializableGraph {
 
     // Apply zoom
     if (zoomDelta !== 0) {
-      const invert = this.settings.getValue('invertera zoom');
+      const invert = this.settings['invertera zoom'];
       const zoomFactor = 1 + zoomDelta * -0.002 * (invert ? -1 : 1);
       const nextScale = constrain(this.scale * zoomFactor, 0.01, 100);
       const currentHomeTranslation = this.getHomeTranslation(this.scale);

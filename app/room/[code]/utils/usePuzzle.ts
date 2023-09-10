@@ -75,19 +75,19 @@ export default function usePuzzle(containerRef: RefObject<HTMLElement>) {
         // setSoundVolumes();
         globals.isMobile = p.windowWidth < 600;
 
-        // puzzle = new Puzzle(p);
+        puzzle = new Puzzle(p);
       };
 
       // The sketch draw method
       p.draw = () => {
-        const offset = 10;
-        const size = 200;
+        const offset = 40;
+        const size = 40;
         p.fill('blue');
         p.rect(offset, offset, size, size);
         p.rect(p.width - offset - size, p.height - offset - size, size, size);
 
         if (p.mouseIsPressed) {
-          p.fill('orange');
+          p.fill('blue');
           p.circle(p.mouseX, p.mouseY, 30);
         }
         // if (window.innerWidth !== width || window.innerHeight !== height) {

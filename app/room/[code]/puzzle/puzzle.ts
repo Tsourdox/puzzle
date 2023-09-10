@@ -1,7 +1,11 @@
 import P5 from 'p5';
+import InputHandler from './handlers/inputHandler';
+import RoomCode from './menu/roomCode';
+import PieceConnector from './pieceConnector';
+import { toPoint } from './utils/general';
 
 export interface IPuzzle {
-  p: P5;
+  canvas: P5;
   image?: p5.Image;
   pieces: ReadonlyArray<Piece>;
   pieceCount: p5.Vector;
@@ -16,34 +20,36 @@ export interface IGeneratePuzzle {
 export default class Puzzle
   implements IPuzzle, IGeneratePuzzle, ISerializablePuzzle
 {
-  public p: P5;
+  public canvas: P5;
   public image?: p5.Image;
   public pieces: ReadonlyArray<Piece>;
   public pieceCount: p5.Vector;
   public pieceSize: p5.Vector;
   public isModified: boolean;
   private inputHandler: InputHandler;
-  private networkSerializer: NetworkSerializer;
+  // private networkSerializer: NetworkSerializer;
   private pieceConnetor: PieceConnector;
   private piecesFactory?: PiecesFactory;
+  private roomCode: RoomCode;
 
-  constructor(p: P5) {
-    this.p = p;
+  constructor(canvas: P5) {
+    this.canvas = canvas;
     this.pieces = [];
-    this.pieceCount = p.createVector(0, 0);
-    this.pieceSize = p.createVector(0, 0);
+    this.pieceCount = canvas.createVector(0, 0);
+    this.pieceSize = canvas.createVector(0, 0);
     this.isModified = false;
     this.inputHandler = new InputHandler(this);
-    this.networkSerializer = new NetworkSerializer(
-      this,
-      this.inputHandler.graphHandler,
-    );
+    // this.networkSerializer = new NetworkSerializer(
+    //   this,
+    //   this.inputHandler.graphHandler,
+    // );
     const { selectionHandler, transformHandler } = this.inputHandler;
     this.pieceConnetor = new PieceConnector(
       this,
       selectionHandler,
       transformHandler,
     );
+    this.roomCode = new RoomCode();
   }
 
   public generateNewPuzzle(image: p5.Image, x: number, y: number) {
@@ -65,22 +71,19 @@ export default class Puzzle
   }
 
   public update() {
-    this.menu.update();
-    if (this.networkSerializer.isLoading) return;
-
-    this.networkSerializer.update();
-    if (!this.menu.isOpen) {
-      this.inputHandler.update();
-      this.pieceConnetor.update();
-
-      for (const piece of this.pieces) {
-        piece.update();
-      }
-    }
+    // if (this.networkSerializer.isLoading) return;
+    // this.networkSerializer.update();
+    // if (!this.isOpen) {
+    //   this.inputHandler.update();
+    //   this.pieceConnetor.update();
+    //   for (const piece of this.pieces) {
+    //     piece.update();
+    //   }
+    // }
   }
 
   public draw() {
-    background(this.menu.settings.getValue('bakgrundsfärg'));
+    // background(this.menu.settings.getValue('bakgrundsfärg'));
     textFont(fonts.primary);
 
     push();
@@ -89,9 +92,8 @@ export default class Puzzle
     this.drawPieces();
     pop();
 
-    const hideInstruction = Boolean(this.piecesFactory || this.menu.isOpen);
-    this.inputHandler.draw(hideInstruction);
-    this.menu.draw(this.networkSerializer.roomCode);
+    this.inputHandler.draw();
+    // this.roomCode.draw(this.networkSerializer.roomCode);
   }
 
   private drawPieces() {

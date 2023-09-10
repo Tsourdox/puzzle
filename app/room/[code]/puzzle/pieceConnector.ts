@@ -1,14 +1,18 @@
-class PieceConnector {
+import type { ISelectionHandler } from './handlers/selectionHandler';
+import type { ITransformHandler } from './handlers/transformationHandler';
+import type { IPuzzle } from './puzzle';
+import { ISettingsMap, settings } from './utils/settings';
+
+export default class PieceConnector {
   private puzzle: IPuzzle;
   private selectionHandler: ISelectionHandler;
   private transformHandler: ITransformHandler;
-  private settings: IReadableSettings;
+  private settings: ISettingsMap;
 
   constructor(
     puzzle: IPuzzle,
     selectionHandler: ISelectionHandler,
     transformHandler: ITransformHandler,
-    settings: IReadableSettings,
   ) {
     this.puzzle = puzzle;
     this.selectionHandler = selectionHandler;
@@ -23,7 +27,7 @@ class PieceConnector {
 
   /** Sometimes pieces connects incorrectly, this resets the connections */
   private resetConnectionForSelectedPieces() {
-    if (keyIsPressed && keyCode === this.settings.getValue('koppla om bitar')) {
+    if (keyIsPressed && keyCode === this.settings['koppla om bitar']) {
       for (const piece of this.puzzle.selectedPieces) {
         piece.connectedSides = [];
       }
