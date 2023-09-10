@@ -8,9 +8,9 @@ import {
   PuzzlePieceIcon,
   UserGroupIcon,
 } from '@heroicons/react/20/solid';
-import clsx from 'clsx';
 import type { Metadata } from 'next';
 import localFont from 'next/font/local';
+import { twMerge } from 'tailwind-merge';
 import './globals.css';
 
 const myFont = localFont({
@@ -30,11 +30,14 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className={clsx(myFont.className, 'bg-neutral-950')}>
+      <body
+        className={twMerge(
+          myFont.className,
+          'bg-gradient-to-bl from-[#210034] via-20% via-neutral-950 to-100% to-[#110024]',
+        )}
+      >
         <div className="relative flex h-full">
-          <main className="flex flex-col flex-1 bg-neutral-800">
-            {children}
-          </main>
+          <main className="flex flex-col flex-1">{children}</main>
           <AppBar className="flex flex-col gap-4">
             <header className="border-b-2 px-4 border-neutral-700/50 mb-4 ">
               <h1 className="text-transparent bg-clip-text bg-gradient-to-l from-purple-700 to-purple-100">

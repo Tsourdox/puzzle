@@ -1,10 +1,10 @@
 'use client';
 
 import { TrashIcon } from '@heroicons/react/20/solid';
-import clsx from 'clsx';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useState } from 'react';
+import { twMerge } from 'tailwind-merge';
 import Button from './Button';
 
 interface Props {
@@ -41,45 +41,45 @@ export default function ImageLink({ imageSrc, canBeDeleted }: Props) {
           <h2 className="text-xl drop-shadow-lg">Välj storlek</h2>
           <section className="flex gap-2">
             <div
-              className={clsx(
-                'rounded-full px-3 py-1 cursor-pointer active:bg-purple-900 hover:bg-purple-800',
-                size === 'XS' ? 'bg-purple-950' : 'bg-neutral-500',
+              className={twMerge(
+                'rounded-full backdrop-blur-lg px-3 py-1 cursor-pointer bg-neutral-500/20 active:bg-purple-900/50 hover:bg-purple-800/40',
+                size === 'XS' && 'bg-purple-800/60',
               )}
               onClick={() => setSize('XS')}
             >
               XS
             </div>
             <div
-              className={clsx(
-                'rounded-full px-3 py-1 cursor-pointer active:bg-purple-900 hover:bg-purple-800',
-                size === 'S' ? 'bg-purple-950' : 'bg-neutral-500',
+              className={twMerge(
+                'rounded-full backdrop-blur-lg px-3 py-1 cursor-pointer bg-neutral-500/20 active:bg-purple-900/50 hover:bg-purple-800/40',
+                size === 'S' && 'bg-purple-800/60',
               )}
               onClick={() => setSize('S')}
             >
               S
             </div>
             <div
-              className={clsx(
-                'rounded-full px-3 py-1 cursor-pointer active:bg-purple-900 hover:bg-purple-800',
-                size === 'M' ? 'bg-purple-950' : 'bg-neutral-500',
+              className={twMerge(
+                'rounded-full backdrop-blur-lg px-3 py-1 cursor-pointer bg-neutral-500/20 active:bg-purple-900/50 hover:bg-purple-800/40',
+                size === 'M' && 'bg-purple-800/60',
               )}
               onClick={() => setSize('M')}
             >
               M
             </div>
             <div
-              className={clsx(
-                'rounded-full px-3 py-1 cursor-pointer active:bg-purple-900 hover:bg-purple-800',
-                size === 'LG' ? 'bg-purple-950' : 'bg-neutral-500',
+              className={twMerge(
+                'rounded-full backdrop-blur-lg px-3 py-1 cursor-pointer bg-neutral-500/20 active:bg-purple-900/50 hover:bg-purple-800/40',
+                size === 'LG' && 'bg-purple-800/60',
               )}
               onClick={() => setSize('LG')}
             >
               L
             </div>
             <div
-              className={clsx(
-                'rounded-full px-3 py-1 cursor-pointer active:bg-purple-900 hover:bg-purple-800',
-                size === 'XL' ? 'bg-purple-950' : 'bg-neutral-500',
+              className={twMerge(
+                'rounded-full backdrop-blur-lg px-3 py-1 cursor-pointer bg-neutral-500/20 active:bg-purple-900/50 hover:bg-purple-800/40',
+                size === 'XL' && 'bg-purple-800/60',
               )}
               onClick={() => setSize('XL')}
             >

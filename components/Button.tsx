@@ -17,7 +17,7 @@ export default function Button({
     <button
       {...props}
       className={twMerge(
-        'backdrop-blur-lg bg-gradient-to-br uppercase from-[#300042] to-purple-950 hover:from-purple-950 hover:to-purple-900 pt-2 pb-3 px-5 rounded-3xl font-primary text-xl flex items-center gap-4',
+        'backdrop-blur-lg bg-gradient-to-br uppercase from-purple-950/90 to-purple-950/60 hover:from-purple-950/70 hover:to-purple-900/90 pt-2 pb-3 px-5 rounded-3xl font-primary text-xl flex items-center gap-4',
         variant === 'secondary' &&
           'from-neutral-700/20 to-purple-950/20 hover:from-neutral-700/40 hover:to-purple-950/30 ',
         className,
