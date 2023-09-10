@@ -1,12 +1,12 @@
-const {
-  initializeApp,
+import { initializeApp } from 'firebase/app';
+import {
   getDatabase,
-  ref,
-  onValue,
-  onChildChanged,
   off,
+  onChildChanged,
   onDisconnect,
-} = firebase;
+  onValue,
+  ref,
+} from 'firebase/database';
 
 interface RoomData<P> {
   puzzle: IPuzzleData;
@@ -18,7 +18,7 @@ interface StoredPieceData extends IPieceData {
   updatedBy: string;
 }
 
-export class FirebaseDB {
+export default class FirebaseDB {
   private db: ReturnType<typeof getDatabase>;
   private clientId: string;
   private pieceRefs: (

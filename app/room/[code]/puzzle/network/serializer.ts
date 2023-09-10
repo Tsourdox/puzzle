@@ -1,6 +1,6 @@
 import { getRandomRoomCode } from '../utils/general';
 import ClientDB from './clientDB';
-import { FirebaseDB } from './firebase';
+import FirebaseDB from './firebase';
 
 export const NETWORK_TIMEOUT = 100; //ms
 
