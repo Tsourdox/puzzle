@@ -1,11 +1,17 @@
-'use client';
+import { Metadata } from 'next';
+import PuzzleCanvas from './canvas';
 
-import usePuzzle from '@/app/room/[code]/usePuzzle';
-import { useRef } from 'react';
+type Props = {
+  params: { code: string };
+};
 
-export default function PuzzleCanvas() {
-  const containerRef = useRef<HTMLDivElement>(null);
-  usePuzzle(containerRef);
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  return {
+    title: `Puzzelin - In Room ${params.code}`,
+    description: 'Solve the puzzle by clicking, scrolling & dragging.',
+  };
+}
 
-  return <div ref={containerRef} className="relative flex-1" />;
+export default function RoomPage() {
+  return <PuzzleCanvas />;
 }

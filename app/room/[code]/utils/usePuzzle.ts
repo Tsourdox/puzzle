@@ -1,8 +1,8 @@
 import P5 from 'p5';
 // import 'p5/lib/addons/p5.sound';
 import { RefObject, useEffect } from 'react';
+import Puzzle from '../puzzle/puzzle';
 import { globals } from './globals';
-import Puzzle from './puzzle/puzzle';
 
 export default function usePuzzle(containerRef: RefObject<HTMLElement>) {
   useEffect(() => {

@@ -1,10 +1,7 @@
-import clsx from 'clsx';
 import { PropsWithClassName } from './utils';
 
-const Footer = (props: PropsWithClassName) => (
-  <footer
-    className={clsx('flex text-sm justify-center gap-6', props.className)}
-  >
+const SocialLinks = (props: PropsWithClassName) => (
+  <div className={props.className}>
     <a href="https://github.com/Tsourdox" target="_blank" className="">
       Made by @tsourdox
     </a>
@@ -12,7 +9,7 @@ const Footer = (props: PropsWithClassName) => (
     <a href="https://github.com/Tsourdox/puzzle" target="_blank" className="">
       GitHub
     </a>
-  </footer>
+  </div>
 );
 
-export default Footer;
+export default SocialLinks;

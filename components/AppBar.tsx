@@ -1,38 +1,35 @@
 'use client';
 import {
+  ArrowLeftCircleIcon,
   ArrowRightCircleIcon,
-  QuestionMarkCircleIcon,
 } from '@heroicons/react/20/solid';
 import clsx from 'clsx';
 import { useState } from 'react';
-import Footer from './Footer';
+import { PropsWithClassName } from './utils';
 
-export function AppBar() {
-  const [isClosed, setIsOpen] = useState(false);
+export function AppBar(props: PropsWithClassName) {
+  const [isClosed, setIsOpen] = useState(true);
 
   return (
     <aside
+      onClick={(e) => e.stopPropagation()}
       className={clsx(
-        'absolute right-0 h-full transition-transform duration-500 flex flex-col justify-center p-6 text-5xl uppercase bg-neutral-950/10 text-neutral-100 backdrop-blur-lg shadow-2xl shadow-black/30',
+        'fixed right-0 h-full z-50 transition-transform duration-500 flex flex-col p-6 text-5xl uppercase text-neutral-100 backdrop-blur-lg shadow-2xl shadow-black/30 bg-gradient-to-bl from-[#210034]/10 via-10% via-neutral-950 to-100% to-[#110024]/20',
         isClosed && 'translate-x-full',
+        props.className,
       )}
     >
       <i
-        className="absolute top-6 -left-20 backdr backdrop-blur-lg shadow-2xl shadow-black/50 rounded-full active:scale-90"
+        className="absolute cursor-pointer top-6 -left-20 backdrop-blur-lg shadow-2xl shadow-black/50 rounded-full active:scale-90 p-1"
         onClick={() => setIsOpen((o) => !o)}
       >
         {isClosed ? (
-          <QuestionMarkCircleIcon width={50} height={50} />
+          <ArrowLeftCircleIcon width={50} height={50} />
         ) : (
           <ArrowRightCircleIcon width={50} height={50} />
         )}
       </i>
-      <section className="grow flex flex-col gap-6">
-        <h1 className="mb-4">Puzzelin</h1>
-        <h2 className="text-lg">Lorem</h2>
-        <h2 className="text-lg">Ipsum</h2>
-      </section>
-      <Footer className="flex-col gap-1" />
+      {props.children}
     </aside>
   );
 }

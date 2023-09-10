@@ -33,4 +33,12 @@
     width: 100%;
     height: 100%;
   }
+
+  .invisibe-scroll::-webkit-scrollbar {
+    display: none; /* Chrome, Safari and Opera */
+  }
+  .invisibe-scroll {
+    -ms-overflow-style: none; /* IE and Edge */
+    scrollbar-width: none; /* Firefox */
+  }
 }

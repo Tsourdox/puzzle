@@ -22,7 +22,10 @@ export default function ScrollBox({ children }: PropsWithChildren) {
     const handleResize = () => setScrollWidth(calcScrollWidth);
 
     window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
+
+    return () => {
+      window.removeEventListener('resize', handleResize);
+    };
   }, [children]);
 
   const scroll = (direction: 'left' | 'right') => {
@@ -33,6 +36,16 @@ export default function ScrollBox({ children }: PropsWithChildren) {
     scrollRef.current.scrollLeft = newScrollLeft;
     setScrollLeft(newScrollLeft);
   };
+
+  useEffect(() => {
+    const handleScroll = () => {};
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+    };
+  }, []);
 
   return (
     <div className="relative">
@@ -50,7 +63,7 @@ export default function ScrollBox({ children }: PropsWithChildren) {
       )}
       <div
         ref={scrollRef}
-        className="flex w-full gap-6 overflow-x-hidden scroll-smooth items-center"
+        className="flex w-full gap-6 overflow-x-auto invisibe-scroll scroll-smooth items-center"
       >
         <div className="w-16 aspect-square flex-none" />
         {children}

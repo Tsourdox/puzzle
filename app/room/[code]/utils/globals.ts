@@ -1,4 +1,4 @@
-import { IFonts, IMusic, ISound, ITheme } from './puzzle/interfaces';
+import { IFonts, IMusic, ISound, ITheme } from '../puzzle/interfaces';
 
 interface Globals {
   music: IMusic;

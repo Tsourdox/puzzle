@@ -2,7 +2,7 @@ import SlideshowRow from './SlideshowRow';
 
 export default function Slideshows() {
   return (
-    <div className="flex flex-col gap-12">
+    <div className="flex flex-col gap-12 w-screen">
       <SlideshowRow
         title="Fortsätt pussla"
         images={['/images/bear.jpg', '/images/rocket.jpg']}

@@ -1,4 +1,4 @@
-import { globals } from '../../globals';
+import { globals } from '../../utils/globals';
 import { IGeneratePuzzle } from '../puzzle';
 import FPS from './fps';
 import GameMenu from './gameMenu';

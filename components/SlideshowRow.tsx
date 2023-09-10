@@ -22,7 +22,7 @@ const loadImagesFromPexels = async (searchTerm?: string) => {
   const domain = 'https://api.pexels.com/';
   const path = 'v1/search';
   const page = Math.ceil(Math.random() * 5);
-  const query = `?query=${searchTerm}&orientation=landscape&per_page=30&page=${page}`;
+  const query = `?query=${searchTerm}&orientation=landscape&per_page=10&page=${page}`;
   const url = `${domain}${path}${query}`;
   const response = await fetch(url, {
     headers: { Authorization: API_KEY },
