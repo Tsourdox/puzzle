@@ -45,7 +45,7 @@ export default async function SlideshowRow({
       </h2>
       <ScrollBox>
         {images?.map((image) => (
-          <ImageLink key={image} imageSrc={image} />
+          <ImageLink key={image} imageSrc={image} canBeDeleted />
         ))}
         {pexelImages.map((image) => (
           <ImageLink key={image.src.large} imageSrc={image.src.large} />

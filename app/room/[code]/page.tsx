@@ -1,6 +1,6 @@
 'use client';
 
-import usePuzzle from '@/hooks/usePuzzle';
+import usePuzzle from '@/app/room/[code]/usePuzzle';
 import { useRef } from 'react';
 
 export default function PuzzleCanvas() {

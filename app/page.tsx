@@ -1,4 +1,5 @@
 import Button from '@/components/Button';
+import Footer from '@/components/Footer';
 import Slideshows from '@/components/Slideshows';
 
 export default function HomePage() {
@@ -22,19 +23,7 @@ export default function HomePage() {
         <Slideshows />
       </main>
 
-      <footer className="flex justify-center gap-8">
-        <a href="https://github.com/Tsourdox" target="_blank" className="">
-          Made by @tsourdox
-        </a>
-        <p>|</p>
-        <a
-          href="https://github.com/Tsourdox/puzzle"
-          target="_blank"
-          className=""
-        >
-          GitHub
-        </a>
-      </footer>
+      <Footer>|</Footer>
     </div>
   );
 }

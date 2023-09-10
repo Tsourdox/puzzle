@@ -14,7 +14,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default function Layout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="flex flex-col h-full">
+    <div className="relative flex h-full">
       <main className="flex flex-col flex-1 bg-neutral-800">{children}</main>
       <AppBar />
     </div>

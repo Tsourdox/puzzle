@@ -1,5 +1,6 @@
 'use client';
 
+import { TrashIcon } from '@heroicons/react/20/solid';
 import clsx from 'clsx';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -8,9 +9,10 @@ import Button from './Button';
 
 interface Props {
   imageSrc: string;
+  canBeDeleted?: boolean;
 }
 
-export default function ImageLink({ imageSrc }: Props) {
+export default function ImageLink({ imageSrc, canBeDeleted }: Props) {
   const [isActive, setIsActive] = useState(false);
   const [size, setSize] = useState('S');
 
@@ -29,6 +31,14 @@ export default function ImageLink({ imageSrc }: Props) {
       />
       {isActive && (
         <div className="absolute top-0 left-0 w-full h-full backdrop-blur-sm bg-black/10 flex flex-col justify-center items-center gap-4">
+          {canBeDeleted && (
+            <TrashIcon
+              width={20}
+              height={20}
+              className="absolute top-6 right-6 cursor-pointer drop-shadow-lg"
+            />
+          )}
+          <h2 className="text-xl drop-shadow-lg">Välj storlek</h2>
           <section className="flex gap-2">
             <div
               className={clsx(
@@ -64,7 +74,7 @@ export default function ImageLink({ imageSrc }: Props) {
               )}
               onClick={() => setSize('LG')}
             >
-              LG
+              L
             </div>
             <div
               className={clsx(
