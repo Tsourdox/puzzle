@@ -1,7 +1,8 @@
 import ImageLink from './ImageLink';
 import ScrollBox from './ScrollBox';
 
-interface PexelsImage {
+export interface PexelsImage {
+  id: number;
   src: {
     original: string;
     large2x: string;
@@ -27,7 +28,6 @@ const loadImagesFromPexels = async (searchTerm?: string) => {
   const response = await fetch(url, {
     headers: { Authorization: API_KEY },
   });
-
   return (await response.json()).photos as PexelsImage[];
 };
 
@@ -37,6 +37,7 @@ export default async function SlideshowRow({
   images,
 }: Props) {
   const pexelImages = await loadImagesFromPexels(searchTerm);
+  console.log(pexelImages);
 
   return (
     <section className="flex flex-col gap-4">

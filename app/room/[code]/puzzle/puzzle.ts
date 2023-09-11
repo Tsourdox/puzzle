@@ -55,8 +55,27 @@ export default class Puzzle
     );
     this.roomCode = new RoomCode();
 
-    this.p.loadImage('/images/bear.jpg', (image) => {
-      this.generateNewPuzzle(image, 8, 8);
+    this.p.loadImage(globals.imageSrc, (image) => {
+      let xy = 0;
+      console.log(globals.size);
+      switch (globals.size) {
+        case 'XS':
+          xy = 4;
+          break;
+        case 'S':
+          xy = 8;
+          break;
+        case 'M':
+          xy = 12;
+          break;
+        case 'L':
+          xy = 20;
+          break;
+        case 'XL':
+          xy = 30;
+          break;
+      }
+      this.generateNewPuzzle(image, xy, xy);
     });
   }
 

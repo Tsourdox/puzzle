@@ -34,7 +34,6 @@ export default function usePuzzle(containerRef: RefObject<HTMLElement>) {
       }
 
       function preventDefaultEvents() {
-        document.body.style.overflow = 'hidden';
         // Prevent context menu when right clicking
         document.oncontextmenu = () => false;
         // Prenent magnifying glass
@@ -99,6 +98,10 @@ export default function usePuzzle(containerRef: RefObject<HTMLElement>) {
     };
 
     const canvas = new P5(sketch, containerRef.current);
-    return () => canvas.remove();
+    document.body.style.overflow = 'hidden';
+    return () => {
+      document.body.style.overflow = 'unset';
+      canvas.remove();
+    };
   }, [containerRef]);
 }

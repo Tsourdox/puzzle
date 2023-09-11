@@ -1,9 +1,10 @@
 'use client';
 
+import { globals } from '@/app/room/[code]/utils/globals';
 import { TrashIcon } from '@heroicons/react/20/solid';
 import Image from 'next/image';
 import Link from 'next/link';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { twMerge } from 'tailwind-merge';
 import Button from './Button';
 
@@ -15,6 +16,11 @@ interface Props {
 export default function ImageLink({ imageSrc, canBeDeleted }: Props) {
   const [isActive, setIsActive] = useState(false);
   const [size, setSize] = useState('S');
+  const randomRoom = Math.random().toString().slice(4, 8);
+
+  useEffect(() => {
+    globals.size = size;
+  }, [size]);
 
   return (
     <div
@@ -72,7 +78,7 @@ export default function ImageLink({ imageSrc, canBeDeleted }: Props) {
                 'rounded-full backdrop-blur-lg px-2 md:px-3 md:py-1 cursor-pointer bg-neutral-500/20 active:bg-purple-900/50 hover:bg-purple-800/40',
                 size === 'LG' && 'bg-purple-800/60',
               )}
-              onClick={() => setSize('LG')}
+              onClick={() => setSize('L')}
             >
               L
             </div>
@@ -86,7 +92,10 @@ export default function ImageLink({ imageSrc, canBeDeleted }: Props) {
               XL
             </div>
           </section>
-          <Link href={'room/' + Math.random().toString().slice(4, 8)}>
+          <Link
+            href={`room/${randomRoom}`}
+            onClick={() => (globals.imageSrc = imageSrc)}
+          >
             <Button className="text-sm md:text-base">Börja Pussla</Button>
           </Link>
         </div>

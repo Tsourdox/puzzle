@@ -1,4 +1,5 @@
 export const SPACE = 32;
+export const SHIFT = 16;
 export const COMMA = 188;
 export const DOT = 190;
 
