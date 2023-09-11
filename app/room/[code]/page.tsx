@@ -1,3 +1,4 @@
+import Sidebar from '@/components/Sidebar';
 import { Metadata } from 'next';
 import PuzzleCanvas from './canvas';
 
@@ -13,5 +14,10 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 export default function RoomPage() {
-  return <PuzzleCanvas />;
+  return (
+    <>
+      <PuzzleCanvas />
+      <Sidebar />
+    </>
+  );
 }

@@ -1,4 +1,3 @@
-import Sidebar from '@/components/Sidebar';
 import type { Metadata } from 'next';
 import localFont from 'next/font/local';
 import { twMerge } from 'tailwind-merge';
@@ -28,7 +27,6 @@ export default function RootLayout({
         )}
       >
         <div className="relative flex h-full">
-          <Sidebar />
           <main className="flex flex-col flex-1">{children}</main>
         </div>
       </body>

@@ -4,7 +4,8 @@ import { globals } from '@/app/room/[code]/utils/globals';
 import { TrashIcon } from '@heroicons/react/20/solid';
 import Image from 'next/image';
 import Link from 'next/link';
-import { useEffect, useState } from 'react';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
+import { useCallback, useEffect, useState } from 'react';
 import { twMerge } from 'tailwind-merge';
 import Button from './Button';
 
@@ -17,6 +18,23 @@ export default function ImageLink({ imageSrc, canBeDeleted }: Props) {
   const [isActive, setIsActive] = useState(false);
   const [size, setSize] = useState('S');
   const randomRoom = Math.random().toString().slice(4, 8);
+  const pathname = usePathname();
+  const router = useRouter();
+  const searchParams = useSearchParams();
+
+  console.log(searchParams.get('size'));
+
+  // Get a new searchParams string by merging the current
+  // searchParams with a provided key/value pair
+  const createQueryString = useCallback(
+    (name: string, value: string) => {
+      const params = new URLSearchParams(searchParams);
+      params.set(name, value);
+
+      return params.toString();
+    },
+    [searchParams],
+  );
 
   useEffect(() => {
     globals.size = size;
@@ -46,54 +64,32 @@ export default function ImageLink({ imageSrc, canBeDeleted }: Props) {
           )}
           <h2 className="text-xl drop-shadow-lg">Välj storlek</h2>
           <section className="flex gap-1 md:gap-2">
-            <div
-              className={twMerge(
-                'rounded-full backdrop-blur-lg px-2 md:px-3 md:py-1 cursor-pointer bg-neutral-500/20 active:bg-purple-900/50 hover:bg-purple-800/40',
-                size === 'XS' && 'bg-purple-800/60',
-              )}
-              onClick={() => setSize('XS')}
-            >
-              XS
-            </div>
-            <div
-              className={twMerge(
-                'rounded-full backdrop-blur-lg px-2 md:px-3 md:py-1 cursor-pointer bg-neutral-500/20 active:bg-purple-900/50 hover:bg-purple-800/40',
-                size === 'S' && 'bg-purple-800/60',
-              )}
-              onClick={() => setSize('S')}
-            >
-              S
-            </div>
-            <div
-              className={twMerge(
-                'rounded-full backdrop-blur-lg px-2 md:px-3 md:py-1 cursor-pointer bg-neutral-500/20 active:bg-purple-900/50 hover:bg-purple-800/40',
-                size === 'M' && 'bg-purple-800/60',
-              )}
-              onClick={() => setSize('M')}
-            >
-              M
-            </div>
-            <div
-              className={twMerge(
-                'rounded-full backdrop-blur-lg px-2 md:px-3 md:py-1 cursor-pointer bg-neutral-500/20 active:bg-purple-900/50 hover:bg-purple-800/40',
-                size === 'LG' && 'bg-purple-800/60',
-              )}
-              onClick={() => setSize('L')}
-            >
-              L
-            </div>
-            <div
-              className={twMerge(
-                'rounded-full backdrop-blur-lg px-2 md:px-3 md:py-1 cursor-pointer bg-neutral-500/20 active:bg-purple-900/50 hover:bg-purple-800/40',
-                size === 'XL' && 'bg-purple-800/60',
-              )}
-              onClick={() => setSize('XL')}
-            >
-              XL
-            </div>
+            {['XS', 'S', 'M', 'L', 'XL'].map((sizeLabel) => (
+              <div
+                key={sizeLabel}
+                className={twMerge(
+                  'rounded-full backdrop-blur-lg px-2 md:px-3 md:py-1 cursor-pointer bg-neutral-500/20 active:bg-purple-900/50 hover:bg-purple-800/40',
+                  size === sizeLabel && 'bg-purple-800/60',
+                )}
+                onClick={() => {
+                  history.replaceState(
+                    { ...history.state },
+                    '',
+                    pathname + '?' + createQueryString('size', sizeLabel),
+                  );
+                  setSize(sizeLabel);
+                  // router.push('', { scroll: false });
+                }}
+              >
+                {sizeLabel}
+              </div>
+            ))}
           </section>
           <Link
-            href={`room/${randomRoom}`}
+            href={{
+              pathname: `room/${randomRoom}`,
+              query: searchParams.toString(),
+            }}
             onClick={() => (globals.imageSrc = imageSrc)}
           >
             <Button className="text-sm md:text-base">Börja Pussla</Button>
