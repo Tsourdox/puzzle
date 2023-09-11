@@ -1,6 +1,9 @@
+import p5 from 'p5';
 import type { ISelectionHandler } from './handlers/selectionHandler';
 import type { ITransformHandler } from './handlers/transformationHandler';
+import Piece, { Side } from './piece';
 import type { IPuzzle } from './puzzle';
+import { getAdjecentPiece, getConnectedPieces } from './utils/pieces';
 import { ISettingsMap, settings } from './utils/settings';
 
 export default class PieceConnector {
@@ -27,7 +30,8 @@ export default class PieceConnector {
 
   /** Sometimes pieces connects incorrectly, this resets the connections */
   private resetConnectionForSelectedPieces() {
-    if (keyIsPressed && keyCode === this.settings['koppla om bitar']) {
+    const { p } = this.puzzle;
+    if (p.keyIsPressed && p.keyCode === this.settings['koppla om bitar']) {
       for (const piece of this.puzzle.selectedPieces) {
         piece.connectedSides = [];
       }
@@ -106,8 +110,8 @@ export default class PieceConnector {
     if (piece.isSelected) {
       // Play click sound
       if (playSound) {
-        const index = floor(random(0, sounds.snaps.length));
-        sounds.snaps[index].play();
+        // const index = p.floor(p.random(0, globals.sounds?.snaps?.length || 0));
+        // globals.sounds?.snaps[index]?.play();
       }
 
       // Rotate and translate selected piece|s

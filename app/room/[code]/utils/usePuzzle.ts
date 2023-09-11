@@ -80,22 +80,17 @@ export default function usePuzzle(containerRef: RefObject<HTMLElement>) {
 
       // The sketch draw method
       canvas.draw = () => {
-        if (canvas.mouseIsPressed) {
-          canvas.fill('blue');
-          canvas.circle(canvas.mouseX, canvas.mouseY, 30);
-        }
         // if (window.innerWidth !== width || window.innerHeight !== height) {
         //   setFullScreenCanvas();
         //   isMobile = windowWidth < 600;
         // }
-        // puzzle.update();
-        // puzzle.draw();
+        puzzle.update();
+        puzzle.draw();
         // scrollDelta = 0;
       };
 
       canvas.windowResized = () => {
         const { width, height } = containerRef.current!.getBoundingClientRect();
-        console.log({ width, height });
         canvas.resizeCanvas(width, height);
       };
     };

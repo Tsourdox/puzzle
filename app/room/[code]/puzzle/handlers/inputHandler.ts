@@ -12,8 +12,10 @@ export default class InputHandler {
   public transformHandler: TransformHandler;
   private prevMouse: p5.Vector;
   private prevTouches: Touches;
+  private puzzle: IPuzzle;
 
   constructor(puzzle: IPuzzle) {
+    this.puzzle = puzzle;
     this.graphHandler = new GraphHandler(puzzle);
     this.selectionHandler = new SelectionHandler(puzzle, this.graphHandler);
     this.transformHandler = new TransformHandler(
@@ -34,8 +36,9 @@ export default class InputHandler {
   }
 
   private setPreviousValues() {
-    this.prevMouse = createVector(mouseX, mouseY);
-    this.prevTouches = touches as Touches;
+    const { p } = this.puzzle;
+    this.prevMouse = p.createVector(p.mouseX, p.mouseY);
+    this.prevTouches = p.touches as Touches;
   }
 
   public draw() {

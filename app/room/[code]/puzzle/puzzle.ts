@@ -1,10 +1,12 @@
 import p5 from 'p5';
+import { globals } from '../utils/globals';
 import InputHandler from './handlers/inputHandler';
 import RoomCode from './menu/roomCode';
 import Piece from './piece';
 import PieceConnector from './pieceConnector';
 import PiecesFactory from './piecesFactory';
 import { toPoint } from './utils/general';
+import { sortPieces } from './utils/pieces';
 
 export interface IPuzzle {
   p: p5;
@@ -79,25 +81,23 @@ export default class Puzzle
   public update() {
     // if (this.networkSerializer.isLoading) return;
     // this.networkSerializer.update();
-    // if (!this.isOpen) {
+
     this.inputHandler.update();
     this.pieceConnetor.update();
-    console.log(this.pieces.length);
     for (const piece of this.pieces) {
       piece.update();
     }
-    // }
   }
 
   public draw() {
-    // background(this.menu.settings.getValue('bakgrundsfärg'));
-    textFont(fonts.primary);
+    this.p.clear(0, 0, 0, 0);
+    this.p.textFont(globals.fonts.primary);
 
-    push();
-    scale(this.inputHandler.graphHandler.scale);
-    translate(this.inputHandler.graphHandler.translation);
+    this.p.push();
+    this.p.scale(this.inputHandler.graphHandler.scale);
+    this.p.translate(this.inputHandler.graphHandler.translation);
     this.drawPieces();
-    pop();
+    this.p.pop();
 
     this.inputHandler.draw();
     // this.roomCode.draw(this.networkSerializer.roomCode);

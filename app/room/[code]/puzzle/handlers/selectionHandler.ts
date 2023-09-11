@@ -2,6 +2,7 @@ import p5 from 'p5';
 import Piece from '../piece';
 import type { IPuzzle } from '../puzzle';
 import { Line, pointSideLocationOfLine, sum } from '../utils/general';
+import { getConnectedPieces, sortPieces } from '../utils/pieces';
 import { ISettingsMap, settings } from '../utils/settings';
 import type { IGraph } from './graphHandler';
 
@@ -31,29 +32,34 @@ export default class SelectionHandler implements ISelectionHandler {
   }
 
   public get isDragSelecting(): boolean {
+    const { p } = this.puzzle;
     if (!this.dragSelectionOrigin) return false;
     const enoughTimePassed = this.timeSincePress > 200;
-    const moved = createVector(mouseX, mouseY).dist(this.dragSelectionOrigin);
+    const moved = p
+      .createVector(p.mouseX, p.mouseY)
+      .dist(this.dragSelectionOrigin);
     const enoughDistMoved = moved > 10;
     return enoughTimePassed || enoughDistMoved;
   }
 
   public update() {
+    const { p } = this.puzzle;
     this.handlePieceSelection();
     this.handleDragSelection();
-    this.prevMouseIsPressed = mouseIsPressed;
+    this.prevMouseIsPressed = p.mouseIsPressed;
   }
 
   private handleDragSelection() {
-    if (touches.length > 1) delete this.dragSelectionOrigin;
+    const { p } = this.puzzle;
+    if (p.touches.length > 1) delete this.dragSelectionOrigin;
 
-    const didPress = !this.prevMouseIsPressed && mouseIsPressed;
-    const didRelease = this.prevMouseIsPressed && !mouseIsPressed;
+    const didPress = !this.prevMouseIsPressed && p.mouseIsPressed;
+    const didRelease = this.prevMouseIsPressed && !p.mouseIsPressed;
 
-    if (didPress && (mouseButton === LEFT || touches.length)) {
+    if (didPress && (p.mouseButton === p.LEFT || touches.length)) {
       const mouseOverAnyPiece = this.isMouseOverAnyPiece(this.puzzle.pieces);
-      if (!mouseOverAnyPiece || keyIsDown(this.settings['markera fler'])) {
-        this.dragSelectionOrigin = createVector(mouseX, mouseY);
+      if (!mouseOverAnyPiece || p.keyIsDown(this.settings['markera fler'])) {
+        this.dragSelectionOrigin = p.createVector(p.mouseX, p.mouseY);
       }
     }
 
@@ -63,19 +69,20 @@ export default class SelectionHandler implements ISelectionHandler {
     }
 
     if (this.dragSelectionOrigin) {
-      this.timeSincePress += deltaTime;
+      this.timeSincePress += p.deltaTime;
     }
   }
 
   private handlePieceSelection() {
-    const didPress = !this.prevMouseIsPressed && mouseIsPressed;
-    if (touches.length > 1) return;
+    const { p } = this.puzzle;
+    const didPress = !this.prevMouseIsPressed && p.mouseIsPressed;
+    if (p.touches.length > 1) return;
 
     // Select by clicking
-    if (didPress && (mouseButton === LEFT || touches.length)) {
+    if (didPress && (p.mouseButton === p.LEFT || p.touches.length)) {
       // Deselection
       if (this.puzzle.selectedPieces.length) {
-        const selectMore = keyIsDown(this.settings['markera fler']);
+        const selectMore = p.keyIsDown(this.settings['markera fler']);
         const mouseOverSelectedPiece = this.isMouseOverAnyPiece(
           this.puzzle.selectedPieces,
         );
@@ -88,7 +95,7 @@ export default class SelectionHandler implements ISelectionHandler {
       for (const piece of sortPieces(this.puzzle.pieces, true)) {
         if (this.isMouseOverPiece(piece)) {
           if (piece.isSelectedByOther) continue;
-          if (keyIsDown(this.settings['markera fler'])) {
+          if (p.keyIsDown(this.settings['markera fler'])) {
             this.select(piece, !piece.isSelected);
           } else {
             this.select(piece, true);
@@ -115,7 +122,7 @@ export default class SelectionHandler implements ISelectionHandler {
         }
         chekedPieces.push(...connectedPieces);
 
-        if (keyIsDown(this.settings['markera fler'])) {
+        if (p.keyIsDown(this.settings['markera fler'])) {
           this.select(
             piece,
             piece.isSelected || selectionIsOverAnyConnectedPiece,
@@ -127,7 +134,7 @@ export default class SelectionHandler implements ISelectionHandler {
     }
 
     // Deselect
-    if (keyIsDown(ESCAPE)) {
+    if (p.keyIsDown(p.ESCAPE)) {
       for (const piece of this.puzzle.selectedPieces) {
         this.select(piece, false);
       }
@@ -142,7 +149,8 @@ export default class SelectionHandler implements ISelectionHandler {
 
   /** Will select connected pieces recursively */
   public select(piece: Piece, value: boolean) {
-    const maxElev = max(this.puzzle.pieces.map((p) => p.elevation));
+    const { p } = this.puzzle;
+    const maxElev = p.max(this.puzzle.pieces.map((p) => p.elevation));
     const pieces = getConnectedPieces(piece, this.puzzle);
     pieces.forEach((piece) => {
       piece.isSelected = value;
@@ -164,24 +172,32 @@ export default class SelectionHandler implements ISelectionHandler {
   }
 
   private isMouseOverPiece(piece: Piece) {
+    const { p } = this.puzzle;
     const { scale, translation } = this.graph;
-    const mouse = createVector(mouseX, mouseY).div(scale).sub(translation);
+    const mouse = p
+      .createVector(p.mouseX, p.mouseY)
+      .div(scale)
+      .sub(translation);
     const corners = piece.getTrueCorners();
     return this.isPointInsideRect(mouse, corners);
   }
 
   private isDragSelectionOverPiece(piece: Piece): boolean {
+    const { p } = this.puzzle;
     const { scale, translation } = this.graph;
     const dsOrigin = this.dragSelectionOrigin!.copy()
       .div(scale)
       .sub(translation);
-    const mouse = createVector(mouseX, mouseY).div(scale).sub(translation);
+    const mouse = p
+      .createVector(p.mouseX, p.mouseY)
+      .div(scale)
+      .sub(translation);
 
     const dragSelectionCorners = [
       dsOrigin, // topLeft
-      createVector(mouse.x, dsOrigin.y), // topRight
+      p.createVector(mouse.x, dsOrigin.y), // topRight
       mouse, // bottomRight
-      createVector(dsOrigin.x, mouse.y), // bottomLeft
+      p.createVector(dsOrigin.x, mouse.y), // bottomLeft
     ];
     const pieceCorners = piece.getTrueCorners();
 
@@ -221,12 +237,13 @@ export default class SelectionHandler implements ISelectionHandler {
 
   public draw() {
     if (!this.isDragSelecting) return;
+    const { p } = this.puzzle;
 
-    push();
-    fill(this.dragSelectionFill);
-    stroke(this.dragSelectionStroke);
+    p.push();
+    p.fill(this.dragSelectionFill);
+    p.stroke(this.dragSelectionStroke);
     const { x, y } = this.dragSelectionOrigin!;
-    rect(x, y, mouseX - x, mouseY - y);
-    pop();
+    p.rect(x, y, p.mouseX - x, p.mouseY - y);
+    p.pop();
   }
 }

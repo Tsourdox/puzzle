@@ -1,3 +1,5 @@
+import p5 from 'p5';
+
 export interface Point {
   x: number;
   y: number;

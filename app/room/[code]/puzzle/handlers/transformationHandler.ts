@@ -1,4 +1,5 @@
 import p5 from 'p5';
+import { globals } from '../../utils/globals';
 import Piece from '../piece';
 import type { IPuzzle } from '../puzzle';
 import {
@@ -6,6 +7,7 @@ import {
   getAverageCenter,
   getMostDistantPoints,
 } from '../utils/general';
+import { getConnectedPieces, rotateAroundCenter } from '../utils/pieces';
 import { ISettingsMap, settings } from '../utils/settings';
 import type { IGraph } from './graphHandler';
 import type { Touches } from './inputHandler';
@@ -45,8 +47,9 @@ export default class TransformHandler implements ITransformHandler {
   }
 
   protected setPreviousValues() {
-    this.stackKeyPrevDown = keyIsDown(this.settings['stapla bitar']);
-    this.explodeKeyPrevDown = keyIsDown(this.settings['sprid bitar']);
+    const { p } = this.puzzle;
+    this.stackKeyPrevDown = p.keyIsDown(this.settings['stapla bitar']);
+    this.explodeKeyPrevDown = p.keyIsDown(this.settings['sprid bitar']);
   }
 
   /** Will also rotate connected pieces */
@@ -69,39 +72,41 @@ export default class TransformHandler implements ITransformHandler {
   }
 
   private handlePieceTranslation(prevMouse: p5.Vector, prevTouches: Touches) {
+    const { p } = this.puzzle;
     // Wait to next frame when input is touch
-    if (touches.length && !prevTouches.length) return;
+    if (p.touches.length && !prevTouches.length) return;
     // Dont move pieces when using multi touch gestures
-    if (touches.length > 1) return;
+    if (p.touches.length > 1) return;
 
     // Dragging with mouse or touch
-    const isMassSelecting = keyIsDown(this.settings['markera fler']);
+    const isMassSelecting = p.keyIsDown(this.settings['markera fler']);
     if (
-      ((mouseIsPressed && mouseButton === LEFT) || touches.length) &&
+      ((p.mouseIsPressed && p.mouseButton === p.LEFT) || p.touches.length) &&
       !this.selection.isDragSelecting &&
       !isMassSelecting
     ) {
-      if (touches.length !== prevTouches.length) return;
+      if (p.touches.length !== prevTouches.length) return;
 
-      const movedX = (mouseX - prevMouse.x) / this.graph.scale;
-      const movedY = (mouseY - prevMouse.y) / this.graph.scale;
+      const movedX = (p.mouseX - prevMouse.x) / this.graph.scale;
+      const movedY = (p.mouseY - prevMouse.y) / this.graph.scale;
       this.translatePieces(movedX, movedY);
     }
   }
 
   private handlePieceRotation(prevTouches: Touches) {
+    const { p } = this.puzzle;
     // Keyboard
     const userSpeed = this.settings['rotationshastighet'];
-    const rotation = (2 / frameRate()) * userSpeed;
-    if (keyIsDown(this.settings['rotera vänster'])) {
+    const rotation = (2 / p.frameRate()) * userSpeed;
+    if (p.keyIsDown(this.settings['rotera vänster'])) {
       this.rotatePieces(-rotation);
     }
-    if (keyIsDown(this.settings['rotera höger'])) {
+    if (p.keyIsDown(this.settings['rotera höger'])) {
       this.rotatePieces(rotation);
     }
 
     // Touch
-    if (prevTouches.length === 2 && touches.length === 2) {
+    if (prevTouches.length === 2 && p.touches.length === 2) {
       const [t1, t2] = getMostDistantPoints(...(touches as Touches));
       const [p1, p2] = getMostDistantPoints(...prevTouches);
       const angle = angleBetween(t1, t2);
@@ -110,17 +115,18 @@ export default class TransformHandler implements ITransformHandler {
     }
 
     // Scroll
-    if (this.puzzle.selectedPieces && scrollDelta) {
-      const rotation = scrollDelta * 0.01 * userSpeed;
+    if (this.puzzle.selectedPieces && globals.scrollDelta) {
+      const rotation = globals.scrollDelta * 0.01 * userSpeed;
       this.rotatePieces(rotation);
     }
   }
 
   private handlePieceExploding() {
-    if (keyIsDown(this.settings['sprid bitar']) && !this.explodeKeyPrevDown) {
+    const { p } = this.puzzle;
+    if (p.keyIsDown(this.settings['sprid bitar']) && !this.explodeKeyPrevDown) {
       this.explodePieces();
     }
-    if (keyIsDown(this.settings['stapla bitar']) && !this.stackKeyPrevDown) {
+    if (p.keyIsDown(this.settings['stapla bitar']) && !this.stackKeyPrevDown) {
       this.stackPieces();
     }
   }
@@ -135,12 +141,14 @@ export default class TransformHandler implements ITransformHandler {
   }
 
   private translatePieces(x: number, y: number) {
+    const { p } = this.puzzle;
     for (const piece of this.selectedPieces) {
-      piece.translation = createVector(x, y).add(piece.translation);
+      piece.translation = p.createVector(x, y).add(piece.translation);
     }
   }
 
   private explodePieces() {
+    const { p } = this.puzzle;
     const radius = this.puzzle.pieceSize.mag();
     const pieces = this.selectedPieces;
     if (pieces.length <= 1) return;
@@ -148,9 +156,9 @@ export default class TransformHandler implements ITransformHandler {
     // todo: explodera bättre, animerat?
     for (let i = 0; i < pieces.length; i++) {
       const angle = ((Math.PI * 2) / pieces.length) * i;
-      const x = radius * cos(angle);
-      const y = radius * sin(angle);
-      this.translatePiece(pieces[i], createVector(x, y));
+      const x = radius * p.cos(angle);
+      const y = radius * p.sin(angle);
+      this.translatePiece(pieces[i], p.createVector(x, y));
     }
   }
 

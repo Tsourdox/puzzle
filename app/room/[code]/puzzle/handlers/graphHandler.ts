@@ -1,4 +1,5 @@
 import p5 from 'p5';
+import { globals } from '../../utils/globals';
 import { IPuzzle } from '../puzzle';
 import {
   getMostDistantPoints,
@@ -48,28 +49,30 @@ export default class GraphHandler implements IGraph, ISerializableGraph {
   }
 
   update(prevMouse: p5.Vector, prevTouches: Touches) {
+    const { p } = this.puzzle;
     this.handleTranslation(prevMouse, prevTouches);
     this.handleScaling(prevTouches);
 
     // Prevent non-intended zoom when a piece connects from scrolling
-    this.isZoomDisabled = max(0, this.isZoomDisabled - 1);
+    this.isZoomDisabled = p.max(0, this.isZoomDisabled - 1);
     if (this.puzzle.selectedPieces.length) {
-      this.isZoomDisabled = 0.3 * frameRate();
+      this.isZoomDisabled = 0.3 * p.frameRate();
     }
   }
 
   private handleScaling(prevTouches: Touches) {
+    const { p } = this.puzzle;
     let zoomDelta = 0;
     // Mouse
-    if (!this.isZoomDisabled && scrollDelta !== 0) {
-      zoomDelta = scrollDelta;
+    if (!this.isZoomDisabled && globals.scrollDelta !== 0) {
+      zoomDelta = globals.scrollDelta;
     }
     // Touch
     if (prevTouches.length === 3 && touches.length === 3) {
       const [t1, t2] = getMostDistantPoints(...(touches as Touches));
       const [p1, p2] = getMostDistantPoints(...prevTouches);
-      const pinchDist = dist(t1.x, t1.y, t2.x, t2.y);
-      const prevPinchDist = dist(p1.x, p1.y, p2.x, p2.y);
+      const pinchDist = p.dist(t1.x, t1.y, t2.x, t2.y);
+      const prevPinchDist = p.dist(p1.x, p1.y, p2.x, p2.y);
       zoomDelta = prevPinchDist - pinchDist;
     }
 
@@ -103,6 +106,7 @@ export default class GraphHandler implements IGraph, ISerializableGraph {
   }
 
   private handleTranslation(prevMouse: p5.Vector, prevTouches: Touches) {
+    const { p } = this.puzzle;
     // Touch
     if (prevTouches.length === 3 && touches.length === 3) {
       const [t1, t2] = touches as Touches;
@@ -115,9 +119,12 @@ export default class GraphHandler implements IGraph, ISerializableGraph {
       this._isModified = true;
     }
     // Mouse
-    if (mouseIsPressed && (mouseButton === CENTER || mouseButton === RIGHT)) {
-      const movedX = (mouseX - prevMouse.x) / this.scale;
-      const movedY = (mouseY - prevMouse.y) / this.scale;
+    if (
+      p.mouseIsPressed &&
+      (p.mouseButton === p.CENTER || p.mouseButton === p.RIGHT)
+    ) {
+      const movedX = (p.mouseX - prevMouse.x) / this.scale;
+      const movedY = (p.mouseY - prevMouse.y) / this.scale;
       this._translation.add(movedX, movedY);
       this._isModified = true;
     }

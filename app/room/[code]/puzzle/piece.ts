@@ -1,4 +1,5 @@
 import p5 from 'p5';
+import { globals } from '../utils/globals';
 import { NETWORK_TIMEOUT } from './network/serializer';
 import {
   getAverageCenter,
@@ -179,7 +180,7 @@ export default class Piece implements ISerializablePiece {
     this.graphics.push();
     this.graphics.translate(this.offset, this.offset);
     this.graphics.stroke(
-      this._isSelectedByOther ? theme.neutral : theme.primary,
+      this._isSelectedByOther ? globals.theme.neutral : globals.theme.primary,
     );
     this.graphics.strokeWeight(this.size.mag() / 60);
     this.graphics.noFill();
@@ -256,22 +257,22 @@ export default class Piece implements ISerializablePiece {
   }
 
   public draw() {
-    push();
+    this.p.push();
     this.applyTranslation();
     this.applyRotation();
     const { graphics, origin, offset } = this;
-    image(graphics, origin.x - offset, origin.y - offset);
-    pop();
+    this.p.image(graphics, origin.x - offset, origin.y - offset);
+    this.p.pop();
   }
 
   private applyRotation() {
-    translate(this.center.x, this.center.y);
-    rotate(this.rotation);
-    translate(-this.center.x, -this.center.y);
+    this.p.translate(this.center.x, this.center.y);
+    this.p.rotate(this.rotation);
+    this.p.translate(-this.center.x, -this.center.y);
   }
 
   private applyTranslation() {
-    translate(this.translation.x, this.translation.y);
+    this.p.translate(this.translation.x, this.translation.y);
   }
 
   public serialize(): ISerializedPieceData {
