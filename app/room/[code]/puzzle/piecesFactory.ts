@@ -1,3 +1,4 @@
+import p5 from 'p5';
 import Piece, { Sides } from './piece';
 import { angleBetween } from './utils/general';
 
@@ -62,6 +63,7 @@ export default class PiecesFactory {
         const image = imageWithOffset.get(pieceX, pieceY, pieceW, pieceH);
         const id = pieces.length; // array index
         const piece = new Piece(
+          this.p,
           id,
           image,
           origin,
@@ -245,7 +247,7 @@ export default class PiecesFactory {
       piece.translation = delta;
 
       // Rotate
-      piece.rotation = p.random(0, PI * 2);
+      piece.rotation = p.random(0, Math.PI * 2);
     }
   }
 

@@ -1,3 +1,4 @@
+import p5 from 'p5';
 import { NETWORK_TIMEOUT } from './network/serializer';
 import {
   getAverageCenter,
@@ -24,6 +25,7 @@ export default class Piece implements ISerializablePiece {
   public id: number;
   public isModified: boolean;
   public elevation: number;
+  private p: p5;
   private _rotation: number;
   private nextRotation: number;
   private _translation: p5.Vector;
@@ -43,6 +45,7 @@ export default class Piece implements ISerializablePiece {
   private LERP_DELAY = NETWORK_TIMEOUT * 3;
 
   constructor(
+    p: p5,
     id: number,
     image: p5.Image,
     origin: p5.Vector,
@@ -50,27 +53,28 @@ export default class Piece implements ISerializablePiece {
     sides: Sides,
     offset: number,
   ) {
+    this.p = p;
     this.id = id;
     this.isModified = false;
     this.elevation = id;
     this._rotation = 0;
     this.nextRotation = 0;
-    this._translation = createVector(0, 0);
-    this.nextTranslation = createVector(0, 0);
+    this._translation = p.createVector(0, 0);
+    this.nextTranslation = p.createVector(0, 0);
     this.lerpTime = this.LERP_DELAY;
     this.image = image;
     this.origin = origin;
     this.size = size;
     this.sides = sides;
     this.offset = offset;
-    this.center = getAverageCenter(this.getCorners());
+    this.center = getAverageCenter(this.p, this.getCorners());
     this._isSelected = false;
     this._isSelectedByOther = false;
     this._connectedSides = [];
     this.graphicNeedsUpdating = false;
-    this.graphics = createGraphics(
-      round(this.size.x + offset * 2),
-      round(this.size.y + offset * 2),
+    this.graphics = p.createGraphics(
+      p.round(this.size.x + offset * 2),
+      p.round(this.size.y + offset * 2),
     );
     this.image.mask(this.createClippingMask());
     this.updateGraphics();
@@ -145,9 +149,10 @@ export default class Piece implements ISerializablePiece {
   }
 
   private createClippingMask() {
+    const { p } = this;
     const { width, height } = this.graphics;
     const { top, right, bottom, left } = this.sides;
-    const mask = createGraphics(width, height);
+    const mask = p.createGraphics(width, height);
     mask.push();
     mask.clear(0, 0, 0, 0);
     mask.translate(this.offset, this.offset);
@@ -157,10 +162,10 @@ export default class Piece implements ISerializablePiece {
     this.drawOneSide(mask, right);
     this.drawOneSide(mask, bottom);
     this.drawOneSide(mask, left);
-    mask.endShape(CLOSE);
+    mask.endShape(p.CLOSE);
     mask.pop();
 
-    const image = createImage(width, height);
+    const image = p.createImage(width, height);
     image.copy(mask, 0, 0, width, height, 0, 0, width, height);
     mask.width = 0;
     mask.height = 0;
@@ -297,11 +302,11 @@ export default class Piece implements ISerializablePiece {
       this.nextTranslation = toVector(piece.translation);
       this.lerpTime = 0;
       const deltaRotation = piece.rotation - this._rotation;
-      if (abs(deltaRotation) > PI * 2) {
+      if (abs(deltaRotation) > Math.PI * 2) {
         // If rotation is more than a full rotation it needs to be
         // normalized before lerp to make the rotation smooth
         const rotations = Math.round(deltaRotation / (PI * 2));
-        this._rotation += PI * 2 * rotations;
+        this._rotation += Math.PI * 2 * rotations;
       }
     } else {
       this._rotation = piece.rotation;

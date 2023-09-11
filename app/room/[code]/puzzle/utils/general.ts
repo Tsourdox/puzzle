@@ -24,8 +24,8 @@ export function rotatePointAroundCenter(
 }
 
 /** Sum all points and divide by count to get average center point */
-export function getAverageCenter(points: p5.Vector[]): p5.Vector {
-  const sum = createVector(0, 0);
+export function getAverageCenter(p: p5, points: p5.Vector[]): p5.Vector {
+  const sum = p.createVector(0, 0);
   if (!points.length) return sum;
 
   for (const center of points) {

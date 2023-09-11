@@ -1,3 +1,5 @@
+import p5 from 'p5';
+import Piece from '../piece';
 import type { IPuzzle } from '../puzzle';
 import { Line, pointSideLocationOfLine, sum } from '../utils/general';
 import { ISettingsMap, settings } from '../utils/settings';

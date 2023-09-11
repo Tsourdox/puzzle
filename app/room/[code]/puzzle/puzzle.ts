@@ -1,4 +1,4 @@
-import P5 from 'p5';
+import p5 from 'p5';
 import InputHandler from './handlers/inputHandler';
 import RoomCode from './menu/roomCode';
 import Piece from './piece';
@@ -7,7 +7,7 @@ import PiecesFactory from './piecesFactory';
 import { toPoint } from './utils/general';
 
 export interface IPuzzle {
-  p: P5;
+  p: p5;
   image?: p5.Image;
   pieces: ReadonlyArray<Piece>;
   pieceCount: p5.Vector;
@@ -22,7 +22,7 @@ export interface IGeneratePuzzle {
 export default class Puzzle
   implements IPuzzle, IGeneratePuzzle, ISerializablePuzzle
 {
-  public p: P5;
+  public p: p5;
   public image?: p5.Image;
   public pieces: ReadonlyArray<Piece>;
   public pieceCount: p5.Vector;
@@ -34,7 +34,7 @@ export default class Puzzle
   private piecesFactory?: PiecesFactory;
   private roomCode: RoomCode;
 
-  constructor(canvas: P5) {
+  constructor(canvas: p5) {
     this.p = canvas;
     this.pieces = [];
     this.pieceCount = canvas.createVector(0, 0);
@@ -80,11 +80,12 @@ export default class Puzzle
     // if (this.networkSerializer.isLoading) return;
     // this.networkSerializer.update();
     // if (!this.isOpen) {
-    //   this.inputHandler.update();
-    //   this.pieceConnetor.update();
-    //   for (const piece of this.pieces) {
-    //     piece.update();
-    //   }
+    this.inputHandler.update();
+    this.pieceConnetor.update();
+    console.log(this.pieces.length);
+    for (const piece of this.pieces) {
+      piece.update();
+    }
     // }
   }
 

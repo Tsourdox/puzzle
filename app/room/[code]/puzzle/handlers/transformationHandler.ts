@@ -1,3 +1,5 @@
+import p5 from 'p5';
+import Piece from '../piece';
 import type { IPuzzle } from '../puzzle';
 import {
   angleBetween,
@@ -51,7 +53,7 @@ export default class TransformHandler implements ITransformHandler {
   public rotatePiece(piece: Piece, angle: number) {
     const pieces = getConnectedPieces(piece, this.puzzle);
     const centeres = pieces.map((p) => p.getTrueCenter());
-    const averageCenter = getAverageCenter(centeres);
+    const averageCenter = getAverageCenter(this.puzzle.p, centeres);
 
     for (const piece of pieces) {
       rotateAroundCenter(piece, averageCenter, angle);
@@ -125,7 +127,7 @@ export default class TransformHandler implements ITransformHandler {
 
   private rotatePieces(angle: number) {
     const centeres = this.selectedPieces.map((p) => p.getTrueCenter());
-    const averageCenter = getAverageCenter(centeres);
+    const averageCenter = getAverageCenter(this.puzzle.p, centeres);
 
     for (const piece of this.selectedPieces) {
       rotateAroundCenter(piece, averageCenter, angle);
@@ -145,7 +147,7 @@ export default class TransformHandler implements ITransformHandler {
 
     // todo: explodera bättre, animerat?
     for (let i = 0; i < pieces.length; i++) {
-      const angle = ((PI * 2) / pieces.length) * i;
+      const angle = ((Math.PI * 2) / pieces.length) * i;
       const x = radius * cos(angle);
       const y = radius * sin(angle);
       this.translatePiece(pieces[i], createVector(x, y));
@@ -155,7 +157,7 @@ export default class TransformHandler implements ITransformHandler {
   private stackPieces() {
     const pieces = this.selectedPieces;
     const centers = pieces.map((p) => p.getTrueCenter());
-    const groupCenter = getAverageCenter(centers);
+    const groupCenter = getAverageCenter(this.puzzle.p, centers);
 
     for (const piece of this.selectedPieces) {
       const pieceCenter = piece.getTrueCenter();

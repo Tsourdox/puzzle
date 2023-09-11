@@ -1,3 +1,4 @@
+import p5 from 'p5';
 import { IPuzzle } from '../puzzle';
 import GraphHandler from './graphHandler';
 import SelectionHandler from './selectionHandler';

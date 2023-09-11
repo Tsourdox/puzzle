@@ -1,3 +1,4 @@
+import p5 from 'p5';
 import { IPuzzle } from '../puzzle';
 import {
   getMostDistantPoints,
