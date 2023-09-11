@@ -9,16 +9,16 @@ export default function usePuzzle(containerRef: RefObject<HTMLElement>) {
     if (!containerRef.current) throw Error('Could not mount canvas');
     const { width, height } = containerRef.current.getBoundingClientRect();
 
-    const sketch = (canvas: P5) => {
+    const sketch = (p: P5) => {
       let puzzle: Puzzle;
 
       function setSoundVolumes() {
-        sounds.snaps[0].setVolume(0.8);
-        sounds.snaps[1].setVolume(0.1);
-        sounds.snaps[2].setVolume(0.5);
-        sounds.snaps[3].setVolume(0.1);
-        sounds.aboutToPuzzelin.setVolume(0.5);
-        sounds.puzzelin.setVolume(0.5);
+        globals.sounds.snaps[0].setVolume(0.8);
+        globals.sounds.snaps[1].setVolume(0.1);
+        globals.sounds.snaps[2].setVolume(0.5);
+        globals.sounds.snaps[3].setVolume(0.1);
+        globals.sounds.aboutToPuzzelin.setVolume(0.5);
+        globals.sounds.puzzelin.setVolume(0.5);
       }
 
       function getThemeFromCSS() {
@@ -34,6 +34,7 @@ export default function usePuzzle(containerRef: RefObject<HTMLElement>) {
       }
 
       function preventDefaultEvents() {
+        document.body.style.overflow = 'hidden';
         // Prevent context menu when right clicking
         document.oncontextmenu = () => false;
         // Prenent magnifying glass
@@ -42,7 +43,7 @@ export default function usePuzzle(containerRef: RefObject<HTMLElement>) {
           ?.addEventListener('touchstart', (e) => e.preventDefault());
       }
 
-      canvas.preload = () => {
+      p.preload = () => {
         // music = {
         //   dreaming: p.loadSound('../assets/music/dreaming-big.mp3'),
         //   love: p.loadSound('../assets/music/love-in-the-air.mp3'),
@@ -61,37 +62,39 @@ export default function usePuzzle(containerRef: RefObject<HTMLElement>) {
         //   puzzelin: p.loadSound('../assets/sounds/puzzelin.m4a'),
         // };
         globals.fonts = {
-          primary: canvas.loadFont('/fonts/black-ops-one.ttf'),
-          icons: canvas.loadFont('/fonts/font-awesome.otf'),
+          primary: p.loadFont('/fonts/black-ops-one.ttf'),
+          icons: p.loadFont('/fonts/font-awesome.otf'),
         };
       };
 
       // The sketch setup method
-      canvas.setup = () => {
-        canvas.createCanvas(width, height);
-        canvas.frameRate(120);
+      p.setup = () => {
+        p.createCanvas(width, height);
+        p.frameRate(120);
         preventDefaultEvents();
         getThemeFromCSS();
         // setSoundVolumes();
-        globals.isMobile = canvas.windowWidth < 600;
+        globals.isMobile = p.windowWidth < 600;
 
-        puzzle = new Puzzle(canvas);
+        puzzle = new Puzzle(p);
       };
 
       // The sketch draw method
-      canvas.draw = () => {
-        // if (window.innerWidth !== width || window.innerHeight !== height) {
-        //   setFullScreenCanvas();
-        //   isMobile = windowWidth < 600;
-        // }
+      p.draw = () => {
         puzzle.update();
         puzzle.draw();
-        // scrollDelta = 0;
+        globals.scrollDelta = 0;
       };
 
-      canvas.windowResized = () => {
+      p.windowResized = () => {
         const { width, height } = containerRef.current!.getBoundingClientRect();
-        canvas.resizeCanvas(width, height);
+        globals.isMobile = p.windowWidth < 600;
+        p.resizeCanvas(width, height);
+      };
+
+      p.mouseWheel = (event: any) => {
+        globals.scrollDelta = event.delta;
+        return false;
       };
     };
 

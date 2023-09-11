@@ -80,7 +80,7 @@ export default class GraphHandler implements IGraph, ISerializableGraph {
     if (zoomDelta !== 0) {
       const invert = this.settings['invertera zoom'];
       const zoomFactor = 1 + zoomDelta * -0.002 * (invert ? -1 : 1);
-      const nextScale = constrain(this.scale * zoomFactor, 0.01, 100);
+      const nextScale = p.constrain(this.scale * zoomFactor, 0.01, 100);
       const currentHomeTranslation = this.getHomeTranslation(this.scale);
       const translationDiff = currentHomeTranslation.sub(this.translation);
       const nextHomeTranslation = this.getHomeTranslation(nextScale);

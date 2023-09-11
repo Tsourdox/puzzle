@@ -56,7 +56,7 @@ export default class SelectionHandler implements ISelectionHandler {
     const didPress = !this.prevMouseIsPressed && p.mouseIsPressed;
     const didRelease = this.prevMouseIsPressed && !p.mouseIsPressed;
 
-    if (didPress && (p.mouseButton === p.LEFT || touches.length)) {
+    if (didPress && (p.mouseButton === p.LEFT || p.touches.length)) {
       const mouseOverAnyPiece = this.isMouseOverAnyPiece(this.puzzle.pieces);
       if (!mouseOverAnyPiece || p.keyIsDown(this.settings['markera fler'])) {
         this.dragSelectionOrigin = p.createVector(p.mouseX, p.mouseY);
