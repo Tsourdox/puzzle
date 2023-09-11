@@ -1,5 +1,5 @@
 import p5 from 'p5';
-import { globals } from '../../utils/globals';
+import { globals } from '../../app/room/[code]/utils/globals';
 import { IPuzzle } from '../puzzle';
 import {
   getMostDistantPoints,

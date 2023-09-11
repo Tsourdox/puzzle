@@ -1,5 +1,5 @@
 import p5 from 'p5';
-import { globals } from '../utils/globals';
+import { globals } from '../app/room/[code]/utils/globals';
 import InputHandler from './handlers/inputHandler';
 import RoomCode from './menu/roomCode';
 import Piece from './piece';
