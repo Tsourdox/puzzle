@@ -18,11 +18,11 @@ export default function ImagePreview() {
     >
       <Image
         className={twMerge(
-          'w-full h-full object-cover object-left rounded-lg shadow-lg',
-          fullscreen && 'object-contain object-center',
+          'w-full h-full object-cover rounded-lg',
+          fullscreen && 'object-contain',
         )}
-        width={600}
-        height={400}
+        width={1200}
+        height={900}
         src={globals.imageSrc}
         alt="Puzzle preview"
       />
