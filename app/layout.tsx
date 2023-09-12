@@ -1,3 +1,4 @@
+import StoreProvider from '@/store/StoreProvider';
 import type { Metadata } from 'next';
 import localFont from 'next/font/local';
 import { twMerge } from 'tailwind-merge';
@@ -26,9 +27,11 @@ export default function RootLayout({
           'bg-gradient-to-bl from-[#210034] via-20% via-neutral-950 to-100% to-[#110024]',
         )}
       >
-        <div className="relative flex h-full">
-          <main className="flex flex-col flex-1">{children}</main>
-        </div>
+        <StoreProvider>
+          <div className="relative flex h-full">
+            <main className="flex flex-col flex-1">{children}</main>
+          </div>
+        </StoreProvider>
       </body>
     </html>
   );
