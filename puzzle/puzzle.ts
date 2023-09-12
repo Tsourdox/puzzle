@@ -57,7 +57,6 @@ export default class Puzzle
 
     this.p.loadImage(globals.imageSrc, (image) => {
       let xy = 0;
-      console.log(globals.size);
       switch (globals.size) {
         case 'XS':
           xy = 4;

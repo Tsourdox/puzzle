@@ -16,7 +16,7 @@ export function AppBar({ isOpen, className, onToggle, children }: Props) {
     <aside
       onClick={(e) => e.stopPropagation()}
       className={twMerge(
-        'fixed right-0 h-full z-50 transition-transform duration-500 flex flex-col p-6 text-5xl uppercase text-neutral-100 backdrop-blur-lg shadow-2xl shadow-black/30 bg-gradient-to-bl from-[#210034]/10 via-10% via-neutral-950 to-100% to-[#110024]/20',
+        'fixed right-0 h-full z-40 transition-transform duration-500 flex flex-col p-6 text-5xl uppercase text-neutral-100 backdrop-blur-lg shadow-2xl shadow-black/30 bg-gradient-to-bl from-[#210034]/10 via-10% via-neutral-950 to-100% to-[#110024]/20',
         !isOpen && 'translate-x-full',
         className,
       )}

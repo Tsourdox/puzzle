@@ -17,18 +17,15 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: PropsWithChildren) {
   return (
-    <html lang="en">
+    <html lang="en" className="h-full">
       <body
         className={twMerge(
           myFont.className,
+          'relative min-h-full flex flex-col',
           'bg-gradient-to-bl from-[#210034] via-20% via-neutral-950 to-100% to-[#110024]',
         )}
       >
-        <StoreProvider>
-          <div className="relative flex h-full">
-            <main className="flex flex-col flex-1">{children}</main>
-          </div>
-        </StoreProvider>
+        <StoreProvider>{children}</StoreProvider>
       </body>
     </html>
   );

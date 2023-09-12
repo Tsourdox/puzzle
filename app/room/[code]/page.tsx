@@ -1,3 +1,4 @@
+import ImagePreview from '@/components/ImagePreview';
 import Sidebar from '@/components/Sidebar';
 import { Metadata } from 'next';
 import PuzzleCanvas from './canvas';
@@ -16,8 +17,11 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 export default function RoomPage() {
   return (
     <>
-      <PuzzleCanvas />
+      <ImagePreview />
       <Sidebar />
+      <main className="flex flex-col flex-1">
+        <PuzzleCanvas />
+      </main>
     </>
   );
 }
