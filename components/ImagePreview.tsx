@@ -16,16 +16,23 @@ export default function ImagePreview() {
         fullscreen && 'w-full h-full backdrop-blur-lg',
       )}
     >
-      <Image
+      <div
         className={twMerge(
-          'w-full h-full object-cover rounded-lg',
-          fullscreen && 'object-contain',
+          'w-full h-full rounded-lg',
+          !fullscreen && 'backdrop-blur-lg bg-purple-950/20',
         )}
-        width={1200}
-        height={900}
-        src={globals.imageSrc}
-        alt="Puzzle preview"
-      />
+      >
+        <Image
+          className={twMerge(
+            'w-full h-full object-cover rounded-lg',
+            fullscreen && 'object-contain',
+          )}
+          width={1200}
+          height={900}
+          src={globals.imageSrc}
+          alt="Puzzle preview"
+        />
+      </div>
     </aside>
   );
 }
