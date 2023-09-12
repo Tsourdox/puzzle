@@ -1,5 +1,5 @@
 import Button from '@/components/Button';
-import Slideshows from '@/components/Slideshows';
+import SlideshowRow from '@/components/SlideshowRow';
 import SocialLinks from '@/components/SocialLinks';
 import { PhotoIcon, UserGroupIcon } from '@heroicons/react/20/solid';
 
@@ -27,8 +27,21 @@ export default function HomePage() {
         </Button>
       </section>
 
-      <main>
-        <Slideshows />
+      <main className="flex flex-col gap-12 w-screen">
+        <SlideshowRow
+          title="Fortsätt pussla"
+          images={['/images/bear.jpg', '/images/rocket.jpg']}
+        />
+        <SlideshowRow title="Katter" searchTerm="cats" />
+        <SlideshowRow title="Vackra hav" searchTerm="ocean landscape" />
+        <SlideshowRow title="En naturupplevelse" searchTerm="nature" />
+        <SlideshowRow title="Alla sortes djur" searchTerm="animals" />
+        <SlideshowRow title="I skogen" searchTerm="forest" />
+        <SlideshowRow title="Människor" searchTerm="people" />
+        <SlideshowRow title="Uppe på begen" searchTerm="mountains" />
+        <SlideshowRow title="Välkommen till Grekland" searchTerm="greek" />
+        <SlideshowRow title="Sport" searchTerm="sport" />
+        <SlideshowRow title="Städer" searchTerm="city" />
       </main>
 
       <footer className="flex justify-center items-center gap-12">

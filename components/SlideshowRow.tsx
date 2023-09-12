@@ -7,6 +7,7 @@ export interface PexelsImage {
     original: string;
     large2x: string;
     large: string;
+    medium: string;
   };
 }
 
@@ -37,7 +38,6 @@ export default async function SlideshowRow({
   images,
 }: Props) {
   const pexelImages = await loadImagesFromPexels(searchTerm);
-  console.log(pexelImages);
 
   return (
     <section className="flex flex-col gap-4">
@@ -46,10 +46,14 @@ export default async function SlideshowRow({
       </h2>
       <ScrollBox>
         {images?.map((image) => (
-          <ImageLink key={image} imageSrc={image} canBeDeleted />
+          <ImageLink key={image} src={image} srcHiRes={image} canBeDeleted />
         ))}
         {pexelImages.map((image) => (
-          <ImageLink key={image.src.large} imageSrc={image.src.large} />
+          <ImageLink
+            key={image.id}
+            src={image.src.large}
+            srcHiRes={image.src.original}
+          />
         ))}
       </ScrollBox>
     </section>
