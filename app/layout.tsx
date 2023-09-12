@@ -1,6 +1,7 @@
 import StoreProvider from '@/store/StoreProvider';
 import type { Metadata } from 'next';
 import localFont from 'next/font/local';
+import { PropsWithChildren } from 'react';
 import { twMerge } from 'tailwind-merge';
 import './globals.css';
 
@@ -14,11 +15,7 @@ export const metadata: Metadata = {
   description: 'Ett online pussel för dig och dina vänner!',
 };
 
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function RootLayout({ children }: PropsWithChildren) {
   return (
     <html lang="en">
       <body
