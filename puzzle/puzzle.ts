@@ -88,6 +88,7 @@ export default class Puzzle implements IPuzzle, ISerializablePuzzle {
     this.p.height = 0;
     this.p.clear(0, 0, 0, 0);
     this.p.remove();
+    this.p = undefined as any;
     this.pieces.forEach((p) => p.releaseCanvas());
   }
 

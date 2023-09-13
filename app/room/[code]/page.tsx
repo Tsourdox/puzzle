@@ -16,12 +16,12 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default function RoomPage() {
   return (
-    <>
-      <ImagePreview />
-      <Sidebar />
+    <div className="flex flex-col flex-1">
       <main className="flex flex-col flex-1">
         <PuzzleCanvas />
       </main>
-    </>
+      <Sidebar />
+      <ImagePreview />
+    </div>
   );
 }

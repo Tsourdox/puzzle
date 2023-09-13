@@ -92,6 +92,7 @@ export default class Piece implements ISerializablePiece {
     this.graphics.height = 0;
     this.graphics.clear(0, 0, 0, 0);
     this.graphics.remove();
+    this.graphics = undefined as any;
   }
 
   public set rotation(value: number) {
