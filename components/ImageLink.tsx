@@ -88,7 +88,10 @@ export default function ImageLink({ src, srcHiRes, canBeDeleted }: Props) {
               pathname: `room/${randomRoom}`,
               query: searchParams.toString(),
             }}
-            onClick={() => (globals.imageSrc = srcHiRes)}
+            onClick={() => {
+              globals.imageSrc = srcHiRes;
+              globals.imageSmallSrc = src;
+            }}
           >
             <Button className="text-sm md:text-base">Börja Pussla</Button>
           </Link>

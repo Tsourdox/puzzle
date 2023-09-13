@@ -17,13 +17,7 @@ export interface IPuzzle {
   readonly selectedPieces: ReadonlyArray<Piece>;
 }
 
-export interface IGeneratePuzzle {
-  generateNewPuzzle(image: p5.Image, x: number, y: number): void;
-}
-
-export default class Puzzle
-  implements IPuzzle, IGeneratePuzzle, ISerializablePuzzle
-{
+export default class Puzzle implements IPuzzle, ISerializablePuzzle {
   public p: p5;
   public image?: p5.Image;
   public pieces: ReadonlyArray<Piece>;
@@ -54,38 +48,27 @@ export default class Puzzle
       transformHandler,
     );
     this.roomCode = new RoomCode();
+  }
 
-    this.p.loadImage(globals.imageSrc, (image) => {
-      let xy = 0;
-      switch (globals.size) {
-        case 'XS':
-          xy = 4;
-          break;
-        case 'S':
-          xy = 8;
-          break;
-        case 'M':
-          xy = 12;
-          break;
-        case 'L':
-          xy = 20;
-          break;
-        case 'XL':
-          xy = 30;
-          break;
-      }
-      this.generateNewPuzzle(image, xy, xy);
+  private async loadCanvasImage(src: string) {
+    return new Promise<p5.Image>((resolve) => {
+      this.p.loadImage(src, (image) => {
+        resolve(image);
+      });
     });
   }
 
-  public generateNewPuzzle(image: p5.Image, x: number, y: number) {
+  public async generateNewPuzzle(imageSrc: string, x: number, y: number) {
+    this.image = await this.loadCanvasImage(imageSrc);
     this.isModified = true;
-    this.image = image;
     this.pieceCount = this.p.createVector(x, y);
-    this.pieceSize = this.p.createVector(image.width / x, image.height / y);
+    this.pieceSize = this.p.createVector(
+      this.image.width / x,
+      this.image.height / y,
+    );
     this.pieces.forEach((p) => p.cleanup());
 
-    this.piecesFactory = new PiecesFactory(this.p, x, y, image);
+    this.piecesFactory = new PiecesFactory(this.p, x, y, this.image);
     this.pieces = this.piecesFactory.createAllPieces();
     this.inputHandler.graphHandler.zoomHome();
   }

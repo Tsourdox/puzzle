@@ -1,6 +1,5 @@
 'use client';
 import { globals } from '@/app/room/[code]/utils/globals';
-import Image from 'next/image';
 import { useState } from 'react';
 import { twMerge } from 'tailwind-merge';
 import { invert } from './utils';
@@ -22,13 +21,11 @@ export default function ImagePreview() {
           !fullscreen && 'backdrop-blur-lg bg-neutral-950/20',
         )}
       >
-        <Image
+        <img
           className={twMerge(
             'w-full h-full object-cover rounded-lg',
             fullscreen && 'object-contain',
           )}
-          width={1200}
-          height={900}
           src={globals.imageSrc}
           alt="Puzzle preview"
         />

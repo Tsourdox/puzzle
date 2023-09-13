@@ -8,6 +8,7 @@ interface Globals {
   theme: ITheme;
   isMobile: boolean;
   imageSrc: string;
+  imageSmallSrc: string;
   size: string;
 }
 
@@ -19,5 +20,6 @@ export const globals: Globals = {
   theme: {} as ITheme,
   isMobile: {} as boolean,
   imageSrc: '',
+  imageSmallSrc: '',
   size: 'S',
 };

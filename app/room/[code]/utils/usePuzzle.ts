@@ -4,7 +4,10 @@ import { RefObject, useEffect } from 'react';
 import Puzzle from '../../../../puzzle/puzzle';
 import { globals } from './globals';
 
-export default function usePuzzle(containerRef: RefObject<HTMLElement>) {
+export default function usePuzzle(
+  containerRef: RefObject<HTMLElement>,
+  onReady: () => void,
+) {
   useEffect(() => {
     if (!containerRef.current) throw Error('Could not mount canvas');
     const { width, height } = containerRef.current.getBoundingClientRect();
@@ -19,6 +22,22 @@ export default function usePuzzle(containerRef: RefObject<HTMLElement>) {
         globals.sounds.snaps[3].setVolume(0.1);
         globals.sounds.aboutToPuzzelin.setVolume(0.5);
         globals.sounds.puzzelin.setVolume(0.5);
+      }
+
+      function getPiecesCountFromSize(size: string) {
+        switch (size) {
+          case 'XS':
+            return 4;
+          case 'S':
+            return 8;
+          case 'M':
+            return 12;
+          case 'L':
+            return 20;
+          case 'XL':
+          default:
+            return 30;
+        }
       }
 
       function getThemeFromCSS() {
@@ -76,6 +95,10 @@ export default function usePuzzle(containerRef: RefObject<HTMLElement>) {
         globals.isMobile = p.windowWidth < 600;
 
         puzzle = new Puzzle(p);
+        const xy = getPiecesCountFromSize(globals.size);
+        puzzle.generateNewPuzzle(globals.imageSrc, xy, xy).then(() => {
+          onReady();
+        });
       };
 
       // The sketch draw method
@@ -103,5 +126,5 @@ export default function usePuzzle(containerRef: RefObject<HTMLElement>) {
       document.body.style.overflow = 'unset';
       canvas.remove();
     };
-  }, [containerRef]);
+  }, [containerRef, onReady]);
 }
