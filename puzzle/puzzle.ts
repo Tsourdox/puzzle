@@ -1,7 +1,11 @@
 import p5 from 'p5';
-import { globals } from '../app/room/[code]/utils/globals';
 import InputHandler from './handlers/inputHandler';
 import RoomCode from './menu/roomCode';
+import {
+  IDeserializeOptions,
+  IPuzzleData,
+  ISerializablePuzzle,
+} from './network/types';
 import Piece from './piece';
 import PieceConnector from './pieceConnector';
 import PiecesFactory from './piecesFactory';
@@ -66,7 +70,6 @@ export default class Puzzle implements IPuzzle, ISerializablePuzzle {
       this.image.width / x,
       this.image.height / y,
     );
-    this.pieces.forEach((p) => p.cleanup());
 
     this.piecesFactory = new PiecesFactory(this.p, x, y, this.image);
     this.pieces = this.piecesFactory.createAllPieces();
@@ -77,6 +80,15 @@ export default class Puzzle implements IPuzzle, ISerializablePuzzle {
   // samt flytta till InputHandler
   public get selectedPieces(): Piece[] {
     return this.pieces.filter((p) => p.isSelected);
+  }
+
+  public releaseCanvas() {
+    this.p.noLoop();
+    this.p.width = 0;
+    this.p.height = 0;
+    this.p.clear(0, 0, 0, 0);
+    this.p.remove();
+    this.pieces.forEach((p) => p.releaseCanvas());
   }
 
   public update() {
@@ -92,7 +104,6 @@ export default class Puzzle implements IPuzzle, ISerializablePuzzle {
 
   public draw() {
     this.p.clear(0, 0, 0, 0);
-    this.p.textFont(globals.fonts.primary);
 
     this.p.push();
     this.p.scale(this.inputHandler.graphHandler.scale);

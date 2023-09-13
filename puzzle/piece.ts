@@ -2,6 +2,12 @@ import p5 from 'p5';
 import { globals } from '../app/room/[code]/utils/globals';
 import { NETWORK_TIMEOUT } from './network/serializer';
 import {
+  IDeserializeOptions,
+  IDeserializedPieceData,
+  ISerializablePiece,
+  ISerializedPieceData,
+} from './network/types';
+import {
   getAverageCenter,
   rotatePointAroundCenter,
   toPoint,
@@ -81,11 +87,11 @@ export default class Piece implements ISerializablePiece {
     this.updateGraphics();
   }
 
-  public cleanup() {
+  public releaseCanvas() {
     this.graphics.width = 0;
     this.graphics.height = 0;
+    this.graphics.clear(0, 0, 0, 0);
     this.graphics.remove();
-    this.graphics = undefined as any;
   }
 
   public set rotation(value: number) {

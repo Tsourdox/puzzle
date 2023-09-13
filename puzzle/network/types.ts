@@ -1,47 +1,54 @@
-interface ISerializable<S, D> {
-    isModified: boolean;
-    serialize: () => S;
-    deserialize: (object: D, options?: IDeserializeOptions) => Promise<void>;
+import { Point } from '../utils/general';
+
+export interface ISerializable<S, D> {
+  isModified: boolean;
+  serialize: () => S;
+  deserialize: (object: D, options?: IDeserializeOptions) => Promise<void>;
 }
 
-type IDeserializeOptions = {
-    lerp?: boolean;
-    roomChanged?: boolean;
-} | undefined;
+export type IDeserializeOptions =
+  | {
+      lerp?: boolean;
+      roomChanged?: boolean;
+    }
+  | undefined;
 
-interface ISerializablePuzzle extends ISerializable<IPuzzleData, IPuzzleData> {
-    pieces: ReadonlyArray<ISerializablePiece>;
+export interface ISerializablePuzzle
+  extends ISerializable<IPuzzleData, IPuzzleData> {
+  pieces: ReadonlyArray<ISerializablePiece>;
 }
 
-interface ISerializablePiece extends ISerializable<ISerializedPieceData, IDeserializedPieceData> {
-    isSelectedByOther: boolean;
+export interface ISerializablePiece
+  extends ISerializable<ISerializedPieceData, IDeserializedPieceData> {
+  isSelectedByOther: boolean;
 }
-interface ISerializableGraph extends ISerializable<IGraphData, IGraphData> {}
+export interface ISerializableGraph
+  extends ISerializable<IGraphData, IGraphData> {}
 
 /* ---------------------------------------------------------------------------- */
 
-interface IPuzzleData {
-    image: string;
-    pieceCount: Point;
-    seed: number;
-    updatedBy?: string;
+export interface IPuzzleData {
+  image: string;
+  pieceCount: Point;
+  seed: number;
+  updatedBy?: string;
 }
 
-interface IPieceData {
-    id: number;
-    rotation: number;
-    translation: Point;
-    connectedSides?: number[];
-    elevation: number;
+export interface IPieceData {
+  id: number;
+  rotation: number;
+  translation: Point;
+  connectedSides?: number[];
+  elevation: number;
 }
-interface ISerializedPieceData extends IPieceData {
-    isSelected: boolean
-};
-interface IDeserializedPieceData extends IPieceData {
-    isSelectedByOther: boolean
-};
+export interface ISerializedPieceData extends IPieceData {
+  isSelected: boolean;
+}
+export interface IDeserializedPieceData extends IPieceData {
+  isSelectedByOther: boolean;
+}
 
-interface IGraphData {
-    scale: number;
-    translation: Point;
+export interface IGraphData {
+  scale: number;
+  translation: Point;
 }

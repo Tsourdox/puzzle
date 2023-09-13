@@ -1,6 +1,13 @@
 import { getRandomRoomCode } from '../utils/general';
 import ClientDB from './clientDB';
 import FirebaseDB from './firebase';
+import {
+  IDeserializedPieceData,
+  IGraphData,
+  IPuzzleData,
+  ISerializableGraph,
+  ISerializablePuzzle,
+} from './types';
 
 export const NETWORK_TIMEOUT = 100; //ms
 

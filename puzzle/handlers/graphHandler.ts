@@ -1,5 +1,6 @@
 import p5 from 'p5';
 import { globals } from '../../app/room/[code]/utils/globals';
+import { IGraphData, ISerializableGraph } from '../network/types';
 import { IPuzzle } from '../puzzle';
 import {
   getMostDistantPoints,
