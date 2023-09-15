@@ -1,7 +1,5 @@
-import P5 from 'p5';
-// import 'p5/lib/addons/p5.sound';
+import type Puzzle from '@/puzzle/puzzle';
 import { RefObject, useEffect } from 'react';
-import Puzzle from '../../../../puzzle/puzzle';
 import { globals } from './globals';
 
 export default function usePuzzle(
@@ -9,12 +7,15 @@ export default function usePuzzle(
   onReady: () => void,
 ) {
   useEffect(() => {
+    const p5 = require('p5');
+    const { default: Puzzle } = require('@/puzzle/puzzle');
+
     if (!containerRef.current) throw Error('Could not mount canvas');
     const { width, height } = containerRef.current.getBoundingClientRect();
 
     let puzzle: Puzzle;
 
-    const sketch = (p: P5) => {
+    const sketch = (p: p5) => {
       function getPiecesCountFromSize(size: string) {
         switch (size) {
           case 'XS':
@@ -89,7 +90,7 @@ export default function usePuzzle(
       };
     };
 
-    new P5(sketch, containerRef.current);
+    new p5(sketch, containerRef.current);
     document.body.style.overflow = 'hidden';
     return () => {
       document.body.style.overflow = 'unset';

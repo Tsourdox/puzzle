@@ -1,6 +1,8 @@
+import { globals } from '@/app/room/[code]/utils/globals';
 import p5 from 'p5';
 import InputHandler from './handlers/inputHandler';
 import RoomCode from './menu/roomCode';
+import NetworkSerializer from './network/serializer';
 import {
   IDeserializeOptions,
   IPuzzleData,
@@ -29,22 +31,22 @@ export default class Puzzle implements IPuzzle, ISerializablePuzzle {
   public pieceSize: p5.Vector;
   public isModified: boolean;
   private inputHandler: InputHandler;
-  // private networkSerializer: NetworkSerializer;
+  private networkSerializer: NetworkSerializer;
   private pieceConnetor: PieceConnector;
   private piecesFactory?: PiecesFactory;
   private roomCode: RoomCode;
 
-  constructor(canvas: p5) {
-    this.p = canvas;
+  constructor(p: p5) {
+    this.p = p;
     this.pieces = [];
-    this.pieceCount = canvas.createVector(0, 0);
-    this.pieceSize = canvas.createVector(0, 0);
+    this.pieceCount = p.createVector(0, 0);
+    this.pieceSize = p.createVector(0, 0);
     this.isModified = false;
     this.inputHandler = new InputHandler(this);
-    // this.networkSerializer = new NetworkSerializer(
-    //   this,
-    //   this.inputHandler.graphHandler,
-    // );
+    this.networkSerializer = new NetworkSerializer(
+      this,
+      this.inputHandler.graphHandler,
+    );
     const { selectionHandler, transformHandler } = this.inputHandler;
     this.pieceConnetor = new PieceConnector(
       this,
@@ -93,8 +95,8 @@ export default class Puzzle implements IPuzzle, ISerializablePuzzle {
   }
 
   public update() {
-    // if (this.networkSerializer.isLoading) return;
-    // this.networkSerializer.update();
+    if (this.networkSerializer.isLoading) return;
+    this.networkSerializer.update(this.p.deltaTime);
 
     this.inputHandler.update();
     this.pieceConnetor.update();
@@ -132,24 +134,31 @@ export default class Puzzle implements IPuzzle, ISerializablePuzzle {
   }
 
   private resetPuzzle() {
-    this.pieceCount = createVector(0, 0);
-    this.pieceSize = createVector(0, 0);
+    this.pieceCount = this.p.createVector(0, 0);
+    this.pieceSize = this.p.createVector(0, 0);
     this.pieces = [];
     delete this.piecesFactory;
   }
 
   public deserialize(puzzle: IPuzzleData, options: IDeserializeOptions) {
+    console.log('DESERIALIZE');
     return new Promise<void>((resolve, reject) => {
       if (!puzzle) {
         this.resetPuzzle();
         return;
       }
       try {
-        loadImage(puzzle.image, (image) => {
+        globals.imageSrc = puzzle.image;
+        globals.imageSmallSrc = puzzle.image;
+
+        this.p.loadImage(puzzle.image, (image) => {
           const { x, y } = puzzle.pieceCount;
           this.image = image;
-          this.pieceCount = createVector(x, y);
-          this.pieceSize = createVector(image.width / x, image.height / y);
+          this.pieceCount = this.p.createVector(x, y);
+          this.pieceSize = this.p.createVector(
+            image.width / x,
+            image.height / y,
+          );
           this.piecesFactory = new PiecesFactory(
             this.p,
             x,

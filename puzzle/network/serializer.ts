@@ -1,6 +1,5 @@
 import { getRandomRoomCode } from '../utils/general';
 import ClientDB from './clientDB';
-import FirebaseDB from './firebase';
 import {
   IDeserializedPieceData,
   IGraphData,
@@ -16,7 +15,7 @@ export default class NetworkSerializer {
   private graph: ISerializableGraph;
   private sendTimeout: number;
   private clientDB: ClientDB;
-  private firebaseDB: FirebaseDB;
+  // private firebaseDB: FirebaseDB;
   private _isLoading: boolean;
   public get isLoading() {
     return this._isLoading;
@@ -29,7 +28,7 @@ export default class NetworkSerializer {
     this._roomCode = getRandomRoomCode();
     this.sendTimeout = NETWORK_TIMEOUT;
     this.clientDB = new ClientDB();
-    this.firebaseDB = new FirebaseDB();
+    // this.firebaseDB = new FirebaseDB();
     this._isLoading = true;
     this.initLocalStorage();
     this.listenToFirebaseDBChanges(this._roomCode);
@@ -37,7 +36,7 @@ export default class NetworkSerializer {
   }
 
   public get roomCode() {
-    if (!this.firebaseDB.isOnline) return 'OFFLINE';
+    // if (!this.firebaseDB.isOnline) return 'OFFLINE';
     return this._roomCode;
   }
 
@@ -55,7 +54,7 @@ export default class NetworkSerializer {
     const roomCode = localStorage.getItem('room-code');
     if (roomCode && roomCode !== this._roomCode) {
       this._isLoading = true;
-      this.firebaseDB.cleanup(this._roomCode);
+      // this.firebaseDB.cleanup(this._roomCode);
       this._roomCode = roomCode;
       this.listenToFirebaseDBChanges(this._roomCode);
       this.puzzle.deserialize(undefined as any); // todo: better solution would be nice
@@ -63,7 +62,7 @@ export default class NetworkSerializer {
     }
   }
 
-  public update() {
+  public update(deltaTime: number) {
     if (this.puzzle.isModified) {
       this.saveInitialData();
       this.puzzle.isModified = false;
@@ -82,23 +81,23 @@ export default class NetworkSerializer {
 
   private saveInitialData() {
     const puzzleData = this.puzzle.serialize();
-    if (this.firebaseDB.isOnline) {
-      this.firebaseDB.savePuzzleData(this._roomCode, puzzleData);
-    } else {
-      this.clientDB.savePuzzle(puzzleData);
-    }
+    // if (this.firebaseDB.isOnline) {
+    //   this.firebaseDB.savePuzzleData(this._roomCode, puzzleData);
+    // } else {
+    this.clientDB.savePuzzle(puzzleData);
+    // }
     this.saveGraphDataToClientDB();
   }
 
   private listenToFirebaseDBChanges(roomCode: string) {
-    this.firebaseDB.listenToPuzzleUpdates(roomCode, async (puzzle) => {
-      if (this.isLoading) return;
-      await this.puzzle.deserialize(puzzle);
-    });
-    this.firebaseDB.listenToPiecesUpdates(roomCode, (pieceData) => {
-      if (this.isLoading) return;
-      this.puzzle.pieces[pieceData.id].deserialize(pieceData, { lerp: true });
-    });
+    // this.firebaseDB.listenToPuzzleUpdates(roomCode, async (puzzle) => {
+    //   if (this.isLoading) return;
+    //   await this.puzzle.deserialize(puzzle);
+    // });
+    // this.firebaseDB.listenToPiecesUpdates(roomCode, (pieceData) => {
+    //   if (this.isLoading) return;
+    //   this.puzzle.pieces[pieceData.id].deserialize(pieceData, { lerp: true });
+    // });
   }
 
   private saveGraphDataToClientDB() {
@@ -112,11 +111,11 @@ export default class NetworkSerializer {
       .filter((p) => p.isModified)
       .map((p) => p.serialize());
     if (piecesData.length) {
-      if (this.firebaseDB.isOnline) {
-        this.firebaseDB.savePiecesData(this._roomCode, piecesData);
-      } else {
-        this.clientDB.savePieces(piecesData);
-      }
+      // if (this.firebaseDB.isOnline) {
+      //   this.firebaseDB.savePiecesData(this._roomCode, piecesData);
+      // } else {
+      this.clientDB.savePieces(piecesData);
+      // }
     }
   }
 
@@ -126,30 +125,25 @@ export default class NetworkSerializer {
 
       // Wait for connections to DB's to be established
       await this.clientDB.init();
-      await this.firebaseDB.init();
+      // await this.firebaseDB.init();
 
       const graphData = await this.clientDB.loadGraph();
 
-      if (this.firebaseDB.isOnline) {
-        const roomData = await this.firebaseDB.getRoomData(this._roomCode);
-        if (roomData) {
-          await this.deserializeAll(
-            roomData.puzzle,
-            Object.values(roomData.pieces),
-            graphData,
-            roomChanged,
-          );
-        }
-      } else {
-        const puzzleData = await this.clientDB.loadPuzzle();
-        const piecesData = await this.clientDB.loadPieces();
-        await this.deserializeAll(
-          puzzleData,
-          piecesData,
-          graphData,
-          roomChanged,
-        );
-      }
+      // if (this.firebaseDB.isOnline) {
+      //   const roomData = await this.firebaseDB.getRoomData(this._roomCode);
+      //   if (roomData) {
+      //     await this.deserializeAll(
+      //       roomData.puzzle,
+      //       Object.values(roomData.pieces),
+      //       graphData,
+      //       roomChanged,
+      //     );
+      //   }
+      // } else {
+      const puzzleData = await this.clientDB.loadPuzzle();
+      const piecesData = await this.clientDB.loadPieces();
+      await this.deserializeAll(puzzleData, piecesData, graphData, roomChanged);
+      // }
     } catch (error) {
       console.error(error);
     }

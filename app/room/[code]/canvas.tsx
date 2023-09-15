@@ -20,7 +20,7 @@ export default function PuzzleCanvas() {
         className="relative flex-1 backdrop-blur-3xl bg-neutral-800/70"
       />
       {isLoading && (
-        <div className="absolute uppercase z-20 left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 animate-pulse text-4xl text-transparent bg-clip-text bg-gradient-to-r from-neutral-50 to-neutral-400">
+        <div className="absolute uppercase z-20 left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 animate-pulse text-4xl text-transparent bg-clip-text bg-gradient-to-r from-neutral-50 to-neutral-400 text-center">
           Skapar ditt pussel
         </div>
       )}

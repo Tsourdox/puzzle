@@ -58,7 +58,7 @@ export function toPoint(vector: p5.Vector): Point {
 }
 
 export function toVector(point: Point): p5.Vector {
-  return createVector(point.x, point.y);
+  return new p5.Vector(point.x, point.y);
 }
 
 export function angleBetween(v0: Point, v1: Point): number {
@@ -68,7 +68,7 @@ export function angleBetween(v0: Point, v1: Point): number {
 }
 
 export function pointBetween(v0: Point, v1: Point, amount?: number): p5.Vector {
-  return createVector(
+  return new p5.Vector(
     lerp(v0.x, v1.x, amount || 0.5),
     lerp(v0.y, v1.y, amount || 0.5),
   );
@@ -99,7 +99,7 @@ export function getRandomRoomCode() {
   const characters = 'ABCDEFGHIJKLMNPQRSTUVWXYZ123456789';
   let code = '';
 
-  for (let i = 0; i < 4; i++) {
+  for (let i = 0; i < 5; i++) {
     const randomCharIndex = Math.floor(Math.random() * characters.length);
     code += characters.charAt(randomCharIndex);
   }

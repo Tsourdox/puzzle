@@ -14,7 +14,7 @@ export default function HomePage() {
         </span>
       </header>
 
-      <section className="flex gap-8 justify-center">
+      <section className="flex gap-x-8 gap-y-4 justify-center flex-wrap">
         <ActionButtons />
       </section>
 
