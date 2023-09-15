@@ -2,7 +2,6 @@ import { globals } from '@/app/room/[code]/utils/globals';
 import p5 from 'p5';
 import InputHandler from './handlers/inputHandler';
 import RoomCode from './menu/roomCode';
-import NetworkSerializer from './network/serializer';
 import {
   IDeserializeOptions,
   IPuzzleData,
@@ -31,7 +30,7 @@ export default class Puzzle implements IPuzzle, ISerializablePuzzle {
   public pieceSize: p5.Vector;
   public isModified: boolean;
   private inputHandler: InputHandler;
-  private networkSerializer: NetworkSerializer;
+  // private networkSerializer: NetworkSerializer;
   private pieceConnetor: PieceConnector;
   private piecesFactory?: PiecesFactory;
   private roomCode: RoomCode;
@@ -43,10 +42,10 @@ export default class Puzzle implements IPuzzle, ISerializablePuzzle {
     this.pieceSize = p.createVector(0, 0);
     this.isModified = false;
     this.inputHandler = new InputHandler(this);
-    this.networkSerializer = new NetworkSerializer(
-      this,
-      this.inputHandler.graphHandler,
-    );
+    // this.networkSerializer = new NetworkSerializer(
+    //   this,
+    //   this.inputHandler.graphHandler,
+    // );
     const { selectionHandler, transformHandler } = this.inputHandler;
     this.pieceConnetor = new PieceConnector(
       this,
@@ -95,8 +94,8 @@ export default class Puzzle implements IPuzzle, ISerializablePuzzle {
   }
 
   public update() {
-    if (this.networkSerializer.isLoading) return;
-    this.networkSerializer.update(this.p.deltaTime);
+    // if (this.networkSerializer.isLoading) return;
+    // this.networkSerializer.update(this.p.deltaTime);
 
     this.inputHandler.update();
     this.pieceConnetor.update();
