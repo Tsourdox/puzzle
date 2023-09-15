@@ -1,5 +1,6 @@
 import { ArrowSmallRightIcon, XMarkIcon } from '@heroicons/react/20/solid';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { twMerge } from 'tailwind-merge';
 import { z } from 'zod';
@@ -17,15 +18,14 @@ interface Props {
 }
 
 export default function RoomCodeForm(props: Props) {
+  const router = useRouter();
   const { register, handleSubmit, formState, getValues } =
     useForm<RoomCodeValues>({
       resolver: zodResolver(RoomCodeSchema),
       mode: 'all',
     });
 
-  const enterRoom = ({ code }: RoomCodeValues) => {
-    console.log(code);
-  };
+  const enterRoom = ({ code }: RoomCodeValues) => router.push('room/' + code);
 
   return (
     <form
