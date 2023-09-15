@@ -4,8 +4,10 @@ import { useForm } from 'react-hook-form';
 import { twMerge } from 'tailwind-merge';
 import { z } from 'zod';
 
+const CODE_LENGTH = 5;
+
 const RoomCodeSchema = z.object({
-  code: z.string().min(5).max(5).toUpperCase(),
+  code: z.string().min(CODE_LENGTH).max(CODE_LENGTH).toUpperCase(),
 });
 
 type RoomCodeValues = z.infer<typeof RoomCodeSchema>;
@@ -25,12 +27,10 @@ export default function RoomCodeForm(props: Props) {
     console.log(code);
   };
 
-  console.log(formState.errors);
-
   return (
     <form
       onSubmit={handleSubmit(enterRoom)}
-      className="flex rounded-full bg-gradient-to-r from-[#210024] to-gray-900 drop-shadow-lg "
+      className="flex rounded-full bg-gradient-to-r from-[#210024] to-gray-900 drop-shadow-lg"
     >
       <button
         type="button"
@@ -41,7 +41,7 @@ export default function RoomCodeForm(props: Props) {
       </button>
       <input
         autoFocus
-        maxLength={5}
+        maxLength={CODE_LENGTH}
         placeholder="Ange rumskod"
         {...register('code')}
         className="bg-transparent text-2xl px-4 w-64 uppercase focus:outline-none text-gray-300"
@@ -51,7 +51,7 @@ export default function RoomCodeForm(props: Props) {
         className={twMerge(
           'p-1 text-gray-400',
           !formState.errors.code &&
-            getValues().code?.length > 1 &&
+            getValues().code?.length === CODE_LENGTH &&
             'text-gray-100',
         )}
       >
