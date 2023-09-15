@@ -31,8 +31,8 @@ export default class NetworkSerializer {
     // this.firebaseDB = new FirebaseDB();
     this._isLoading = true;
     this.initLocalStorage();
-    this.listenToFirebaseDBChanges(this._roomCode);
-    this.loadPuzzle(false);
+    // this.listenToFirebaseDBChanges(this._roomCode);
+    // this.loadPuzzle(false);
   }
 
   public get roomCode() {
