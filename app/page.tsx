@@ -1,7 +1,6 @@
-import Button from '@/components/Button';
 import SlideshowRow from '@/components/SlideshowRow';
 import SocialLinks from '@/components/SocialLinks';
-import { PhotoIcon, UserGroupIcon } from '@heroicons/react/20/solid';
+import ActionButtons from './components/ActionButtons';
 
 export default function HomePage() {
   return (
@@ -16,15 +15,7 @@ export default function HomePage() {
       </header>
 
       <section className="flex gap-8 justify-center">
-        <Button
-          variant="secondary"
-          icon={<UserGroupIcon width={24} height={24} />}
-        >
-          Gå med i ett rum
-        </Button>
-        <Button variant="secondary" icon={<PhotoIcon width={24} height={24} />}>
-          Välj en egen bild
-        </Button>
+        <ActionButtons />
       </section>
 
       <main className="flex flex-col gap-12 w-screen">
