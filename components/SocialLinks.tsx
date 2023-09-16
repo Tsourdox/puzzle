@@ -1,4 +1,4 @@
-import { PropsWithClassName } from './utils';
+import { PropsWithClassName } from '@/utils/general';
 
 const SocialLinks = (props: PropsWithClassName) => (
   <div className={props.className}>

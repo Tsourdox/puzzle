@@ -7,10 +7,10 @@ import {
 } from '@heroicons/react/20/solid';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
-import { AppBar } from './AppBar';
-import Button from './Button';
+import { AppBar } from '../../../../components/AppBar';
+import Button from '../../../../components/Button';
+import SocialLinks from '../../../../components/SocialLinks';
 import ShareLink from './ShareLink';
-import SocialLinks from './SocialLinks';
 
 export default function Sidebar() {
   const router = useRouter();

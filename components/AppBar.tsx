@@ -1,10 +1,10 @@
 'use client';
+import { PropsWithClassName } from '@/utils/general';
 import {
   ArrowLeftCircleIcon,
   ArrowRightCircleIcon,
 } from '@heroicons/react/20/solid';
 import { twMerge } from 'tailwind-merge';
-import { PropsWithClassName } from './utils';
 
 type Props = PropsWithClassName & {
   isOpen: boolean;

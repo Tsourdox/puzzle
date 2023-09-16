@@ -1,8 +1,8 @@
 'use client';
 import { globals } from '@/app/room/[code]/utils/globals';
+import { invert } from '@/utils/general';
 import { useState } from 'react';
 import { twMerge } from 'tailwind-merge';
-import { invert } from './utils';
 
 export default function ImagePreview() {
   const [fullscreen, setFullscreen] = useState(false);

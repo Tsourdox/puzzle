@@ -1,10 +1,13 @@
-import ImagePreview from '@/components/ImagePreview';
-import Sidebar from '@/components/Sidebar';
+import ImagePreview from '@/app/room/[code]/components/ImagePreview';
+import Sidebar from '@/app/room/[code]/components/Sidebar';
+import { SearchParams, parseEnum } from '@/utils/searchParams';
+import { SizeEnum } from '@/utils/sizes';
 import { Metadata } from 'next';
 import PuzzleCanvas from './canvas';
 
 type Props = {
   params: { code: string };
+  searchParams: SearchParams;
 };
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
@@ -14,7 +17,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   };
 }
 
-export default function RoomPage() {
+export default function RoomPage({ searchParams }: Props) {
+  const size = parseEnum(searchParams.size, SizeEnum, 'm');
+
   return (
     <div className="flex flex-col flex-1">
       <main className="flex flex-col flex-1">

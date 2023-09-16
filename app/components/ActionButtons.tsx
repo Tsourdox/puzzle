@@ -1,6 +1,6 @@
 'use client';
+import RoomCodeForm from '@/app/components/RoomCodeForm';
 import Button from '@/components/Button';
-import RoomCodeForm from '@/components/RoomCodeForm';
 import { PhotoIcon, UserGroupIcon } from '@heroicons/react/20/solid';
 import { useState } from 'react';
 

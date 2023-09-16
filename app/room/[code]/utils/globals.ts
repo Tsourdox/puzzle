@@ -1,3 +1,4 @@
+import { Size } from '@/utils/sizes';
 import { ITheme } from '../../../../puzzle/interfaces';
 
 interface Globals {
@@ -6,7 +7,7 @@ interface Globals {
   isMobile: boolean;
   imageSrc: string;
   imageSmallSrc: string;
-  size: string;
+  size: Size;
 }
 
 export const globals: Globals = {
@@ -15,5 +16,5 @@ export const globals: Globals = {
   isMobile: {} as boolean,
   imageSrc: '',
   imageSmallSrc: '',
-  size: 'S',
+  size: 'xs',
 };

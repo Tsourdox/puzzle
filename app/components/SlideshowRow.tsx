@@ -1,10 +1,10 @@
-import ImageLink from './ImageLink';
+import { Size } from '@/utils/sizes';
+import ImageCard from './ImageCard';
 import ScrollBox from './ScrollBox';
 
 export interface PexelsImage {
-  id: number;
+  id: string;
   src: {
-    original: string;
     large2x: string;
     large: string;
     medium: string;
@@ -15,6 +15,7 @@ interface Props {
   title: string;
   searchTerm?: string;
   images?: string[];
+  size: Size;
 }
 
 const loadImagesFromPexels = async (searchTerm?: string) => {
@@ -23,7 +24,8 @@ const loadImagesFromPexels = async (searchTerm?: string) => {
 
   const domain = 'https://api.pexels.com/';
   const path = 'v1/search';
-  const page = Math.ceil(Math.random() * 5);
+  const page = 1;
+  // const page = Math.ceil(Math.random() * 5);
   const query = `?query=${searchTerm}&orientation=landscape&per_page=10&page=${page}`;
   const url = `${domain}${path}${query}`;
   const response = await fetch(url, {
@@ -36,6 +38,7 @@ export default async function SlideshowRow({
   title,
   searchTerm,
   images,
+  size,
 }: Props) {
   const pexelImages = await loadImagesFromPexels(searchTerm);
 
@@ -46,14 +49,22 @@ export default async function SlideshowRow({
       </h2>
       <ScrollBox>
         {images?.map((image) => (
-          <ImageLink key={image} src={image} srcHiRes={image} canBeDeleted />
+          <ImageCard
+            key={image}
+            image={{
+              id: Math.random().toString(),
+              src: {
+                large2x: image,
+                large: image,
+                medium: image,
+              },
+            }}
+            canBeDeleted
+            size={size}
+          />
         ))}
         {pexelImages.map((image) => (
-          <ImageLink
-            key={image.id}
-            src={image.src.large}
-            srcHiRes={image.src.original}
-          />
+          <ImageCard key={image.id} image={image} size={size} />
         ))}
       </ScrollBox>
     </section>

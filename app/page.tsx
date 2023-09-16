@@ -1,8 +1,16 @@
-import SlideshowRow from '@/components/SlideshowRow';
+import SlideshowRow from '@/app/components/SlideshowRow';
 import SocialLinks from '@/components/SocialLinks';
+import { SearchParams, parseEnum } from '@/utils/searchParams';
+import { SizeEnum } from '@/utils/sizes';
 import ActionButtons from './components/ActionButtons';
 
-export default function HomePage() {
+type Props = {
+  searchParams: SearchParams;
+};
+
+export default function HomePage({ searchParams }: Props) {
+  const s = parseEnum(searchParams.size, SizeEnum, 'xs');
+
   return (
     <div className="flex flex-col py-16 gap-16 text-neutral-100 bg-gradient-to-bl from-[#210034] via-20% via-neutral-950 to-100% to-[#110024]">
       <header className="flex flex-col gap-4 items-center">
@@ -27,17 +35,22 @@ export default function HomePage() {
         <SlideshowRow
           title="Fortsätt pussla"
           images={['/images/bear.jpg', '/images/rocket.jpg']}
+          size={s}
         />
-        <SlideshowRow title="Katter" searchTerm="cats" />
-        <SlideshowRow title="Vackra hav" searchTerm="ocean landscape" />
-        <SlideshowRow title="En naturupplevelse" searchTerm="nature" />
-        <SlideshowRow title="Alla sortes djur" searchTerm="animals" />
-        <SlideshowRow title="I skogen" searchTerm="forest" />
-        <SlideshowRow title="Människor" searchTerm="people" />
-        <SlideshowRow title="Uppe på begen" searchTerm="mountains" />
-        <SlideshowRow title="Välkommen till Grekland" searchTerm="greek" />
-        <SlideshowRow title="Sport" searchTerm="sport" />
-        <SlideshowRow title="Städer" searchTerm="city" />
+        <SlideshowRow title="Katter" searchTerm="cats" size={s} />
+        <SlideshowRow
+          title="Vackra hav"
+          searchTerm="ocean landscape"
+          size={s}
+        />
+        <SlideshowRow title="Naturen" searchTerm="nature" size={s} />
+        <SlideshowRow title="Djur" searchTerm="animals" size={s} />
+        <SlideshowRow title="I skogen" searchTerm="forest" size={s} />
+        <SlideshowRow title="Människor" searchTerm="people" size={s} />
+        <SlideshowRow title="Uppe på begen" searchTerm="mountains" size={s} />
+        <SlideshowRow title="Grekland" searchTerm="greek" size={s} />
+        <SlideshowRow title="Sport" searchTerm="sport" size={s} />
+        <SlideshowRow title="Städer" searchTerm="city" size={s} />
       </main>
 
       <footer className="flex justify-center items-center gap-12">
