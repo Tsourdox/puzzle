@@ -1,5 +1,5 @@
 import type Puzzle from '@/puzzle/puzzle';
-import { Size } from '@/utils/sizes';
+import { getPiecesCountFromSize } from '@/utils/sizes';
 import { RefObject, useEffect } from 'react';
 import { globals } from './globals';
 
@@ -19,21 +19,6 @@ export default function usePuzzle(
       const { width, height } = containerRef.current.getBoundingClientRect();
 
       const sketch = (p: p5) => {
-        function getPiecesCountFromSize(size: Size) {
-          switch (size) {
-            case 'xs':
-              return 4;
-            case 's':
-              return 8;
-            case 'm':
-              return 12;
-            case 'l':
-              return 20;
-            case 'xl':
-              return 30;
-          }
-        }
-
         function getThemeFromCSS() {
           const rootStyle = getComputedStyle(document.documentElement);
           globals.theme = {

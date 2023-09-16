@@ -94,7 +94,7 @@ export default class GraphHandler implements IGraph, ISerializableGraph {
     const { image, p } = this.puzzle;
     if (!image) return p.createVector(0, 0);
     const homeX = (p.width / scale - image.width) * 0.5;
-    const homeY = ((p.height - 80) / scale - image.height) * 0.5;
+    const homeY = (p.height / scale - image.height) * 0.5;
     return p.createVector(homeX, homeY);
   }
 
@@ -102,7 +102,7 @@ export default class GraphHandler implements IGraph, ISerializableGraph {
     const { image, p } = this.puzzle;
     const widthRatio = p.width / (image?.width || p.width);
     const heightRatio = p.height / (image?.height || p.height);
-    const scale = p.min(widthRatio, heightRatio) * 0.8;
+    const scale = p.min(widthRatio, heightRatio) * 0.7;
     this.setScale(scale, this.getHomeTranslation(scale));
   }
 
