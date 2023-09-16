@@ -1,7 +1,7 @@
 import { ReactNode } from 'react';
 import { twMerge } from 'tailwind-merge';
 
-type Props = JSX.IntrinsicElements['button'] & {
+export type Props = JSX.IntrinsicElements['button'] & {
   icon?: ReactNode;
   variant?: 'primary' | 'secondary';
 };

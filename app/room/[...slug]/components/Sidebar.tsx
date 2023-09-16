@@ -1,50 +1,31 @@
-'use client';
 import {
   ArrowPathRoundedSquareIcon,
   Cog8ToothIcon,
   PuzzlePieceIcon,
   UserGroupIcon,
 } from '@heroicons/react/20/solid';
-import { useRouter } from 'next/navigation';
-import { useState } from 'react';
 import { AppBar } from '../../../../components/AppBar';
 import Button from '../../../../components/Button';
 import SocialLinks from '../../../../components/SocialLinks';
+import BackButton from './BackButton';
 import ShareLink from './ShareLink';
 
 export default function Sidebar() {
-  const router = useRouter();
-  const [isOpen, setIsOpen] = useState(false);
-  const toggleSidebar = (cb?: () => void) => () => {
-    setIsOpen((o) => !o);
-    if (cb) cb();
-  };
-
   return (
-    <AppBar
-      isOpen={isOpen}
-      onToggle={toggleSidebar()}
-      className="flex flex-col gap-4"
-    >
+    <AppBar className="flex flex-col gap-4">
       <header className="border-b-2 px-4 border-neutral-700/50 mb-4 ">
         <h1 className="text-transparent bg-clip-text bg-gradient-to-l from-purple-700 to-purple-100">
           Puzzelin
         </h1>
       </header>
       <section className="grow flex flex-col gap-6">
-        <Button
-          onClick={toggleSidebar(() => {
-            if (window.history.length) {
-              router.back();
-            } else {
-              router.push('/');
-            }
-          })}
+        <BackButton
           variant="secondary"
           icon={<PuzzlePieceIcon width={24} height={24} />}
         >
           Nytt Puzzel
-        </Button>
+        </BackButton>
+
         <Button
           variant="secondary"
           icon={<UserGroupIcon width={24} height={24} />}

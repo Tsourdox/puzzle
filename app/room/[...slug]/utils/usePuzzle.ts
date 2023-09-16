@@ -56,7 +56,6 @@ export default function usePuzzle({
           p.frameRate(120);
           preventDefaultEvents();
           getThemeFromCSS();
-          // setSoundVolumes();
           globals.isMobile = p.windowWidth < 600;
 
           puzzle = new Puzzle(p);

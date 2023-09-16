@@ -1,17 +1,17 @@
 'use client';
-import { PropsWithClassName } from '@/utils/general';
+import { PropsWithClassName, invert } from '@/utils/general';
 import {
   ArrowLeftCircleIcon,
   ArrowRightCircleIcon,
 } from '@heroicons/react/20/solid';
+import { useState } from 'react';
 import { twMerge } from 'tailwind-merge';
 
-type Props = PropsWithClassName & {
-  isOpen: boolean;
-  onToggle: () => void;
-};
+type Props = PropsWithClassName;
 
-export function AppBar({ isOpen, className, onToggle, children }: Props) {
+export function AppBar({ className, children }: Props) {
+  const [isOpen, setIsOpen] = useState(false);
+
   return (
     <aside
       onClick={(e) => e.stopPropagation()}
@@ -23,7 +23,7 @@ export function AppBar({ isOpen, className, onToggle, children }: Props) {
     >
       <i
         className="absolute cursor-pointer top-6 -left-20 backdrop-blur-lg shadow-2xl shadow-black/50 rounded-full active:scale-90 p-1"
-        onClick={onToggle}
+        onClick={() => setIsOpen(invert)}
       >
         {isOpen ? (
           <ArrowRightCircleIcon width={50} height={50} />
