@@ -1,5 +1,5 @@
 import p5 from 'p5';
-import { globals } from '../app/room/[code]/utils/globals';
+import { globals } from '../app/room/[...slug]/utils/globals';
 import { NETWORK_TIMEOUT } from './network/serializer';
 import {
   IDeserializeOptions,

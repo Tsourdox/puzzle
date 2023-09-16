@@ -1,9 +1,8 @@
 'use client';
+import { PexelsImage } from '@/utils/pexels';
 import { Size } from '@/utils/sizes';
 import { useRouter } from 'next/navigation';
 import Button from '../../components/Button';
-import { globals } from '../room/[code]/utils/globals';
-import { PexelsImage } from './SlideshowRow';
 
 interface Props {
   size: Size;
@@ -15,10 +14,7 @@ export default function StartPuzzleButton({ size, image }: Props) {
   const randomRoom = Math.random().toString().slice(4, 8);
 
   const startPuzzle = () => {
-    globals.imageSrc = image.src.large2x;
-    globals.imageSmallSrc = image.src.medium;
-    globals.size = size;
-    router.push(`/room/${randomRoom}?size=${size}`);
+    router.push(`/room/${randomRoom}/${image.id}?size=${size}`);
   };
 
   return (

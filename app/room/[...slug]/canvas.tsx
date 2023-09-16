@@ -1,19 +1,25 @@
 'use client';
 
+import { PexelsImage } from '@/utils/pexels';
+import { Size } from '@/utils/sizes';
 import { useCallback, useRef, useState } from 'react';
-import { globals } from './utils/globals';
 import usePuzzle from './utils/usePuzzle';
 
-export default function PuzzleCanvas() {
+type Props = {
+  image: PexelsImage;
+  size: Size;
+};
+
+export default function PuzzleCanvas({ image, size }: Props) {
   const [isLoading, setIsLoading] = useState(true);
   const containerRef = useRef<HTMLDivElement>(null);
   const handleReady = useCallback(() => setIsLoading(false), []);
-  usePuzzle(containerRef, handleReady);
+  usePuzzle({ containerRef, onReady: handleReady, image, size });
 
   return (
     <div
       className="relative flex flex-col flex-1 bg-cover"
-      style={{ backgroundImage: `url('${globals.imageSmallSrc}')` }}
+      style={{ backgroundImage: `url('${image.src.medium}')` }}
     >
       <div
         ref={containerRef}

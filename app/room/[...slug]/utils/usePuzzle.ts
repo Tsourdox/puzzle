@@ -1,12 +1,22 @@
 import type Puzzle from '@/puzzle/puzzle';
-import { getPiecesCountFromSize } from '@/utils/sizes';
+import { PexelsImage } from '@/utils/pexels';
+import { Size, getPiecesCountFromSize } from '@/utils/sizes';
 import { RefObject, useEffect } from 'react';
 import { globals } from './globals';
 
-export default function usePuzzle(
-  containerRef: RefObject<HTMLElement>,
-  onReady: () => void,
-) {
+type Props = {
+  containerRef: RefObject<HTMLElement>;
+  onReady: () => void;
+  image: PexelsImage;
+  size: Size;
+};
+
+export default function usePuzzle({
+  containerRef,
+  onReady,
+  image,
+  size,
+}: Props) {
   useEffect(() => {
     let puzzle: Puzzle;
 
@@ -50,8 +60,8 @@ export default function usePuzzle(
           globals.isMobile = p.windowWidth < 600;
 
           puzzle = new Puzzle(p);
-          const xy = getPiecesCountFromSize(globals.size);
-          puzzle.generateNewPuzzle(globals.imageSrc, xy, xy).then(() => {
+          const xy = getPiecesCountFromSize(size);
+          puzzle.generateNewPuzzle(image.src.large2x, xy, xy).then(() => {
             onReady();
             p.loop();
           });
@@ -85,5 +95,5 @@ export default function usePuzzle(
       document.body.style.overflow = 'unset';
       puzzle.releaseCanvas();
     };
-  }, [containerRef, onReady]);
+  }, [containerRef, onReady, image, size]);
 }

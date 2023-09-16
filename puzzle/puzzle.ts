@@ -1,4 +1,3 @@
-import { globals } from '@/app/room/[code]/utils/globals';
 import p5 from 'p5';
 import InputHandler from './handlers/inputHandler';
 import RoomCode from './menu/roomCode';
@@ -147,9 +146,6 @@ export default class Puzzle implements IPuzzle, ISerializablePuzzle {
         return;
       }
       try {
-        globals.imageSrc = puzzle.image;
-        globals.imageSmallSrc = puzzle.image;
-
         this.p.loadImage(puzzle.image, (image) => {
           const { x, y } = puzzle.pieceCount;
           this.image = image;

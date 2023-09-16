@@ -1,9 +1,9 @@
+import { PexelsImage } from '@/utils/pexels';
 import { Size, sizes } from '@/utils/sizes';
 import { TrashIcon } from '@heroicons/react/20/solid';
 import Image from 'next/image';
 import Link from 'next/link';
 import { twMerge } from 'tailwind-merge';
-import { PexelsImage } from './SlideshowRow';
 import StartPuzzleButton from './StartPuzzleButton';
 
 interface Props {

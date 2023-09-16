@@ -1,10 +1,14 @@
 'use client';
-import { globals } from '@/app/room/[code]/utils/globals';
 import { invert } from '@/utils/general';
+import { PexelsImage } from '@/utils/pexels';
 import { useState } from 'react';
 import { twMerge } from 'tailwind-merge';
 
-export default function ImagePreview() {
+type Props = {
+  image: PexelsImage;
+};
+
+export default function ImagePreview({ image }: Props) {
   const [fullscreen, setFullscreen] = useState(false);
 
   return (
@@ -21,16 +25,14 @@ export default function ImagePreview() {
           !fullscreen && 'backdrop-blur-lg bg-neutral-950/20',
         )}
       >
-        {globals.imageSrc && (
-          <img
-            className={twMerge(
-              'w-full h-full object-cover rounded-lg',
-              fullscreen && 'object-contain',
-            )}
-            src={globals.imageSrc}
-            alt="Puzzle preview"
-          />
-        )}
+        <img
+          className={twMerge(
+            'w-full h-full object-cover rounded-lg',
+            fullscreen && 'object-contain',
+          )}
+          src={fullscreen ? image.src.large2x : image.src.medium}
+          alt="Puzzle preview"
+        />
       </div>
     </aside>
   );
