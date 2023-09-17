@@ -5,6 +5,7 @@ export interface PexelsImage {
   width: number;
   height: number;
   alt: string;
+  author: string;
   src: {
     large2x: string;
     large: string;
@@ -20,14 +21,12 @@ export const getPexelsImage = async (id: string) => {
   return (await response.json()) as PexelsImage;
 };
 
-export const searchPexelsImages = async (searchTerm?: string) => {
-  if (!searchTerm) return [];
-
+export const searchPexelsImages = async (searchTerm: string) => {
   const domain = 'https://api.pexels.com/';
   const path = 'v1/search';
   const page = 1;
   // const page = Math.ceil(Math.random() * 5);
-  const query = `?query=${searchTerm}&orientation=landscape&per_page=10&page=${page}`;
+  const query = `?query=${searchTerm}&orientation=landscape&per_page=20&page=${page}`;
   const url = `${domain}${path}${query}`;
   const response = await fetch(url, {
     headers: { Authorization: API_KEY },

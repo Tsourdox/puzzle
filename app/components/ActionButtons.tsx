@@ -13,13 +13,14 @@ export default function ActionButtons() {
   return (
     <>
       <Button
+        disabled
         variant="secondary"
         icon={<UserGroupIcon width={24} height={24} />}
         onClick={() => setShowRoomCodeForm(true)}
       >
         Gå med i ett rum
       </Button>
-      <Button variant="secondary" icon={<PhotoIcon width={24} height={24} />}>
+      <Button disabled variant="secondary" icon={<PhotoIcon width={24} height={24} />}>
         Välj en egen bild
       </Button>
     </>

@@ -5,12 +5,11 @@ import ScrollBox from './ScrollBox';
 
 interface Props {
   title: string;
-  searchTerm?: string;
-  images?: string[];
+  searchTerm: string;
   size: Size;
 }
 
-export default async function SlideshowRow({ title, searchTerm, images, size }: Props) {
+export default async function SlideshowRow({ title, searchTerm, size }: Props) {
   const pexelImages = await searchPexelsImages(searchTerm);
 
   return (
@@ -19,21 +18,6 @@ export default async function SlideshowRow({ title, searchTerm, images, size }: 
         {title}
       </h2>
       <ScrollBox>
-        {images?.map((image) => (
-          <ImageCard
-            key={image}
-            image={{
-              id: Math.random().toString(),
-              src: {
-                large2x: image,
-                large: image,
-                medium: image,
-              },
-            }}
-            canBeDeleted
-            size={size}
-          />
-        ))}
         {pexelImages.map((image) => (
           <ImageCard key={image.id} image={image} size={size} />
         ))}

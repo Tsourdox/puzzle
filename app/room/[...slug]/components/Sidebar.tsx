@@ -8,7 +8,6 @@ import { AppBar } from '../../../../components/AppBar';
 import Button from '../../../../components/Button';
 import SocialLinks from '../../../../components/SocialLinks';
 import BackButton from './BackButton';
-import ShareLink from './ShareLink';
 
 export default function Sidebar() {
   return (
@@ -23,19 +22,23 @@ export default function Sidebar() {
           Nytt Puzzel
         </BackButton>
 
-        <Button variant="secondary" icon={<UserGroupIcon width={24} height={24} />}>
+        <Button disabled variant="secondary" icon={<UserGroupIcon width={24} height={24} />}>
           Bjud in vänner
         </Button>
-        <Button variant="secondary" icon={<ArrowPathRoundedSquareIcon width={24} height={24} />}>
+        <Button
+          disabled
+          variant="secondary"
+          icon={<ArrowPathRoundedSquareIcon width={24} height={24} />}
+        >
           Byt rum
         </Button>
-        <Button variant="secondary" icon={<Cog8ToothIcon width={24} height={24} />}>
+        <Button disabled variant="secondary" icon={<Cog8ToothIcon width={24} height={24} />}>
           Inställningar
         </Button>
       </section>
       <footer className="flex justify-between">
         <SocialLinks className="text-sm flex flex-col" />
-        <ShareLink />
+        {/* <ShareLink /> */}
       </footer>
     </AppBar>
   );

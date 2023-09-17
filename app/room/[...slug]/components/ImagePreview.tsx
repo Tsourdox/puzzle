@@ -27,7 +27,6 @@ export default function ImagePreview({ image }: Props) {
         )}
       >
         <Image
-          priority
           width={300}
           height={300}
           src={image.src.medium}

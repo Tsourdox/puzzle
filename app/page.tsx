@@ -9,7 +9,7 @@ type Props = {
 };
 
 export default function HomePage({ searchParams }: Props) {
-  const s = parseEnum(searchParams.size, SizeEnum, 'xs');
+  const size = parseEnum(searchParams.size, SizeEnum, 'xs');
 
   return (
     <div className="flex flex-col py-16 gap-16 text-neutral-100 bg-gradient-to-bl from-[#210034] via-20% via-neutral-950 to-100% to-[#110024]">
@@ -32,21 +32,18 @@ export default function HomePage({ searchParams }: Props) {
       </section>
 
       <main className="flex flex-col gap-12 w-screen">
-        <SlideshowRow
-          title="Fortsätt pussla"
-          images={['/images/bear.jpg', '/images/rocket.jpg']}
-          size={s}
-        />
-        <SlideshowRow title="Katter" searchTerm="cats" size={s} />
-        <SlideshowRow title="Vackra hav" searchTerm="ocean landscape" size={s} />
-        <SlideshowRow title="Naturen" searchTerm="nature" size={s} />
-        <SlideshowRow title="Djur" searchTerm="animals" size={s} />
-        <SlideshowRow title="I skogen" searchTerm="forest" size={s} />
-        <SlideshowRow title="Människor" searchTerm="people" size={s} />
-        <SlideshowRow title="Uppe på begen" searchTerm="mountains" size={s} />
-        <SlideshowRow title="Grekland" searchTerm="greek" size={s} />
-        <SlideshowRow title="Sport" searchTerm="sport" size={s} />
-        <SlideshowRow title="Städer" searchTerm="city" size={s} />
+        <SlideshowRow title="Katter" searchTerm="cats" size={size} />
+        <SlideshowRow title="Vackra hav" searchTerm="ocean landscape" size={size} />
+        <SlideshowRow title="Naturen" searchTerm="nature" size={size} />
+        <SlideshowRow title="Djur" searchTerm="animals" size={size} />
+        <SlideshowRow title="I skogen" searchTerm="forest" size={size} />
+        <SlideshowRow title="Människor" searchTerm="people" size={size} />
+        <SlideshowRow title="Uppe på begen" searchTerm="mountains" size={size} />
+        <SlideshowRow title="Grekland" searchTerm="greek" size={size} />
+        <SlideshowRow title="Sport" searchTerm="sport" size={size} />
+        <SlideshowRow title="Städer" searchTerm="city" size={size} />
+        <SlideshowRow title="Bebisar" searchTerm="babies" size={size} />
+        <SlideshowRow title="Blommor" searchTerm="flowers" size={size} />
       </main>
 
       <footer className="flex justify-center items-center gap-12">
