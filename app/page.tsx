@@ -3,6 +3,7 @@ import SocialLinks from '@/components/SocialLinks';
 import { SearchParams, parseEnum } from '@/utils/searchParams';
 import { SizeEnum } from '@/utils/sizes';
 import ActionButtons from './components/ActionButtons';
+import ContinueSlideshowRow from './components/ContinueSlideshowRow';
 
 type Props = {
   searchParams: SearchParams;
@@ -32,6 +33,7 @@ export default function HomePage({ searchParams }: Props) {
       </section>
 
       <main className="flex flex-col gap-12 w-screen">
+        <ContinueSlideshowRow />
         <SlideshowRow title="Katter" searchTerm="cats" size={size} />
         <SlideshowRow title="Vackra hav" searchTerm="ocean landscape" size={size} />
         <SlideshowRow title="Naturen" searchTerm="nature" size={size} />

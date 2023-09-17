@@ -7,8 +7,20 @@ export default class ClientDB {
   private storeName: string;
   private db?: IDBDatabase;
 
-  constructor(roomCode: string) {
+  constructor(roomCode: string = 'default') {
     this.storeName = roomCode;
+  }
+
+  public get getStoredRoomNames() {
+    if (!this.db) throw new Error('Init must be called before loading data from the store');
+    return Object.values(this.db.objectStoreNames).filter(
+      (name) => !['default', 'main'].includes(name),
+    );
+  }
+
+  public close() {
+    if (!this.db) throw new Error('Init must be called before closing the store');
+    this.db.close();
   }
 
   public init(): Promise<void> {
