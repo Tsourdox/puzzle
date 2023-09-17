@@ -189,6 +189,7 @@ export default class Piece implements ISerializablePiece {
     this.graphics.noFill();
     if (!this.connectedSides.includes(Side.Top)) {
       this.graphics.beginShape();
+      console.log(top);
       this.drawOneSide(this.graphics, top);
       this.graphics.endShape();
     }
@@ -212,6 +213,13 @@ export default class Piece implements ISerializablePiece {
 
   private drawOneSide(graphics: p5.Graphics, side: p5.Vector[]) {
     const firstPoint = p5.Vector.sub(side[0], this.origin);
+
+    if (side.length === 2) {
+      const secondPoint = p5.Vector.sub(side[1], this.origin);
+      graphics.vertex(firstPoint.x, firstPoint.y);
+      graphics.vertex(secondPoint.x, secondPoint.y);
+      return;
+    }
 
     graphics.vertex(firstPoint.x, firstPoint.y);
     for (let i = 1; i < side.length; i += 3) {
