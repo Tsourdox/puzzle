@@ -1,3 +1,4 @@
+import { Size } from '@/utils/sizes';
 import p5 from 'p5';
 import InputHandler from './handlers/inputHandler';
 import NetworkSerializer from './network/serializer';
@@ -28,10 +29,12 @@ export default class Puzzle implements IPuzzle, ISerializablePuzzle {
   private networkSerializer: NetworkSerializer;
   private pieceConnetor: PieceConnector;
   private piecesFactory?: PiecesFactory;
+  private size: Size;
 
-  constructor(p: p5, roomCode: string) {
+  constructor(p: p5, size: Size, roomCode: string) {
     this.p = p;
     this.pieces = [];
+    this.size = size;
     this.pieceCount = p.createVector(0, 0);
     this.pieceSize = p.createVector(0, 0);
     this.isModified = false;
@@ -53,13 +56,18 @@ export default class Puzzle implements IPuzzle, ISerializablePuzzle {
     return this.networkSerializer.loadPuzzle();
   }
 
-  public async generateNewPuzzle(imageSrc: string, x: number, y: number) {
+  private getPiecesCountFromSize(size: Size) {
+    return { xs: 4, s: 8, m: 12, l: 20, xl: 30 }[size];
+  }
+
+  public async generateNewPuzzle(imageSrc: string) {
+    const xy = this.getPiecesCountFromSize(this.size);
     this.image = await this.loadCanvasImage(imageSrc);
     this.isModified = true;
-    this.pieceCount = this.p.createVector(x, y);
-    this.pieceSize = this.p.createVector(this.image.width / x, this.image.height / y);
+    this.pieceCount = this.p.createVector(xy, xy);
+    this.pieceSize = this.p.createVector(this.image.width / xy, this.image.height / xy);
 
-    this.piecesFactory = new PiecesFactory(this.p, x, y, this.image);
+    this.piecesFactory = new PiecesFactory(this.p, xy, xy, this.image);
     this.pieces = this.piecesFactory.createAllPieces();
     this.inputHandler.graphHandler.zoomHome();
   }
@@ -112,6 +120,7 @@ export default class Puzzle implements IPuzzle, ISerializablePuzzle {
       pieceCount: toPoint(this.pieceCount),
       seed: this.piecesFactory?.seed || 0,
       image: (this.image as any)?.canvas.toDataURL('image/jpeg', 0.85) || 'no-image',
+      size: this.size,
     };
   }
 

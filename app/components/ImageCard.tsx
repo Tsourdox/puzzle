@@ -48,7 +48,9 @@ export default function ImageCard({ image, canBeDeleted, size }: Props) {
             </Link>
           ))}
         </section>
-        <StartPuzzleButton size={size} image={image} />
+        <StartPuzzleButton size={size} image={image}>
+          Börja Pussla
+        </StartPuzzleButton>
       </div>
     </div>
   );

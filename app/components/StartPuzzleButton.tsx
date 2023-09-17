@@ -7,9 +7,10 @@ import Button from '../../components/Button';
 interface Props {
   size: Size;
   image: PexelsImage;
+  children: React.ReactNode;
 }
 
-export default function StartPuzzleButton({ size, image }: Props) {
+export default function StartPuzzleButton({ size, image, children }: Props) {
   const router = useRouter();
   const randomRoom = Math.random().toString().slice(4, 8);
 
@@ -19,7 +20,7 @@ export default function StartPuzzleButton({ size, image }: Props) {
 
   return (
     <Button className="text-sm md:text-base" onClick={startPuzzle}>
-      Börja Pussla
+      {children}
     </Button>
   );
 }

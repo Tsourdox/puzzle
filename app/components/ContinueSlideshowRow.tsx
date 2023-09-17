@@ -17,6 +17,10 @@ export default function ContinueSlideshowRow() {
     })();
   }, []);
 
+  const removeRoom = (room: string) => setRooms((rooms) => rooms.filter((r) => r !== room));
+
+  if (!rooms.length) return null;
+
   return (
     <section className="flex flex-col gap-4">
       <h2 className="text-3xl capitalize font-semibold text-neutral-200 ml-8 md:ml-20 pl-2 font-sans">
@@ -24,7 +28,7 @@ export default function ContinueSlideshowRow() {
       </h2>
       <ScrollBox>
         {rooms.map((room) => (
-          <ContinueImageCard key={room} room={room} />
+          <ContinueImageCard key={room} room={room} onDeleted={removeRoom} />
         ))}
       </ScrollBox>
     </section>

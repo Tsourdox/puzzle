@@ -29,9 +29,8 @@ export default class ClientDB {
       lookupVersionRequest.onerror = reject;
       lookupVersionRequest.onsuccess = (e: any) => {
         this.db = e.target.result as IDBDatabase;
-        var version = this.db.version;
+        const version = this.db.version;
         if (this.db.objectStoreNames.contains(this.storeName)) {
-          console.log('DB already initialized for room:', this.storeName);
           resolve();
           return;
         }
@@ -40,7 +39,6 @@ export default class ClientDB {
         const resuest = indexedDB.open(this.dbName, version + 1);
         resuest.onupgradeneeded = (e: any) => {
           const db = e.target.result;
-          console.log('Initialize DB for room:', this.storeName);
           db.createObjectStore(this.storeName, { autoIncrement: true });
         };
 
@@ -53,14 +51,28 @@ export default class ClientDB {
     });
   }
 
-  public clear(): Promise<void> {
-    return new Promise(async (resolve, reject) => {
-      if (!this.db) throw new Error('Init must be called before loading data from the store');
-      const trans = this.db.transaction(this.storeName, 'readwrite');
-      const store = trans.objectStore(this.storeName);
-      const request = store.clear();
-      request.onsuccess = () => resolve();
-      request.onerror = reject;
+  public delete(): Promise<void> {
+    return new Promise((resolve, reject) => {
+      const lookupVersionRequest = indexedDB.open(this.dbName);
+      lookupVersionRequest.onerror = reject;
+      lookupVersionRequest.onsuccess = (e: any) => {
+        this.db = e.target.result as IDBDatabase;
+        const version = this.db.version;
+        this.db.close();
+
+        const resuest = indexedDB.open(this.dbName, version + 1);
+        resuest.onupgradeneeded = (e: any) => {
+          const db = e.target.result;
+          db.deleteObjectStore(this.storeName, { autoIncrement: true });
+        };
+
+        resuest.onerror = reject;
+        resuest.onsuccess = (e: any) => {
+          const db = e.target.result;
+          db.close();
+          resolve();
+        };
+      };
     });
   }
 

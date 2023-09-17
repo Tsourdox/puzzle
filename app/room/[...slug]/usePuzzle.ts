@@ -1,7 +1,7 @@
 import type Puzzle from '@/puzzle/puzzle';
 import { PexelsImage } from '@/utils/pexels';
 import { preventDefaultEvents } from '@/utils/preventEvents';
-import { Size, getPiecesCountFromSize } from '@/utils/sizes';
+import { Size } from '@/utils/sizes';
 import { RefObject, WheelEvent, useEffect } from 'react';
 
 type Props = {
@@ -38,14 +38,13 @@ export default function usePuzzle({ containerRef, onReady, image, size, roomCode
           p.createCanvas(width, height);
           p.frameRate(90);
 
-          puzzle = new Puzzle(p, roomCode);
+          puzzle = new Puzzle(p, size, roomCode);
           puzzle.tryLoadPuzzle().then((puzzleHasBeenLoaded) => {
             if (puzzleHasBeenLoaded) {
               onReady();
               p.loop();
             } else {
-              const xy = getPiecesCountFromSize(size);
-              puzzle.generateNewPuzzle(image.src.large2x, xy, xy).then(() => {
+              puzzle.generateNewPuzzle(image.src.large2x).then(() => {
                 onReady();
                 p.loop();
               });

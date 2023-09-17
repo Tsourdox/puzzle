@@ -1,3 +1,4 @@
+import { Size } from '@/utils/sizes';
 import { Point } from '../utils/general';
 
 export interface ISerializable<S, D> {
@@ -30,6 +31,7 @@ export interface IPuzzleData {
   pieceCount: Point;
   seed: number;
   updatedBy?: string;
+  size: Size;
 }
 
 export interface IPieceData {
