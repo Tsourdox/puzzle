@@ -1,3 +1,10 @@
+import {
+  IDeserializedPieceData,
+  IGraphData,
+  IPieceData,
+  IPuzzleData,
+} from './types';
+
 type DBKey = 'puzzle' | 'graph' | 'pieces';
 
 export default class ClientDB {

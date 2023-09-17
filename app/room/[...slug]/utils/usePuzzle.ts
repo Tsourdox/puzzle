@@ -1,7 +1,7 @@
 import type Puzzle from '@/puzzle/puzzle';
 import { PexelsImage } from '@/utils/pexels';
 import { Size, getPiecesCountFromSize } from '@/utils/sizes';
-import { RefObject, useEffect } from 'react';
+import { RefObject, WheelEvent, useEffect } from 'react';
 import { globals } from './globals';
 
 type Props = {
@@ -81,7 +81,7 @@ export default function usePuzzle({
           p.resizeCanvas(width, height);
         };
 
-        p.mouseWheel = (event: any) => {
+        p.mouseWheel = (event: WheelEvent & { delta: number }) => {
           globals.scrollDelta = event.delta;
           return false;
         };

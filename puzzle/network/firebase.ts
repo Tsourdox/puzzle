@@ -7,6 +7,12 @@ import {
   onValue,
   ref,
 } from 'firebase/database';
+import {
+  IDeserializedPieceData,
+  IPieceData,
+  IPuzzleData,
+  ISerializedPieceData,
+} from './types';
 
 interface RoomData<P> {
   puzzle: IPuzzleData;
