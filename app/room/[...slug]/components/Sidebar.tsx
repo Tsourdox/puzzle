@@ -4,10 +4,10 @@ import {
   PuzzlePieceIcon,
   UserGroupIcon,
 } from '@heroicons/react/20/solid';
+import Link from 'next/link';
 import { AppBar } from '../../../../components/AppBar';
 import Button from '../../../../components/Button';
 import SocialLinks from '../../../../components/SocialLinks';
-import BackButton from './BackButton';
 
 export default function Sidebar() {
   return (
@@ -17,10 +17,12 @@ export default function Sidebar() {
           Puzzelin
         </h1>
       </header>
-      <section className="grow flex flex-col gap-6">
-        <BackButton variant="secondary" icon={<PuzzlePieceIcon width={24} height={24} />}>
-          Nytt Puzzel
-        </BackButton>
+      <section className="flex-1 flex flex-col gap-6">
+        <Link href="/" className="flex flex-col">
+          <Button variant="secondary" icon={<PuzzlePieceIcon width={24} height={24} />}>
+            Nytt Puzzel
+          </Button>
+        </Link>
 
         <Button disabled variant="secondary" icon={<UserGroupIcon width={24} height={24} />}>
           Bjud in vänner
