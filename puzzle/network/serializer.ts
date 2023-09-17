@@ -107,9 +107,7 @@ export default class NetworkSerializer {
 
   private sendIncrementalPuzzleData() {
     const { pieces } = this.puzzle;
-    const piecesData = pieces
-      .filter((p) => p.isModified)
-      .map((p) => p.serialize());
+    const piecesData = pieces.filter((p) => p.isModified).map((p) => p.serialize());
     if (piecesData.length) {
       // if (this.firebaseDB.isOnline) {
       //   this.firebaseDB.savePiecesData(this._roomCode, piecesData);

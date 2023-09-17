@@ -37,21 +37,8 @@ export default class PiecesFactory {
       // Create offset around image before croping piece-images,
       // because Safari makes edge pieces transparent.
       // For some reason offset * 2 is not enough, why?
-      const imageWithOffset = p.createImage(
-        p.round(w + offset * 3),
-        p.round(h + offset * 3),
-      );
-      imageWithOffset.copy(
-        this.image,
-        0,
-        0,
-        w,
-        h,
-        p.round(offset),
-        p.round(offset),
-        w,
-        h,
-      );
+      const imageWithOffset = p.createImage(p.round(w + offset * 3), p.round(h + offset * 3));
+      imageWithOffset.copy(this.image, 0, 0, w, h, p.round(offset), p.round(offset), w, h);
 
       for (const sides of this.generatePiecesOutlines()) {
         const origin = sides.top[0];
@@ -62,15 +49,7 @@ export default class PiecesFactory {
 
         const image = imageWithOffset.get(pieceX, pieceY, pieceW, pieceH);
         const id = pieces.length; // array index
-        const piece = new Piece(
-          this.p,
-          id,
-          image,
-          origin,
-          this.cellSize,
-          sides,
-          offset,
-        );
+        const piece = new Piece(this.p, id, image, origin, this.cellSize, sides, offset);
         pieces.push(piece);
       }
 
@@ -135,9 +114,7 @@ export default class PiecesFactory {
     if (edge === 'top') {
       if (y === 0) return;
       // Clone bottom side from above piece to match it.
-      const newSide = sides[abovePieceIndex].bottom.map((vector) =>
-        vector.copy(),
-      );
+      const newSide = sides[abovePieceIndex].bottom.map((vector) => vector.copy());
       newSide.reverse();
       side.splice(0, 2, ...newSide);
       return;
@@ -145,9 +122,7 @@ export default class PiecesFactory {
     if (edge === 'left') {
       if (x === 0) return;
       // Clone right side from piece on the left to match it.
-      const newSide = sides[leftPieceIndex].right.map((vector) =>
-        vector.copy(),
-      );
+      const newSide = sides[leftPieceIndex].right.map((vector) => vector.copy());
       newSide.reverse();
       side.splice(0, 2, ...newSide);
       return;
@@ -218,11 +193,7 @@ export default class PiecesFactory {
     return [v0, c0, ...bezier1, ...farBezier, ...bezier2, c1, v1];
   }
 
-  private createBezierPoint(
-    origin: p5.Vector,
-    rotation: number,
-    magnitude: number,
-  ) {
+  private createBezierPoint(origin: p5.Vector, rotation: number, magnitude: number) {
     const p = this.p;
     const c1 = p.createVector(
       origin.x + magnitude * Math.cos(rotation),
@@ -257,10 +228,7 @@ export default class PiecesFactory {
       this.grid[x] = [];
 
       for (let y = 0; y <= this.puzzleSize.y; y++) {
-        this.grid[x][y] = this.p.createVector(
-          this.cellSize.x * x,
-          this.cellSize.y * y,
-        );
+        this.grid[x][y] = this.p.createVector(this.cellSize.x * x, this.cellSize.y * y);
       }
     }
   }

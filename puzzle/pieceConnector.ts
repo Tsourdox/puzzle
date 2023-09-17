@@ -82,12 +82,7 @@ export default class PieceConnector {
       const distA = pcA.dist(acA);
       const distB = pcB.dist(acB);
       if (distA + distB < limit) {
-        this.connectPiece(
-          piece,
-          adjecentPiece,
-          side,
-          playSound && !wasConnected,
-        );
+        this.connectPiece(piece, adjecentPiece, side, playSound && !wasConnected);
         wasConnected = true;
       }
     }
@@ -100,12 +95,7 @@ export default class PieceConnector {
     }
   }
 
-  private connectPiece(
-    piece: Piece,
-    adjecentPiece: Piece,
-    side: Side,
-    playSound: boolean,
-  ) {
+  private connectPiece(piece: Piece, adjecentPiece: Piece, side: Side, playSound: boolean) {
     // First matching side found
     if (piece.isSelected) {
       // Play click sound
@@ -126,10 +116,7 @@ export default class PieceConnector {
 
     // Add to connected side list
     const oppositeSide = (side + 2) % 4;
-    adjecentPiece.connectedSides = [
-      ...adjecentPiece.connectedSides,
-      oppositeSide,
-    ];
+    adjecentPiece.connectedSides = [...adjecentPiece.connectedSides, oppositeSide];
     piece.connectedSides = [...piece.connectedSides, side];
   }
 }

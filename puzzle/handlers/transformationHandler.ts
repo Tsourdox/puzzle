@@ -1,11 +1,7 @@
 import p5 from 'p5';
 import Piece from '../piece';
 import type { IPuzzle } from '../puzzle';
-import {
-  angleBetween,
-  getAverageCenter,
-  getMostDistantPoints,
-} from '../utils/general';
+import { angleBetween, getAverageCenter, getMostDistantPoints } from '../utils/general';
 import { getConnectedPieces, rotateAroundCenter } from '../utils/pieces';
 import { ISettingsMap, settings } from '../utils/settings';
 import type { IGraph } from './graphHandler';
@@ -38,11 +34,7 @@ export default class TransformHandler implements ITransformHandler {
     return this.puzzle.pieces.filter((p) => p.isSelected);
   }
 
-  public update(
-    prevMouse: p5.Vector,
-    prevTouches: Touches,
-    scrollDelta: number,
-  ) {
+  public update(prevMouse: p5.Vector, prevTouches: Touches, scrollDelta: number) {
     this.handlePieceRotation(prevTouches, scrollDelta);
     this.handlePieceTranslation(prevMouse, prevTouches);
     this.handlePieceExploding();
@@ -69,9 +61,7 @@ export default class TransformHandler implements ITransformHandler {
   /** Will also translate connected pieces */
   public translatePiece(piece: Piece, translation: p5.Vector) {
     const pieces = getConnectedPieces(piece, this.puzzle);
-    pieces.forEach(
-      (p) => (p.translation = p5.Vector.add(p.translation, translation)),
-    );
+    pieces.forEach((p) => (p.translation = p5.Vector.add(p.translation, translation)));
   }
 
   private handlePieceTranslation(prevMouse: p5.Vector, prevTouches: Touches) {

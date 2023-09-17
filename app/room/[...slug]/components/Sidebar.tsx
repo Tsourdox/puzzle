@@ -19,29 +19,17 @@ export default function Sidebar() {
         </h1>
       </header>
       <section className="grow flex flex-col gap-6">
-        <BackButton
-          variant="secondary"
-          icon={<PuzzlePieceIcon width={24} height={24} />}
-        >
+        <BackButton variant="secondary" icon={<PuzzlePieceIcon width={24} height={24} />}>
           Nytt Puzzel
         </BackButton>
 
-        <Button
-          variant="secondary"
-          icon={<UserGroupIcon width={24} height={24} />}
-        >
+        <Button variant="secondary" icon={<UserGroupIcon width={24} height={24} />}>
           Bjud in vänner
         </Button>
-        <Button
-          variant="secondary"
-          icon={<ArrowPathRoundedSquareIcon width={24} height={24} />}
-        >
+        <Button variant="secondary" icon={<ArrowPathRoundedSquareIcon width={24} height={24} />}>
           Byt rum
         </Button>
-        <Button
-          variant="secondary"
-          icon={<Cog8ToothIcon width={24} height={24} />}
-        >
+        <Button variant="secondary" icon={<Cog8ToothIcon width={24} height={24} />}>
           Inställningar
         </Button>
       </section>

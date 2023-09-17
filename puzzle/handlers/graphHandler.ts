@@ -1,12 +1,7 @@
 import p5 from 'p5';
 import { IGraphData, ISerializableGraph } from '../network/types';
 import { IPuzzle } from '../puzzle';
-import {
-  getMostDistantPoints,
-  pointBetween,
-  toPoint,
-  toVector,
-} from '../utils/general';
+import { getMostDistantPoints, pointBetween, toPoint, toVector } from '../utils/general';
 import { ISettingsMap, settings } from '../utils/settings';
 import { Touches } from './inputHandler';
 
@@ -119,10 +114,7 @@ export default class GraphHandler implements IGraph, ISerializableGraph {
       this._isModified = true;
     }
     // Mouse
-    if (
-      p.mouseIsPressed &&
-      (p.mouseButton === p.CENTER || p.mouseButton === p.RIGHT)
-    ) {
+    if (p.mouseIsPressed && (p.mouseButton === p.CENTER || p.mouseButton === p.RIGHT)) {
       const movedX = (p.mouseX - prevMouse.x) / this.scale;
       const movedY = (p.mouseY - prevMouse.y) / this.scale;
       this._translation.add(movedX, movedY);

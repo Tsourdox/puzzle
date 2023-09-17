@@ -1,9 +1,4 @@
-import {
-  IDeserializedPieceData,
-  IGraphData,
-  IPieceData,
-  IPuzzleData,
-} from './types';
+import { IDeserializedPieceData, IGraphData, IPieceData, IPuzzleData } from './types';
 
 type DBKey = 'puzzle' | 'graph' | 'pieces';
 
@@ -29,10 +24,7 @@ export default class ClientDB {
 
   public clear(): Promise<void> {
     return new Promise(async (resolve, reject) => {
-      if (!this.db)
-        throw new Error(
-          'Init must be called before loading data from the store',
-        );
+      if (!this.db) throw new Error('Init must be called before loading data from the store');
       const trans = this.db.transaction(this.storeName, 'readwrite');
       const store = trans.objectStore(this.storeName);
       const request = store.clear();
@@ -43,10 +35,7 @@ export default class ClientDB {
 
   private loadFromStore<T>(key: DBKey): Promise<T> {
     return new Promise(async (resolve, reject) => {
-      if (!this.db)
-        throw new Error(
-          'Init must be called before loading data from the store',
-        );
+      if (!this.db) throw new Error('Init must be called before loading data from the store');
       const trans = this.db.transaction(this.storeName, 'readwrite');
       const store = trans.objectStore(this.storeName);
       const request = store.get(key);
@@ -63,8 +52,7 @@ export default class ClientDB {
 
   private saveToStore<T>(data: T, key: DBKey) {
     return new Promise<void>(async (resolve, reject) => {
-      if (!this.db)
-        throw new Error('Init must be called before saving data to the store');
+      if (!this.db) throw new Error('Init must be called before saving data to the store');
       const trans = this.db.transaction(this.storeName, 'readwrite');
       const store = trans.objectStore(this.storeName);
       const request = store.put(data, key);

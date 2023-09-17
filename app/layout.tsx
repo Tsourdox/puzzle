@@ -13,8 +13,7 @@ const myFont = localFont({
 export const metadata: Metadata = {
   title: 'Puzzelin - Gratis Online Pussel',
   description: 'Ett online pussel för dig och dina vänner!',
-  keywords:
-    'pussel, online, vänner, familj, socialt, kul, samarbete, gratis, öppen källkod',
+  keywords: 'pussel, online, vänner, familj, socialt, kul, samarbete, gratis, öppen källkod',
   authors: [{ name: 'David Jensen', url: '' }],
 };
 

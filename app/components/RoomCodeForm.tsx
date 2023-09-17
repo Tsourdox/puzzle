@@ -19,11 +19,10 @@ interface Props {
 
 export default function RoomCodeForm(props: Props) {
   const router = useRouter();
-  const { register, handleSubmit, formState, getValues } =
-    useForm<RoomCodeValues>({
-      resolver: zodResolver(RoomCodeSchema),
-      mode: 'all',
-    });
+  const { register, handleSubmit, formState, getValues } = useForm<RoomCodeValues>({
+    resolver: zodResolver(RoomCodeSchema),
+    mode: 'all',
+  });
 
   const enterRoom = ({ code }: RoomCodeValues) => router.push('room/' + code);
 
@@ -50,9 +49,7 @@ export default function RoomCodeForm(props: Props) {
         type="submit"
         className={twMerge(
           'p-1 text-gray-400',
-          !formState.errors.code &&
-            getValues().code?.length === CODE_LENGTH &&
-            'text-gray-100',
+          !formState.errors.code && getValues().code?.length === CODE_LENGTH && 'text-gray-100',
         )}
       >
         <ArrowSmallRightIcon width={44} height={44} />

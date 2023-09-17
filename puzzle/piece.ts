@@ -6,12 +6,7 @@ import {
   ISerializablePiece,
   ISerializedPieceData,
 } from './network/types';
-import {
-  getAverageCenter,
-  rotatePointAroundCenter,
-  toPoint,
-  toVector,
-} from './utils/general';
+import { getAverageCenter, rotatePointAroundCenter, toPoint, toVector } from './utils/general';
 
 export interface Sides {
   top: p5.Vector[];
@@ -228,21 +223,13 @@ export default class Piece implements ISerializablePiece {
   }
 
   private getCorners(): p5.Vector[] {
-    return [
-      this.sides.top[0],
-      this.sides.right[0],
-      this.sides.bottom[0],
-      this.sides.left[0],
-    ];
+    const { top, right, bottom, left } = this.sides;
+    return [top[0], right[0], bottom[0], left[0]];
   }
 
   public getTrueCorners(): p5.Vector[] {
     return this.getCorners().map((corner) => {
-      const trueCorner = rotatePointAroundCenter(
-        corner,
-        this.center,
-        this.rotation,
-      );
+      const trueCorner = rotatePointAroundCenter(corner, this.center, this.rotation);
       trueCorner.add(this.translation);
       return trueCorner;
     });
@@ -291,10 +278,7 @@ export default class Piece implements ISerializablePiece {
     };
   }
 
-  public async deserialize(
-    piece: IDeserializedPieceData,
-    options: IDeserializeOptions,
-  ) {
+  public async deserialize(piece: IDeserializedPieceData, options: IDeserializeOptions) {
     if (this._isSelectedByOther !== piece.isSelectedByOther) {
       this.graphicNeedsUpdating = true;
     }

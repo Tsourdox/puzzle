@@ -42,14 +42,10 @@ export function getAverageCenter(p: p5, points: p5.Vector[]): p5.Vector {
  * on one side and -1 on the other side.
  * https://stackoverflow.com/a/1560510
  **/
-export function pointSideLocationOfLine(
-  point: p5.Vector,
-  line: Line,
-): 1 | 0 | -1 {
+export function pointSideLocationOfLine(point: p5.Vector, line: Line): 1 | 0 | -1 {
   const { start, end } = line;
   return Math.sign(
-    (end.x - start.x) * (point.y - start.y) -
-      (end.y - start.y) * (point.x - start.x),
+    (end.x - start.x) * (point.y - start.y) - (end.y - start.y) * (point.x - start.x),
   ) as 1 | 0 | -1;
 }
 
@@ -68,10 +64,7 @@ export function angleBetween(v0: Point, v1: Point): number {
 }
 
 export function pointBetween(v0: Point, v1: Point, amount?: number): p5.Vector {
-  return new p5.Vector(
-    lerp(v0.x, v1.x, amount || 0.5),
-    lerp(v0.y, v1.y, amount || 0.5),
-  );
+  return new p5.Vector(lerp(v0.x, v1.x, amount || 0.5), lerp(v0.y, v1.y, amount || 0.5));
 }
 
 export function daysBetweenDates(date1: Date, date2: Date) {

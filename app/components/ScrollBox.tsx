@@ -1,9 +1,6 @@
 'use client';
 
-import {
-  ArrowLeftCircleIcon,
-  ArrowRightCircleIcon,
-} from '@heroicons/react/24/outline';
+import { ArrowLeftCircleIcon, ArrowRightCircleIcon } from '@heroicons/react/24/outline';
 import { PropsWithChildren, useEffect, useRef, useState } from 'react';
 
 export default function ScrollBox({ children }: PropsWithChildren) {
@@ -30,8 +27,7 @@ export default function ScrollBox({ children }: PropsWithChildren) {
 
   const scroll = (direction: 'left' | 'right') => {
     if (!scrollRef.current) return;
-    const amount =
-      scrollRef.current.clientWidth * (direction === 'right' ? 0.6 : -0.6);
+    const amount = scrollRef.current.clientWidth * (direction === 'right' ? 0.6 : -0.6);
     const newScrollLeft = scrollRef.current.scrollLeft + amount;
     scrollRef.current.scrollLeft = newScrollLeft;
     setScrollLeft(newScrollLeft);

@@ -1,12 +1,5 @@
 'use client';
-import {
-  Dispatch,
-  PropsWithChildren,
-  Reducer,
-  createContext,
-  useContext,
-  useReducer,
-} from 'react';
+import { Dispatch, PropsWithChildren, Reducer, createContext, useContext, useReducer } from 'react';
 
 // ----- STATE -----
 export type StoreState = {
@@ -18,9 +11,7 @@ const initialStoreState: StoreState = {
 
 // ----- CONTEXTS -----
 export const StoreContext = createContext<StoreState>(null as any);
-export const StoreDispatchContext = createContext<Dispatch<KnownAction>>(
-  null as any,
-);
+export const StoreDispatchContext = createContext<Dispatch<KnownAction>>(null as any);
 
 // ----- PROVIDER -----
 export default function StoreProvider({ children }: PropsWithChildren) {
@@ -28,9 +19,7 @@ export default function StoreProvider({ children }: PropsWithChildren) {
 
   return (
     <StoreContext.Provider value={state}>
-      <StoreDispatchContext.Provider value={dispatch}>
-        {children}
-      </StoreDispatchContext.Provider>
+      <StoreDispatchContext.Provider value={dispatch}>{children}</StoreDispatchContext.Provider>
     </StoreContext.Provider>
   );
 }

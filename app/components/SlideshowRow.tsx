@@ -10,12 +10,7 @@ interface Props {
   size: Size;
 }
 
-export default async function SlideshowRow({
-  title,
-  searchTerm,
-  images,
-  size,
-}: Props) {
+export default async function SlideshowRow({ title, searchTerm, images, size }: Props) {
   const pexelImages = await searchPexelsImages(searchTerm);
 
   return (

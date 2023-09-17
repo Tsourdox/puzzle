@@ -18,11 +18,7 @@ export default class InputHandler {
     this.puzzle = puzzle;
     this.graphHandler = new GraphHandler(puzzle);
     this.selectionHandler = new SelectionHandler(puzzle, this.graphHandler);
-    this.transformHandler = new TransformHandler(
-      puzzle,
-      this.graphHandler,
-      this.selectionHandler,
-    );
+    this.transformHandler = new TransformHandler(puzzle, this.graphHandler, this.selectionHandler);
     const { createVector, mouseX, mouseY } = puzzle.p;
     this.prevMouse = createVector(mouseX, mouseY);
     this.prevTouches = [];

@@ -1,65 +1,65 @@
 /* The box around the toggle */
 .switch {
-    position: relative;
-    display: inline-block;
-    width: var(--width);
-    height: var(--height);
+  position: relative;
+  display: inline-block;
+  width: var(--width);
+  height: var(--height);
 
-    --width: 3.2rem;
-    --height: 1.8rem;
-    --offset: .2rem;
-    --toggle: calc(var(--height) - 2 * var(--offset));
-    --translation: calc(var(--width) - var(--toggle) - 2 * var(--offset));
+  --width: 3.2rem;
+  --height: 1.8rem;
+  --offset: 0.2rem;
+  --toggle: calc(var(--height) - 2 * var(--offset));
+  --translation: calc(var(--width) - var(--toggle) - 2 * var(--offset));
 }
 
 /* Hide default HTML checkbox */
 .switch input {
-    opacity: 0;
-    width: 0;
-    height: 0;
+  opacity: 0;
+  width: 0;
+  height: 0;
 }
 
 /* The toggle */
 .toggle {
-    position: absolute;
-    cursor: pointer;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-color: var(--backdrop);
-    -webkit-transition: .4s;
-    transition: .4s;
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: var(--backdrop);
+  -webkit-transition: 0.4s;
+  transition: 0.4s;
 }
 
 .toggle:before {
-    position: absolute;
-    content: "";
-    height: var(--toggle);
-    width: var(--toggle);
-    left: var(--offset);
-    bottom: var(--offset);
-    background-color: var(--neutral);
-    -webkit-transition: .4s;
-    transition: .4s;
-    box-shadow: 0 0 .4rem -.1rem var(--background);
+  position: absolute;
+  content: '';
+  height: var(--toggle);
+  width: var(--toggle);
+  left: var(--offset);
+  bottom: var(--offset);
+  background-color: var(--neutral);
+  -webkit-transition: 0.4s;
+  transition: 0.4s;
+  box-shadow: 0 0 0.4rem -0.1rem var(--background);
 }
 
 input:checked + .toggle {
-    background-color: var(--primary);
+  background-color: var(--primary);
 }
 
 input:checked + .toggle:before {
-    -webkit-transform: translateX(var(--translation));
-    -ms-transform: translateX(var(--translation));
-    transform: translateX(var(--translation));
+  -webkit-transform: translateX(var(--translation));
+  -ms-transform: translateX(var(--translation));
+  transform: translateX(var(--translation));
 }
 
 /* Rounded toggle */
 .toggle {
-    border-radius: 10rem;
+  border-radius: 10rem;
 }
 
 .toggle:before {
-    border-radius: 50%;
+  border-radius: 50%;
 }

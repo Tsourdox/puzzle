@@ -35,9 +35,7 @@ export default class SelectionHandler implements ISelectionHandler {
     const { p } = this.puzzle;
     if (!this.dragSelectionOrigin) return false;
     const enoughTimePassed = this.timeSincePress > 200;
-    const moved = p
-      .createVector(p.mouseX, p.mouseY)
-      .dist(this.dragSelectionOrigin);
+    const moved = p.createVector(p.mouseX, p.mouseY).dist(this.dragSelectionOrigin);
     const enoughDistMoved = moved > 10;
     return enoughTimePassed || enoughDistMoved;
   }
@@ -83,9 +81,7 @@ export default class SelectionHandler implements ISelectionHandler {
       // Deselection
       if (this.puzzle.selectedPieces.length) {
         const selectMore = p.keyIsDown(this.settings['markera fler']);
-        const mouseOverSelectedPiece = this.isMouseOverAnyPiece(
-          this.puzzle.selectedPieces,
-        );
+        const mouseOverSelectedPiece = this.isMouseOverAnyPiece(this.puzzle.selectedPieces);
         if (!mouseOverSelectedPiece && !selectMore) {
           this.deselectAllPieces();
         }
@@ -123,10 +119,7 @@ export default class SelectionHandler implements ISelectionHandler {
         chekedPieces.push(...connectedPieces);
 
         if (p.keyIsDown(this.settings['markera fler'])) {
-          this.select(
-            piece,
-            piece.isSelected || selectionIsOverAnyConnectedPiece,
-          );
+          this.select(piece, piece.isSelected || selectionIsOverAnyConnectedPiece);
         } else {
           this.select(piece, selectionIsOverAnyConnectedPiece);
         }
@@ -174,10 +167,7 @@ export default class SelectionHandler implements ISelectionHandler {
   private isMouseOverPiece(piece: Piece) {
     const { p } = this.puzzle;
     const { scale, translation } = this.graph;
-    const mouse = p
-      .createVector(p.mouseX, p.mouseY)
-      .div(scale)
-      .sub(translation);
+    const mouse = p.createVector(p.mouseX, p.mouseY).div(scale).sub(translation);
     const corners = piece.getTrueCorners();
     return this.isPointInsideRect(mouse, corners);
   }
@@ -185,13 +175,8 @@ export default class SelectionHandler implements ISelectionHandler {
   private isDragSelectionOverPiece(piece: Piece): boolean {
     const { p } = this.puzzle;
     const { scale, translation } = this.graph;
-    const dsOrigin = this.dragSelectionOrigin!.copy()
-      .div(scale)
-      .sub(translation);
-    const mouse = p
-      .createVector(p.mouseX, p.mouseY)
-      .div(scale)
-      .sub(translation);
+    const dsOrigin = this.dragSelectionOrigin!.copy().div(scale).sub(translation);
+    const mouse = p.createVector(p.mouseX, p.mouseY).div(scale).sub(translation);
 
     const dragSelectionCorners = [
       dsOrigin, // topLeft

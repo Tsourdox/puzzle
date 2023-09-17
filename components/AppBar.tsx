@@ -1,9 +1,6 @@
 'use client';
 import { PropsWithClassName, invert } from '@/utils/general';
-import {
-  ArrowLeftCircleIcon,
-  ArrowRightCircleIcon,
-} from '@heroicons/react/20/solid';
+import { ArrowLeftCircleIcon, ArrowRightCircleIcon } from '@heroicons/react/20/solid';
 import { useState } from 'react';
 import { twMerge } from 'tailwind-merge';
 

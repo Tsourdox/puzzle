@@ -1,18 +1,6 @@
 import { initializeApp } from 'firebase/app';
-import {
-  getDatabase,
-  off,
-  onChildChanged,
-  onDisconnect,
-  onValue,
-  ref,
-} from 'firebase/database';
-import {
-  IDeserializedPieceData,
-  IPieceData,
-  IPuzzleData,
-  ISerializedPieceData,
-} from './types';
+import { getDatabase, off, onChildChanged, onDisconnect, onValue, ref } from 'firebase/database';
+import { IDeserializedPieceData, IPieceData, IPuzzleData, ISerializedPieceData } from './types';
 
 interface RoomData<P> {
   puzzle: IPuzzleData;
@@ -27,10 +15,7 @@ interface StoredPieceData extends IPieceData {
 export default class FirebaseDB {
   private db: ReturnType<typeof getDatabase>;
   private clientId: string;
-  private pieceRefs: (
-    | ReturnType<typeof firebase.push>
-    | ReturnType<typeof firebase.child>
-  )[];
+  private pieceRefs: (ReturnType<typeof firebase.push> | ReturnType<typeof firebase.child>)[];
   private deslectUpdates: Record<string, StoredPieceData>;
   private _isOnline: boolean;
   public get isOnline() {
@@ -46,8 +31,7 @@ export default class FirebaseDB {
       storageBucket: 'puzzelin-f0c28.appspot.com',
       messagingSenderId: '946157006607',
       appId: '1:946157006607:web:3991b8e8272c940d3d187a',
-      databaseURL:
-        'https://puzzelin-f0c28-default-rtdb.europe-west1.firebasedatabase.app',
+      databaseURL: 'https://puzzelin-f0c28-default-rtdb.europe-west1.firebasedatabase.app',
     };
 
     const app = initializeApp(firebaseConfig);
@@ -56,14 +40,11 @@ export default class FirebaseDB {
     this.deslectUpdates = {};
     this._isOnline = false;
 
-    this.clientId =
-      localStorage.getItem('clientId') || random().toString().split('.')[1];
+    this.clientId = localStorage.getItem('clientId') || random().toString().split('.')[1];
     localStorage.setItem('clientId', this.clientId);
   }
 
-  public async getRoomData(
-    code: string,
-  ): Promise<RoomData<IDeserializedPieceData> | null> {
+  public async getRoomData(code: string): Promise<RoomData<IDeserializedPieceData> | null> {
     const snapshot = await firebase.get(ref(this.db, 'rooms/' + code));
     if (!snapshot.exists()) return null;
     const storedRoomData = snapshot.val() as RoomData<StoredPieceData>;
@@ -79,9 +60,7 @@ export default class FirebaseDB {
       puzzle: storedRoomData.puzzle,
       pieces: {},
     };
-    for (const [key, { selectedBy, ...pieceData }] of Object.entries(
-      storedRoomData.pieces,
-    )) {
+    for (const [key, { selectedBy, ...pieceData }] of Object.entries(storedRoomData.pieces)) {
       roomData.pieces[key] = {
         ...pieceData,
         isSelectedByOther: Boolean(selectedBy && selectedBy !== this.clientId),
@@ -141,10 +120,7 @@ export default class FirebaseDB {
     }
   }
 
-  public listenToPuzzleUpdates(
-    code: string,
-    onUpdate: (puzzleData: IPuzzleData) => void,
-  ) {
+  public listenToPuzzleUpdates(code: string, onUpdate: (puzzleData: IPuzzleData) => void) {
     const puzzleRef = ref(this.db, 'rooms/' + code + '/puzzle');
     onValue(
       puzzleRef,
@@ -168,14 +144,11 @@ export default class FirebaseDB {
     onChildChanged(
       pieceRef,
       (snapshot) => {
-        const { selectedBy, updatedBy, ...piece } =
-          snapshot.val() as StoredPieceData;
+        const { selectedBy, updatedBy, ...piece } = snapshot.val() as StoredPieceData;
         if (updatedBy !== this.clientId) {
           onUpdate({
             ...piece,
-            isSelectedByOther: Boolean(
-              selectedBy && selectedBy !== this.clientId,
-            ),
+            isSelectedByOther: Boolean(selectedBy && selectedBy !== this.clientId),
           });
         }
       },

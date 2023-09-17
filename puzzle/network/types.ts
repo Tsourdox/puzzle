@@ -13,8 +13,7 @@ export type IDeserializeOptions =
     }
   | undefined;
 
-export interface ISerializablePuzzle
-  extends ISerializable<IPuzzleData, IPuzzleData> {
+export interface ISerializablePuzzle extends ISerializable<IPuzzleData, IPuzzleData> {
   pieces: ReadonlyArray<ISerializablePiece>;
 }
 
@@ -22,8 +21,7 @@ export interface ISerializablePiece
   extends ISerializable<ISerializedPieceData, IDeserializedPieceData> {
   isSelectedByOther: boolean;
 }
-export interface ISerializableGraph
-  extends ISerializable<IGraphData, IGraphData> {}
+export interface ISerializableGraph extends ISerializable<IGraphData, IGraphData> {}
 
 /* ---------------------------------------------------------------------------- */
 

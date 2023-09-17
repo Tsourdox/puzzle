@@ -38,11 +38,7 @@ export default function HomePage({ searchParams }: Props) {
           size={s}
         />
         <SlideshowRow title="Katter" searchTerm="cats" size={s} />
-        <SlideshowRow
-          title="Vackra hav"
-          searchTerm="ocean landscape"
-          size={s}
-        />
+        <SlideshowRow title="Vackra hav" searchTerm="ocean landscape" size={s} />
         <SlideshowRow title="Naturen" searchTerm="nature" size={s} />
         <SlideshowRow title="Djur" searchTerm="animals" size={s} />
         <SlideshowRow title="I skogen" searchTerm="forest" size={s} />
