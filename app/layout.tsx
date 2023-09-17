@@ -15,7 +15,7 @@ export const metadata: Metadata = {
   description:
     'Ett gratis och open-source online pussel där vänner och familj kan hjälpas åt och lösa roliga pussel ihop!',
   keywords: 'pussel, online, vänner, familj, socialt, kul, samarbete, gratis, öppen källkod',
-  authors: [{ name: 'David Jensen', url: '' }],
+  authors: [{ name: 'David Jensen', url: 'https://github.com/Tsourdox' }],
 };
 
 export default function RootLayout({ children }: PropsWithChildren) {
