@@ -13,6 +13,11 @@ type Props = {
 
 export default function usePuzzle({ containerRef, onReady, image, size }: Props) {
   useEffect(() => {
+    document.body.classList.add('overflow-hidden');
+    return () => document.body.classList.remove('overflow-hidden');
+  }, []);
+
+  useEffect(() => {
     let puzzle: Puzzle;
     let scrollDelta = 0;
 
