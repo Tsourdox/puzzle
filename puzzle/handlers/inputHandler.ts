@@ -28,10 +28,10 @@ export default class InputHandler {
     this.prevTouches = [];
   }
 
-  public update() {
-    this.graphHandler.update(this.prevMouse, this.prevTouches);
+  public update(scrollDelta: number) {
+    this.graphHandler.update(this.prevMouse, this.prevTouches, scrollDelta);
     this.selectionHandler.update();
-    this.transformHandler.update(this.prevMouse, this.prevTouches);
+    this.transformHandler.update(this.prevMouse, this.prevTouches, scrollDelta);
     this.setPreviousValues();
   }
 

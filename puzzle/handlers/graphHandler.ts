@@ -1,5 +1,4 @@
 import p5 from 'p5';
-import { globals } from '../../app/room/[...slug]/utils/globals';
 import { IGraphData, ISerializableGraph } from '../network/types';
 import { IPuzzle } from '../puzzle';
 import {
@@ -49,10 +48,10 @@ export default class GraphHandler implements IGraph, ISerializableGraph {
     this._isModified = true;
   }
 
-  update(prevMouse: p5.Vector, prevTouches: Touches) {
+  update(prevMouse: p5.Vector, prevTouches: Touches, scrollDelta: number) {
     const { p } = this.puzzle;
     this.handleTranslation(prevMouse, prevTouches);
-    this.handleScaling(prevTouches);
+    this.handleScaling(prevTouches, scrollDelta);
 
     // Prevent non-intended zoom when a piece connects from scrolling
     this.isZoomDisabled = p.max(0, this.isZoomDisabled - 1);
@@ -61,12 +60,12 @@ export default class GraphHandler implements IGraph, ISerializableGraph {
     }
   }
 
-  private handleScaling(prevTouches: Touches) {
+  private handleScaling(prevTouches: Touches, scrollDelta: number) {
     const { p } = this.puzzle;
     let zoomDelta = 0;
     // Mouse
-    if (!this.isZoomDisabled && globals.scrollDelta !== 0) {
-      zoomDelta = globals.scrollDelta;
+    if (!this.isZoomDisabled && scrollDelta !== 0) {
+      zoomDelta = scrollDelta;
     }
     // Touch
     if (prevTouches.length === 3 && touches.length === 3) {

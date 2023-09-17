@@ -4,7 +4,7 @@ import { getPexelsImage } from '@/utils/pexels';
 import { SearchParams, parseEnum } from '@/utils/searchParams';
 import { SizeEnum } from '@/utils/sizes';
 import { Metadata } from 'next';
-import PuzzleCanvas from './canvas';
+import PuzzleCanvas from './components/PuzzleCanvas';
 
 type Props = {
   params: { slug: string[] };
@@ -28,8 +28,13 @@ export default async function RoomPage({ params, searchParams }: Props) {
 
   return (
     <div className="flex flex-col flex-1">
-      <main className="flex flex-col flex-1">
-        <PuzzleCanvas image={image} size={size} />
+      <main
+        className="flex flex-col flex-1 bg-cover"
+        style={{ backgroundImage: `url('${image.src.medium}')` }}
+      >
+        <div className="relative flex flex-col flex-1 backdrop-blur-3xl bg-neutral-800/70">
+          <PuzzleCanvas image={image} size={size} />
+        </div>
       </main>
       <Sidebar />
       <ImagePreview image={image} />

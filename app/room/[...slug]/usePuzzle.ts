@@ -1,8 +1,8 @@
 import type Puzzle from '@/puzzle/puzzle';
 import { PexelsImage } from '@/utils/pexels';
+import { preventDefaultEvents } from '@/utils/preventEvents';
 import { Size, getPiecesCountFromSize } from '@/utils/sizes';
 import { RefObject, WheelEvent, useEffect } from 'react';
-import { globals } from './globals';
 
 type Props = {
   containerRef: RefObject<HTMLElement>;
@@ -19,6 +19,7 @@ export default function usePuzzle({
 }: Props) {
   useEffect(() => {
     let puzzle: Puzzle;
+    let scrollDelta = 0;
 
     (async () => {
       // NextJS SSR crashes when importing p5 - dynamic import solves it.
@@ -31,20 +32,10 @@ export default function usePuzzle({
       const { width, height } = containerRef.current.getBoundingClientRect();
 
       const sketch = (p: p5) => {
-        function preventDefaultEvents() {
-          // Prevent context menu when right clicking
-          document.oncontextmenu = () => false;
-          // Prenent magnifying glass
-          document
-            .querySelector('canvas')
-            ?.addEventListener('touchstart', (e) => e.preventDefault());
-        }
-
-        // The sketch setup method
         p.setup = () => {
-          p.createCanvas(width, height);
-          p.frameRate(120);
           preventDefaultEvents();
+          p.createCanvas(width, height);
+          p.frameRate(90);
 
           puzzle = new Puzzle(p);
           const xy = getPiecesCountFromSize(size);
@@ -55,11 +46,10 @@ export default function usePuzzle({
           p.noLoop();
         };
 
-        // The sketch draw method
         p.draw = () => {
-          puzzle.update();
+          puzzle.update(scrollDelta);
           puzzle.draw();
-          globals.scrollDelta = 0;
+          scrollDelta = 0;
         };
 
         p.windowResized = () => {
@@ -69,17 +59,13 @@ export default function usePuzzle({
         };
 
         p.mouseWheel = (event: WheelEvent & { delta: number }) => {
-          globals.scrollDelta = event.delta;
+          scrollDelta = event.delta;
           return false;
         };
       };
 
       new p5(sketch, containerRef.current);
-      document.body.style.overflow = 'hidden';
     })();
-    return () => {
-      document.body.style.overflow = 'unset';
-      puzzle.releaseCanvas();
-    };
+    return () => puzzle.releaseCanvas();
   }, [containerRef, onReady, image, size]);
 }

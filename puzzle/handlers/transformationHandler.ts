@@ -1,5 +1,4 @@
 import p5 from 'p5';
-import { globals } from '../../app/room/[...slug]/utils/globals';
 import Piece from '../piece';
 import type { IPuzzle } from '../puzzle';
 import {
@@ -39,8 +38,12 @@ export default class TransformHandler implements ITransformHandler {
     return this.puzzle.pieces.filter((p) => p.isSelected);
   }
 
-  public update(prevMouse: p5.Vector, prevTouches: Touches) {
-    this.handlePieceRotation(prevTouches);
+  public update(
+    prevMouse: p5.Vector,
+    prevTouches: Touches,
+    scrollDelta: number,
+  ) {
+    this.handlePieceRotation(prevTouches, scrollDelta);
     this.handlePieceTranslation(prevMouse, prevTouches);
     this.handlePieceExploding();
     this.setPreviousValues();
@@ -93,7 +96,7 @@ export default class TransformHandler implements ITransformHandler {
     }
   }
 
-  private handlePieceRotation(prevTouches: Touches) {
+  private handlePieceRotation(prevTouches: Touches, scrollDelta: number) {
     const { p } = this.puzzle;
     // Keyboard
     const userSpeed = this.settings['rotationshastighet'];
@@ -115,8 +118,8 @@ export default class TransformHandler implements ITransformHandler {
     }
 
     // Scroll
-    if (this.puzzle.selectedPieces && globals.scrollDelta) {
-      const rotation = globals.scrollDelta * 0.01 * userSpeed;
+    if (this.puzzle.selectedPieces && scrollDelta) {
+      const rotation = scrollDelta * 0.01 * userSpeed;
       this.rotatePieces(rotation);
     }
   }

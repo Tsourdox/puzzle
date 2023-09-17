@@ -92,11 +92,11 @@ export default class Puzzle implements IPuzzle, ISerializablePuzzle {
     this.pieces.forEach((p) => p.releaseCanvas());
   }
 
-  public update() {
+  public update(scrollDelta: number) {
     // if (this.networkSerializer.isLoading) return;
     // this.networkSerializer.update(this.p.deltaTime);
 
-    this.inputHandler.update();
+    this.inputHandler.update(scrollDelta);
     this.pieceConnetor.update();
     for (const piece of this.pieces) {
       piece.update();
