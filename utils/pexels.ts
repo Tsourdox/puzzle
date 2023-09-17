@@ -2,6 +2,9 @@ const API_KEY = '563492ad6f91700001000001e9543e64cc6240f3a18b3b0d9f42629d';
 
 export interface PexelsImage {
   id: string;
+  width: number;
+  height: number;
+  alt: string;
   src: {
     large2x: string;
     large: string;
