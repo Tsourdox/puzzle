@@ -90,7 +90,11 @@ export default class Piece implements ISerializablePiece {
   }
 
   public set rotation(value: number) {
-    this._rotation = value;
+    let nextRotation = value % (Math.PI * 2);
+    if (nextRotation < 0) {
+      nextRotation += Math.PI * 2;
+    }
+    this._rotation = nextRotation;
     this.isModified = true;
   }
   public get rotation() {
@@ -292,8 +296,6 @@ export default class Piece implements ISerializablePiece {
       this.lerpTime = 0;
       const deltaRotation = piece.rotation - this._rotation;
       if (abs(deltaRotation) > Math.PI * 2) {
-        // If rotation is more than a full rotation it needs to be
-        // normalized before lerp to make the rotation smooth
         const rotations = Math.round(deltaRotation / (PI * 2));
         this._rotation += Math.PI * 2 * rotations;
       }
