@@ -24,23 +24,13 @@ export default function usePuzzle({
       // NextJS SSR crashes when importing p5 - dynamic import solves it.
       const { default: p5 } = await import('p5');
       const { default: Puzzle } = await import('@/puzzle/puzzle');
+      // window.p5 = p5;
+      // require('p5/lib/addons/p5.sound');
 
       if (!containerRef.current) throw Error('Could not mount canvas');
       const { width, height } = containerRef.current.getBoundingClientRect();
 
       const sketch = (p: p5) => {
-        function getThemeFromCSS() {
-          const rootStyle = getComputedStyle(document.documentElement);
-          globals.theme = {
-            primary: rootStyle.getPropertyValue('--primary'),
-            darkened: rootStyle.getPropertyValue('--darkened'),
-            neutral: rootStyle.getPropertyValue('--neutral'),
-            background: rootStyle.getPropertyValue('--background'),
-            backdrop: rootStyle.getPropertyValue('--backdrop'),
-            darkdrop: rootStyle.getPropertyValue('--darkdrop'),
-          };
-        }
-
         function preventDefaultEvents() {
           // Prevent context menu when right clicking
           document.oncontextmenu = () => false;
@@ -55,8 +45,6 @@ export default function usePuzzle({
           p.createCanvas(width, height);
           p.frameRate(120);
           preventDefaultEvents();
-          getThemeFromCSS();
-          globals.isMobile = p.windowWidth < 600;
 
           puzzle = new Puzzle(p);
           const xy = getPiecesCountFromSize(size);
@@ -77,7 +65,6 @@ export default function usePuzzle({
         p.windowResized = () => {
           const { width, height } =
             containerRef.current!.getBoundingClientRect();
-          globals.isMobile = p.windowWidth < 600;
           p.resizeCanvas(width, height);
         };
 

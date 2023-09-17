@@ -1,5 +1,4 @@
 import p5 from 'p5';
-import { globals } from '../app/room/[...slug]/utils/globals';
 import { NETWORK_TIMEOUT } from './network/serializer';
 import {
   IDeserializeOptions,
@@ -186,10 +185,8 @@ export default class Piece implements ISerializablePiece {
     const { top, right, bottom, left } = this.sides;
     this.graphics.push();
     this.graphics.translate(this.offset, this.offset);
-    this.graphics.stroke(
-      this._isSelectedByOther ? globals.theme.neutral : globals.theme.primary,
-    );
-    this.graphics.strokeWeight(this.size.mag() / 60);
+    this.graphics.stroke(this._isSelectedByOther ? '#CCC' : '#FFF');
+    this.graphics.strokeWeight(this.size.mag() / 80);
     this.graphics.noFill();
     if (!this.connectedSides.includes(Side.Top)) {
       this.graphics.beginShape();
