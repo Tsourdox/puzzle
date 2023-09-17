@@ -24,7 +24,14 @@ export default function HomePage({ searchParams }: Props) {
           </span>
         </h1>
         <span className="text-2xl font-thin text-neutral-300 border-t-1 border-neutral-800 px-4 font-sans">
-          Ett online pussel för dig och dina vänner!
+          Ett{' '}
+          <span className="relative text-purple-400">
+            online
+            <span className="absolute text-xs font-semibold text-purple-400 whitespace-nowrap -left-3 -bottom-4">
+              Kommer snart!
+            </span>
+          </span>{' '}
+          pussel för dig och dina vänner!
         </span>
       </header>
 
