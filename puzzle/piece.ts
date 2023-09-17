@@ -189,7 +189,6 @@ export default class Piece implements ISerializablePiece {
     this.graphics.noFill();
     if (!this.connectedSides.includes(Side.Top)) {
       this.graphics.beginShape();
-      console.log(top);
       this.drawOneSide(this.graphics, top);
       this.graphics.endShape();
     }
