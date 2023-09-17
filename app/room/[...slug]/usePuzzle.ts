@@ -9,9 +9,10 @@ type Props = {
   onReady: () => void;
   image: PexelsImage;
   size: Size;
+  roomCode: string;
 };
 
-export default function usePuzzle({ containerRef, onReady, image, size }: Props) {
+export default function usePuzzle({ containerRef, onReady, image, size, roomCode }: Props) {
   useEffect(() => {
     document.body.classList.add('overflow-hidden');
     return () => document.body.classList.remove('overflow-hidden');
@@ -37,12 +38,20 @@ export default function usePuzzle({ containerRef, onReady, image, size }: Props)
           p.createCanvas(width, height);
           p.frameRate(90);
 
-          puzzle = new Puzzle(p);
-          const xy = getPiecesCountFromSize(size);
-          puzzle.generateNewPuzzle(image.src.large2x, xy, xy).then(() => {
-            onReady();
-            p.loop();
+          puzzle = new Puzzle(p, roomCode);
+          puzzle.tryLoadPuzzle().then((puzzleHasBeenLoaded) => {
+            if (puzzleHasBeenLoaded) {
+              onReady();
+              p.loop();
+            } else {
+              const xy = getPiecesCountFromSize(size);
+              puzzle.generateNewPuzzle(image.src.large2x, xy, xy).then(() => {
+                onReady();
+                p.loop();
+              });
+            }
           });
+
           p.noLoop();
         };
 
@@ -66,5 +75,5 @@ export default function usePuzzle({ containerRef, onReady, image, size }: Props)
       new p5(sketch, containerRef.current);
     })();
     return () => puzzle.releaseCanvas();
-  }, [containerRef, onReady, image, size]);
+  }, [containerRef, onReady, image, size, roomCode]);
 }

@@ -4,20 +4,39 @@ type DBKey = 'puzzle' | 'graph' | 'pieces';
 
 export default class ClientDB {
   private readonly dbName = 'puzzelin';
-  private readonly storeName = 'main';
+  private storeName: string;
   private db?: IDBDatabase;
+
+  constructor(roomCode: string) {
+    this.storeName = roomCode;
+  }
 
   public init(): Promise<void> {
     return new Promise((resolve, reject) => {
-      const request = indexedDB.open(this.dbName, 3);
-      request.onerror = reject;
-      request.onsuccess = (e: any) => {
-        this.db = e.target.result;
-        resolve();
-      };
-      request.onupgradeneeded = (e: any) => {
-        const db = e.target.result;
-        db.createObjectStore('main', { autoIncrement: true });
+      const lookupVersionRequest = indexedDB.open(this.dbName);
+      lookupVersionRequest.onerror = reject;
+      lookupVersionRequest.onsuccess = (e: any) => {
+        this.db = e.target.result as IDBDatabase;
+        var version = this.db.version;
+        if (this.db.objectStoreNames.contains(this.storeName)) {
+          console.log('DB already initialized for room:', this.storeName);
+          resolve();
+          return;
+        }
+        this.db.close();
+
+        const resuest = indexedDB.open(this.dbName, version + 1);
+        resuest.onupgradeneeded = (e: any) => {
+          const db = e.target.result;
+          console.log('Initialize DB for room:', this.storeName);
+          db.createObjectStore(this.storeName, { autoIncrement: true });
+        };
+
+        resuest.onerror = reject;
+        resuest.onsuccess = (e: any) => {
+          this.db = e.target.result;
+          resolve();
+        };
       };
     });
   }

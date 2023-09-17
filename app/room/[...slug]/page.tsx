@@ -12,16 +12,16 @@ type Props = {
 };
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const [code] = params.slug;
+  const [roomCode] = params.slug;
 
   return {
-    title: `Puzzelin - In Room ${code}`,
+    title: `Puzzelin - In Room ${roomCode}`,
     description: 'Solve the puzzle by clicking, scrolling & dragging.',
   };
 }
 
 export default async function RoomPage({ params, searchParams }: Props) {
-  const [code, imageId] = params.slug;
+  const [roomCode, imageId] = params.slug;
   const size = parseEnum(searchParams.size, SizeEnum, 'xs');
 
   const image = await getPexelsImage(imageId);
@@ -33,7 +33,7 @@ export default async function RoomPage({ params, searchParams }: Props) {
         style={{ backgroundImage: `url('${image.src.medium}')` }}
       >
         <div className="relative flex flex-col flex-1 backdrop-blur-3xl bg-neutral-800/70">
-          <PuzzleCanvas image={image} size={size} />
+          <PuzzleCanvas image={image} size={size} roomCode={roomCode} />
         </div>
       </main>
       <Sidebar />

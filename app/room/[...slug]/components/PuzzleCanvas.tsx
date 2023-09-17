@@ -8,14 +8,15 @@ import usePuzzle from '../usePuzzle';
 type Props = {
   image: PexelsImage;
   size: Size;
+  roomCode: string;
 };
 
-export default function PuzzleCanvas({ image, size }: Props) {
+export default function PuzzleCanvas({ image, size, roomCode }: Props) {
   const [isLoading, setIsLoading] = useState(true);
   const containerRef = useRef<HTMLDivElement>(null);
   const onReady = useCallback(() => setIsLoading(false), []);
 
-  usePuzzle({ containerRef, onReady, image, size });
+  usePuzzle({ containerRef, onReady, image, size, roomCode });
 
   return (
     <div ref={containerRef} className="relative flex-1">
