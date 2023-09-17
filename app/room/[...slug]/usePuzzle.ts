@@ -11,12 +11,7 @@ type Props = {
   size: Size;
 };
 
-export default function usePuzzle({
-  containerRef,
-  onReady,
-  image,
-  size,
-}: Props) {
+export default function usePuzzle({ containerRef, onReady, image, size }: Props) {
   useEffect(() => {
     let puzzle: Puzzle;
     let scrollDelta = 0;
@@ -53,8 +48,7 @@ export default function usePuzzle({
         };
 
         p.windowResized = () => {
-          const { width, height } =
-            containerRef.current!.getBoundingClientRect();
+          const { width, height } = containerRef.current!.getBoundingClientRect();
           p.resizeCanvas(width, height);
         };
 

@@ -1,9 +1,0 @@
-.key-binding {
-    cursor: pointer;
-    min-width: 10rem;
-    text-align: end;
-}
-
-.key-binding.active {
-    color: var(--primary);
-}
