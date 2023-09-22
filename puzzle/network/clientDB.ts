@@ -6,6 +6,7 @@ export default class ClientDB {
   private readonly dbName = 'puzzelin';
   private storeName: string;
   private db?: IDBDatabase;
+  private version?: number;
 
   constructor(roomCode: string = 'default') {
     this.storeName = roomCode;
@@ -23,30 +24,48 @@ export default class ClientDB {
     this.db.close();
   }
 
-  public init(): Promise<void> {
+  public initVersion(): Promise<void> {
     return new Promise((resolve, reject) => {
-      const lookupVersionRequest = indexedDB.open(this.dbName);
-      lookupVersionRequest.onerror = reject;
-      lookupVersionRequest.onsuccess = (e: any) => {
+      const request = indexedDB.open(this.dbName);
+      request.onerror = reject;
+      request.onsuccess = (e: any) => {
+        const db = e.target.result as IDBDatabase;
+        this.version = db.version;
+        db.close();
+        resolve();
+      };
+    });
+  }
+
+  public open(): Promise<void> {
+    return new Promise((resolve, reject) => {
+      const request = indexedDB.open(this.dbName);
+      request.onerror = reject;
+      request.onsuccess = (e: any) => {
         this.db = e.target.result as IDBDatabase;
-        const version = this.db.version;
-        if (this.db.objectStoreNames.contains(this.storeName)) {
-          resolve();
-          return;
-        }
-        this.db.close();
+        resolve();
+      };
+    });
+  }
 
-        const resuest = indexedDB.open(this.dbName, version + 1);
-        resuest.onupgradeneeded = (e: any) => {
-          const db = e.target.result;
-          db.createObjectStore(this.storeName, { autoIncrement: true });
-        };
+  public createObjectStore(name: string): Promise<void> {
+    return new Promise((resolve, reject) => {
+      if (!this.db || !this.version)
+        throw new Error('Init must be called before closing the store');
+      const request = indexedDB.open(this.dbName, ++this.version);
+      request.onupgradeneeded = (e: any) => {
+        const db = e.target.result;
+        db.createObjectStore(this.storeName, { autoIncrement: true });
+      };
 
-        resuest.onerror = reject;
-        resuest.onsuccess = (e: any) => {
-          this.db = e.target.result;
-          resolve();
-        };
+      request.onerror = reject;
+      request.onsuccess = (e: any) => {
+        const db = e.target.result as IDBDatabase;
+        db.close();
+        resolve();
+      };
+      request.onblocked = (e) => {
+        reject(new Error('Client DB is blocked'));
       };
     });
   }
@@ -78,18 +97,22 @@ export default class ClientDB {
 
   private loadFromStore<T>(key: DBKey): Promise<T> {
     return new Promise(async (resolve, reject) => {
-      if (!this.db) throw new Error('Init must be called before loading data from the store');
-      const trans = this.db.transaction(this.storeName, 'readwrite');
-      const store = trans.objectStore(this.storeName);
-      const request = store.get(key);
-      request.onsuccess = (e: any) => {
-        if (!e.target.result) {
-          reject(new Error('No data to load from Client DB'));
-        } else {
-          resolve(e.target.result);
-        }
-      };
-      request.onerror = reject;
+      try {
+        if (!this.db) throw new Error('Init must be called before loading data from the store');
+        const trans = this.db.transaction(this.storeName, 'readwrite');
+        const store = trans.objectStore(this.storeName);
+        const request = store.get(key);
+        request.onsuccess = (e: any) => {
+          if (!e.target.result) {
+            reject(new Error('No data to load from Client DB'));
+          } else {
+            resolve(e.target.result);
+          }
+        };
+        request.onerror = reject;
+      } catch (error) {
+        reject(error);
+      }
     });
   }
 

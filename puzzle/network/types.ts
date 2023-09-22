@@ -1,3 +1,4 @@
+import { PexelsImage } from '@/utils/pexels';
 import { Size } from '@/utils/sizes';
 import { Point } from '../utils/general';
 
@@ -27,11 +28,11 @@ export interface ISerializableGraph extends ISerializable<IGraphData, IGraphData
 /* ---------------------------------------------------------------------------- */
 
 export interface IPuzzleData {
-  image: string;
+  imageData: PexelsImage;
   pieceCount: Point;
   seed: number;
-  updatedBy?: string;
   size: Size;
+  updatedBy?: string;
 }
 
 export interface IPieceData {

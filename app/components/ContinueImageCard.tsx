@@ -7,6 +7,7 @@ import { TrashIcon } from '@heroicons/react/20/solid';
 import Image from 'next/image';
 import { useEffect, useState } from 'react';
 import { twMerge } from 'tailwind-merge';
+import StartPuzzleButton from './StartPuzzleButton';
 
 interface Props {
   room: string;
@@ -19,7 +20,7 @@ export default function ContinueImageCard(props: Props) {
   useEffect(() => {
     (async () => {
       const clientDB = new ClientDB(props.room);
-      await clientDB.init();
+      await clientDB.open();
       const puzzle = await clientDB.loadPuzzle();
       setPuzzleData(puzzle);
       clientDB.close();
@@ -37,8 +38,8 @@ export default function ContinueImageCard(props: Props) {
   return (
     <div className="group w-56 md:w-80 relative aspect-square flex-none rounded-3xl overflow-hidden">
       <Image
-        src={puzzleData.image}
-        alt=""
+        src={puzzleData.imageData.src.medium}
+        alt={puzzleData.imageData.alt}
         width={300}
         height={300}
         className="w-full h-full object-cover"
@@ -65,9 +66,9 @@ export default function ContinueImageCard(props: Props) {
             </div>
           ))}
         </section>
-        {/* <StartPuzzleButton size={puzzleData.size} image={puzzleData.image}>
+        <StartPuzzleButton size={puzzleData.size} image={puzzleData.imageData} room={props.room}>
           Forsätt Pussla
-        </StartPuzzleButton> */}
+        </StartPuzzleButton>
       </div>
     </div>
   );

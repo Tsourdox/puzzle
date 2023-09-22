@@ -11,7 +11,7 @@ export default function ContinueSlideshowRow() {
   useEffect(() => {
     (async () => {
       const clientDB = new ClientDB();
-      await clientDB.init();
+      await clientDB.open();
       setRooms(clientDB.getStoredRoomNames);
       clientDB.close();
     })();

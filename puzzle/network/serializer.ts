@@ -29,10 +29,10 @@ export default class NetworkSerializer {
   }
 
   public update(deltaTime: number) {
-    if (this.puzzle.isModified) {
-      this.saveInitialData();
-      this.puzzle.isModified = false;
-    }
+    // if (this.puzzle.isModified) {
+    //   this.puzzle.isModified = false;
+    //   this.saveInitialData();
+    // }
 
     if (this.sendTimeout <= 0) {
       this.sendTimeout = NETWORK_TIMEOUT;
@@ -45,9 +45,12 @@ export default class NetworkSerializer {
     this.sendTimeout -= deltaTime;
   }
 
-  private saveInitialData() {
+  public async saveInitialData() {
     const puzzleData = this.puzzle.serialize();
-    this.clientDB.savePuzzle(puzzleData);
+    await this.clientDB.initVersion();
+    await this.clientDB.createObjectStore(this.roomCode);
+    await this.clientDB.open();
+    await this.clientDB.savePuzzle(puzzleData);
     this.saveGraphDataToClientDB();
   }
 
@@ -64,17 +67,21 @@ export default class NetworkSerializer {
     }
   }
 
+  public cleanup() {
+    this.clientDB.close();
+  }
+
   public async loadPuzzle() {
     try {
       // Wait for connections to DB's to be established
-      await this.clientDB.init();
+      await this.clientDB.open();
       const graphData = await this.clientDB.loadGraph();
       const puzzleData = await this.clientDB.loadPuzzle();
       const piecesData = await this.clientDB.loadPieces();
       await this.deserializeAll(puzzleData, piecesData, graphData);
       return true;
     } catch (error) {
-      console.error(error);
+      await this.clientDB.close();
       return false;
     }
   }

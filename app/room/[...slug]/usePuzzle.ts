@@ -38,13 +38,13 @@ export default function usePuzzle({ containerRef, onReady, image, size, roomCode
           p.createCanvas(width, height);
           p.frameRate(90);
 
-          puzzle = new Puzzle(p, size, roomCode);
-          puzzle.tryLoadPuzzle().then((puzzleHasBeenLoaded) => {
-            if (puzzleHasBeenLoaded) {
+          puzzle = new Puzzle(p, size, image, roomCode);
+          puzzle.tryLoadPuzzle().then((successfullyLoaded) => {
+            if (successfullyLoaded) {
               onReady();
               p.loop();
             } else {
-              puzzle.generateNewPuzzle(image.src.large2x).then(() => {
+              puzzle.generateNewPuzzle().then(() => {
                 onReady();
                 p.loop();
               });
@@ -73,6 +73,6 @@ export default function usePuzzle({ containerRef, onReady, image, size, roomCode
 
       new p5(sketch, containerRef.current);
     })();
-    return () => puzzle.releaseCanvas();
+    return () => puzzle.cleanup();
   }, [containerRef, onReady, image, size, roomCode]);
 }

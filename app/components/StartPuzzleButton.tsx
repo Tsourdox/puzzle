@@ -8,14 +8,15 @@ interface Props {
   size: Size;
   image: PexelsImage;
   children: React.ReactNode;
+  room?: string;
 }
 
-export default function StartPuzzleButton({ size, image, children }: Props) {
+export default function StartPuzzleButton({ size, image, children, room }: Props) {
   const router = useRouter();
-  const randomRoom = Math.random().toString().slice(4, 8);
+  const roomCode = room || Math.random().toString().slice(4, 8);
 
   const startPuzzle = () => {
-    router.push(`/room/${randomRoom}/${image.id}?size=${size}`);
+    router.push(`/room/${roomCode}/${image.id}?size=${size}`);
   };
 
   return (
