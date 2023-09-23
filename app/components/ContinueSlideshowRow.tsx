@@ -37,6 +37,8 @@ export default function ContinueSlideshowRow() {
           <div className="group w-56 md:w-80 relative aspect-square flex-none rounded-3xl overflow-hidden bg-gray-800/10" />
           <div className="group w-56 md:w-80 relative aspect-square flex-none rounded-3xl overflow-hidden bg-gray-800/10" />
           <div className="group w-56 md:w-80 relative aspect-square flex-none rounded-3xl overflow-hidden bg-gray-800/10" />
+          <div className="group w-56 md:w-80 relative aspect-square flex-none rounded-3xl overflow-hidden bg-gray-800/10" />
+          <div className="group w-56 md:w-80 relative aspect-square flex-none rounded-3xl overflow-hidden bg-gray-800/10" />
 
           <div className="absolute inset-0 p-12">
             <div className="h-full flex flex-col items-center justify-center text-center">
