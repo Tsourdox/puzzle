@@ -15,20 +15,24 @@ export default class SelectionHandler implements ISelectionHandler {
   private puzzle: IPuzzle;
   private graph: IGraph;
   private prevMouseIsPressed: boolean;
+  private mouseIsPressed: boolean;
   private dragSelectionFill: p5.Color;
   private dragSelectionStroke: p5.Color;
   private timeSincePress: number;
   private dragSelectionOrigin?: p5.Vector;
   private settings: ISettingsMap;
+  private pressDelay: number;
 
   constructor(puzzle: IPuzzle, graph: IGraph) {
     this.puzzle = puzzle;
     this.graph = graph;
     this.settings = settings;
     this.prevMouseIsPressed = false;
+    this.mouseIsPressed = false;
     this.dragSelectionFill = puzzle.p.color('rgba(200,200,200,0.3)');
     this.dragSelectionStroke = puzzle.p.color('rgba(255,255,255,0.6)');
     this.timeSincePress = 0;
+    this.pressDelay = 30;
   }
 
   public get isDragSelecting(): boolean {
@@ -42,17 +46,26 @@ export default class SelectionHandler implements ISelectionHandler {
 
   public update() {
     const { p } = this.puzzle;
+    this.mouseIsPressed = this.timeSincePress > this.pressDelay && p.mouseIsPressed;
+
     this.handlePieceSelection();
     this.handleDragSelection();
-    this.prevMouseIsPressed = p.mouseIsPressed;
+
+    if (p.mouseIsPressed) {
+      this.timeSincePress += p.deltaTime;
+    } else {
+      delete this.dragSelectionOrigin;
+      this.timeSincePress = 0;
+    }
+
+    this.prevMouseIsPressed = this.mouseIsPressed;
   }
 
   private handleDragSelection() {
     const { p } = this.puzzle;
     if (p.touches.length > 1) delete this.dragSelectionOrigin;
 
-    const didPress = !this.prevMouseIsPressed && p.mouseIsPressed;
-    const didRelease = this.prevMouseIsPressed && !p.mouseIsPressed;
+    const didPress = !this.prevMouseIsPressed && this.mouseIsPressed;
 
     if (didPress && (p.mouseButton === p.LEFT || p.touches.length)) {
       const mouseOverAnyPiece = this.isMouseOverAnyPiece(this.puzzle.pieces);
@@ -60,21 +73,12 @@ export default class SelectionHandler implements ISelectionHandler {
         this.dragSelectionOrigin = p.createVector(p.mouseX, p.mouseY);
       }
     }
-
-    if (didRelease) {
-      this.timeSincePress = 0;
-      delete this.dragSelectionOrigin;
-    }
-
-    if (this.dragSelectionOrigin) {
-      this.timeSincePress += p.deltaTime;
-    }
   }
 
   private handlePieceSelection() {
     const { p } = this.puzzle;
     const didPress = !this.prevMouseIsPressed && p.mouseIsPressed;
-    if (p.touches.length > 1) return;
+    if (p.touches.length > 1 || this.timeSincePress < this.pressDelay) return;
 
     // Select by clicking
     if (didPress && (p.mouseButton === p.LEFT || p.touches.length)) {

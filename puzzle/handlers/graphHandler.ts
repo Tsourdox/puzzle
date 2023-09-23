@@ -16,7 +16,7 @@ export default class GraphHandler implements IGraph, ISerializableGraph {
   private _translation: p5.Vector;
   private settings: ISettingsMap;
   private puzzle: IPuzzle;
-  private isZoomDisabled: number;
+  private isGraphDisabled: number;
 
   constructor(puzzle: IPuzzle) {
     this.puzzle = puzzle;
@@ -24,7 +24,7 @@ export default class GraphHandler implements IGraph, ISerializableGraph {
     this._isModified = false;
     this._scale = 1;
     this._translation = puzzle.p.createVector(0, 0);
-    this.isZoomDisabled = 0;
+    this.isGraphDisabled = 0;
   }
 
   public get isModified() {
@@ -49,9 +49,9 @@ export default class GraphHandler implements IGraph, ISerializableGraph {
     this.handleScaling(prevTouches, scrollDelta);
 
     // Prevent non-intended zoom when a piece connects from scrolling
-    this.isZoomDisabled = p.max(0, this.isZoomDisabled - 1);
+    this.isGraphDisabled = p.max(0, this.isGraphDisabled - 1);
     if (this.puzzle.selectedPieces.length) {
-      this.isZoomDisabled = 0.3 * p.frameRate();
+      this.isGraphDisabled = 0.3 * p.frameRate();
     }
   }
 
@@ -59,11 +59,11 @@ export default class GraphHandler implements IGraph, ISerializableGraph {
     const { p } = this.puzzle;
     let zoomDelta = 0;
     // Mouse
-    if (!this.isZoomDisabled && scrollDelta !== 0) {
+    if (!this.isGraphDisabled && scrollDelta !== 0) {
       zoomDelta = scrollDelta;
     }
     // Touch
-    if (prevTouches.length === 3 && p.touches.length === 3) {
+    if (prevTouches.length >= 2 && p.touches.length >= 2 && !this.isGraphDisabled) {
       const [t1, t2] = getMostDistantPoints(p, ...(p.touches as Touches));
       const [p1, p2] = getMostDistantPoints(p, ...prevTouches);
       const pinchDist = p.dist(t1.x, t1.y, t2.x, t2.y);
@@ -103,7 +103,7 @@ export default class GraphHandler implements IGraph, ISerializableGraph {
   private handleTranslation(prevMouse: p5.Vector, prevTouches: Touches) {
     const { p } = this.puzzle;
     // Touch
-    if (prevTouches.length === 3 && p.touches.length === 3) {
+    if (prevTouches.length >= 2 && p.touches.length >= 2 && !this.isGraphDisabled) {
       const [t1, t2] = p.touches as Touches;
       const [p1, p2] = prevTouches;
       const currentMid = pointBetween(p, t1, t2);
