@@ -63,8 +63,8 @@ export function angleBetween(v0: Point, v1: Point): number {
   return Math.atan2(dy, dx);
 }
 
-export function pointBetween(v0: Point, v1: Point, amount?: number): p5.Vector {
-  return new p5.Vector(lerp(v0.x, v1.x, amount || 0.5), lerp(v0.y, v1.y, amount || 0.5));
+export function pointBetween(p: p5, v0: Point, v1: Point, amount?: number): p5.Vector {
+  return new p5.Vector(p.lerp(v0.x, v1.x, amount || 0.5), p.lerp(v0.y, v1.y, amount || 0.5));
 }
 
 export function daysBetweenDates(date1: Date, date2: Date) {
@@ -74,12 +74,12 @@ export function daysBetweenDates(date1: Date, date2: Date) {
 }
 
 /* Will only check max 3 points */
-export function getMostDistantPoints(...[v0, v1, v2]: Point[]): [Point, Point] {
+export function getMostDistantPoints(p: p5, ...[v0, v1, v2]: Point[]): [Point, Point] {
   if (v2) {
-    const d01 = dist(v0.x, v0.y, v1.x, v1.y);
-    const d02 = dist(v0.x, v0.y, v2.x, v2.y);
-    const d12 = dist(v1.x, v1.y, v2.x, v2.y);
-    const maxDist = max([d01, d02, d12]);
+    const d01 = p.dist(v0.x, v0.y, v1.x, v1.y);
+    const d02 = p.dist(v0.x, v0.y, v2.x, v2.y);
+    const d12 = p.dist(v1.x, v1.y, v2.x, v2.y);
+    const maxDist = p.max([d01, d02, d12]);
     if (d01 === maxDist) return [v0, v1];
     if (d02 === maxDist) return [v0, v2];
     else return [v1, v2];
@@ -106,6 +106,6 @@ export function resizeImage(image: p5.Image, maxRes = 6000000) {
   const ratio = maxRes / imageRes + (1 - maxRes / imageRes) * 0.5;
   if (ratio < 1) {
     width *= ratio;
-    image.resize(round(width), 0);
+    image.resize(Math.round(width), 0);
   }
 }

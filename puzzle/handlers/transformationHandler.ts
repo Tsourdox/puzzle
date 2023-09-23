@@ -100,8 +100,8 @@ export default class TransformHandler implements ITransformHandler {
 
     // Touch
     if (prevTouches.length === 2 && p.touches.length === 2) {
-      const [t1, t2] = getMostDistantPoints(...(touches as Touches));
-      const [p1, p2] = getMostDistantPoints(...prevTouches);
+      const [t1, t2] = getMostDistantPoints(p, ...(p.touches as Touches));
+      const [p1, p2] = getMostDistantPoints(p, ...prevTouches);
       const angle = angleBetween(t1, t2);
       const prevAngle = angleBetween(p1, p2);
       this.rotatePieces((angle - prevAngle) * 3 * userSpeed);

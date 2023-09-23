@@ -247,11 +247,12 @@ export default class Piece implements ISerializablePiece {
   }
 
   public update() {
+    const { p } = this;
     if (this.lerpTime < this.LERP_DELAY) {
-      this.lerpTime += deltaTime;
-      const t = min(1, this.lerpTime / this.LERP_DELAY);
+      this.lerpTime += p.deltaTime;
+      const t = p.min(1, this.lerpTime / this.LERP_DELAY);
       this._translation.lerp(this.nextTranslation, t);
-      this._rotation = lerp(this._rotation, this.nextRotation, t);
+      this._rotation = p.lerp(this._rotation, this.nextRotation, t);
     }
     if (this.graphicNeedsUpdating) {
       this.updateGraphics();
@@ -302,8 +303,8 @@ export default class Piece implements ISerializablePiece {
       this.nextTranslation = toVector(piece.translation);
       this.lerpTime = 0;
       const deltaRotation = piece.rotation - this._rotation;
-      if (abs(deltaRotation) > Math.PI * 2) {
-        const rotations = Math.round(deltaRotation / (PI * 2));
+      if (this.p.abs(deltaRotation) > Math.PI * 2) {
+        const rotations = Math.round(deltaRotation / (Math.PI * 2));
         this._rotation += Math.PI * 2 * rotations;
       }
     } else {

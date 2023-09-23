@@ -32,7 +32,7 @@ export default function usePuzzle({ containerRef, onReady, image, size, roomCode
       if (!containerRef.current) throw Error('Could not mount canvas');
       const { width, height } = containerRef.current.getBoundingClientRect();
 
-      const sketch = (p: p5) => {
+      const sketch = (p: any) => {
         p.setup = () => {
           preventDefaultEvents();
           p.createCanvas(width, height);

@@ -1,10 +1,14 @@
+import p5 from 'p5';
+
 export default class FPS {
   private count = 0;
   private fps = 60;
 
+  constructor(private p: p5) {}
+
   public update() {
     if (this.count === 0) {
-      this.fps = Math.round(frameRate());
+      this.fps = Math.round(this.p.frameRate());
     }
 
     this.count++;
@@ -15,10 +19,11 @@ export default class FPS {
   }
 
   public draw() {
-    push();
-    textSize(20);
-    textAlign(LEFT, TOP);
-    text('FPS: ' + this.fps, width - 100, 8);
-    pop();
+    const { p } = this;
+    p.push();
+    p.textSize(20);
+    p.textAlign(p.LEFT, p.TOP);
+    p.text('FPS: ' + this.fps, p.width - 100, 8);
+    p.pop();
   }
 }

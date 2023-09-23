@@ -63,9 +63,9 @@ export default class GraphHandler implements IGraph, ISerializableGraph {
       zoomDelta = scrollDelta;
     }
     // Touch
-    if (prevTouches.length === 3 && touches.length === 3) {
-      const [t1, t2] = getMostDistantPoints(...(touches as Touches));
-      const [p1, p2] = getMostDistantPoints(...prevTouches);
+    if (prevTouches.length === 3 && p.touches.length === 3) {
+      const [t1, t2] = getMostDistantPoints(p, ...(p.touches as Touches));
+      const [p1, p2] = getMostDistantPoints(p, ...prevTouches);
       const pinchDist = p.dist(t1.x, t1.y, t2.x, t2.y);
       const prevPinchDist = p.dist(p1.x, p1.y, p2.x, p2.y);
       zoomDelta = prevPinchDist - pinchDist;
@@ -103,11 +103,11 @@ export default class GraphHandler implements IGraph, ISerializableGraph {
   private handleTranslation(prevMouse: p5.Vector, prevTouches: Touches) {
     const { p } = this.puzzle;
     // Touch
-    if (prevTouches.length === 3 && touches.length === 3) {
-      const [t1, t2] = touches as Touches;
+    if (prevTouches.length === 3 && p.touches.length === 3) {
+      const [t1, t2] = p.touches as Touches;
       const [p1, p2] = prevTouches;
-      const currentMid = pointBetween(t1, t2);
-      const prevMid = pointBetween(p1, p2);
+      const currentMid = pointBetween(p, t1, t2);
+      const prevMid = pointBetween(p, p1, p2);
       const movedX = (currentMid.x - prevMid.x) / this.scale;
       const movedY = (currentMid.y - prevMid.y) / this.scale;
       this._translation.add(movedX, movedY);
