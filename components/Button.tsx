@@ -20,7 +20,7 @@ export default function Button({
       disabled={disabled}
       {...props}
       className={twMerge(
-        'backdrop-blur-lg bg-gradient-to-br uppercase from-purple-950/90 to-purple-950/60 hover:from-purple-950/70 hover:to-purple-900/90 pt-2 pb-3 px-5 rounded-3xl font-primary text-xl flex items-center gap-4 whitespace-nowrap',
+        'relative backdrop-blur-lg bg-gradient-to-br from-purple-950/90 to-purple-950/60 hover:from-purple-950/70 hover:to-purple-900/90 pt-2 pb-3 px-5 rounded-3xl text-xl flex items-center gap-4 whitespace-nowrap',
         variant === 'secondary' &&
           'from-neutral-700/20 to-purple-950/20 hover:from-neutral-700/40 hover:to-purple-950/30 ',
         className,
@@ -28,7 +28,12 @@ export default function Button({
       )}
     >
       {icon}
-      <span className="flex pt-1">{children}</span>
+      <span className="flex uppercase pt-1">{children}</span>
+      {disabled && (
+        <span className="absolute font-sans text-xs font-semibold text-purple-400 whitespace-nowrap right-0 bottom-0 -rotate-6">
+          Kommer snart!
+        </span>
+      )}
     </button>
   );
 }
