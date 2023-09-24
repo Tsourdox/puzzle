@@ -6,6 +6,7 @@ import ContinueImageCard from './ContinueImageCard';
 import ScrollBox from './ScrollBox';
 
 export default function ContinueSlideshowRow() {
+  const [isLoaded, setIsLoaded] = useState(false);
   const [rooms, setRooms] = useState<string[]>([]);
 
   useEffect(() => {
@@ -13,6 +14,7 @@ export default function ContinueSlideshowRow() {
       const clientDB = new ClientDB();
       await clientDB.open();
       setRooms(clientDB.getStoredRoomNames);
+      setIsLoaded(true);
       clientDB.close();
     })();
   }, []);
@@ -22,7 +24,7 @@ export default function ContinueSlideshowRow() {
   return (
     <section className="flex flex-col gap-4">
       <h2 className="text-3xl capitalize font-semibold text-neutral-200 ml-8 md:ml-20 pl-2 font-sans">
-        Forsätt pussla
+        Fortsätt pussla
       </h2>
       {rooms.length ? (
         <ScrollBox>
@@ -40,16 +42,18 @@ export default function ContinueSlideshowRow() {
           <div className="group w-56 md:w-80 relative aspect-square flex-none rounded-3xl overflow-hidden bg-gray-800/10" />
           <div className="group w-56 md:w-80 relative aspect-square flex-none rounded-3xl overflow-hidden bg-gray-800/10" />
 
-          <div className="absolute inset-0 p-12">
-            <div className="h-full flex flex-col items-center justify-center text-center">
-              <span className="text-4xl text-neutral-300 font-sans">
-                Du har inga påbörjade pussel
-              </span>
-              <span className="text-lg font-light text-neutral-400 font-sans">
-                När du har påbörjat ett pussel visas det här så att du kan slutföra det senare.
-              </span>
+          {isLoaded && (
+            <div className="absolute inset-0 p-12">
+              <div className="h-full flex flex-col items-center justify-center text-center">
+                <span className="text-4xl text-neutral-300 font-sans">
+                  Du har inga påbörjade pussel
+                </span>
+                <span className="text-lg font-light text-neutral-400 font-sans">
+                  När du har påbörjat ett pussel visas det här så att du kan slutföra det senare.
+                </span>
+              </div>
             </div>
-          </div>
+          )}
         </div>
       )}
     </section>

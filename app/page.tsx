@@ -23,7 +23,7 @@ export default function HomePage({ searchParams }: Props) {
             BETA
           </span>
         </h1>
-        <span className="text-2xl font-thin text-neutral-300 border-t-1 border-neutral-800 px-4 font-sans">
+        <span className="text-2xl font-thin text-neutral-300 border-t-1 border-neutral-800 px-4 font-sans text-center">
           Ett online pussel för dig och dina vänner!
         </span>
       </header>
