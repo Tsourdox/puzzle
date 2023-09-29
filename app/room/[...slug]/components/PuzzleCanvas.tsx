@@ -1,20 +1,20 @@
 'use client';
 
+import { useStoreState } from '@/store/StoreProvider';
 import { PexelsImage } from '@/utils/pexels';
-import { Size } from '@/utils/sizes';
 import { useCallback, useRef, useState } from 'react';
 import usePuzzle from '../usePuzzle';
 
 type Props = {
   image: PexelsImage;
-  size: Size;
   roomCode: string;
 };
 
-export default function PuzzleCanvas({ image, size, roomCode }: Props) {
+export default function PuzzleCanvas({ image, roomCode }: Props) {
   const [isLoading, setIsLoading] = useState(true);
   const containerRef = useRef<HTMLDivElement>(null);
   const onReady = useCallback(() => setIsLoading(false), []);
+  const { size } = useStoreState();
 
   usePuzzle({ containerRef, onReady, image, size, roomCode });
 

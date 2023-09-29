@@ -1,12 +1,13 @@
 'use client';
+import { Size } from '@/utils/sizes';
 import { Dispatch, PropsWithChildren, Reducer, createContext, useContext, useReducer } from 'react';
 
 // ----- STATE -----
 export type StoreState = {
-  size: string;
+  size: Size;
 };
 const initialStoreState: StoreState = {
-  size: 'S',
+  size: 's',
 };
 
 // ----- CONTEXTS -----
@@ -31,15 +32,17 @@ export const useStoreDispatch = () => useContext(StoreDispatchContext);
 // ----- ACTIONS -----
 type SetSizeAction = {
   type: 'SET_SIZE';
-  payload: string;
+  payload: Size;
 };
+
 type KnownAction = SetSizeAction;
 
 // ----- REDUCER -----
 const storeReducer: Reducer<StoreState, KnownAction> = (state, action) => {
   switch (action.type) {
-    case 'SET_SIZE': {
+    case 'SET_SIZE':
       return { ...state, size: action.payload };
-    }
+    default:
+      return action.type satisfies never;
   }
 };

@@ -73,6 +73,6 @@ export default function usePuzzle({ containerRef, onReady, image, size, roomCode
 
       new p5(sketch, containerRef.current);
     })();
-    return () => puzzle.cleanup();
+    return () => puzzle?.cleanup();
   }, [containerRef, onReady, image, size, roomCode]);
 }

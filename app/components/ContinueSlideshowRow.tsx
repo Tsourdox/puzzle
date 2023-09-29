@@ -2,6 +2,7 @@
 
 import ClientDB from '@/puzzle/network/clientDB';
 import { useEffect, useState } from 'react';
+import { twMerge } from 'tailwind-merge';
 import CardContentContinuePuzzle from './ImageCardContinuePuzzle';
 import ScrollBox from './ScrollBox';
 
@@ -23,7 +24,12 @@ export default function ContinueSlideshowRow() {
 
   return (
     <section className="flex flex-col gap-4">
-      <h2 className="text-3xl capitalize font-semibold text-neutral-200 ml-2 sm:ml-8 md:ml-20 pl-2 font-sans">
+      <h2
+        className={twMerge(
+          'invisible text-3xl capitalize font-semibold text-neutral-200 ml-2 sm:ml-8 md:ml-20 pl-2 font-sans',
+          rooms.length && 'visible',
+        )}
+      >
         Fortsätt pussla
       </h2>
       {rooms.length ? (

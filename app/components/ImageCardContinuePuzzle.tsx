@@ -14,7 +14,7 @@ interface Props {
   onDeleted: (room: string) => void;
 }
 
-export default function CardContentContinuePuzzle(props: Props) {
+export default function ImageCardContinuePuzzle(props: Props) {
   const [puzzleData, setPuzzleData] = useState<IPuzzleData>();
 
   useEffect(() => {

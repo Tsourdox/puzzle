@@ -1,8 +1,7 @@
 import ImagePreview from '@/app/room/[...slug]/components/ImagePreview';
 import Sidebar from '@/app/room/[...slug]/components/Sidebar';
 import { getPexelsImage } from '@/utils/pexels';
-import { SearchParams, parseEnum } from '@/utils/searchParams';
-import { SizeEnum } from '@/utils/sizes';
+import { SearchParams } from '@/utils/searchParams';
 import { Metadata } from 'next';
 import PuzzleCanvas from './components/PuzzleCanvas';
 
@@ -20,9 +19,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   };
 }
 
-export default async function RoomPage({ params, searchParams }: Props) {
+export default async function RoomPage({ params }: Props) {
   const [roomCode, imageId] = params.slug;
-  const size = parseEnum(searchParams.size, SizeEnum, 'xs');
 
   const image = await getPexelsImage(imageId);
 
@@ -33,7 +31,7 @@ export default async function RoomPage({ params, searchParams }: Props) {
         style={{ backgroundImage: `url('${image.src.medium}')` }}
       >
         <div className="relative flex flex-col flex-1 backdrop-blur-3xl bg-neutral-800/70">
-          <PuzzleCanvas image={image} size={size} roomCode={roomCode} />
+          <PuzzleCanvas image={image} roomCode={roomCode} />
         </div>
       </main>
       <Sidebar />
