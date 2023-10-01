@@ -41,15 +41,15 @@ export default function ContinueSlideshowRow() {
       ) : (
         <div className="relative flex gap-6 overflow-x-hidden">
           <div className="w-4 md:w-16 aspect-square flex-none" />
-          <div className="group w-56 md:w-80 relative aspect-square flex-none rounded-3xl overflow-hidden bg-gray-800/10" />
-          <div className="group w-56 md:w-80 relative aspect-square flex-none rounded-3xl overflow-hidden bg-gray-800/10" />
-          <div className="group w-56 md:w-80 relative aspect-square flex-none rounded-3xl overflow-hidden bg-gray-800/10" />
-          <div className="group w-56 md:w-80 relative aspect-square flex-none rounded-3xl overflow-hidden bg-gray-800/10" />
-          <div className="group w-56 md:w-80 relative aspect-square flex-none rounded-3xl overflow-hidden bg-gray-800/10" />
-          <div className="group w-56 md:w-80 relative aspect-square flex-none rounded-3xl overflow-hidden bg-gray-800/10" />
+          <div className="group w-56 md:w-80 relative aspect-square flex-none rounded-3xl overflow-hidden bg-gray-800/20" />
+          <div className="group w-56 md:w-80 relative aspect-square flex-none rounded-3xl overflow-hidden bg-gray-800/20" />
+          <div className="group w-56 md:w-80 relative aspect-square flex-none rounded-3xl overflow-hidden bg-gray-800/20" />
+          <div className="group w-56 md:w-80 relative aspect-square flex-none rounded-3xl overflow-hidden bg-gray-800/20" />
+          <div className="group w-56 md:w-80 relative aspect-square flex-none rounded-3xl overflow-hidden bg-gray-800/20" />
+          <div className="group w-56 md:w-80 relative aspect-square flex-none rounded-3xl overflow-hidden bg-gray-800/20" />
 
           {isLoaded && (
-            <div className="absolute inset-0 p-12">
+            <div className="absolute inset-0 px-12">
               <div className="h-full flex flex-col items-center justify-center text-center">
                 <span className="text-4xl text-neutral-300 font-sans">
                   Du har inga påbörjade pussel

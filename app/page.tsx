@@ -13,7 +13,7 @@ export default function HomePage({ searchParams }: Props) {
   const size = parseEnum(searchParams.size, SizeEnum, 'xs');
 
   return (
-    <div className="flex flex-col py-16 gap-16 text-neutral-100 bg-gradient-to-bl from-[#210034] via-20% via-neutral-950 to-100% to-[#110024]">
+    <div className="flex flex-col py-16 gap-12 text-neutral-100 bg-gradient-to-bl from-[#210034] via-20% via-neutral-950 to-100% to-[#110024]">
       <header className="flex flex-col gap-4 items-center">
         <h1 className="relative">
           <span className="text-6xl text-transparent uppercase bg-clip-text bg-gradient-to-l from-purple-700 to-purple-100">
