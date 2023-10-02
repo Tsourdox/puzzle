@@ -1,5 +1,6 @@
 'use client';
 
+import { Lang, getTranslation } from '@/locales';
 import ClientDB from '@/puzzle/network/clientDB';
 import { IPuzzleData } from '@/puzzle/network/types';
 import { sizes } from '@/utils/sizes';
@@ -12,9 +13,11 @@ import StartPuzzleButton from './StartPuzzleButton';
 interface Props {
   room: string;
   onDeleted: (room: string) => void;
+  lang: Lang;
 }
 
 export default function ImageCardContinuePuzzle(props: Props) {
+  const t = getTranslation(props.lang);
   const [puzzleData, setPuzzleData] = useState<IPuzzleData>();
 
   useEffect(() => {
@@ -43,7 +46,7 @@ export default function ImageCardContinuePuzzle(props: Props) {
         className="absolute top-4 right-4 cursor-pointer drop-shadow-lg p-2 box-content"
         onClick={deletePuzzle}
       />
-      <h2 className="text-xl drop-shadow-lg">Storlek</h2>
+      <h2 className="text-xl drop-shadow-lg">{t('Size')}</h2>
       <section className="flex gap-1 md:gap-2">
         {sizes.map((sizeLabel) => (
           <div
@@ -58,7 +61,7 @@ export default function ImageCardContinuePuzzle(props: Props) {
         ))}
       </section>
       <StartPuzzleButton image={puzzleData.imageData} room={props.room}>
-        Fortsätt Pussla
+        {t('Continue puzzle')}
       </StartPuzzleButton>
     </ImageCardContainer>
   );

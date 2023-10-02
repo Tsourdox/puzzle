@@ -1,3 +1,4 @@
+import { Lang, getTranslation } from '@/locales';
 import { ArrowSmallRightIcon, XMarkIcon } from '@heroicons/react/20/solid';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useRouter } from 'next/navigation';
@@ -15,9 +16,11 @@ type RoomCodeValues = z.infer<typeof RoomCodeSchema>;
 
 interface Props {
   onCancel: () => void;
+  lang: Lang;
 }
 
 export default function RoomCodeForm(props: Props) {
+  const t = getTranslation(props.lang);
   const router = useRouter();
   const { register, handleSubmit, formState, getValues } = useForm<RoomCodeValues>({
     resolver: zodResolver(RoomCodeSchema),
@@ -41,7 +44,7 @@ export default function RoomCodeForm(props: Props) {
       <input
         autoFocus
         maxLength={CODE_LENGTH}
-        placeholder="Ange rumskod"
+        placeholder={t('Enter room code')}
         {...register('code')}
         className="bg-transparent text-2xl px-4 w-64 uppercase focus:outline-none text-gray-300"
       />

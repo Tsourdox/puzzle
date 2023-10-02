@@ -5,8 +5,8 @@ import { PropsWithLangParam } from '@/utils/general';
 import ActionButtons from './components/ActionButtons';
 import ContinueSlideshowRow from './components/ContinueSlideshowRow';
 
-export default function HomePage({ params }: PropsWithLangParam) {
-  const t = getTranslation(params.lang);
+export default function HomePage({ params: { lang } }: PropsWithLangParam) {
+  const t = getTranslation(lang);
 
   return (
     <div className="flex flex-col py-16 gap-12 text-neutral-100 bg-gradient-to-bl from-[#210034] via-20% via-neutral-950 to-100% to-[#110024]">
@@ -25,23 +25,23 @@ export default function HomePage({ params }: PropsWithLangParam) {
       </header>
 
       <section className="flex gap-x-8 gap-y-4 justify-center flex-wrap">
-        <ActionButtons params={params} />
+        <ActionButtons lang={lang} />
       </section>
 
       <main className="flex flex-col gap-12 w-screen">
-        <ContinueSlideshowRow params={params} />
-        <SlideshowRow title="Katter" searchTerm="cats" />
-        <SlideshowRow title="Vackra hav" searchTerm="ocean landscape" />
-        <SlideshowRow title="Naturen" searchTerm="nature" />
-        <SlideshowRow title="Djur" searchTerm="animals" />
-        <SlideshowRow title="I skogen" searchTerm="forest" />
-        <SlideshowRow title="Människor" searchTerm="people" />
-        <SlideshowRow title="Uppe på begen" searchTerm="mountains" />
-        <SlideshowRow title="Grekland" searchTerm="greek" />
-        <SlideshowRow title="Sport" searchTerm="sport" />
-        <SlideshowRow title="Städer" searchTerm="city" />
-        <SlideshowRow title="Bebisar" searchTerm="babies" />
-        <SlideshowRow title="Blommor" searchTerm="flowers" />
+        <ContinueSlideshowRow lang={lang} />
+        <SlideshowRow title={t('Cats')} searchTerm="cats" lang={lang} />
+        <SlideshowRow title={t('Beautiful oceans')} searchTerm="ocean landscape" lang={lang} />
+        <SlideshowRow title={t('Nature')} searchTerm="nature" lang={lang} />
+        <SlideshowRow title={t('Animals')} searchTerm="animals" lang={lang} />
+        <SlideshowRow title={t('Forests')} searchTerm="forest" lang={lang} />
+        <SlideshowRow title={t('People')} searchTerm="people" lang={lang} />
+        <SlideshowRow title={t('In the mountains')} searchTerm="mountains" lang={lang} />
+        <SlideshowRow title={t('Greece')} searchTerm="greek" lang={lang} />
+        <SlideshowRow title={t('Sport')} searchTerm="sport" lang={lang} />
+        <SlideshowRow title={t('Cities')} searchTerm="city" lang={lang} />
+        <SlideshowRow title={t('Babies')} searchTerm="babies" lang={lang} />
+        <SlideshowRow title={t('Flowers')} searchTerm="flowers" lang={lang} />
       </main>
 
       <footer className="flex justify-center items-center gap-12">

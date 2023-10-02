@@ -1,7 +1,8 @@
 import { AppBar } from '@/components/AppBar';
 import Button from '@/components/Button';
 import SocialLinks from '@/components/SocialLinks';
-import { PropsWithTranslation } from '@/utils/general';
+import { getTranslation } from '@/locales';
+import { PropsWithLang } from '@/utils/general';
 import {
   ArrowPathRoundedSquareIcon,
   Cog8ToothIcon,
@@ -10,7 +11,9 @@ import {
 } from '@heroicons/react/20/solid';
 import Link from 'next/link';
 
-export default function Sidebar({ t }: PropsWithTranslation) {
+export default function Sidebar({ lang }: PropsWithLang) {
+  const t = getTranslation(lang);
+
   return (
     <AppBar className="flex flex-col gap-4">
       <header className="border-b-2 px-4 border-neutral-700/50 mb-4 ">
@@ -31,7 +34,7 @@ export default function Sidebar({ t }: PropsWithTranslation) {
           variant="secondary"
           icon={<UserGroupIcon width={24} height={24} />}
         >
-          Bjud in vänner
+          {t('Invite friends')}
         </Button>
         <Button
           disabled
@@ -39,7 +42,7 @@ export default function Sidebar({ t }: PropsWithTranslation) {
           variant="secondary"
           icon={<ArrowPathRoundedSquareIcon width={24} height={24} />}
         >
-          Byt rum
+          {t('Change room')}
         </Button>
         <Button
           disabled

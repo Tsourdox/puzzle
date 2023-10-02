@@ -1,4 +1,4 @@
-import { Locale, getTranslation } from '@/locales';
+import { Lang, getTranslation } from '@/locales';
 import { getPexelsImage } from '@/utils/pexels';
 import { SearchParams } from '@/utils/searchParams';
 import { Metadata } from 'next';
@@ -7,7 +7,7 @@ import PuzzleCanvas from './components/PuzzleCanvas';
 import Sidebar from './components/Sidebar';
 
 type Props = {
-  params: { slug: string[]; lang: Locale };
+  params: { slug: string[]; lang: Lang };
   searchParams: SearchParams;
 };
 
@@ -22,7 +22,6 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 export default async function RoomPage({ params }: Props) {
-  const t = getTranslation(params.lang);
   const [roomCode, imageId] = params.slug;
 
   const image = await getPexelsImage(imageId);
@@ -37,7 +36,7 @@ export default async function RoomPage({ params }: Props) {
           <PuzzleCanvas image={image} roomCode={roomCode} />
         </div>
       </main>
-      <Sidebar t={t} />
+      <Sidebar lang={params.lang} />
       <ImagePreview image={image} />
     </div>
   );

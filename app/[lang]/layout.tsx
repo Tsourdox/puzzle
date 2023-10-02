@@ -1,4 +1,4 @@
-import { getLocales } from '@/locales';
+import { getLangs } from '@/locales';
 import StoreProvider from '@/store/StoreProvider';
 import type { Metadata } from 'next';
 import localFont from 'next/font/local';
@@ -20,7 +20,7 @@ export const metadata: Metadata = {
 };
 
 export async function generateStaticParams() {
-  return getLocales().map((lang) => ({ lang }));
+  return getLangs().map((lang) => ({ lang }));
 }
 
 export default function RootLayout({

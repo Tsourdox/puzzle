@@ -2,14 +2,14 @@
 
 import { getTranslation } from '@/locales';
 import ClientDB from '@/puzzle/network/clientDB';
-import { PropsWithLangParam } from '@/utils/general';
+import { PropsWithLang } from '@/utils/general';
 import { useEffect, useState } from 'react';
 import { twMerge } from 'tailwind-merge';
 import ImageCardContinuePuzzle from './ImageCardContinuePuzzle';
 import ScrollBox from './ScrollBox';
 
-export default function ContinueSlideshowRow({ params }: PropsWithLangParam) {
-  const t = getTranslation(params.lang);
+export default function ContinueSlideshowRow({ lang }: PropsWithLang) {
+  const t = getTranslation(lang);
   const [isLoaded, setIsLoaded] = useState(false);
   const [rooms, setRooms] = useState<string[]>([]);
 
@@ -38,7 +38,7 @@ export default function ContinueSlideshowRow({ params }: PropsWithLangParam) {
       {rooms.length ? (
         <ScrollBox>
           {rooms.map((room) => (
-            <ImageCardContinuePuzzle key={room} room={room} onDeleted={removeRoom} />
+            <ImageCardContinuePuzzle key={room} room={room} onDeleted={removeRoom} lang={lang} />
           ))}
         </ScrollBox>
       ) : (
