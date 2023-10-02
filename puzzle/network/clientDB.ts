@@ -20,8 +20,7 @@ export default class ClientDB {
   }
 
   public close() {
-    if (!this.db) throw new Error('Init must be called before closing the store');
-    this.db.close();
+    this.db?.close();
   }
 
   public initVersion(): Promise<void> {

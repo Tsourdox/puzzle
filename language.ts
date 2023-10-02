@@ -38,6 +38,14 @@ const translations = {
     de: 'Wenn Sie ein Puzzle gestartet haben, wird es hier angezeigt, damit Sie es später fertigstellen können.',
     fi: 'Kun olet aloittanut pulman, se näkyy täällä, jotta voit viimeistellä sen myöhemmin.',
   },
+  'Select pieces and drag and rotate them to solve the puzzle. Invite your friends to help you!': {
+    sv: 'Välj bitar och dra och rotera dem för att lösa pusslet. Bjud in dina vänner för att hjälpa dig!',
+    no: 'Velg biter og dra og roter dem for å løse puslespillet. Inviter vennene dine til å hjelpe deg!',
+    da: 'Vælg brikker og træk og roter dem for at løse puslespillet. Inviter dine venner til at hjælpe dig!',
+    de: 'Wählen Sie Teile aus und ziehen und drehen Sie sie, um das Puzzle zu lösen. Lade deine Freunde ein, dir zu helfen!',
+    fi: 'Valitse palat ja vedä ja pyöritä niitä ratkaistaksesi pulman. Kutsu ystäväsi auttamaan sinua!',
+  },
+
   // --- General ---
 
   // --- Room ---
@@ -61,6 +69,13 @@ const translations = {
     da: 'Indtast rumkode',
     de: 'Geben Sie den Raumcode ein',
     fi: 'Anna huonekoodi',
+  },
+  'In Room': {
+    sv: 'I rum',
+    no: 'I rom',
+    da: 'I rum',
+    de: 'Im Raum',
+    fi: 'Huoneessa',
   },
   // --- Room ---
 

@@ -2,9 +2,11 @@ import { Lang, getTranslation } from '@/language';
 import { getPexelsImage } from '@/utils/pexels';
 import { SearchParams } from '@/utils/searchParams';
 import { Metadata } from 'next';
+import dynamic from 'next/dynamic';
 import ImagePreview from './components/ImagePreview';
-import PuzzleCanvas from './components/PuzzleCanvas';
 import Sidebar from './components/Sidebar';
+
+const PuzzleCanvas = dynamic(() => import('./components/PuzzleCanvas'));
 
 type Props = {
   params: { slug: string[]; lang: Lang };
@@ -16,8 +18,10 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const t = getTranslation(params.lang);
 
   return {
-    title: `Puzzelin - In Room ${roomCode}`,
-    description: 'Solve the puzzle by clicking, scrolling & dragging.',
+    title: `Puzzelin - ${t('In Room')} ${roomCode}`,
+    description: t(
+      'Select pieces and drag and rotate them to solve the puzzle. Invite your friends to help you!',
+    ),
   };
 }
 

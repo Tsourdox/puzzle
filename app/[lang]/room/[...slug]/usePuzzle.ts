@@ -1,7 +1,8 @@
-import type Puzzle from '@/puzzle/puzzle';
+import Puzzle from '@/puzzle/puzzle';
 import { PexelsImage } from '@/utils/pexels';
 import { preventDefaultEvents } from '@/utils/preventEvents';
 import { Size } from '@/utils/sizes';
+import p5 from 'p5';
 import { RefObject, WheelEvent, useEffect } from 'react';
 
 type Props = {
@@ -22,57 +23,53 @@ export default function usePuzzle({ containerRef, onReady, image, size, roomCode
     let puzzle: Puzzle;
     let scrollDelta = 0;
 
-    (async () => {
-      // NextJS SSR crashes when importing p5 - dynamic import solves it.
-      const { default: p5 } = await import('p5');
-      const { default: Puzzle } = await import('@/puzzle/puzzle');
-      // window.p5 = p5;
-      // require('p5/lib/addons/p5.sound');
+    // window.p5 = p5;
+    // require('p5/lib/addons/p5.sound');
 
-      if (!containerRef.current) throw Error('Could not mount canvas');
-      const { width, height } = containerRef.current.getBoundingClientRect();
+    if (!containerRef.current) throw Error('Could not mount canvas');
+    const { width, height } = containerRef.current.getBoundingClientRect();
 
-      const sketch = (p: any) => {
-        p.setup = () => {
-          preventDefaultEvents();
-          p.createCanvas(width, height);
-          p.frameRate(90);
+    const sketch = (p: any) => {
+      p.setup = () => {
+        preventDefaultEvents();
+        p.createCanvas(width, height);
+        p.frameRate(90);
 
-          puzzle = new Puzzle(p, size, image, roomCode);
-          puzzle.tryLoadPuzzle().then((successfullyLoaded) => {
-            if (successfullyLoaded) {
+        puzzle = new Puzzle(p, size, image, roomCode);
+        puzzle.tryLoadPuzzle().then((successfullyLoaded) => {
+          if (successfullyLoaded) {
+            onReady();
+            p.loop();
+          } else {
+            puzzle.generateNewPuzzle().then(() => {
               onReady();
               p.loop();
-            } else {
-              puzzle.generateNewPuzzle().then(() => {
-                onReady();
-                p.loop();
-              });
-            }
-          });
+            });
+          }
+        });
 
-          p.noLoop();
-        };
-
-        p.draw = () => {
-          puzzle.update(scrollDelta);
-          puzzle.draw();
-          scrollDelta = 0;
-        };
-
-        p.windowResized = () => {
-          const { width, height } = containerRef.current!.getBoundingClientRect();
-          p.resizeCanvas(width, height);
-        };
-
-        p.mouseWheel = (event: WheelEvent & { delta: number }) => {
-          scrollDelta = event.delta;
-          return false;
-        };
+        p.noLoop();
       };
 
-      new p5(sketch, containerRef.current);
-    })();
+      p.draw = () => {
+        puzzle.update(scrollDelta);
+        puzzle.draw();
+        scrollDelta = 0;
+      };
+
+      p.windowResized = () => {
+        const { width, height } = containerRef.current!.getBoundingClientRect();
+        p.resizeCanvas(width, height);
+      };
+
+      p.mouseWheel = (event: WheelEvent & { delta: number }) => {
+        scrollDelta = event.delta;
+        return false;
+      };
+    };
+
+    new p5(sketch, containerRef.current);
+
     return () => puzzle?.cleanup();
   }, [containerRef, onReady, image, size, roomCode]);
 }
