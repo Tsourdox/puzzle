@@ -4,7 +4,7 @@ import { twMerge } from 'tailwind-merge';
 export type Props = JSX.IntrinsicElements['button'] & {
   icon?: ReactNode;
   variant?: 'primary' | 'secondary';
-  disabled?: boolean;
+  disabledText?: string;
 };
 
 export default function Button({
@@ -13,6 +13,7 @@ export default function Button({
   children,
   className,
   disabled,
+  disabledText,
   ...props
 }: Props) {
   return (
@@ -29,9 +30,9 @@ export default function Button({
     >
       {icon}
       <span className="flex uppercase pt-1">{children}</span>
-      {disabled && (
+      {disabled && disabledText && (
         <span className="absolute font-sans text-xs font-semibold text-purple-400 whitespace-nowrap right-0 bottom-0 -rotate-6">
-          Kommer snart!
+          {disabledText}
         </span>
       )}
     </button>

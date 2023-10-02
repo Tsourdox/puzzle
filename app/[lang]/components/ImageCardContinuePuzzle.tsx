@@ -57,8 +57,8 @@ export default function ImageCardContinuePuzzle(props: Props) {
           </div>
         ))}
       </section>
-      <StartPuzzleButton size={puzzleData.size} image={puzzleData.imageData} room={props.room}>
-        Forsätt Pussla
+      <StartPuzzleButton image={puzzleData.imageData} room={props.room}>
+        Fortsätt Pussla
       </StartPuzzleButton>
     </ImageCardContainer>
   );

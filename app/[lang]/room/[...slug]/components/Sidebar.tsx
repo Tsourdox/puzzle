@@ -1,3 +1,7 @@
+import { AppBar } from '@/components/AppBar';
+import Button from '@/components/Button';
+import SocialLinks from '@/components/SocialLinks';
+import { PropsWithTranslation } from '@/utils/general';
 import {
   ArrowPathRoundedSquareIcon,
   Cog8ToothIcon,
@@ -5,11 +9,8 @@ import {
   UserGroupIcon,
 } from '@heroicons/react/20/solid';
 import Link from 'next/link';
-import { AppBar } from '../../../../components/AppBar';
-import Button from '../../../../components/Button';
-import SocialLinks from '../../../../components/SocialLinks';
 
-export default function Sidebar() {
+export default function Sidebar({ t }: PropsWithTranslation) {
   return (
     <AppBar className="flex flex-col gap-4">
       <header className="border-b-2 px-4 border-neutral-700/50 mb-4 ">
@@ -20,21 +21,32 @@ export default function Sidebar() {
       <section className="flex-1 flex flex-col gap-6">
         <Link href="/" className="flex flex-col">
           <Button variant="secondary" icon={<PuzzlePieceIcon width={24} height={24} />}>
-            Nytt Puzzel
+            {t('newPuzzle')}
           </Button>
         </Link>
 
-        <Button disabled variant="secondary" icon={<UserGroupIcon width={24} height={24} />}>
+        <Button
+          disabled
+          disabledText={t('comingSoon')}
+          variant="secondary"
+          icon={<UserGroupIcon width={24} height={24} />}
+        >
           Bjud in vänner
         </Button>
         <Button
           disabled
+          disabledText={t('comingSoon')}
           variant="secondary"
           icon={<ArrowPathRoundedSquareIcon width={24} height={24} />}
         >
           Byt rum
         </Button>
-        <Button disabled variant="secondary" icon={<Cog8ToothIcon width={24} height={24} />}>
+        <Button
+          disabled
+          disabledText={t('comingSoon')}
+          variant="secondary"
+          icon={<Cog8ToothIcon width={24} height={24} />}
+        >
           Inställningar
         </Button>
       </section>

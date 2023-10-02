@@ -1,3 +1,4 @@
+import { getLocales } from '@/locales';
 import StoreProvider from '@/store/StoreProvider';
 import type { Metadata } from 'next';
 import localFont from 'next/font/local';
@@ -6,7 +7,7 @@ import { twMerge } from 'tailwind-merge';
 import './globals.css';
 
 const myFont = localFont({
-  src: '../public/fonts/black-ops-one.ttf',
+  src: '../../public/fonts/black-ops-one.ttf',
   variable: '--font-primary',
 });
 
@@ -18,9 +19,16 @@ export const metadata: Metadata = {
   authors: [{ name: 'David Jensen', url: 'https://github.com/Tsourdox' }],
 };
 
-export default function RootLayout({ children }: PropsWithChildren) {
+export async function generateStaticParams() {
+  return getLocales().map((lang) => ({ lang }));
+}
+
+export default function RootLayout({
+  children,
+  params,
+}: PropsWithChildren<{ params: { lang: string } }>) {
   return (
-    <html lang="en" className="h-full">
+    <html lang={params.lang} className="h-full">
       <body
         className={twMerge(
           myFont.className,

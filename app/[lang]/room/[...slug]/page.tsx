@@ -1,17 +1,19 @@
-import ImagePreview from '@/app/room/[...slug]/components/ImagePreview';
-import Sidebar from '@/app/room/[...slug]/components/Sidebar';
+import { Locale, getTranslation } from '@/locales';
 import { getPexelsImage } from '@/utils/pexels';
 import { SearchParams } from '@/utils/searchParams';
 import { Metadata } from 'next';
+import ImagePreview from './components/ImagePreview';
 import PuzzleCanvas from './components/PuzzleCanvas';
+import Sidebar from './components/Sidebar';
 
 type Props = {
-  params: { slug: string[] };
+  params: { slug: string[]; lang: Locale };
   searchParams: SearchParams;
 };
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const [roomCode] = params.slug;
+  const t = getTranslation(params.lang);
 
   return {
     title: `Puzzelin - In Room ${roomCode}`,
@@ -20,6 +22,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 export default async function RoomPage({ params }: Props) {
+  const t = getTranslation(params.lang);
   const [roomCode, imageId] = params.slug;
 
   const image = await getPexelsImage(imageId);
@@ -34,7 +37,7 @@ export default async function RoomPage({ params }: Props) {
           <PuzzleCanvas image={image} roomCode={roomCode} />
         </div>
       </main>
-      <Sidebar />
+      <Sidebar t={t} />
       <ImagePreview image={image} />
     </div>
   );

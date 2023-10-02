@@ -3,7 +3,7 @@
 import ClientDB from '@/puzzle/network/clientDB';
 import { useEffect, useState } from 'react';
 import { twMerge } from 'tailwind-merge';
-import CardContentContinuePuzzle from './ImageCardContinuePuzzle';
+import ImageCardContinuePuzzle from './ImageCardContinuePuzzle';
 import ScrollBox from './ScrollBox';
 
 export default function ContinueSlideshowRow() {
@@ -35,7 +35,7 @@ export default function ContinueSlideshowRow() {
       {rooms.length ? (
         <ScrollBox>
           {rooms.map((room) => (
-            <CardContentContinuePuzzle key={room} room={room} onDeleted={removeRoom} />
+            <ImageCardContinuePuzzle key={room} room={room} onDeleted={removeRoom} />
           ))}
         </ScrollBox>
       ) : (

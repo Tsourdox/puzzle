@@ -1,15 +1,13 @@
 import { searchPexelsImages } from '@/utils/pexels';
-import { Size } from '@/utils/sizes';
-import CardContentNewPuzzle from './ImageCardNewPuzzle';
+import ImageCardNewPuzzle from './ImageCardNewPuzzle';
 import ScrollBox from './ScrollBox';
 
 interface Props {
   title: string;
   searchTerm: string;
-  size: Size;
 }
 
-export default async function SlideshowRow({ title, searchTerm, size }: Props) {
+export default async function SlideshowRow({ title, searchTerm }: Props) {
   const pexelImages = await searchPexelsImages(searchTerm);
 
   return (
@@ -19,7 +17,7 @@ export default async function SlideshowRow({ title, searchTerm, size }: Props) {
       </h2>
       <ScrollBox>
         {pexelImages.map((image) => (
-          <CardContentNewPuzzle key={image.id} image={image} size={size} />
+          <ImageCardNewPuzzle key={image.id} image={image} />
         ))}
       </ScrollBox>
     </section>
