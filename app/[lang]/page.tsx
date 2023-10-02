@@ -1,11 +1,14 @@
 import SlideshowRow from '@/app/[lang]/components/SlideshowRow';
 import SocialLinks from '@/components/SocialLinks';
-import { getTranslation } from '@/language';
-import { PropsWithLangParam } from '@/utils/general';
+import { Lang, getTranslation } from '@/language';
 import ActionButtons from './components/ActionButtons';
 import ContinueSlideshowRow from './components/ContinueSlideshowRow';
 
-export default function HomePage({ params: { lang } }: PropsWithLangParam) {
+type Props = {
+  params: { lang: Lang };
+};
+
+export default function HomePage({ params: { lang } }: Props) {
   const t = getTranslation(lang);
 
   return (
