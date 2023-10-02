@@ -1,4 +1,4 @@
-import { Lang } from '@/locales';
+import { Lang } from '@/language';
 import { PropsWithChildren } from 'react';
 
 export type PropsWithClassName<T = {}> = PropsWithChildren<{ className?: string } & T>;

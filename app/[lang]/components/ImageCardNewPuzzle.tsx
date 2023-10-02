@@ -1,4 +1,4 @@
-import { Lang, getTranslation } from '@/locales';
+import { Lang, getTranslation } from '@/language';
 import { PexelsImage } from '@/utils/pexels';
 import ImageCardContainer from './ImageCardContainer';
 import SizeButtons from './SizeButtons';

@@ -1,4 +1,4 @@
-import { Lang, getTranslation } from '@/locales';
+import { Lang, getTranslation } from '@/language';
 import { ArrowSmallRightIcon, XMarkIcon } from '@heroicons/react/20/solid';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useRouter } from 'next/navigation';

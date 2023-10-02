@@ -14,7 +14,7 @@ export default function StartPuzzleButton({ image, children, room }: Props) {
   const roomCode = room || Math.random().toString().slice(4, 8);
 
   const startPuzzle = () => {
-    router.push(`/room/${roomCode}/${image.id}`);
+    router.push(`room/${roomCode}/${image.id}`);
   };
 
   return (

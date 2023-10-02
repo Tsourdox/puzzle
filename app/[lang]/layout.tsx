@@ -1,4 +1,4 @@
-import { getLangs } from '@/locales';
+import { getLangs } from '@/language';
 import StoreProvider from '@/store/StoreProvider';
 import type { Metadata } from 'next';
 import localFont from 'next/font/local';

@@ -1,6 +1,6 @@
 'use client';
 
-import { getTranslation } from '@/locales';
+import { getTranslation } from '@/language';
 import ClientDB from '@/puzzle/network/clientDB';
 import { PropsWithLang } from '@/utils/general';
 import { useEffect, useState } from 'react';

@@ -1,7 +1,7 @@
 'use client';
 import RoomCodeForm from '@/app/[lang]/components/RoomCodeForm';
 import Button from '@/components/Button';
-import { getTranslation } from '@/locales';
+import { getTranslation } from '@/language';
 import { PropsWithLang } from '@/utils/general';
 import { PhotoIcon, UserGroupIcon } from '@heroicons/react/20/solid';
 import { useState } from 'react';

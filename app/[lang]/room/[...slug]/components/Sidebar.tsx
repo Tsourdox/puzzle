@@ -1,7 +1,7 @@
 import { AppBar } from '@/components/AppBar';
 import Button from '@/components/Button';
 import SocialLinks from '@/components/SocialLinks';
-import { getTranslation } from '@/locales';
+import { getTranslation } from '@/language';
 import { PropsWithLang } from '@/utils/general';
 import {
   ArrowPathRoundedSquareIcon,

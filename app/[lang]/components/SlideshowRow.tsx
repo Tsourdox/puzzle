@@ -1,4 +1,4 @@
-import { Lang } from '@/locales';
+import { Lang } from '@/language';
 import { searchPexelsImages } from '@/utils/pexels';
 import ImageCardNewPuzzle from './ImageCardNewPuzzle';
 import ScrollBox from './ScrollBox';

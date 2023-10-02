@@ -1,4 +1,4 @@
-import { Lang, getTranslation } from '@/locales';
+import { Lang, getTranslation } from '@/language';
 import { getPexelsImage } from '@/utils/pexels';
 import { SearchParams } from '@/utils/searchParams';
 import { Metadata } from 'next';
@@ -23,6 +23,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function RoomPage({ params }: Props) {
   const [roomCode, imageId] = params.slug;
+  console.log('RoomPage', roomCode);
 
   const image = await getPexelsImage(imageId);
 
@@ -33,7 +34,7 @@ export default async function RoomPage({ params }: Props) {
         style={{ backgroundImage: `url('${image.src.medium}')` }}
       >
         <div className="relative flex flex-col flex-1 backdrop-blur-3xl bg-neutral-800/70">
-          <PuzzleCanvas image={image} roomCode={roomCode} />
+          <PuzzleCanvas image={image} roomCode={roomCode} lang={params.lang} />
         </div>
       </main>
       <Sidebar lang={params.lang} />

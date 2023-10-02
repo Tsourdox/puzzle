@@ -40,7 +40,7 @@ const translations = {
   },
   // --- General ---
 
-  // --- Actions ---
+  // --- Room ---
   'Join a room': {
     sv: 'Gå med i ett rum',
     no: 'Bli med i et rom',
@@ -62,6 +62,9 @@ const translations = {
     de: 'Geben Sie den Raumcode ein',
     fi: 'Anna huonekoodi',
   },
+  // --- Room ---
+
+  // --- Other ---
   'Upload image': {
     sv: 'Välj en egen bild',
     no: 'Last opp et bilde',
@@ -97,6 +100,9 @@ const translations = {
     de: 'Größe auswählen',
     fi: 'Valitse koko',
   },
+  // --- Other ---
+
+  // --- Puzzle ---
   'New puzzle': {
     sv: 'Nytt pussel',
     no: 'Nytt puslespill',
@@ -118,7 +124,14 @@ const translations = {
     de: 'Puzzle fortsetzen',
     fi: 'Jatka pulmaa',
   },
-  // --- Actions ---
+  'Preparing your puzzle': {
+    sv: 'Förbereder ditt pussel',
+    no: 'Forbereder puslespillet ditt',
+    da: 'Forbereder dit puslespil',
+    de: 'Bereite dein Puzzle vor',
+    fi: 'Valmistellaan pulmaasi',
+  },
+  // --- Puzzle ---
 
   // --- Categories ---
   Cats: {

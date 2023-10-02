@@ -1,6 +1,6 @@
 'use client';
 
-import { Lang, getTranslation } from '@/locales';
+import { Lang, getTranslation } from '@/language';
 import ClientDB from '@/puzzle/network/clientDB';
 import { IPuzzleData } from '@/puzzle/network/types';
 import { sizes } from '@/utils/sizes';

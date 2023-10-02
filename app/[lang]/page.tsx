@@ -1,6 +1,6 @@
 import SlideshowRow from '@/app/[lang]/components/SlideshowRow';
 import SocialLinks from '@/components/SocialLinks';
-import { getTranslation } from '@/locales';
+import { getTranslation } from '@/language';
 import { PropsWithLangParam } from '@/utils/general';
 import ActionButtons from './components/ActionButtons';
 import ContinueSlideshowRow from './components/ContinueSlideshowRow';
