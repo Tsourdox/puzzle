@@ -20,16 +20,16 @@ export default function HomePage({ params }: PropsWithLangParam) {
           </span>
         </h1>
         <span className="text-2xl font-thin text-neutral-300 border-t-1 border-neutral-800 px-4 font-sans text-center">
-          {t('siteDescription')}
+          {t('An online puzzle for you and your friends!')}
         </span>
       </header>
 
       <section className="flex gap-x-8 gap-y-4 justify-center flex-wrap">
-        <ActionButtons t={t} />
+        <ActionButtons params={params} />
       </section>
 
       <main className="flex flex-col gap-12 w-screen">
-        <ContinueSlideshowRow />
+        <ContinueSlideshowRow params={params} />
         <SlideshowRow title="Katter" searchTerm="cats" />
         <SlideshowRow title="Vackra hav" searchTerm="ocean landscape" />
         <SlideshowRow title="Naturen" searchTerm="nature" />

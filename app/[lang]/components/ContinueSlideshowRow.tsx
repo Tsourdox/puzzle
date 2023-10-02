@@ -1,12 +1,15 @@
 'use client';
 
+import { getTranslation } from '@/locales';
 import ClientDB from '@/puzzle/network/clientDB';
+import { PropsWithLangParam } from '@/utils/general';
 import { useEffect, useState } from 'react';
 import { twMerge } from 'tailwind-merge';
 import ImageCardContinuePuzzle from './ImageCardContinuePuzzle';
 import ScrollBox from './ScrollBox';
 
-export default function ContinueSlideshowRow() {
+export default function ContinueSlideshowRow({ params }: PropsWithLangParam) {
+  const t = getTranslation(params.lang);
   const [isLoaded, setIsLoaded] = useState(false);
   const [rooms, setRooms] = useState<string[]>([]);
 
@@ -30,7 +33,7 @@ export default function ContinueSlideshowRow() {
           rooms.length && 'visible',
         )}
       >
-        Fortsätt pussla
+        {t('Continue puzzle')}
       </h2>
       {rooms.length ? (
         <ScrollBox>
@@ -52,10 +55,12 @@ export default function ContinueSlideshowRow() {
             <div className="absolute inset-0 px-12">
               <div className="h-full flex flex-col items-center justify-center text-center">
                 <span className="text-4xl text-neutral-300 font-sans">
-                  Du har inga påbörjade pussel
+                  {t('You have no ongoing puzzles')}
                 </span>
                 <span className="text-lg font-light text-neutral-400 font-sans">
-                  När du har påbörjat ett pussel visas det här så att du kan slutföra det senare.
+                  {t(
+                    'When you have started a puzzle it will show up here so that you can finish it later.',
+                  )}
                 </span>
               </div>
             </div>

@@ -21,13 +21,13 @@ export default function Sidebar({ t }: PropsWithTranslation) {
       <section className="flex-1 flex flex-col gap-6">
         <Link href="/" className="flex flex-col">
           <Button variant="secondary" icon={<PuzzlePieceIcon width={24} height={24} />}>
-            {t('newPuzzle')}
+            {t('New puzzle')}
           </Button>
         </Link>
 
         <Button
           disabled
-          disabledText={t('comingSoon')}
+          disabledText={t('Coming soon')}
           variant="secondary"
           icon={<UserGroupIcon width={24} height={24} />}
         >
@@ -35,7 +35,7 @@ export default function Sidebar({ t }: PropsWithTranslation) {
         </Button>
         <Button
           disabled
-          disabledText={t('comingSoon')}
+          disabledText={t('Coming soon')}
           variant="secondary"
           icon={<ArrowPathRoundedSquareIcon width={24} height={24} />}
         >
@@ -43,7 +43,7 @@ export default function Sidebar({ t }: PropsWithTranslation) {
         </Button>
         <Button
           disabled
-          disabledText={t('comingSoon')}
+          disabledText={t('Coming soon')}
           variant="secondary"
           icon={<Cog8ToothIcon width={24} height={24} />}
         >
