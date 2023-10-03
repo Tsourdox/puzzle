@@ -1,8 +1,8 @@
-import { getLangs } from '@/language';
+import { getLangs, getTranslation } from '@/language';
 import StoreProvider from '@/store/StoreProvider';
+import { PropsWithLangParam } from '@/utils/general';
 import type { Metadata } from 'next';
 import localFont from 'next/font/local';
-import { PropsWithChildren } from 'react';
 import { twMerge } from 'tailwind-merge';
 import './globals.css';
 
@@ -11,22 +11,23 @@ const myFont = localFont({
   variable: '--font-primary',
 });
 
-export const metadata: Metadata = {
-  title: 'Puzzelin - Ett online pussel för dig och dina vänner!',
-  description:
-    'Ett gratis och open-source online pussel där vänner och familj kan hjälpas åt och lösa roliga pussel ihop!',
-  keywords: 'pussel, online, vänner, familj, socialt, kul, samarbete, gratis, öppen källkod',
-  authors: [{ name: 'David Jensen', url: 'https://github.com/Tsourdox' }],
-};
+export async function generateMetadata({ params }: PropsWithLangParam): Promise<Metadata> {
+  const t = getTranslation(params.lang);
+  return {
+    title: `Puzzelin - ${t('An online puzzle for you and your friends!')}`,
+    description: t(
+      'A free and open-source online puzzle where friends and family can help each other and solve fun puzzles together!',
+    ),
+    keywords: t('puzzle, online, friends, family, social, fun, collaboration, free, open source'),
+    authors: [{ name: 'David Jensen', url: 'https://github.com/Tsourdox' }],
+  };
+}
 
 export async function generateStaticParams() {
   return getLangs().map((lang) => ({ lang }));
 }
 
-export default function RootLayout({
-  children,
-  params,
-}: PropsWithChildren<{ params: { lang: string } }>) {
+export default function RootLayout({ children, params }: PropsWithLangParam) {
   return (
     <html lang={params.lang} className="h-full">
       <body

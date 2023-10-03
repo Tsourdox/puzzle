@@ -24,6 +24,21 @@ const translations = {
     de: 'Ein Online-Puzzle für dich und deine Freunde!',
     fi: 'Verkkopulmapeli sinulle ja ystävillesi!',
   },
+  'A free and open-source online puzzle where friends and family can help each other and solve fun puzzles together!':
+    {
+      sv: 'Ett gratis och open-source online pussel där vänner och familj kan hjälpas åt och lösa roliga pussel ihop!',
+      no: 'Et gratis og open-source online puslespill der venner og familie kan hjelpe hverandre og løse morsomme puslespill sammen!',
+      da: 'Et gratis og open-source online puslespil, hvor venner og familie kan hjælpe hinanden og løse sjove puslespil sammen!',
+      de: 'Ein kostenloses und Open-Source-Online-Puzzle, bei dem Freunde und Familie sich gegenseitig helfen und zusammen lustige Puzzles lösen können!',
+      fi: 'Ilmainen ja avoimen lähdekoodin verkkopulmapeli, jossa ystävät ja perhe voivat auttaa toisiaan ja ratkaista hauskat pulmat yhdessä!',
+    },
+  'puzzle, online, friends, family, social, fun, collaboration, free, open source': {
+    sv: 'pussel, online, vänner, familj, socialt, kul, samarbete, gratis, öppen källkod',
+    no: 'puslespill, online, venner, familie, sosialt, moro, samarbeid, gratis, åpen kildekode',
+    da: 'puslespil, online, venner, familie, socialt, sjovt, samarbejde, gratis, åben kildekode',
+    de: 'Puzzle, Online, Freunde, Familie, sozial, Spaß, Zusammenarbeit, kostenlos, Open Source',
+    fi: 'pulmapeli, verkossa, ystävät, perhe, sosiaalinen, hauska, yhteistyö, ilmainen, avoimen lähdekoodin',
+  },
   'You have no ongoing puzzles': {
     sv: 'Du har inga påbörjade pussel',
     no: 'Du har ingen påbegynte puslespill',
