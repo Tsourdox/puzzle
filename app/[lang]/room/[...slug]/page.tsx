@@ -27,7 +27,6 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function RoomPage({ params }: Props) {
   const [roomCode, imageId] = params.slug;
-  console.log('RoomPage', roomCode);
 
   const image = await getPexelsImage(imageId);
 
