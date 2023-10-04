@@ -109,7 +109,8 @@ export default class TransformHandler implements ITransformHandler {
 
     // Scroll
     if (this.puzzle.selectedPieces && scrollDelta) {
-      const rotation = scrollDelta * 0.01 * userSpeed;
+      const normalizedScrollDelta = p.min(20, p.max(-20, scrollDelta));
+      const rotation = normalizedScrollDelta * 0.01 * userSpeed;
       this.rotatePieces(rotation);
     }
   }
