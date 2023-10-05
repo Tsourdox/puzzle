@@ -12,7 +12,7 @@ export default function ImageCardContainer({ image, children }: Props) {
     <div className="group w-44 sm:w-56 md:w-80 relative aspect-square flex-none rounded-3xl overflow-hidden">
       <Image
         src={image.src.medium}
-        alt=""
+        alt={image.alt}
         width={300}
         height={300}
         className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
