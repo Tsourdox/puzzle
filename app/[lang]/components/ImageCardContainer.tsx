@@ -15,7 +15,7 @@ export default function ImageCardContainer({ image, children }: Props) {
         alt=""
         width={300}
         height={300}
-        className="w-full h-full object-cover"
+        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
       />
 
       <div className="absolute invisible group-hover:visible top-0 left-0 w-full h-full backdrop-blur-sm bg-black/10 flex flex-col justify-center items-center gap-4">
