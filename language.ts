@@ -147,19 +147,19 @@ const translations = {
     de: 'Bist du sicher?',
     fi: 'Oletko varma?',
   },
-  Delete: {
-    sv: 'Ta bort',
-    no: 'Slett',
-    da: 'Slet',
-    de: 'Löschen',
-    fi: 'Poista',
+  Yes: {
+    sv: 'Ja',
+    no: 'Ja',
+    da: 'Ja',
+    de: 'Ja',
+    fi: 'Kyllä',
   },
-  Cancel: {
-    sv: 'Avbryt',
-    no: 'Avbryt',
-    da: 'Annuller',
-    de: 'Abbrechen',
-    fi: 'Peruuta',
+  No: {
+    sv: 'Nej',
+    no: 'Nei',
+    da: 'Nej',
+    de: 'Nein',
+    fi: 'Ei',
   },
   // --- Delete ---
 

@@ -48,13 +48,13 @@ export default function ImageCardContinuePuzzle(props: Props) {
           <p className="mx-4 text-center">{t('Are you sure?')}</p>
           <div className="flex gap-2">
             <Button variant="secondary" className="text-sm md:text-base" onClick={deletePuzzle}>
-              {t('Delete')}
+              {t('Yes')}
             </Button>
             <Button
               className="text-sm md:text-base"
               onClick={() => setShowDeleteConfirmation(false)}
             >
-              {t('Cancel')}
+              {t('No')}
             </Button>
           </div>
         </>
