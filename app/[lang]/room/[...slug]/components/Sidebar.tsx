@@ -50,7 +50,7 @@ export default function Sidebar({ lang }: PropsWithLang) {
           variant="secondary"
           icon={<Cog8ToothIcon width={24} height={24} />}
         >
-          Inställningar
+          {t('Settings')}
         </Button>
       </section>
       <footer className="flex justify-between">

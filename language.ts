@@ -116,6 +116,13 @@ const translations = {
     de: 'Freunde einladen',
     fi: 'Kutsu ystäviä',
   },
+  Settings: {
+    sv: 'Inställningar',
+    no: 'Innstillinger',
+    da: 'Indstillinger',
+    de: 'Einstellungen',
+    fi: 'Asetukset',
+  },
   Size: {
     sv: 'Storlek',
     no: 'Størrelse',
