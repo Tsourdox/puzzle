@@ -9,6 +9,7 @@ import { useEffect, useState } from 'react';
 import { twMerge } from 'tailwind-merge';
 import ImageCardContainer from './ImageCardContainer';
 import StartPuzzleButton from './StartPuzzleButton';
+import Button from '@/components/Button';
 
 interface Props {
   room: string;
@@ -19,6 +20,7 @@ interface Props {
 export default function ImageCardContinuePuzzle(props: Props) {
   const t = getTranslation(props.lang);
   const [puzzleData, setPuzzleData] = useState<IPuzzleData>();
+  const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
 
   useEffect(() => {
     (async () => {
@@ -40,29 +42,49 @@ export default function ImageCardContinuePuzzle(props: Props) {
 
   return (
     <ImageCardContainer image={puzzleData.imageData}>
-      <TrashIcon
-        width={20}
-        height={20}
-        className="absolute top-4 right-4 cursor-pointer drop-shadow-lg p-2 box-content"
-        onClick={deletePuzzle}
-      />
-      <h2 className="text-xl drop-shadow-lg">{t('Size')}</h2>
-      <section className="flex gap-1 md:gap-2">
-        {sizes.map((sizeLabel) => (
-          <div
-            key={sizeLabel}
-            className={twMerge(
-              'rounded-full backdrop-blur-lg uppercase px-2 md:px-3 md:py-1 bg-neutral-500/20',
-              puzzleData.size === sizeLabel ? 'bg-purple-800/60' : 'opacity-50',
-            )}
-          >
-            {sizeLabel}
+      {showDeleteConfirmation ? (
+        <>
+          <h2 className="text-xl">{t('Delete puzzle')}</h2>
+          <p className="mx-4 text-center">{t('Are you sure?')}</p>
+          <div className="flex gap-2">
+            <Button variant="secondary" className="text-sm md:text-base" onClick={deletePuzzle}>
+              {t('Delete')}
+            </Button>
+            <Button
+              className="text-sm md:text-base"
+              onClick={() => setShowDeleteConfirmation(false)}
+            >
+              {t('Cancel')}
+            </Button>
           </div>
-        ))}
-      </section>
-      <StartPuzzleButton image={puzzleData.imageData} room={props.room}>
-        {t('Continue puzzle')}
-      </StartPuzzleButton>
+        </>
+      ) : (
+        <>
+          <TrashIcon
+            width={20}
+            height={20}
+            className="absolute top-4 right-4 cursor-pointer drop-shadow-lg p-2 box-content"
+            onClick={() => setShowDeleteConfirmation(true)}
+          />
+          <h2 className="text-xl drop-shadow-lg">{t('Size')}</h2>
+          <section className="flex gap-1 md:gap-2">
+            {sizes.map((sizeLabel) => (
+              <div
+                key={sizeLabel}
+                className={twMerge(
+                  'rounded-full backdrop-blur-lg uppercase px-2 md:px-3 md:py-1 bg-neutral-500/20',
+                  puzzleData.size === sizeLabel ? 'bg-purple-800/60' : 'opacity-50',
+                )}
+              >
+                {sizeLabel}
+              </div>
+            ))}
+          </section>
+          <StartPuzzleButton image={puzzleData.imageData} room={props.room}>
+            {t('Continue puzzle')}
+          </StartPuzzleButton>
+        </>
+      )}
     </ImageCardContainer>
   );
 }

@@ -132,6 +132,37 @@ const translations = {
   },
   // --- Other ---
 
+  // --- Delete ---
+  'Delete puzzle': {
+    sv: 'Ta bort pussel',
+    no: 'Slett puslespill',
+    da: 'Slet puslespil',
+    de: 'Lösche Puzzle',
+    fi: 'Poista pulma',
+  },
+  'Are you sure?': {
+    sv: 'Är du säker?',
+    no: 'Er du sikker?',
+    da: 'Er du sikker?',
+    de: 'Bist du sicher?',
+    fi: 'Oletko varma?',
+  },
+  Delete: {
+    sv: 'Ta bort',
+    no: 'Slett',
+    da: 'Slet',
+    de: 'Löschen',
+    fi: 'Poista',
+  },
+  Cancel: {
+    sv: 'Avbryt',
+    no: 'Avbryt',
+    da: 'Annuller',
+    de: 'Abbrechen',
+    fi: 'Peruuta',
+  },
+  // --- Delete ---
+
   // --- Puzzle ---
   'New puzzle': {
     sv: 'Nytt pussel',
