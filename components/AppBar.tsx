@@ -1,8 +1,10 @@
 'use client';
+import PuzzleButtons from '@/app/[lang]/room/[...slug]/components/PuzzleButtons';
 import { PropsWithClassName, invert } from '@/utils/general';
 import { ArrowLeftCircleIcon, ArrowRightCircleIcon } from '@heroicons/react/20/solid';
 import { useState } from 'react';
 import { twMerge } from 'tailwind-merge';
+import Button from './Button';
 
 type Props = PropsWithClassName;
 
@@ -18,16 +20,22 @@ export function AppBar({ className, children }: Props) {
         className,
       )}
     >
-      <i
-        className="absolute cursor-pointer top-6 -left-20 backdrop-blur-lg shadow-2xl shadow-black/50 rounded-full active:scale-90 p-1"
-        onClick={() => setIsOpen(invert)}
-      >
-        {isOpen ? (
-          <ArrowRightCircleIcon width={50} height={50} />
-        ) : (
-          <ArrowLeftCircleIcon width={50} height={50} />
-        )}
-      </i>
+      <div className="absolute top-6 -left-20 flex flex-col gap-2 items-center">
+        <Button
+          className="p-1"
+          variant="secondary"
+          icon={
+            isOpen ? (
+              <ArrowRightCircleIcon width={50} height={50} />
+            ) : (
+              <ArrowLeftCircleIcon width={50} height={50} />
+            )
+          }
+          onClick={() => setIsOpen(invert)}
+        />
+
+        <PuzzleButtons />
+      </div>
       {children}
     </aside>
   );
