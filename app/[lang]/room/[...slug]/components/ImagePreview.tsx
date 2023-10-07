@@ -17,7 +17,7 @@ export default function ImagePreview({ image }: Props) {
       onClick={() => setFullscreen(invert)}
       className={twMerge(
         'fixed left-0 bottom-0 p-6 w-44 h-32 sm:w-60 sm:h-40 z-50 transition-all duration-500 cursor-pointer',
-        fullscreen && 'w-full h-full backdrop-blur-lg',
+        fullscreen && 'w-full h-full sm:h-full sm:w-full backdrop-blur-lg',
       )}
     >
       <div
