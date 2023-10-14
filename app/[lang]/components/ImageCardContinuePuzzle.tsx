@@ -1,5 +1,6 @@
 'use client';
 
+import Button from '@/components/Button';
 import { Lang, getTranslation } from '@/language';
 import ClientDB from '@/puzzle/network/clientDB';
 import { IPuzzleData } from '@/puzzle/network/types';
@@ -9,7 +10,6 @@ import { useEffect, useState } from 'react';
 import { twMerge } from 'tailwind-merge';
 import ImageCardContainer from './ImageCardContainer';
 import StartPuzzleButton from './StartPuzzleButton';
-import Button from '@/components/Button';
 
 interface Props {
   room: string;
@@ -41,7 +41,10 @@ export default function ImageCardContinuePuzzle(props: Props) {
   if (!puzzleData) return null;
 
   return (
-    <ImageCardContainer image={puzzleData.imageData}>
+    <ImageCardContainer
+      image={puzzleData.imageData}
+      onMouseLeave={() => setShowDeleteConfirmation(false)}
+    >
       {showDeleteConfirmation ? (
         <>
           <h2 className="text-xl">{t('Delete puzzle')}</h2>

@@ -1,3 +1,4 @@
+import { StoreDispatch } from '@/store/StoreProvider';
 import { PexelsImage } from '@/utils/pexels';
 import { Size } from '@/utils/sizes';
 import p5 from 'p5';
@@ -17,9 +18,11 @@ export interface IPuzzle {
   pieceCount: p5.Vector;
   pieceSize: p5.Vector;
   readonly selectedPieces: ReadonlyArray<Piece>;
+  readonly dispatch: StoreDispatch; // maybe a bit to dependent on store?
 }
 
 export default class Puzzle implements IPuzzle, ISerializablePuzzle {
+  public dispatch: StoreDispatch;
   public p: p5;
   public image?: p5.Image;
   public pieces: ReadonlyArray<Piece>;
@@ -33,7 +36,8 @@ export default class Puzzle implements IPuzzle, ISerializablePuzzle {
   private size: Size;
   private imageData: PexelsImage;
 
-  constructor(p: p5, size: Size, image: PexelsImage, roomCode: string) {
+  constructor(p: p5, size: Size, image: PexelsImage, roomCode: string, dispatch: StoreDispatch) {
+    this.dispatch = dispatch;
     this.p = p;
     this.size = size;
     this.imageData = image;

@@ -1,15 +1,16 @@
 import { PexelsImage } from '@/utils/pexels';
 import Image from 'next/image';
-import { ReactNode } from 'react';
 
-interface Props {
+type Props = JSX.IntrinsicElements['div'] & {
   image: PexelsImage;
-  children: ReactNode;
-}
+};
 
-export default function ImageCardContainer({ image, children }: Props) {
+export default function ImageCardContainer({ image, children, ...props }: Props) {
   return (
-    <div className="group w-44 sm:w-56 md:w-80 relative aspect-square flex-none rounded-3xl overflow-hidden">
+    <div
+      className="group w-44 sm:w-56 md:w-80 relative aspect-square flex-none rounded-3xl overflow-hidden"
+      {...props}
+    >
       <Image
         src={image.src.medium}
         alt={image.alt}

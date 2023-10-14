@@ -107,9 +107,9 @@ export default class SelectionHandler implements ISelectionHandler {
 
     // Select by dragging
     if (this.isDragSelecting) {
-      const chekedPieces: Piece[] = [];
+      const checkedPieces: Piece[] = [];
       for (const piece of this.puzzle.pieces) {
-        if (chekedPieces.includes(piece)) continue;
+        if (checkedPieces.includes(piece)) continue;
 
         // Check all connected pieces at the same time!
         const connectedPieces = getConnectedPieces(piece, this.puzzle);
@@ -120,7 +120,7 @@ export default class SelectionHandler implements ISelectionHandler {
             break;
           }
         }
-        chekedPieces.push(...connectedPieces);
+        checkedPieces.push(...connectedPieces);
 
         if (p.keyIsDown(this.settings['markera fler'])) {
           this.select(piece, piece.isSelected || selectionIsOverAnyConnectedPiece);
@@ -142,6 +142,12 @@ export default class SelectionHandler implements ISelectionHandler {
     for (const piece of this.puzzle.selectedPieces) {
       piece.isSelected = false;
     }
+
+    // Sync with React Store
+    this.puzzle.dispatch({
+      type: 'SET_PUZZLE_PIECE_ACTIONS',
+      payload: false,
+    });
   }
 
   /** Will select connected pieces recursively */
@@ -154,6 +160,13 @@ export default class SelectionHandler implements ISelectionHandler {
       if (piece.isSelected) {
         piece.elevation = maxElev + 1;
       }
+    });
+
+    // Sync with React Store
+    const selectedPieces = this.puzzle.selectedPieces;
+    this.puzzle.dispatch({
+      type: 'SET_PUZZLE_PIECE_ACTIONS',
+      payload: Boolean(selectedPieces.length),
     });
   }
 

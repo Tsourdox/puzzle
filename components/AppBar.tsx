@@ -34,7 +34,7 @@ export function AppBar({ className, children }: Props) {
           onClick={() => setIsOpen(invert)}
         />
 
-        <PuzzleButtons />
+        <PuzzleButtons isHidden={isOpen} />
       </div>
       {children}
     </aside>

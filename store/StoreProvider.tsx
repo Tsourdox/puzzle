@@ -5,9 +5,11 @@ import { Dispatch, PropsWithChildren, Reducer, createContext, useContext, useRed
 // ----- STATE -----
 export type StoreState = {
   size: Size;
+  showPuzzlePieceActions: boolean;
 };
 const initialStoreState: StoreState = {
   size: 's',
+  showPuzzlePieceActions: false,
 };
 
 // ----- CONTEXTS -----
@@ -34,15 +36,22 @@ type SetSizeAction = {
   type: 'SET_SIZE';
   payload: Size;
 };
+type SetShowPuzzlePieceActionsAction = {
+  type: 'SET_PUZZLE_PIECE_ACTIONS';
+  payload: boolean;
+};
 
-type KnownAction = SetSizeAction;
+type KnownAction = SetSizeAction | SetShowPuzzlePieceActionsAction;
+export type StoreDispatch = ReturnType<typeof useStoreDispatch>;
 
 // ----- REDUCER -----
 const storeReducer: Reducer<StoreState, KnownAction> = (state, action) => {
   switch (action.type) {
     case 'SET_SIZE':
-      return { ...state, size: action.payload };
+      return { ...state, size: action.payload } satisfies StoreState;
+    case 'SET_PUZZLE_PIECE_ACTIONS':
+      return { ...state, showPuzzlePieceActions: action.payload } satisfies StoreState;
     default:
-      return action.type satisfies never;
+      return action satisfies never;
   }
 };

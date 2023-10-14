@@ -1,4 +1,5 @@
 import Puzzle from '@/puzzle/puzzle';
+import { useStoreDispatch } from '@/store/StoreProvider';
 import { PexelsImage } from '@/utils/pexels';
 import { preventDefaultEvents } from '@/utils/preventEvents';
 import { Size } from '@/utils/sizes';
@@ -14,6 +15,8 @@ type Props = {
 };
 
 export default function usePuzzle({ containerRef, onReady, image, size, roomCode }: Props) {
+  const dispatch = useStoreDispatch();
+
   useEffect(() => {
     document.body.classList.add('overflow-hidden');
     return () => document.body.classList.remove('overflow-hidden');
@@ -29,13 +32,13 @@ export default function usePuzzle({ containerRef, onReady, image, size, roomCode
     if (!containerRef.current) throw Error('Could not mount canvas');
     const { width, height } = containerRef.current.getBoundingClientRect();
 
-    const sketch = (p: any) => {
+    const sketch = (p: p5) => {
       p.setup = () => {
         preventDefaultEvents();
         p.createCanvas(width, height);
         p.frameRate(90);
 
-        puzzle = new Puzzle(p, size, image, roomCode);
+        puzzle = new Puzzle(p, size, image, roomCode, dispatch);
         puzzle.tryLoadPuzzle().then((successfullyLoaded) => {
           if (successfullyLoaded) {
             onReady();
@@ -71,5 +74,5 @@ export default function usePuzzle({ containerRef, onReady, image, size, roomCode
     new p5(sketch, containerRef.current);
 
     return () => puzzle?.cleanup();
-  }, [containerRef, onReady, image, size, roomCode]);
+  }, [containerRef, onReady, image, size, roomCode, dispatch]);
 }

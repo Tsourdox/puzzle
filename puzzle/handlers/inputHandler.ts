@@ -26,8 +26,18 @@ export default class InputHandler {
 
   public update(scrollDelta: number) {
     this.graphHandler.update(this.prevMouse, this.prevTouches, scrollDelta);
-    this.selectionHandler.update();
+
+    if (
+      // overlay UI does not prevent selection in p5 canvas - this is a workaround
+      this.puzzle.p.mouseX < this.puzzle.p.width - 76 ||
+      this.puzzle.p.mouseX > this.puzzle.p.width - 28 ||
+      this.puzzle.p.mouseY > 420
+    ) {
+      this.selectionHandler.update();
+    }
+
     this.transformHandler.update(this.prevMouse, this.prevTouches, scrollDelta);
+
     this.setPreviousValues();
   }
 
