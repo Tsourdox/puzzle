@@ -15,6 +15,8 @@ export default function PuzzleButtons({ isHidden }: Props) {
 
   const showPieceActionButton = !isHidden && showPuzzlePieceActions;
 
+  return null;
+
   return (
     <>
       <Button
