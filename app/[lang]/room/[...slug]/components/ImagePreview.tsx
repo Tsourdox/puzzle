@@ -37,20 +37,14 @@ export default function ImagePreview({ image }: Props) {
             height={300}
             src={image.src.medium}
             alt={image.alt}
-            className={twMerge(
-              'absolute w-full h-full object-contain transition-opacity',
-              fullscreen && 'opacity-0',
-            )}
+            className={twMerge('absolute w-full h-full object-contain', fullscreen && 'opacity-0')}
           />
           <Image
             width={image.width}
             height={image.height}
             src={image.src.large2x}
             alt={image.alt}
-            className={twMerge(
-              'absolute w-full h-full object-contain transition-opacity',
-              !fullscreen && 'opacity-0',
-            )}
+            className={twMerge('absolute w-full h-full object-contain', !fullscreen && 'opacity-0')}
           />
         </div>
       </div>
