@@ -36,4 +36,12 @@
     -ms-overflow-style: none; /* IE and Edge */
     scrollbar-width: none; /* Firefox */
   }
+
+  /* Is this needed? */
+  /* @supports (padding: max(0px)) {
+    .post {
+      padding-left: max(12px, constant(safe-area-inset-left));
+      padding-right: max(12px, constant(safe-area-inset-right));
+    }
+  } */
 }

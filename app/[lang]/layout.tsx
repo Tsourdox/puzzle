@@ -20,6 +20,7 @@ export async function generateMetadata({ params }: PropsWithLangParam): Promise<
     ),
     keywords: t('puzzle, online, friends, family, social, fun, collaboration, free, open source'),
     authors: [{ name: 'David Jensen', url: 'https://github.com/Tsourdox' }],
+    viewport: 'width=device-width, initial-scale=1.0, viewport-fit=cover',
   };
 }
 
@@ -29,7 +30,7 @@ export async function generateStaticParams() {
 
 export default function RootLayout({ children, params }: PropsWithLangParam) {
   return (
-    <html lang={params.lang} className="h-full">
+    <html lang={params.lang} className="h-full bg-black">
       <body
         className={twMerge(
           myFont.className,
