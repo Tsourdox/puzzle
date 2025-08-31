@@ -55,13 +55,13 @@ export default function ScrollBox({ children }: PropsWithChildren) {
       {scrollLeft > 0 && (
         <ArrowLeftCircleIcon
           onClick={() => scroll('left')}
-          className="text-neutral-50 bg-purple-950/30 w-12 md:w-20 aspect-square absolute left-2 md:left-6 top-1/2 -translate-y-1/2 backdrop-blur-sm rounded-full active:text-neutral-200 cursor-pointer z-20"
+          className="text-zinc-50 bg-purple-950/30 w-12 md:w-20 aspect-square absolute left-2 md:left-6 top-1/2 -translate-y-1/2 backdrop-blur-sm rounded-full active:text-zinc-200 cursor-pointer z-20"
         />
       )}
       {scrollWidth > 0 && scrollLeft < scrollWidth && (
         <ArrowRightCircleIcon
           onClick={() => scroll('right')}
-          className="text-neutral-50 bg-purple-950/30 w-12 md:w-20 aspect-square absolute right-2 md:right-6 top-1/2 -translate-y-1/2 backdrop-blur-sm rounded-full active:text-neutral-200 cursor-pointer z-20"
+          className="text-zinc-50 bg-purple-950/30 w-12 md:w-20 aspect-square absolute right-2 md:right-6 top-1/2 -translate-y-1/2 backdrop-blur-sm rounded-full active:text-zinc-200 cursor-pointer z-20"
         />
       )}
       <div

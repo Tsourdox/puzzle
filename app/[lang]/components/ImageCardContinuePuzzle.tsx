@@ -75,7 +75,7 @@ export default function ImageCardContinuePuzzle(props: Props) {
               <div
                 key={sizeLabel}
                 className={twMerge(
-                  'rounded-full backdrop-blur-lg uppercase px-2 md:px-3 md:py-1 bg-neutral-500/20',
+                  'rounded-full backdrop-blur-lg uppercase px-2 md:px-3 md:py-1 bg-zinc-500/20',
                   puzzleData.size === sizeLabel ? 'bg-purple-800/60' : 'opacity-50',
                 )}
               >

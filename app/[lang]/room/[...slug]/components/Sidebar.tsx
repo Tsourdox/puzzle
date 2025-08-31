@@ -16,7 +16,7 @@ export default function Sidebar({ lang }: PropsWithLang) {
 
   return (
     <AppBar className="flex flex-col gap-4">
-      <header className="border-b-1 px-4 border-neutral-700/50 mt-2 mb-4 ">
+      <header className="border-b-1 px-4 border-zinc-700/50 mt-2 mb-4 ">
         <h1 className="text-center text-transparent bg-clip-text bg-gradient-to-l from-purple-700 to-purple-100">
           Puzzelin
         </h1>

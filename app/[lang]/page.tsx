@@ -25,7 +25,7 @@ export default async function HomePage({ params }: Props) {
             BETA
           </span>
         </h1>
-        <span className="text-2xl font-thin text-neutral-300 border-t-1 border-neutral-800 px-4 font-sans text-center">
+        <span className="text-2xl font-thin text-zinc-300 border-t-1 border-zinc-800 px-4 font-sans text-center">
           {t('An online puzzle for you and your friends!')}
         </span>
       </header>

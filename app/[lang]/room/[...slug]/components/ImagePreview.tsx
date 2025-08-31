@@ -22,7 +22,7 @@ export default function ImagePreview({ image }: Props) {
         onClick={() => setFullscreen(invert)}
         className={twMerge(
           'fixed left-0 top-0 z-40 transition-all duration-500 cursor-pointer w-full h-full',
-          fullscreen && 'backdrop-blur-lg bg-neutral-950/20',
+          fullscreen && 'backdrop-blur-lg bg-zinc-950/20',
           !fullscreen && 'pointer-events-none',
         )}
       />

@@ -36,7 +36,7 @@ export default function RoomCodeForm(props: Props) {
     >
       <button
         type="button"
-        className="p-2 border-r-1 border-neutral-600 text-gray-400"
+        className="p-2 border-r-1 border-zinc-600 text-gray-400"
         onClick={props.onCancel}
       >
         <XMarkIcon width={36} height={36} />

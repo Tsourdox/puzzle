@@ -29,7 +29,7 @@ export default function ContinueSlideshowRow({ lang }: PropsWithLang) {
     <section className="flex flex-col gap-4">
       <h2
         className={twMerge(
-          'invisible text-3xl capitalize font-semibold text-neutral-200 ml-2 sm:ml-8 md:ml-20 pl-2 font-sans',
+          'invisible text-3xl capitalize font-semibold text-zinc-200 ml-2 sm:ml-8 md:ml-20 pl-2 font-sans',
           rooms.length && 'visible',
         )}
       >
@@ -54,10 +54,10 @@ export default function ContinueSlideshowRow({ lang }: PropsWithLang) {
           {isLoaded && (
             <div className="absolute inset-0 px-12">
               <div className="h-full flex flex-col items-center justify-center text-center gap-2">
-                <span className="text-4xl text-neutral-300 font-sans hidden sm:flex">
+                <span className="text-4xl text-zinc-300 font-sans hidden sm:flex">
                   {t('You have no ongoing puzzles')}
                 </span>
-                <span className="text-lg font-light text-neutral-400 font-sans">
+                <span className="text-lg font-light text-zinc-400 font-sans">
                   {t(
                     'When you have started a puzzle it will show up here so that you can finish it later.',
                   )}

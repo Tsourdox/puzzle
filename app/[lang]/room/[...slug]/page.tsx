@@ -36,7 +36,7 @@ export default async function RoomPage({ params }: Props) {
         className="flex flex-col flex-1 bg-cover"
         style={{ backgroundImage: `url('${image.src.medium}')` }}
       >
-        <div className="relative flex flex-col flex-1 backdrop-blur-3xl bg-neutral-800/70">
+        <div className="relative flex flex-col flex-1 backdrop-blur-3xl bg-zinc-800/70">
           <PuzzleCanvas image={image} roomCode={roomCode} lang={lang} />
         </div>
       </main>

@@ -15,7 +15,7 @@ export default function SizeButtons() {
           key={size}
           onClick={() => dispatch({ type: 'SET_SIZE', payload: size })}
           className={twMerge(
-            'rounded-full backdrop-blur-lg uppercase px-2 md:px-3 md:py-1 cursor-pointer bg-neutral-500/20 active:bg-purple-900/50 hover:bg-purple-800/40',
+            'rounded-full backdrop-blur-lg uppercase px-2 md:px-3 md:py-1 cursor-pointer bg-zinc-500/20 active:bg-purple-900/50 hover:bg-purple-800/40',
             size === store.size && 'bg-purple-800/60',
           )}
         >
