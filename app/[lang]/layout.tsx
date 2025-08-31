@@ -31,12 +31,11 @@ export async function generateStaticParams() {
 export default async function RootLayout({ children, params }: PropsWithLangParam) {
   const { lang } = await params;
   return (
-    <html lang={lang} className="h-full bg-black">
+    <html lang={lang} className="h-full">
       <body
         className={twMerge(
           myFont.className,
-          'relative min-h-full flex flex-col',
-          'bg-gradient-to-bl from-[#210034] via-20% via-neutral-950 to-100% to-[#110024]',
+          'relative min-h-full flex flex-col text-zinc-100 bg-zinc-950',
         )}
       >
         <StoreProvider>{children}</StoreProvider>

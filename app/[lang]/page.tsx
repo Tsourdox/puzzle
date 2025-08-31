@@ -8,12 +8,14 @@ type Props = {
   params: Promise<{ lang: Lang }>;
 };
 
+export const revalidate = 345_600; // 4 days
+
 export default async function HomePage({ params }: Props) {
   const { lang } = await params;
   const t = getTranslation(lang);
 
   return (
-    <div className="flex flex-col py-16 gap-10 text-neutral-100 bg-gradient-to-bl from-[#210034] via-20% via-neutral-950 to-100% to-[#110024]">
+    <div className="flex flex-col py-16 gap-10">
       <header className="flex flex-col gap-4 items-center">
         <h1 className="relative">
           <span className="text-6xl text-transparent uppercase bg-clip-text bg-gradient-to-l from-purple-700 to-purple-100">
@@ -46,6 +48,7 @@ export default async function HomePage({ params }: Props) {
         <SlideshowRow title={t('Cities')} searchTerm="city" lang={lang} />
         <SlideshowRow title={t('Babies')} searchTerm="babies" lang={lang} />
         <SlideshowRow title={t('Flowers')} searchTerm="flowers" lang={lang} />
+        <SlideshowRow title={t('Cartoon')} searchTerm="cartoon" lang={lang} />
       </main>
 
       <footer className="flex justify-center items-center gap-12">

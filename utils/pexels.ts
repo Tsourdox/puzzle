@@ -13,14 +13,7 @@ export interface PexelsImage {
   };
 }
 
-// key: search term, value: image array
-let imageCache: Map<string, PexelsImage[]> = new Map();
-// key: search term, value: date
-let cacheDate: Map<string, Date> = new Map();
-
 export const getPexelsImage = async (id: string) => {
-  // check cache and return if found
-
   const url = `https://api.pexels.com/v1/photos/${id}`;
   const response = await fetch(url, {
     headers: { Authorization: API_KEY },
@@ -29,34 +22,17 @@ export const getPexelsImage = async (id: string) => {
 };
 
 export const searchPexelsImages = async (searchTerm: string): Promise<PexelsImage[]> => {
-  // check cache and return if found
-  const cachedImages = imageCache.get(searchTerm);
-  const cachedDate = cacheDate.get(searchTerm);
-  if (cachedImages && cachedDate) {
-    const diff = Date.now() - cachedDate.getTime();
-    const oneDay = 1000 * 60 * 60 * 24;
-    if (diff < oneDay) {
-      console.log('returning cached images');
-      return cachedImages;
-    }
-  }
-  console.log('fetching new images');
-
   const domain = 'https://api.pexels.com/';
   const path = 'v1/search';
-  const page = 1;
-  // const page = Math.ceil(Math.random() * 5);
-  const query = `?query=${searchTerm}&orientation=landscape&per_page=20&page=${page}`;
+  const query = `?query=${searchTerm}&orientation=landscape&per_page=20&page=1`;
   const url = `${domain}${path}${query}`;
   const response = await fetch(url, {
     headers: { Authorization: API_KEY },
+    next: { revalidate: 345_600 }, // 4 days
   });
   const result = await response.json();
-  // console.log(result);
 
   if (result.photos) {
-    imageCache.set(searchTerm, result.photos);
-    cacheDate.set(searchTerm, new Date());
     return result.photos;
   }
   return [];

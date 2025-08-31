@@ -286,5 +286,12 @@ const translations = {
     de: 'Blumen',
     fi: 'Kukat',
   },
+  Cartoon: {
+    sv: 'Tecknat',
+    no: 'Tegneserie',
+    da: 'Tegneserie',
+    de: 'Cartoon',
+    fi: 'Sarjakuva',
+  },
   // --- Categories ---
 } as const;
