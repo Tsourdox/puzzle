@@ -2,11 +2,9 @@ import { Lang, getTranslation } from '@/language';
 import { SearchParams } from '@/utils/general';
 import { getPexelsImage } from '@/utils/pexels';
 import { Metadata } from 'next';
-import dynamic from 'next/dynamic';
 import ImagePreview from './components/ImagePreview';
+import PuzzleCanvas from './components/PuzzleCanvas';
 import Sidebar from './components/Sidebar';
-
-const PuzzleCanvas = dynamic(() => import('./components/PuzzleCanvas'));
 
 type Props = {
   params: Promise<{ slug: string[]; lang: Lang }>;

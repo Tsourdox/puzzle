@@ -13,8 +13,8 @@ const initialStoreState: StoreState = {
 };
 
 // ----- CONTEXTS -----
-export const StoreContext = createContext<StoreState>(null as any);
-export const StoreDispatchContext = createContext<Dispatch<KnownAction>>(null as any);
+export const StoreContext = createContext({} as StoreState);
+export const StoreDispatchContext = createContext({} as Dispatch<KnownAction>);
 
 // ----- PROVIDER -----
 export default function StoreProvider({ children }: PropsWithChildren) {
