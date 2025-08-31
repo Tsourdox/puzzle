@@ -17,6 +17,7 @@ export const getPexelsImage = async (id: string) => {
   const url = `https://api.pexels.com/v1/photos/${id}`;
   const response = await fetch(url, {
     headers: { Authorization: API_KEY },
+    cache: 'force-cache',
   });
   return (await response.json()) as PexelsImage;
 };
