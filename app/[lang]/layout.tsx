@@ -12,7 +12,8 @@ const myFont = localFont({
 });
 
 export async function generateMetadata({ params }: PropsWithLangParam): Promise<Metadata> {
-  const t = getTranslation(params.lang);
+  const { lang } = await params;
+  const t = getTranslation(lang);
   return {
     title: `Puzzelin - ${t('An online puzzle for you and your friends!')}`,
     description: t(
@@ -20,7 +21,6 @@ export async function generateMetadata({ params }: PropsWithLangParam): Promise<
     ),
     keywords: t('puzzle, online, friends, family, social, fun, collaboration, free, open source'),
     authors: [{ name: 'David Jensen', url: 'https://github.com/Tsourdox' }],
-    viewport: 'width=device-width, initial-scale=1.0, viewport-fit=cover',
   };
 }
 
@@ -28,9 +28,10 @@ export async function generateStaticParams() {
   return getLangs().map((lang) => ({ lang }));
 }
 
-export default function RootLayout({ children, params }: PropsWithLangParam) {
+export default async function RootLayout({ children, params }: PropsWithLangParam) {
+  const { lang } = await params;
   return (
-    <html lang={params.lang} className="h-full bg-black">
+    <html lang={lang} className="h-full bg-black">
       <body
         className={twMerge(
           myFont.className,

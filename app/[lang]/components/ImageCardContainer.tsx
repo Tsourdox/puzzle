@@ -1,7 +1,8 @@
 import { PexelsImage } from '@/utils/pexels';
 import Image from 'next/image';
+import { ComponentProps } from 'react';
 
-type Props = JSX.IntrinsicElements['div'] & {
+type Props = ComponentProps<'div'> & {
   image: PexelsImage;
 };
 

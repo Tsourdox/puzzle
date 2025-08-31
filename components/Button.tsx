@@ -1,7 +1,7 @@
-import { ReactNode } from 'react';
+import { ComponentProps, ReactNode } from 'react';
 import { twMerge } from 'tailwind-merge';
 
-export type Props = JSX.IntrinsicElements['button'] & {
+export type Props = ComponentProps<'button'> & {
   icon?: ReactNode;
   variant?: 'primary' | 'secondary';
   disabledText?: string;

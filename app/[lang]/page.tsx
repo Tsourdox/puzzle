@@ -5,10 +5,11 @@ import ActionButtons from './components/ActionButtons';
 import ContinueSlideshowRow from './components/ContinueSlideshowRow';
 
 type Props = {
-  params: { lang: Lang };
+  params: Promise<{ lang: Lang }>;
 };
 
-export default function HomePage({ params: { lang } }: Props) {
+export default async function HomePage({ params }: Props) {
+  const { lang } = await params;
   const t = getTranslation(lang);
 
   return (

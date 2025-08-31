@@ -7,7 +7,7 @@ import p5 from 'p5';
 import { RefObject, WheelEvent, useEffect } from 'react';
 
 type Props = {
-  containerRef: RefObject<HTMLElement>;
+  containerRef: RefObject<HTMLElement | null>;
   onReady: () => void;
   image: PexelsImage;
   size: Size;

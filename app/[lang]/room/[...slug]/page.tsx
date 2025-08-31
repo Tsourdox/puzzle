@@ -1,6 +1,6 @@
 import { Lang, getTranslation } from '@/language';
+import { SearchParams } from '@/utils/general';
 import { getPexelsImage } from '@/utils/pexels';
-import { SearchParams } from '@/utils/searchParams';
 import { Metadata } from 'next';
 import dynamic from 'next/dynamic';
 import ImagePreview from './components/ImagePreview';
@@ -9,13 +9,14 @@ import Sidebar from './components/Sidebar';
 const PuzzleCanvas = dynamic(() => import('./components/PuzzleCanvas'));
 
 type Props = {
-  params: { slug: string[]; lang: Lang };
+  params: Promise<{ slug: string[]; lang: Lang }>;
   searchParams: SearchParams;
 };
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const [roomCode] = params.slug;
-  const t = getTranslation(params.lang);
+  const { slug, lang } = await params;
+  const [roomCode] = slug;
+  const t = getTranslation(lang);
 
   return {
     title: `Puzzelin - ${t('In Room')} ${roomCode}`,
@@ -26,7 +27,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 export default async function RoomPage({ params }: Props) {
-  const [roomCode, imageId] = params.slug;
+  const { slug, lang } = await params;
+  const [roomCode, imageId] = slug;
 
   const image = await getPexelsImage(imageId);
 
@@ -37,10 +39,10 @@ export default async function RoomPage({ params }: Props) {
         style={{ backgroundImage: `url('${image.src.medium}')` }}
       >
         <div className="relative flex flex-col flex-1 backdrop-blur-3xl bg-neutral-800/70">
-          <PuzzleCanvas image={image} roomCode={roomCode} lang={params.lang} />
+          <PuzzleCanvas image={image} roomCode={roomCode} lang={lang} />
         </div>
       </main>
-      <Sidebar lang={params.lang} />
+      <Sidebar lang={lang} />
       <ImagePreview image={image} />
     </div>
   );
