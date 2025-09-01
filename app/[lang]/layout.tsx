@@ -1,4 +1,4 @@
-import { getLangs, getTranslation } from '@/language';
+import { getLangs, getTranslation, Lang } from '@/language';
 import StoreProvider from '@/store/StoreProvider';
 import { PropsWithLangParam } from '@/utils/general';
 import type { Metadata } from 'next';
@@ -13,7 +13,7 @@ const myFont = localFont({
 
 export async function generateMetadata({ params }: PropsWithLangParam): Promise<Metadata> {
   const { lang } = await params;
-  const t = getTranslation(lang);
+  const t = getTranslation(lang as Lang);
   return {
     title: `Puzzelin - ${t('An online puzzle for you and your friends!')}`,
     description: t(
