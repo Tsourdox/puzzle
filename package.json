@@ -11,7 +11,7 @@
     "types": "tsc --pretty --noEmit"
   },
   "engines": {
-    "node": "24"
+    "node": "22"
   },
   "dependencies": {
     "@heroicons/react": "^2.2.0",
