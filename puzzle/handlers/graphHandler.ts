@@ -58,9 +58,12 @@ export default class GraphHandler implements IGraph, ISerializableGraph {
   private handleScaling(prevTouches: Touches, scrollDelta: number) {
     const { p } = this.puzzle;
     let zoomDelta = 0;
+    let zoomCenter = p.createVector(p.mouseX, p.mouseY);
+
     // Mouse
     if (!this.isGraphDisabled && scrollDelta !== 0) {
       zoomDelta = scrollDelta;
+      zoomCenter = p.createVector(p.mouseX, p.mouseY);
     }
     // Touch
     if (prevTouches.length >= 2 && p.touches.length >= 2 && !this.isGraphDisabled) {
@@ -69,6 +72,8 @@ export default class GraphHandler implements IGraph, ISerializableGraph {
       const pinchDist = p.dist(t1.x, t1.y, t2.x, t2.y);
       const prevPinchDist = p.dist(p1.x, p1.y, p2.x, p2.y);
       zoomDelta = prevPinchDist - pinchDist;
+      // Zoom toward the center point between the two touches
+      zoomCenter = pointBetween(p, t1, t2);
     }
 
     // Apply zoom
@@ -76,11 +81,16 @@ export default class GraphHandler implements IGraph, ISerializableGraph {
       const invert = this.settings['invertera zoom'];
       const zoomFactor = 1 + zoomDelta * -0.002 * (invert ? -1 : 1);
       const nextScale = p.constrain(this.scale * zoomFactor, 0.01, 100);
-      const currentHomeTranslation = this.getHomeTranslation(this.scale);
-      const translationDiff = currentHomeTranslation.sub(this.translation);
-      const nextHomeTranslation = this.getHomeTranslation(nextScale);
-      nextHomeTranslation.sub(translationDiff);
-      this.setScale(nextScale, nextHomeTranslation);
+
+      // Calculate world position under zoom center before zoom
+      const worldX = (zoomCenter.x - this._translation.x * this.scale) / this.scale;
+      const worldY = (zoomCenter.y - this._translation.y * this.scale) / this.scale;
+
+      // Calculate new translation to keep the same world point under the zoom center
+      const newTranslationX = (zoomCenter.x - worldX * nextScale) / nextScale;
+      const newTranslationY = (zoomCenter.y - worldY * nextScale) / nextScale;
+
+      this.setScale(nextScale, p.createVector(newTranslationX, newTranslationY));
     }
   }
 
