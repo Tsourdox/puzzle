@@ -41,10 +41,7 @@ export default function ImageCardContinuePuzzle(props: Props) {
   if (!puzzleData) return null;
 
   return (
-    <ImageCardContainer
-      image={puzzleData.imageData}
-      onMouseLeave={() => setShowDeleteConfirmation(false)}
-    >
+    <ImageCardContainer image={puzzleData.imageData}>
       {showDeleteConfirmation ? (
         <>
           <h2 className="text-xl">{t('Delete puzzle')}</h2>
@@ -63,13 +60,29 @@ export default function ImageCardContinuePuzzle(props: Props) {
         </>
       ) : (
         <>
+          {/* Desktop: trash icon in top right corner of overlay */}
           <TrashIcon
             width={20}
             height={20}
-            className="absolute top-4 right-4 cursor-pointer drop-shadow-lg p-2 box-content"
-            onClick={() => setShowDeleteConfirmation(true)}
+            className="hidden md:block md:absolute md:top-4 md:right-4 cursor-pointer text-white drop-shadow-lg hover:text-zinc-300 active:scale-95 transition-transform"
+            onClick={(e) => {
+              e.stopPropagation();
+              setShowDeleteConfirmation(true);
+            }}
           />
-          <h2 className="text-xl drop-shadow-lg">{t('Size')}</h2>
+          {/* Mobile: trash icon next to Size text */}
+          <div className="relative w-full flex justify-center px-8">
+            <h2 className="text-xl drop-shadow-lg">{t('Size')}</h2>
+            <TrashIcon
+              width={20}
+              height={20}
+              className="md:hidden absolute right-6 cursor-pointer text-white drop-shadow-lg hover:text-zinc-300 active:scale-95 transition-transform"
+              onClick={(e) => {
+                e.stopPropagation();
+                setShowDeleteConfirmation(true);
+              }}
+            />
+          </div>
           <section className="flex gap-1 md:gap-2">
             {sizes.map((sizeLabel) => (
               <div

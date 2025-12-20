@@ -66,11 +66,11 @@ export default function ScrollBox({ children }: PropsWithChildren) {
       )}
       <div
         ref={scrollRef}
-        className="flex gap-6 overflow-x-auto invisibe-scroll scroll-smooth items-center"
+        className="flex gap-2 sm:gap-4 md:gap-6 overflow-x-auto invisibe-scroll scroll-smooth items-center"
       >
-        <div className="w-0 sm:w-4 md:w-16 aspect-square flex-none" />
+        <div className="w-2 sm:w-4 md:w-16 aspect-square flex-none" />
         {children}
-        <div className="w-0 sm:w-4 md:w-16 aspect-square flex-none" />
+        <div className="w-2 sm:w-4 md:w-16 aspect-square flex-none" />
       </div>
     </div>
   );

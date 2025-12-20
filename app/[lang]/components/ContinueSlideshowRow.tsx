@@ -42,14 +42,14 @@ export default function ContinueSlideshowRow({ lang }: PropsWithLang) {
           ))}
         </ScrollBox>
       ) : (
-        <div className="relative flex gap-6 overflow-x-hidden">
-          <div className="sm:w-4 md:w-16 aspect-square flex-none" />
-          <div className="group w-44 sm:w-56 md:w-80 relative aspect-square flex-none rounded-3xl overflow-hidden bg-gray-800/20" />
-          <div className="group w-44 sm:w-56 md:w-80 relative aspect-square flex-none rounded-3xl overflow-hidden bg-gray-800/20" />
-          <div className="group w-44 sm:w-56 md:w-80 relative aspect-square flex-none rounded-3xl overflow-hidden bg-gray-800/20" />
-          <div className="group w-44 sm:w-56 md:w-80 relative aspect-square flex-none rounded-3xl overflow-hidden bg-gray-800/20" />
-          <div className="group w-44 sm:w-56 md:w-80 relative aspect-square flex-none rounded-3xl overflow-hidden bg-gray-800/20" />
-          <div className="group w-44 sm:w-56 md:w-80 relative aspect-square flex-none rounded-3xl overflow-hidden bg-gray-800/20" />
+        <div className="relative flex gap-2 sm:gap-4 md:gap-6 overflow-x-hidden">
+          <div className="w-2 sm:w-4 md:w-16 aspect-square flex-none" />
+          <div className="group w-28 sm:w-36 md:w-80 relative aspect-square flex-none rounded-2xl md:rounded-3xl overflow-hidden bg-gray-800/20" />
+          <div className="group w-28 sm:w-36 md:w-80 relative aspect-square flex-none rounded-2xl md:rounded-3xl overflow-hidden bg-gray-800/20" />
+          <div className="group w-28 sm:w-36 md:w-80 relative aspect-square flex-none rounded-2xl md:rounded-3xl overflow-hidden bg-gray-800/20" />
+          <div className="group w-28 sm:w-36 md:w-80 relative aspect-square flex-none rounded-2xl md:rounded-3xl overflow-hidden bg-gray-800/20" />
+          <div className="group w-28 sm:w-36 md:w-80 relative aspect-square flex-none rounded-2xl md:rounded-3xl overflow-hidden bg-gray-800/20" />
+          <div className="group w-28 sm:w-36 md:w-80 relative aspect-square flex-none rounded-2xl md:rounded-3xl overflow-hidden bg-gray-800/20" />
 
           {isLoaded && (
             <div className="absolute inset-0 px-12">
