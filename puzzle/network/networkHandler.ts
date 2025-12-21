@@ -1,7 +1,7 @@
 import { supabase } from '@/utils/supabase';
 import type { RealtimeChannel } from '@supabase/supabase-js';
 import type Piece from '../piece';
-import type { IPuzzle } from '../puzzle';
+import type { ISerializablePuzzle } from './types';
 
 export interface INetworkPieceData {
   piece_id: number;
@@ -14,20 +14,25 @@ export interface INetworkPieceData {
 }
 
 export interface INetworkSelectionData {
+  id?: number;
   user_id: string;
   piece_ids: number[];
 }
 
 export default class NetworkHandler {
-  private puzzle: IPuzzle;
+  private puzzle: ISerializablePuzzle;
   private roomCode: string;
   private userId: string;
   private channel?: RealtimeChannel;
   private isInitialized: boolean;
   private lastSyncTime: number;
   private syncThrottle: number = 1000 / 60; // ~16ms = 60Hz
+  private userColors: Map<string, string> = new Map();
+  private availableColors = ['#ef4444', '#3b82f6', '#10b981', '#a855f7', '#f59e0b', '#ec4899'];
+  private currentSelections: Map<string, number[]> = new Map(); // userId -> pieceIds
+  private selectionIdToUser: Map<number, string> = new Map(); // selection id -> userId
 
-  constructor(puzzle: IPuzzle, roomCode: string) {
+  constructor(puzzle: ISerializablePuzzle, roomCode: string) {
     this.puzzle = puzzle;
     this.roomCode = roomCode;
     this.userId = this.generateUserId();
@@ -82,7 +87,7 @@ export default class NetworkHandler {
                 elevation: pieceData.elevation || 0,
                 isSelectedByOther: false,
               },
-              { lerp: false }
+              { lerp: false },
             );
           }
         }
@@ -161,7 +166,7 @@ export default class NetworkHandler {
     // Ignore our own updates (prevent echo/bounce)
     if (pieceData.updated_by === this.userId) return;
 
-    const piece = this.puzzle.pieces[pieceData.piece_id];
+    const piece = this.puzzle.pieces[pieceData.piece_id] as Piece;
     if (!piece) return;
 
     // Normalize rotation to take shortest path (prevent 350° -> 10° going the long way)
@@ -176,19 +181,107 @@ export default class NetworkHandler {
         rotation: normalizedRotation,
         connectedSides: pieceData.connected_sides,
         elevation: pieceData.elevation,
-        isSelectedByOther: false, // TODO: Track from selections table
+        isSelectedByOther: piece.isSelectedByOther, // Preserve selection state
       },
       { lerp: true }, // Smooth interpolation
     );
   }
 
+  private getUserColor(userId: string): string {
+    if (!this.userColors.has(userId)) {
+      const colorIndex = this.userColors.size % this.availableColors.length;
+      this.userColors.set(userId, this.availableColors[colorIndex]);
+    }
+    return this.userColors.get(userId)!;
+  }
+
   private handleSelectionUpdate(payload: any): void {
+    // Handle DELETE events (user deselected)
+    if (payload.eventType === 'DELETE' && payload.old) {
+      // Supabase only sends the id in DELETE events, so we need to lookup the user
+      const selectionId = payload.old.id;
+      const oldUserId = this.selectionIdToUser.get(selectionId);
+
+      if (oldUserId && oldUserId !== this.userId) {
+        // Clear selections for this user
+        const oldSelections = this.currentSelections.get(oldUserId) || [];
+        oldSelections.forEach((pieceId) => {
+          const piece = this.puzzle.pieces[pieceId] as Piece;
+          if (piece) {
+            piece.setSelectedByOther(false);
+          }
+        });
+        this.currentSelections.delete(oldUserId);
+        this.selectionIdToUser.delete(selectionId);
+      }
+      return;
+    }
+
     const selectionData = payload.new as INetworkSelectionData;
     if (!selectionData || selectionData.user_id === this.userId) return;
 
-    // TODO: Visualize other players' selections
-    // For now, just log it
-    console.log(`User ${selectionData.user_id} selected pieces:`, selectionData.piece_ids);
+    // Track the selection id -> user mapping for DELETE events
+    if (selectionData.id) {
+      this.selectionIdToUser.set(selectionData.id, selectionData.user_id);
+    }
+
+    const userId = selectionData.user_id;
+    const newPieceIds = selectionData.piece_ids || [];
+
+    // If empty array, clear all selections for this user
+    if (newPieceIds.length === 0) {
+      const oldSelections = this.currentSelections.get(userId) || [];
+      oldSelections.forEach((pieceId) => {
+        const piece = this.puzzle.pieces[pieceId] as Piece;
+        if (piece) {
+          piece.setSelectedByOther(false);
+        }
+      });
+      this.currentSelections.delete(userId);
+      return;
+    }
+
+    // Clear old selections for this user
+    const oldSelections = this.currentSelections.get(userId) || [];
+    oldSelections.forEach((pieceId) => {
+      if (!newPieceIds.includes(pieceId)) {
+        const piece = this.puzzle.pieces[pieceId] as Piece;
+        if (piece) {
+          piece.setSelectedByOther(false);
+        }
+      }
+    });
+
+    // Apply new selections
+    newPieceIds.forEach((pieceId) => {
+      const piece = this.puzzle.pieces[pieceId] as Piece;
+      if (piece) {
+        piece.setSelectedByOther(true);
+        // TODO: Get user color and pass to piece for custom outline color
+        // const color = this.getUserColor(userId);
+        // For now, piece will use default "selected by other" color
+      }
+    });
+
+    this.currentSelections.set(userId, newPieceIds);
+  }
+
+  private lastSelectionSync: number[] = [];
+
+  public async syncSelections(selectedPieces: Piece[]): Promise<void> {
+    if (!this.isInitialized) return;
+
+    const pieceIds = selectedPieces.map((p) => p.id);
+
+    // Only sync if selection changed
+    const changed =
+      pieceIds.length !== this.lastSelectionSync.length ||
+      !pieceIds.every((id) => this.lastSelectionSync.includes(id));
+
+    if (changed) {
+      this.lastSelectionSync = pieceIds;
+      await this.syncSelection(pieceIds);
+    }
   }
 
   public async syncPieces(pieces: Piece[]): Promise<void> {
@@ -242,11 +335,16 @@ export default class NetworkHandler {
           .eq('user_id', this.userId);
       } else {
         // Update selection
-        await supabase.from('selections').upsert({
-          room_code: this.roomCode,
-          user_id: this.userId,
-          piece_ids: pieceIds,
-        });
+        await supabase.from('selections').upsert(
+          {
+            room_code: this.roomCode,
+            user_id: this.userId,
+            piece_ids: pieceIds,
+          },
+          {
+            onConflict: 'room_code,user_id',
+          },
+        );
       }
     } catch (error) {
       console.error('Failed to sync selection:', error);

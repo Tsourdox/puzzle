@@ -134,6 +134,13 @@ export default class Piece implements ISerializablePiece {
     return this._isSelectedByOther;
   }
 
+  public setSelectedByOther(value: boolean) {
+    if (this._isSelectedByOther !== value) {
+      this._isSelectedByOther = value;
+      this.graphicNeedsUpdating = true;
+    }
+  }
+
   public getOrigin() {
     return this.origin.copy();
   }

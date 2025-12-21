@@ -120,6 +120,7 @@ export default class Puzzle implements IPuzzle, ISerializablePuzzle {
   public update(scrollDelta: number) {
     this.networkSerializer.update(this.p.deltaTime);
     this.networkHandler.syncPieces(this.pieces as Piece[]);
+    this.networkHandler.syncSelections(this.selectedPieces);
     this.inputHandler.update(scrollDelta);
     this.pieceConnector.update();
     for (const piece of this.pieces) {

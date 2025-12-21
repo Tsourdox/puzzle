@@ -23,7 +23,7 @@ export interface ISerializablePiece
   extends ISerializable<ISerializedPieceData, IDeserializedPieceData> {
   isSelectedByOther: boolean;
 }
-export interface ISerializableGraph extends ISerializable<IGraphData, IGraphData> {}
+export type ISerializableGraph = ISerializable<IGraphData, IGraphData>;
 
 /* ---------------------------------------------------------------------------- */
 
