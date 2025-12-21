@@ -67,6 +67,11 @@ export default class NetworkSerializer {
     }
   }
 
+  public async init() {
+    // Just open the DB without loading data
+    await this.clientDB.open();
+  }
+
   public cleanup() {
     this.clientDB.close();
   }

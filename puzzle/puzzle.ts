@@ -3,6 +3,7 @@ import { PexelsImage } from '@/utils/pexels';
 import { Size } from '@/utils/sizes';
 import p5 from 'p5';
 import InputHandler from './handlers/inputHandler';
+import NetworkHandler from './network/networkHandler';
 import NetworkSerializer from './network/serializer';
 import { IDeserializeOptions, IPuzzleData, ISerializablePuzzle } from './network/types';
 import Piece from './piece';
@@ -31,6 +32,7 @@ export default class Puzzle implements IPuzzle, ISerializablePuzzle {
   public isModified: boolean;
   private inputHandler: InputHandler;
   private networkSerializer: NetworkSerializer;
+  private networkHandler: NetworkHandler;
   private pieceConnector: PieceConnector;
   private piecesFactory?: PiecesFactory;
   private size: Size;
@@ -47,6 +49,7 @@ export default class Puzzle implements IPuzzle, ISerializablePuzzle {
     this.isModified = false;
     this.inputHandler = new InputHandler(this);
     this.networkSerializer = new NetworkSerializer(this, this.inputHandler.graphHandler, roomCode);
+    this.networkHandler = new NetworkHandler(this, roomCode);
     const { selectionHandler, transformHandler } = this.inputHandler;
     this.pieceConnector = new PieceConnector(this, selectionHandler, transformHandler);
   }
@@ -60,6 +63,15 @@ export default class Puzzle implements IPuzzle, ISerializablePuzzle {
   }
 
   public async tryLoadPuzzle() {
+    // Try to load from Supabase first (multiplayer)
+    const loadedFromNetwork = await this.networkHandler.initialize();
+    if (loadedFromNetwork) {
+      // Initialize IndexedDB for local state persistence
+      await this.networkSerializer.init();
+      return true;
+    }
+
+    // Fallback to IndexedDB (local save)
     return this.networkSerializer.loadPuzzle();
   }
 
@@ -77,7 +89,11 @@ export default class Puzzle implements IPuzzle, ISerializablePuzzle {
     this.piecesFactory = new PiecesFactory(this.p, xy, xy, this.image);
     this.pieces = this.piecesFactory.createAllPieces();
     this.inputHandler.graphHandler.zoomHome();
+
+    // Save to both IndexedDB and Supabase
     await this.networkSerializer.saveInitialData();
+    const puzzleData = this.serialize();
+    await this.networkHandler.createRoom(puzzleData);
   }
 
   // todo: borde sparas eftersom detta blir kostsamt med många bitar
@@ -90,6 +106,7 @@ export default class Puzzle implements IPuzzle, ISerializablePuzzle {
     this.releaseCanvas();
     this.pieces.forEach((p) => p.releaseCanvas());
     this.networkSerializer.cleanup();
+    this.networkHandler.cleanup();
   }
 
   private releaseCanvas() {
@@ -102,6 +119,7 @@ export default class Puzzle implements IPuzzle, ISerializablePuzzle {
 
   public update(scrollDelta: number) {
     this.networkSerializer.update(this.p.deltaTime);
+    this.networkHandler.syncPieces(this.pieces as Piece[]);
     this.inputHandler.update(scrollDelta);
     this.pieceConnector.update();
     for (const piece of this.pieces) {
