@@ -68,8 +68,21 @@ export default class NetworkSerializer {
   }
 
   public async init() {
-    // Just open the DB without loading data
+    // Initialize DB and create object store for this room if needed
+    await this.clientDB.initVersion();
+    await this.clientDB.createObjectStore(this.roomCode);
     await this.clientDB.open();
+  }
+
+  public async loadGraphData() {
+    try {
+      const graphData = await this.clientDB.loadGraph();
+      if (graphData) {
+        await this.graph.deserialize(graphData);
+      }
+    } catch (error) {
+      // No graph data saved yet, that's fine
+    }
   }
 
   public cleanup() {

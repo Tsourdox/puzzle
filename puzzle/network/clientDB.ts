@@ -3,13 +3,13 @@ import { IDeserializedPieceData, IGraphData, IPieceData, IPuzzleData } from './t
 type DBKey = 'puzzle' | 'graph' | 'pieces';
 
 export default class ClientDB {
-  private readonly dbName = 'puzzelin';
-  private storeName: string;
+  private dbName: string;
+  private storeName: string = 'data';
   private db?: IDBDatabase;
-  private version?: number;
+  private version: number = 0;
 
   constructor(roomCode: string = 'default') {
-    this.storeName = roomCode;
+    this.dbName = `puzzelin_${roomCode}`;
   }
 
   public get getStoredRoomNames() {
@@ -27,8 +27,8 @@ export default class ClientDB {
     return new Promise((resolve, reject) => {
       const request = indexedDB.open(this.dbName);
       request.onerror = reject;
-      request.onsuccess = (e: any) => {
-        const db = e.target.result as IDBDatabase;
+      request.onsuccess = (e: Event) => {
+        const db = (e.target as IDBOpenDBRequest).result;
         this.version = db.version;
         db.close();
         resolve();
@@ -40,32 +40,50 @@ export default class ClientDB {
     return new Promise((resolve, reject) => {
       const request = indexedDB.open(this.dbName);
       request.onerror = reject;
-      request.onsuccess = (e: any) => {
-        this.db = e.target.result as IDBDatabase;
+      request.onsuccess = (e: Event) => {
+        this.db = (e.target as IDBOpenDBRequest).result;
         resolve();
       };
     });
   }
 
-  public createObjectStore(name: string): Promise<void> {
+  public createObjectStore(_name: string): Promise<void> {
     return new Promise((resolve, reject) => {
-      if (!this.db || !this.version)
-        throw new Error('Init must be called before closing the store');
-      const request = indexedDB.open(this.dbName, ++this.version);
-      request.onupgradeneeded = (e: any) => {
-        const db = e.target.result;
-        db.createObjectStore(this.storeName, { autoIncrement: true });
-      };
+      if (this.version === 0) throw new Error('initVersion must be called before creating object store');
 
-      request.onerror = reject;
-      request.onsuccess = (e: any) => {
-        const db = e.target.result as IDBDatabase;
+      // Check if object store already exists
+      const checkRequest = indexedDB.open(this.dbName);
+      checkRequest.onsuccess = (e: Event) => {
+        const db = (e.target as IDBOpenDBRequest).result;
+        const storeExists = db.objectStoreNames.contains(this.storeName);
         db.close();
-        resolve();
+
+        if (storeExists) {
+          // Object store already exists, no need to create
+          resolve();
+          return;
+        }
+
+        // Create the object store
+        const newVersion = this.version + 1;
+        this.version = newVersion;
+        const request = indexedDB.open(this.dbName, newVersion);
+        request.onupgradeneeded = (e: IDBVersionChangeEvent) => {
+          const db = (e.target as IDBOpenDBRequest).result;
+          db.createObjectStore(this.storeName, { autoIncrement: true });
+        };
+
+        request.onerror = reject;
+        request.onsuccess = (e: Event) => {
+          const db = (e.target as IDBOpenDBRequest).result;
+          db.close();
+          resolve();
+        };
+        request.onblocked = () => {
+          reject(new Error('Client DB is blocked'));
+        };
       };
-      request.onblocked = (e) => {
-        reject(new Error('Client DB is blocked'));
-      };
+      checkRequest.onerror = reject;
     });
   }
 
@@ -73,20 +91,20 @@ export default class ClientDB {
     return new Promise((resolve, reject) => {
       const lookupVersionRequest = indexedDB.open(this.dbName);
       lookupVersionRequest.onerror = reject;
-      lookupVersionRequest.onsuccess = (e: any) => {
-        this.db = e.target.result as IDBDatabase;
+      lookupVersionRequest.onsuccess = (e: Event) => {
+        this.db = (e.target as IDBOpenDBRequest).result;
         const version = this.db.version;
         this.db.close();
 
-        const resuest = indexedDB.open(this.dbName, version + 1);
-        resuest.onupgradeneeded = (e: any) => {
-          const db = e.target.result;
-          db.deleteObjectStore(this.storeName, { autoIncrement: true });
+        const request = indexedDB.open(this.dbName, version + 1);
+        request.onupgradeneeded = (e: IDBVersionChangeEvent) => {
+          const db = (e.target as IDBOpenDBRequest).result;
+          db.deleteObjectStore(this.storeName);
         };
 
-        resuest.onerror = reject;
-        resuest.onsuccess = (e: any) => {
-          const db = e.target.result;
+        request.onerror = reject;
+        request.onsuccess = (e: Event) => {
+          const db = (e.target as IDBOpenDBRequest).result;
           db.close();
           resolve();
         };
@@ -95,17 +113,18 @@ export default class ClientDB {
   }
 
   private loadFromStore<T>(key: DBKey): Promise<T> {
-    return new Promise(async (resolve, reject) => {
+    return new Promise((resolve, reject) => {
       try {
         if (!this.db) throw new Error('Init must be called before loading data from the store');
         const trans = this.db.transaction(this.storeName, 'readwrite');
         const store = trans.objectStore(this.storeName);
         const request = store.get(key);
-        request.onsuccess = (e: any) => {
-          if (!e.target.result) {
+        request.onsuccess = (e: Event) => {
+          const result = (e.target as IDBRequest).result;
+          if (!result) {
             reject(new Error('No data to load from Client DB'));
           } else {
-            resolve(e.target.result);
+            resolve(result);
           }
         };
         request.onerror = reject;
@@ -116,7 +135,7 @@ export default class ClientDB {
   }
 
   private saveToStore<T>(data: T, key: DBKey) {
-    return new Promise<void>(async (resolve, reject) => {
+    return new Promise<void>((resolve, reject) => {
       if (!this.db) throw new Error('Init must be called before saving data to the store');
       const trans = this.db.transaction(this.storeName, 'readwrite');
       const store = trans.objectStore(this.storeName);
@@ -127,17 +146,17 @@ export default class ClientDB {
   }
 
   public async loadPuzzle(): Promise<IPuzzleData> {
-    return await this.loadFromStore<IPuzzleData>('puzzle');
+    return this.loadFromStore<IPuzzleData>('puzzle');
   }
 
   public async loadGraph(): Promise<IGraphData> {
-    return await this.loadFromStore<IGraphData>('graph');
+    return this.loadFromStore<IGraphData>('graph');
   }
 
   public async loadPieces(): Promise<IDeserializedPieceData[]> {
     try {
       return await this.loadFromStore<IDeserializedPieceData[]>('pieces');
-    } catch (error: unknown) {
+    } catch {
       return [];
     }
   }

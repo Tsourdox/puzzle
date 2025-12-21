@@ -68,6 +68,8 @@ export default class Puzzle implements IPuzzle, ISerializablePuzzle {
     if (loadedFromNetwork) {
       // Initialize IndexedDB for local state persistence
       await this.networkSerializer.init();
+      // Load user's personal zoom/pan state from IndexedDB
+      await this.networkSerializer.loadGraphData();
       return true;
     }
 
