@@ -16,8 +16,6 @@ export default function ActionButtons({ lang }: PropsWithLang) {
   return (
     <>
       <Button
-        disabled
-        disabledText={t('Coming soon')}
         variant="secondary"
         icon={<UserGroupIcon width={24} height={24} />}
         onClick={() => setShowRoomCodeForm(true)}

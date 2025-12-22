@@ -6,7 +6,7 @@ import { useForm } from 'react-hook-form';
 import { twMerge } from 'tailwind-merge';
 import { z } from 'zod';
 
-const CODE_LENGTH = 5;
+const CODE_LENGTH = 4;
 
 const RoomCodeSchema = z.object({
   code: z.string().min(CODE_LENGTH).max(CODE_LENGTH).toUpperCase(),
