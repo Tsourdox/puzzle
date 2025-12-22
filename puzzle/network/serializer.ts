@@ -74,14 +74,17 @@ export default class NetworkSerializer {
     await this.clientDB.open();
   }
 
-  public async loadGraphData() {
+  public async loadGraphData(): Promise<boolean> {
     try {
       const graphData = await this.clientDB.loadGraph();
       if (graphData) {
         await this.graph.deserialize(graphData);
+        return true;
       }
+      return false;
     } catch (error) {
       // No graph data saved yet, that's fine
+      return false;
     }
   }
 
