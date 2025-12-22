@@ -24,7 +24,8 @@ export default function Sidebar({ lang, roomCode }: SidebarProps) {
   const [copiedCode, setCopiedCode] = useState(false);
   const [copiedLink, setCopiedLink] = useState(false);
 
-  const roomUrl = typeof window !== 'undefined' ? `${window.location.origin}/${lang}/room/${roomCode}` : '';
+  const roomUrl =
+    typeof window !== 'undefined' ? `${window.location.origin}/${lang}/room/${roomCode}` : '';
 
   const copyRoomCode = () => {
     navigator.clipboard.writeText(roomCode);
@@ -46,24 +47,20 @@ export default function Sidebar({ lang, roomCode }: SidebarProps) {
         </h1>
       </header>
       <section className="flex-1 flex flex-col gap-6">
-        <div className="flex flex-col gap-2">
-          <div className="text-sm text-zinc-400 text-center">{t('Room code')}</div>
-          <div className="flex items-center gap-2 bg-zinc-800/50 rounded-lg p-3 border border-zinc-700/50">
-            <code className="flex-1 text-center text-2xl font-mono tracking-wider text-purple-300">
-              {roomCode}
-            </code>
-            <button
-              onClick={copyRoomCode}
-              className="p-2 hover:bg-zinc-700/50 rounded transition-colors"
-              title={t('Copy room code')}
-            >
-              {copiedCode ? (
-                <CheckIcon width={20} height={20} className="text-green-400" />
-              ) : (
-                <ClipboardDocumentIcon width={20} height={20} className="text-zinc-400" />
-              )}
-            </button>
-          </div>
+        <div className="flex items-center gap-3 bg-zinc-800/50 rounded-lg p-3 border border-zinc-700/50">
+          <span className="text-xl text-zinc-400">{t('Room code')}:</span>
+          <span className="flex-1 text-center text-xl text-purple-300">{roomCode}</span>
+          <button
+            onClick={copyRoomCode}
+            className="p-2 hover:bg-zinc-700/50 rounded transition-colors"
+            title={t('Copy room code')}
+          >
+            {copiedCode ? (
+              <CheckIcon width={20} height={20} className="text-green-400" />
+            ) : (
+              <ClipboardDocumentIcon width={20} height={20} className="text-zinc-400" />
+            )}
+          </button>
         </div>
 
         <Link href="/" className="flex flex-col">
@@ -74,7 +71,13 @@ export default function Sidebar({ lang, roomCode }: SidebarProps) {
 
         <Button
           variant="secondary"
-          icon={copiedLink ? <CheckIcon width={24} height={24} /> : <UserGroupIcon width={24} height={24} />}
+          icon={
+            copiedLink ? (
+              <CheckIcon width={24} height={24} />
+            ) : (
+              <UserGroupIcon width={24} height={24} />
+            )
+          }
           onClick={copyRoomLink}
         >
           {copiedLink ? t('Link copied!') : t('Invite friends')}
