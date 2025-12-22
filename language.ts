@@ -196,6 +196,13 @@ const translations = {
     de: 'Bist du sicher?',
     fi: 'Oletko varma?',
   },
+  'Progress will be lost': {
+    sv: 'Framsteg kommer att förloras',
+    no: 'Fremgang vil gå tapt',
+    da: 'Fremskridt vil gå tabt',
+    de: 'Fortschritt geht verloren',
+    fi: 'Edistyminen menetetään',
+  },
   Yes: {
     sv: 'Ja',
     no: 'Ja',

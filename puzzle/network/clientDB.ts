@@ -12,11 +12,22 @@ export default class ClientDB {
     this.dbName = `puzzelin_${roomCode}`;
   }
 
-  public get getStoredRoomNames() {
-    if (!this.db) throw new Error('Init must be called before loading data from the store');
-    return Object.values(this.db.objectStoreNames).filter(
-      (name) => !['default', 'main'].includes(name),
-    );
+  public static async getAllRoomCodes(): Promise<string[]> {
+    try {
+      // Get all IndexedDB databases
+      const databases = await indexedDB.databases();
+
+      // Filter for puzzelin databases and extract room codes
+      const roomCodes = databases
+        .filter((db) => db.name?.startsWith('puzzelin_'))
+        .map((db) => db.name!.replace('puzzelin_', ''))
+        .filter((code) => code !== 'default'); // Exclude default database
+
+      return roomCodes;
+    } catch (error) {
+      console.error('Failed to get room codes:', error);
+      return [];
+    }
   }
 
   public close() {
@@ -180,5 +191,23 @@ export default class ClientDB {
       }
     }
     await this.saveToStore(data, 'pieces');
+  }
+
+  public async clearAll(): Promise<void> {
+    return new Promise<void>((resolve, reject) => {
+      if (!this.db) {
+        reject(new Error('Database not initialized'));
+        return;
+      }
+      try {
+        const trans = this.db.transaction(this.storeName, 'readwrite');
+        const store = trans.objectStore(this.storeName);
+        const request = store.clear();
+        request.onsuccess = () => resolve();
+        request.onerror = reject;
+      } catch (error) {
+        reject(error);
+      }
+    });
   }
 }

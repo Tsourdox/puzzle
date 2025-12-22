@@ -23,6 +23,7 @@ export default class NetworkHandler {
   private puzzle: ISerializablePuzzle;
   private roomCode: string;
   private userId: string;
+  private targetImageId: number | string;
   private channel?: RealtimeChannel;
   private isInitialized: boolean;
   private lastSyncTime: number;
@@ -32,9 +33,10 @@ export default class NetworkHandler {
   private currentSelections: Map<string, number[]> = new Map(); // userId -> pieceIds
   private selectionIdToUser: Map<number, string> = new Map(); // selection id -> userId
 
-  constructor(puzzle: ISerializablePuzzle, roomCode: string) {
+  constructor(puzzle: ISerializablePuzzle, roomCode: string, targetImageId: number | string) {
     this.puzzle = puzzle;
     this.roomCode = roomCode;
+    this.targetImageId = targetImageId;
     this.userId = this.generateUserId();
     this.isInitialized = false;
     this.lastSyncTime = 0;
@@ -64,6 +66,13 @@ export default class NetworkHandler {
         return false;
       }
 
+      // Check if the loaded puzzle's image matches the target image
+      const loadedImageId = room.puzzle_data?.imageData?.id;
+      if (loadedImageId && loadedImageId !== this.targetImageId) {
+        // Image changed - clear old data before proceeding
+        await this.clearRoomData();
+        return false; // Signal to generate new puzzle
+      }
       // Load the puzzle (creates pieces, sets up board)
       await this.puzzle.deserialize(room.puzzle_data);
 
@@ -178,6 +187,18 @@ export default class NetworkHandler {
         },
         (payload) => {
           this.handleSelectionUpdate(payload);
+        },
+      )
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'rooms',
+          filter: `room_code=eq.${this.roomCode}`,
+        },
+        (payload) => {
+          this.handleRoomUpdate(payload);
         },
       )
       .subscribe();
@@ -301,6 +322,25 @@ export default class NetworkHandler {
     this.currentSelections.set(userId, newPieceIds);
   }
 
+  private handleRoomUpdate(payload: any): void {
+    // Handle INSERT or UPDATE events (new puzzle created or changed)
+    if ((payload.eventType === 'INSERT' || payload.eventType === 'UPDATE') && payload.new) {
+      const newImageId = payload.new.puzzle_data?.imageData?.id;
+      if (newImageId && newImageId !== this.targetImageId) {
+        // Navigate to the new puzzle URL instead of reloading
+        this.navigateToNewPuzzle(newImageId);
+      }
+    }
+  }
+
+  private navigateToNewPuzzle(newImageId: number | string): void {
+    // Get current pathname and replace the image ID (last segment) with the new one
+    const pathParts = window.location.pathname.split('/');
+    pathParts[pathParts.length - 1] = String(newImageId);
+    const newPath = pathParts.join('/');
+    window.location.href = newPath;
+  }
+
   private lastSelectionSync: number[] = [];
 
   public async syncSelections(selectedPieces: Piece[]): Promise<void> {
@@ -383,6 +423,35 @@ export default class NetworkHandler {
       }
     } catch (error) {
       console.error('Failed to sync selection:', error);
+    }
+  }
+
+  public async clearRoomData(): Promise<void> {
+    try {
+      // Delete all pieces for this room
+      await supabase
+        .from('pieces')
+        .delete()
+        .eq('room_code', this.roomCode);
+
+      // Delete all selections for this room
+      await supabase
+        .from('selections')
+        .delete()
+        .eq('room_code', this.roomCode);
+
+      // Delete the room itself
+      await supabase.from('rooms').delete().eq('room_code', this.roomCode);
+
+      // Unsubscribe from real-time updates
+      if (this.channel) {
+        await supabase.removeChannel(this.channel);
+        this.channel = undefined;
+      }
+
+      this.isInitialized = false;
+    } catch (error) {
+      console.error('[NetworkHandler] Failed to clear room data:', error);
     }
   }
 

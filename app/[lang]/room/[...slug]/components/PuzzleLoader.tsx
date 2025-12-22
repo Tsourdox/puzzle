@@ -1,4 +1,5 @@
-import { useStoreState } from '@/store/StoreProvider';
+import { useAtomValue } from 'jotai';
+import { sizeAtom } from '@/app/atoms';
 import { PexelsImage } from '@/utils/pexels';
 import { RefObject } from 'react';
 import usePuzzle from '../usePuzzle';
@@ -11,7 +12,7 @@ type Props = {
 };
 
 export default function PuzzleLoader({ image, roomCode, onReady, containerRef }: Props) {
-  const { size } = useStoreState();
+  const size = useAtomValue(sizeAtom);
   usePuzzle({ containerRef, onReady, image, size, roomCode });
   return null;
 }

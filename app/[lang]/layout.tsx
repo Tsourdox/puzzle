@@ -1,9 +1,9 @@
 import { getLangs, getTranslation, Lang } from '@/language';
-import StoreProvider from '@/store/StoreProvider';
 import { PropsWithLangParam } from '@/utils/general';
 import type { Metadata } from 'next';
 import localFont from 'next/font/local';
 import { twMerge } from 'tailwind-merge';
+import { Provider as JotaiProvider } from 'jotai';
 import './globals.css';
 
 const myFont = localFont({
@@ -38,7 +38,7 @@ export default async function RootLayout({ children, params }: PropsWithLangPara
           'relative min-h-full flex flex-col text-zinc-100 bg-zinc-950',
         )}
       >
-        <StoreProvider>{children}</StoreProvider>
+        <JotaiProvider>{children}</JotaiProvider>
       </body>
     </html>
   );

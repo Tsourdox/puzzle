@@ -15,11 +15,9 @@ export default function ContinueSlideshowRow({ lang }: PropsWithLang) {
 
   useEffect(() => {
     (async () => {
-      const clientDB = new ClientDB();
-      await clientDB.open();
-      setRooms(clientDB.getStoredRoomNames);
+      const roomCodes = await ClientDB.getAllRoomCodes();
+      setRooms(roomCodes);
       setIsLoaded(true);
-      clientDB.close();
     })();
   }, []);
 

@@ -143,10 +143,7 @@ export default class SelectionHandler implements ISelectionHandler {
     }
 
     // Sync with React Store
-    this.puzzle.dispatch({
-      type: 'SET_PUZZLE_PIECE_ACTIONS',
-      payload: false,
-    });
+    this.puzzle.setShowPuzzlePieceActions(false);
   }
 
   /** Will select connected pieces recursively */
@@ -163,10 +160,7 @@ export default class SelectionHandler implements ISelectionHandler {
 
     // Sync with React Store
     const selectedPieces = this.puzzle.selectedPieces;
-    this.puzzle.dispatch({
-      type: 'SET_PUZZLE_PIECE_ACTIONS',
-      payload: Boolean(selectedPieces.length),
-    });
+    this.puzzle.setShowPuzzlePieceActions(Boolean(selectedPieces.length));
   }
 
   private isMouseOverAnyPiece(pieces: ReadonlyArray<Piece>) {

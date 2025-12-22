@@ -1,5 +1,6 @@
 import Puzzle from '@/puzzle/puzzle';
-import { useStoreDispatch } from '@/store/StoreProvider';
+import { useSetAtom } from 'jotai';
+import { showPuzzlePieceActionsAtom } from '@/app/atoms';
 import { PexelsImage } from '@/utils/pexels';
 import { preventDefaultEvents } from '@/utils/preventEvents';
 import { Size } from '@/utils/sizes';
@@ -15,7 +16,7 @@ type Props = {
 };
 
 export default function usePuzzle({ containerRef, onReady, image, size, roomCode }: Props) {
-  const dispatch = useStoreDispatch();
+  const setShowPuzzlePieceActions = useSetAtom(showPuzzlePieceActionsAtom);
 
   useEffect(() => {
     document.body.classList.add('overflow-hidden');
@@ -38,7 +39,7 @@ export default function usePuzzle({ containerRef, onReady, image, size, roomCode
         p.createCanvas(width, height);
         p.frameRate(90);
 
-        puzzle = new Puzzle(p, size, image, roomCode, dispatch);
+        puzzle = new Puzzle(p, size, image, roomCode, setShowPuzzlePieceActions);
         puzzle.tryLoadPuzzle().then((successfullyLoaded) => {
           if (successfullyLoaded) {
             onReady();
@@ -74,5 +75,5 @@ export default function usePuzzle({ containerRef, onReady, image, size, roomCode
     new p5(sketch, containerRef.current);
 
     return () => puzzle?.cleanup();
-  }, [containerRef, onReady, image, size, roomCode, dispatch]);
+  }, [containerRef, onReady, image, size, roomCode, setShowPuzzlePieceActions]);
 }

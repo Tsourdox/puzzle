@@ -13,7 +13,7 @@ export default class NetworkSerializer {
   private puzzle: ISerializablePuzzle;
   private graph: ISerializableGraph;
   private sendTimeout: number;
-  private clientDB: ClientDB;
+  public clientDB: ClientDB;
   private _roomCode: string;
 
   constructor(puzzle: ISerializablePuzzle, graph: ISerializableGraph, roomCode: string) {
@@ -119,6 +119,14 @@ export default class NetworkSerializer {
       await this.puzzle.pieces[pieceData.id].deserialize(pieceData, {
         lerp: false,
       });
+    }
+  }
+
+  public async clearAll(): Promise<void> {
+    try {
+      await this.clientDB.clearAll();
+    } catch (error) {
+      console.error('Failed to clear local data:', error);
     }
   }
 }

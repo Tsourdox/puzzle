@@ -1,7 +1,8 @@
 'use client';
 
 import Button from '@/components/Button';
-import { useStoreState } from '@/store/StoreProvider';
+import { useAtomValue } from 'jotai';
+import { showPuzzlePieceActionsAtom } from '@/app/atoms';
 import { ArrowPathIcon, RectangleGroupIcon, Square3Stack3DIcon } from '@heroicons/react/20/solid';
 import { MinusCircleIcon, PlusCircleIcon } from '@heroicons/react/24/outline';
 import { twMerge } from 'tailwind-merge';
@@ -11,7 +12,7 @@ type Props = {
 };
 
 export default function PuzzleButtons({ isHidden }: Props) {
-  const { showPuzzlePieceActions } = useStoreState();
+  const showPuzzlePieceActions = useAtomValue(showPuzzlePieceActionsAtom);
 
   const showPieceActionButton = !isHidden && showPuzzlePieceActions;
 

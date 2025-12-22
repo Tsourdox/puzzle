@@ -7,6 +7,8 @@ import { redirect } from 'next/navigation';
 import ImagePreview from './components/ImagePreview';
 import PuzzleCanvas from './components/PuzzleCanvas';
 import Sidebar from './components/Sidebar';
+import PuzzleSelectionModal from './components/PuzzleSelectionModal';
+import PuzzleSelectionGrid from '@/app/[lang]/components/PuzzleSelectionGrid';
 
 type Props = {
   params: Promise<{ slug: string[]; lang: Lang }>;
@@ -61,6 +63,9 @@ export default async function RoomPage({ params }: Props) {
       </main>
       <Sidebar lang={lang} roomCode={roomCode} />
       <ImagePreview image={image} />
+      <PuzzleSelectionModal>
+        <PuzzleSelectionGrid lang={lang} />
+      </PuzzleSelectionModal>
     </div>
   );
 }

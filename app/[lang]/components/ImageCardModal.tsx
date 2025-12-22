@@ -43,7 +43,7 @@ export default function ImageCardModal({ image, isOpen, onClose, children }: Pro
     >
       <div
         className={twMerge(
-          'relative w-full max-w-2xl max-h-full flex flex-col transition-all duration-300 ease-out',
+          'relative w-full max-w-2xl h-full flex flex-col transition-all duration-300 ease-out',
           isAnimating ? 'scale-100 opacity-100' : 'scale-75 opacity-0',
         )}
       >
@@ -55,7 +55,7 @@ export default function ImageCardModal({ image, isOpen, onClose, children }: Pro
           <XMarkIcon className="w-7 h-7 text-white" />
         </button>
 
-        <div className="relative w-full aspect-square rounded-3xl overflow-hidden mb-6 shadow-2xl">
+        <div className="relative w-full max-w-[60vh] aspect-square rounded-3xl overflow-hidden mb-6 shadow-2xl mx-auto">
           <Image
             src={image.src.large}
             alt={image.alt}

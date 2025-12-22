@@ -1,4 +1,3 @@
-import { StoreDispatch } from '@/store/StoreProvider';
 import { PexelsImage } from '@/utils/pexels';
 import { Size } from '@/utils/sizes';
 import p5 from 'p5';
@@ -19,11 +18,11 @@ export interface IPuzzle {
   pieceCount: p5.Vector;
   pieceSize: p5.Vector;
   readonly selectedPieces: ReadonlyArray<Piece>;
-  readonly dispatch: StoreDispatch; // maybe a bit to dependent on store?
+  readonly setShowPuzzlePieceActions: (show: boolean) => void;
 }
 
 export default class Puzzle implements IPuzzle, ISerializablePuzzle {
-  public dispatch: StoreDispatch;
+  public setShowPuzzlePieceActions: (show: boolean) => void;
   public p: p5;
   public image?: p5.Image;
   public pieces: ReadonlyArray<Piece>;
@@ -38,8 +37,14 @@ export default class Puzzle implements IPuzzle, ISerializablePuzzle {
   private size: Size;
   private imageData: PexelsImage;
 
-  constructor(p: p5, size: Size, image: PexelsImage, roomCode: string, dispatch: StoreDispatch) {
-    this.dispatch = dispatch;
+  constructor(
+    p: p5,
+    size: Size,
+    image: PexelsImage,
+    roomCode: string,
+    setShowPuzzlePieceActions: (show: boolean) => void,
+  ) {
+    this.setShowPuzzlePieceActions = setShowPuzzlePieceActions;
     this.p = p;
     this.size = size;
     this.imageData = image;
@@ -49,7 +54,7 @@ export default class Puzzle implements IPuzzle, ISerializablePuzzle {
     this.isModified = false;
     this.inputHandler = new InputHandler(this);
     this.networkSerializer = new NetworkSerializer(this, this.inputHandler.graphHandler, roomCode);
-    this.networkHandler = new NetworkHandler(this, roomCode);
+    this.networkHandler = new NetworkHandler(this, roomCode, image.id);
     const { selectionHandler, transformHandler } = this.inputHandler;
     this.pieceConnector = new PieceConnector(this, selectionHandler, transformHandler);
   }
@@ -64,10 +69,14 @@ export default class Puzzle implements IPuzzle, ISerializablePuzzle {
 
   public async tryLoadPuzzle() {
     // Try to load from Supabase first (multiplayer)
+    // NetworkHandler will check image ID and clear data if needed
     const loadedFromNetwork = await this.networkHandler.initialize();
     if (loadedFromNetwork) {
       // Initialize IndexedDB for local state persistence
       await this.networkSerializer.init();
+      // Save the puzzle data to IndexedDB so joiners can continue later
+      const puzzleData = this.serialize();
+      await this.networkSerializer.clientDB.savePuzzle(puzzleData);
       // Load user's personal zoom/pan state from IndexedDB
       const hasGraphData = await this.networkSerializer.loadGraphData();
       // If no saved zoom/pan state, zoom to fit all pieces
@@ -77,8 +86,15 @@ export default class Puzzle implements IPuzzle, ISerializablePuzzle {
       return true;
     }
 
-    // Fallback to IndexedDB (local save)
-    return this.networkSerializer.loadPuzzle();
+    // If initialize returned false, it might be because:
+    // 1. No room exists yet (first time)
+    // 2. Image mismatch was detected and data was cleared
+    // In case of image mismatch, we need to clear local IndexedDB too
+    await this.networkSerializer.init();
+    await this.networkSerializer.clearAll();
+
+    // Don't try to load from IndexedDB - let generateNewPuzzle() be called
+    return false;
   }
 
   private getPiecesCountFromSize(size: Size) {

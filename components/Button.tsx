@@ -21,7 +21,7 @@ export default function Button({
       disabled={disabled}
       {...props}
       className={twMerge(
-        'relative backdrop-blur-lg bg-gradient-to-br from-purple-950/90 to-purple-950/60 hover:from-purple-950/70 hover:to-purple-900/90 pt-2 pb-3 px-5 rounded-full text-xl flex items-center gap-4 whitespace-nowrap active:scale-95',
+        'relative backdrop-blur-lg bg-linear-to-br from-purple-950/90 to-purple-950/60 hover:from-purple-950/70 hover:to-purple-900/90 pt-2 pb-3 px-5 rounded-full text-xl flex items-center gap-4 whitespace-nowrap active:scale-95',
         variant === 'secondary' &&
           'from-zinc-700/20 to-purple-950/20 hover:from-zinc-700/40 hover:to-purple-950/30 ',
         className,

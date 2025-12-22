@@ -1,8 +1,8 @@
-import SlideshowRow from '@/app/[lang]/components/SlideshowRow';
 import SocialLinks from '@/components/SocialLinks';
 import { Lang, getTranslation } from '@/language';
 import ActionButtons from './components/ActionButtons';
 import ContinueSlideshowRow from './components/ContinueSlideshowRow';
+import PuzzleSelectionGrid from './components/PuzzleSelectionGrid';
 
 type Props = {
   params: Promise<{ lang: Lang }>;
@@ -36,19 +36,7 @@ export default async function HomePage({ params }: Props) {
 
       <main className="flex flex-col gap-12 w-screen">
         <ContinueSlideshowRow lang={lang} />
-        <SlideshowRow title={t('Cats')} searchTerm="cats" lang={lang} />
-        <SlideshowRow title={t('Beautiful oceans')} searchTerm="ocean landscape" lang={lang} />
-        <SlideshowRow title={t('Nature')} searchTerm="nature" lang={lang} />
-        <SlideshowRow title={t('Animals')} searchTerm="animals" lang={lang} />
-        <SlideshowRow title={t('Forests')} searchTerm="forest" lang={lang} />
-        <SlideshowRow title={t('People')} searchTerm="people" lang={lang} />
-        <SlideshowRow title={t('In the mountains')} searchTerm="mountains" lang={lang} />
-        <SlideshowRow title={t('Greece')} searchTerm="greek" lang={lang} />
-        <SlideshowRow title={t('Sport')} searchTerm="sport" lang={lang} />
-        <SlideshowRow title={t('Cities')} searchTerm="city" lang={lang} />
-        <SlideshowRow title={t('Babies')} searchTerm="babies" lang={lang} />
-        <SlideshowRow title={t('Flowers')} searchTerm="flowers" lang={lang} />
-        <SlideshowRow title={t('Cartoon')} searchTerm="cartoon" lang={lang} />
+        <PuzzleSelectionGrid lang={lang} />
       </main>
 
       <footer className="flex justify-center items-center gap-12">

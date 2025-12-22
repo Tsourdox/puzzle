@@ -1,15 +1,20 @@
 'use client';
 
+import { showPuzzleSelectionAtom } from '@/app/atoms';
 import Button from '@/components/Button';
 import { Lang, getTranslation } from '@/language';
 import ClientDB from '@/puzzle/network/clientDB';
 import { IPuzzleData } from '@/puzzle/network/types';
 import { sizes } from '@/utils/sizes';
 import { TrashIcon } from '@heroicons/react/20/solid';
+import { useSetAtom } from 'jotai';
+import { usePathname, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { twMerge } from 'tailwind-merge';
+import ConfirmationView from './ConfirmationView';
 import ImageCardContainer from './ImageCardContainer';
-import StartPuzzleButton from './StartPuzzleButton';
+
+type ConfirmationType = 'none' | 'delete' | 'newPuzzle';
 
 interface Props {
   room: string;
@@ -19,8 +24,11 @@ interface Props {
 
 export default function ImageCardContinuePuzzle(props: Props) {
   const t = getTranslation(props.lang);
+  const router = useRouter();
+  const pathname = usePathname();
+  const setShowPuzzleSelection = useSetAtom(showPuzzleSelectionAtom);
   const [puzzleData, setPuzzleData] = useState<IPuzzleData>();
-  const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
+  const [confirmationType, setConfirmationType] = useState<ConfirmationType>('none');
 
   useEffect(() => {
     (async () => {
@@ -32,6 +40,26 @@ export default function ImageCardContinuePuzzle(props: Props) {
     })();
   }, [props.room]);
 
+  const isInRoom = pathname?.includes('/room/');
+
+  const handleContinuePuzzle = () => {
+    if (isInRoom) {
+      setConfirmationType('newPuzzle');
+    } else {
+      navigateToRoom();
+    }
+  };
+
+  const navigateToRoom = () => {
+    setShowPuzzleSelection(false);
+    router.push(`/${props.lang}/room/${props.room}/${puzzleData?.imageData.id}`);
+  };
+
+  const confirmNavigate = () => {
+    setConfirmationType('none');
+    navigateToRoom();
+  };
+
   const deletePuzzle = async () => {
     const clientDB = new ClientDB(props.room);
     await clientDB.delete();
@@ -41,23 +69,28 @@ export default function ImageCardContinuePuzzle(props: Props) {
   if (!puzzleData) return null;
 
   return (
-    <ImageCardContainer image={puzzleData.imageData}>
-      {showDeleteConfirmation ? (
-        <>
-          <h2 className="text-xl">{t('Delete puzzle')}</h2>
-          <p className="mx-4 text-center">{t('Are you sure?')}</p>
-          <div className="flex gap-2">
-            <Button variant="secondary" className="text-sm md:text-base" onClick={deletePuzzle}>
-              {t('Yes')}
-            </Button>
-            <Button
-              className="text-sm md:text-base"
-              onClick={() => setShowDeleteConfirmation(false)}
-            >
-              {t('No')}
-            </Button>
-          </div>
-        </>
+    <ImageCardContainer
+      image={puzzleData.imageData}
+      onMouseLeave={() => setConfirmationType('none')}
+    >
+      {confirmationType === 'delete' ? (
+        <ConfirmationView
+          title={t('Delete puzzle')}
+          message={t('Are you sure?')}
+          onConfirm={deletePuzzle}
+          onCancel={() => setConfirmationType('none')}
+          confirmLabel={t('Yes')}
+          cancelLabel={t('No')}
+        />
+      ) : confirmationType === 'newPuzzle' ? (
+        <ConfirmationView
+          title={t('Are you sure?')}
+          message={t('Progress will be lost')}
+          onConfirm={confirmNavigate}
+          onCancel={() => setConfirmationType('none')}
+          confirmLabel={t('Yes')}
+          cancelLabel={t('No')}
+        />
       ) : (
         <>
           {/* Desktop: trash icon in top right corner of overlay */}
@@ -67,7 +100,7 @@ export default function ImageCardContinuePuzzle(props: Props) {
             className="hidden md:block md:absolute md:top-4 md:right-4 cursor-pointer text-white drop-shadow-lg hover:text-zinc-300 active:scale-95 transition-transform"
             onClick={(e) => {
               e.stopPropagation();
-              setShowDeleteConfirmation(true);
+              setConfirmationType('delete');
             }}
           />
           {/* Mobile: trash icon next to Size text */}
@@ -79,7 +112,7 @@ export default function ImageCardContinuePuzzle(props: Props) {
               className="md:hidden absolute right-6 cursor-pointer text-white drop-shadow-lg hover:text-zinc-300 active:scale-95 transition-transform"
               onClick={(e) => {
                 e.stopPropagation();
-                setShowDeleteConfirmation(true);
+                setConfirmationType('delete');
               }}
             />
           </div>
@@ -96,9 +129,9 @@ export default function ImageCardContinuePuzzle(props: Props) {
               </div>
             ))}
           </section>
-          <StartPuzzleButton image={puzzleData.imageData} room={props.room}>
+          <Button className="text-sm md:text-base" onClick={handleContinuePuzzle}>
             {t('Continue puzzle')}
-          </StartPuzzleButton>
+          </Button>
         </>
       )}
     </ImageCardContainer>
