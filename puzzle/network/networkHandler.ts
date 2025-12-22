@@ -93,6 +93,41 @@ export default class NetworkHandler {
         }
       }
 
+      // Load current selections
+      const { data: selections } = await supabase
+        .from('selections')
+        .select('*')
+        .eq('room_code', this.roomCode);
+
+      // Apply existing selections
+      if (selections) {
+        for (const selection of selections) {
+          const pieceIds = selection.piece_ids || [];
+
+          if (selection.user_id === this.userId) {
+            // Restore your own selection
+            pieceIds.forEach((pieceId: number) => {
+              const piece = this.puzzle.pieces[pieceId] as Piece;
+              if (piece) {
+                piece.isSelected = true;
+              }
+            });
+          } else {
+            // Show other users' selections
+            pieceIds.forEach((pieceId: number) => {
+              const piece = this.puzzle.pieces[pieceId] as Piece;
+              if (piece) {
+                piece.setSelectedByOther(true);
+              }
+            });
+            this.currentSelections.set(selection.user_id, pieceIds);
+            if (selection.id) {
+              this.selectionIdToUser.set(selection.id, selection.user_id);
+            }
+          }
+        }
+      }
+
       // Subscribe to real-time updates
       this.subscribeToUpdates();
       this.isInitialized = true;

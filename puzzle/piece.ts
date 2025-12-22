@@ -86,7 +86,7 @@ export default class Piece implements ISerializablePiece {
     this.graphics.height = 0;
     this.graphics.clear(0, 0, 0, 0);
     this.graphics.remove();
-    this.graphics = undefined as any;
+    this.graphics = undefined as never;
   }
 
   public set rotation(value: number) {
@@ -121,10 +121,14 @@ export default class Piece implements ISerializablePiece {
   }
 
   public set isSelected(value: boolean) {
-    if (this._isSelected !== value && !this.isSelectedByOther) {
+    if (this._isSelected !== value) {
       this._isSelected = value;
       this.isModified = true;
       this.graphicNeedsUpdating = true;
+      // When you select a piece, clear the "selected by other" flag (you're taking it over)
+      if (value && this._isSelectedByOther) {
+        this._isSelectedByOther = false;
+      }
     }
   }
   public get isSelected() {
