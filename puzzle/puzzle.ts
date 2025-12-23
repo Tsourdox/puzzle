@@ -142,47 +142,15 @@ export default class Puzzle implements IPuzzle, ISerializablePuzzle {
 
   // Public methods for button controls
   public zoomIn() {
-    const graphHandler = this.inputHandler.graphHandler as any;
     const zoomFactor = 1.2; // 20% zoom in
     const center = this.p.createVector(this.p.width / 2, this.p.height / 2);
-
-    const currentScale = graphHandler._scale;
-    const nextScale = this.p.constrain(currentScale * zoomFactor, 0.01, 100);
-
-    // Calculate world position under zoom center before zoom
-    const translation = graphHandler._translation;
-    const worldX = (center.x - translation.x * currentScale) / currentScale;
-    const worldY = (center.y - translation.y * currentScale) / currentScale;
-
-    // Calculate new translation to keep same world point under zoom center
-    const newTranslationX = (center.x - worldX * nextScale) / nextScale;
-    const newTranslationY = (center.y - worldY * nextScale) / nextScale;
-
-    graphHandler._scale = nextScale;
-    graphHandler._translation = this.p.createVector(newTranslationX, newTranslationY);
-    graphHandler._isModified = true;
+    this.inputHandler.graphHandler.zoom(zoomFactor, center);
   }
 
   public zoomOut() {
-    const graphHandler = this.inputHandler.graphHandler as any;
     const zoomFactor = 1 / 1.2; // 20% zoom out
     const center = this.p.createVector(this.p.width / 2, this.p.height / 2);
-
-    const currentScale = graphHandler._scale;
-    const nextScale = this.p.constrain(currentScale * zoomFactor, 0.01, 100);
-
-    // Calculate world position under zoom center before zoom
-    const translation = graphHandler._translation;
-    const worldX = (center.x - translation.x * currentScale) / currentScale;
-    const worldY = (center.y - translation.y * currentScale) / currentScale;
-
-    // Calculate new translation to keep same world point under zoom center
-    const newTranslationX = (center.x - worldX * nextScale) / nextScale;
-    const newTranslationY = (center.y - worldY * nextScale) / nextScale;
-
-    graphHandler._scale = nextScale;
-    graphHandler._translation = this.p.createVector(newTranslationX, newTranslationY);
-    graphHandler._isModified = true;
+    this.inputHandler.graphHandler.zoom(zoomFactor, center);
   }
 
   public rotateLeft() {
@@ -205,6 +173,7 @@ export default class Puzzle implements IPuzzle, ISerializablePuzzle {
 
   public deselectAll() {
     this.pieces.forEach((p) => (p.isSelected = false));
+    this.setShowPuzzlePieceActions(false);
   }
 
   public cleanup() {

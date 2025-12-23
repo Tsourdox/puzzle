@@ -102,6 +102,21 @@ export default class GraphHandler implements IGraph, ISerializableGraph {
     return p.createVector(homeX, homeY);
   }
 
+  public zoom(zoomFactor: number, zoomCenter: p5.Vector) {
+    const { p } = this.puzzle;
+    const nextScale = p.constrain(this.scale * zoomFactor, 0.01, 100);
+
+    // Calculate world position under zoom center before zoom
+    const worldX = (zoomCenter.x - this._translation.x * this.scale) / this.scale;
+    const worldY = (zoomCenter.y - this._translation.y * this.scale) / this.scale;
+
+    // Calculate new translation to keep the same world point under the zoom center
+    const newTranslationX = (zoomCenter.x - worldX * nextScale) / nextScale;
+    const newTranslationY = (zoomCenter.y - worldY * nextScale) / nextScale;
+
+    this.setScale(nextScale, p.createVector(newTranslationX, newTranslationY));
+  }
+
   public zoomHome() {
     const { image, p } = this.puzzle;
     const widthRatio = p.width / (image?.width || p.width);
