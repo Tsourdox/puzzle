@@ -140,7 +140,6 @@ export default class Puzzle implements IPuzzle, ISerializablePuzzle {
     return this.pieces.filter((p) => p.isSelected);
   }
 
-  // Public methods for button controls
   public zoomIn() {
     const zoomFactor = 1.2; // 20% zoom in
     const center = this.p.createVector(this.p.width / 2, this.p.height / 2);
@@ -154,21 +153,21 @@ export default class Puzzle implements IPuzzle, ISerializablePuzzle {
   }
 
   public rotateLeft() {
-    const rotation = 0.1; // ~5.7 degrees
-    this.inputHandler.transformHandler['rotatePieces'](-rotation);
+    const rotation = 0.1;
+    this.inputHandler.transformHandler.rotatePieces(-rotation);
   }
 
   public rotateRight() {
     const rotation = 0.1;
-    this.inputHandler.transformHandler['rotatePieces'](rotation);
+    this.inputHandler.transformHandler.rotatePieces(rotation);
   }
 
   public stackPieces() {
-    this.inputHandler.transformHandler['stackPieces']();
+    this.inputHandler.transformHandler.stackPieces();
   }
 
   public explodePieces() {
-    this.inputHandler.transformHandler['explodePieces']();
+    this.inputHandler.transformHandler.explodePieces();
   }
 
   public deselectAll() {

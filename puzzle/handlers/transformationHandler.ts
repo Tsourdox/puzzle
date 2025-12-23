@@ -125,9 +125,9 @@ export default class TransformHandler implements ITransformHandler {
     }
   }
 
-  private rotatePieces(angle: number) {
-    const centeres = this.selectedPieces.map((p) => p.getTrueCenter());
-    const averageCenter = getAverageCenter(this.puzzle.p, centeres);
+  public rotatePieces(angle: number) {
+    const centers = this.selectedPieces.map((p) => p.getTrueCenter());
+    const averageCenter = getAverageCenter(this.puzzle.p, centers);
 
     for (const piece of this.selectedPieces) {
       rotateAroundCenter(piece, averageCenter, angle);
@@ -141,7 +141,7 @@ export default class TransformHandler implements ITransformHandler {
     }
   }
 
-  private explodePieces() {
+  public explodePieces() {
     const { p } = this.puzzle;
     const pieces = this.selectedPieces;
     if (pieces.length <= 1) return;
@@ -186,7 +186,7 @@ export default class TransformHandler implements ITransformHandler {
     }
   }
 
-  private stackPieces() {
+  public stackPieces() {
     const pieces = this.selectedPieces;
     const centers = pieces.map((p) => p.getTrueCenter());
     const groupCenter = getAverageCenter(this.puzzle.p, centers);
