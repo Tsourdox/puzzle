@@ -137,7 +137,7 @@ export default class SelectionHandler implements ISelectionHandler {
     }
   }
 
-  private deselectAllPieces() {
+  public deselectAllPieces() {
     for (const piece of this.puzzle.selectedPieces) {
       piece.isSelected = false;
     }

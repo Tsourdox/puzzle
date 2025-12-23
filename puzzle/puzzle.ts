@@ -172,8 +172,7 @@ export default class Puzzle implements IPuzzle, ISerializablePuzzle {
   }
 
   public deselectAll() {
-    this.pieces.forEach((p) => (p.isSelected = false));
-    this.setShowPuzzlePieceActions(false);
+    this.inputHandler.selectionHandler.deselectAllPieces();
   }
 
   public cleanup() {
