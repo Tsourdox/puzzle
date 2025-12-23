@@ -8,6 +8,7 @@ import { redirect } from 'next/navigation';
 import ImagePreview from './components/ImagePreview';
 import PuzzleCanvas from './components/PuzzleCanvas';
 import PuzzleSelectionModal from './components/PuzzleSelectionModal';
+import SettingsModal from './components/SettingsModal';
 import Sidebar from './components/Sidebar';
 
 type Props = {
@@ -66,6 +67,7 @@ export default async function RoomPage({ params }: Props) {
       <PuzzleSelectionModal>
         <PuzzleSelectionGrid lang={lang} />
       </PuzzleSelectionModal>
+      <SettingsModal lang={lang} />
     </div>
   );
 }

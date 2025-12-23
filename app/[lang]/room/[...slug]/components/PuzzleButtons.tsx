@@ -1,6 +1,6 @@
 'use client';
 
-import { puzzleActionsAtom, showPuzzlePieceActionsAtom } from '@/app/atoms';
+import { puzzleActionsAtom, settingsAtom, showPuzzlePieceActionsAtom } from '@/app/atoms';
 import Button from '@/components/Button';
 import {
   ArrowPathIcon,
@@ -18,8 +18,11 @@ interface Props {
 export default function PuzzleButtons({ isHidden }: Props) {
   const showPuzzlePieceActions = useAtomValue(showPuzzlePieceActionsAtom);
   const actions = useAtomValue(puzzleActionsAtom);
+  const settings = useAtomValue(settingsAtom);
 
-  if (isHidden) return null;
+  const hideButtons = Boolean(settings['dölj pusselknappar']);
+
+  if (isHidden || hideButtons) return null;
 
   return (
     <>

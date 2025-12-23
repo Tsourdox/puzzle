@@ -3,11 +3,12 @@ import Button from '@/components/Button';
 import SocialLinks from '@/components/SocialLinks';
 import { getTranslation } from '@/language';
 import { PropsWithLang } from '@/utils/general';
-import { ArrowPathRoundedSquareIcon, Cog8ToothIcon } from '@heroicons/react/20/solid';
+import { ArrowPathRoundedSquareIcon } from '@heroicons/react/20/solid';
 import Link from 'next/link';
 import InviteFriendsButton from './InviteFriendsButton';
 import NewPuzzleButton from './NewPuzzleButton';
 import RoomCodeDisplay from './RoomCodeDisplay';
+import SettingsButton from './SettingsButton';
 
 interface SidebarProps extends PropsWithLang {
   roomCode: string;
@@ -38,14 +39,7 @@ export default function Sidebar({ lang, roomCode }: SidebarProps) {
         >
           {t('Change room')}
         </Button>
-        <Button
-          disabled
-          disabledText={t('Coming soon')}
-          variant="secondary"
-          icon={<Cog8ToothIcon width={24} height={24} />}
-        >
-          {t('Settings')}
-        </Button>
+        <SettingsButton lang={lang} />
       </section>
       <footer className="flex justify-between">
         <SocialLinks className="text-sm flex flex-col" />

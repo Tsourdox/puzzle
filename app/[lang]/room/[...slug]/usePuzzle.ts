@@ -1,10 +1,11 @@
-import { showPuzzlePieceActionsAtom } from '@/app/atoms';
+import { settingsAtom, showPuzzlePieceActionsAtom } from '@/app/atoms';
 import Puzzle from '@/puzzle/puzzle';
 import { isMouseOverCanvas } from '@/puzzle/utils/general';
+import { settings } from '@/puzzle/utils/settings';
 import { PexelsImage } from '@/utils/pexels';
 import { preventDefaultEvents } from '@/utils/preventEvents';
 import { Size } from '@/utils/sizes';
-import { useSetAtom } from 'jotai';
+import { useAtomValue, useSetAtom } from 'jotai';
 import p5 from 'p5';
 import { RefObject, WheelEvent, useEffect, useRef } from 'react';
 
@@ -28,6 +29,7 @@ export interface PuzzleActions {
 
 export default function usePuzzle({ containerRef, onReady, image, size, roomCode }: Props) {
   const setShowPuzzlePieceActions = useSetAtom(showPuzzlePieceActionsAtom);
+  const reactSettings = useAtomValue(settingsAtom);
   const puzzleRef = useRef<Puzzle | null>(null);
   const actionsRef = useRef<PuzzleActions>({
     zoomIn: () => puzzleRef.current?.zoomIn(),
@@ -38,6 +40,22 @@ export default function usePuzzle({ containerRef, onReady, image, size, roomCode
     explodePieces: () => puzzleRef.current?.explodePieces(),
     deselectAll: () => puzzleRef.current?.deselectAll(),
   });
+
+  // Sync React settings to global puzzle settings object
+  useEffect(() => {
+    Object.assign(settings, reactSettings);
+  }, [reactSettings]);
+
+  // Force graphics update when accessibility outline setting changes
+  useEffect(() => {
+    if (puzzleRef.current) {
+      // Force all pieces to update their graphics when outline setting changes
+      for (const piece of puzzleRef.current.pieces) {
+        piece.forceGraphicsUpdate();
+      }
+    }
+  }, [reactSettings['visa markeringskontur']]);
+
   // useEffect(() => {
   //   document.body.classList.add('overflow-hidden');
   //   return () => document.body.classList.remove('overflow-hidden');
