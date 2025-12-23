@@ -27,10 +27,10 @@
     height: 100%;
   }
 
-  .invisibe-scroll::-webkit-scrollbar {
+  .invisible-scroll::-webkit-scrollbar {
     display: none; /* Chrome, Safari and Opera */
   }
-  .invisibe-scroll {
+  .invisible-scroll {
     -ms-overflow-style: none; /* IE and Edge */
     scrollbar-width: none; /* Firefox */
   }

@@ -24,7 +24,7 @@ export default function PuzzleSelectionModal({ children }: PuzzleSelectionModalP
       </button>
 
       {/* Scrollable content */}
-      <div className="min-h-screen w-full py-16 px-4">{children}</div>
+      <div className="min-h-screen w-full py-16">{children}</div>
     </div>
   );
 }

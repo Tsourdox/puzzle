@@ -55,18 +55,18 @@ export default function ScrollBox({ children }: PropsWithChildren) {
       {scrollLeft > 0 && (
         <ArrowLeftCircleIcon
           onClick={() => scroll('left')}
-          className="text-zinc-50 bg-purple-950/30 w-12 md:w-20 aspect-square absolute left-2 md:left-6 top-1/2 -translate-y-1/2 backdrop-blur-sm rounded-full active:text-zinc-200 cursor-pointer z-20"
+          className="text-zinc-50 bg-purple-950/30 w-10 md:w-16 aspect-square absolute left-2 md:left-6 top-1/2 -translate-y-1/2 backdrop-blur-sm rounded-full active:text-zinc-200 cursor-pointer z-20"
         />
       )}
       {scrollWidth > 0 && scrollLeft < scrollWidth && (
         <ArrowRightCircleIcon
           onClick={() => scroll('right')}
-          className="text-zinc-50 bg-purple-950/30 w-12 md:w-20 aspect-square absolute right-2 md:right-6 top-1/2 -translate-y-1/2 backdrop-blur-sm rounded-full active:text-zinc-200 cursor-pointer z-20"
+          className="text-zinc-50 bg-purple-950/30 w-10 md:w-16 aspect-square absolute right-2 md:right-6 top-1/2 -translate-y-1/2 backdrop-blur-sm rounded-full active:text-zinc-200 cursor-pointer z-20"
         />
       )}
       <div
         ref={scrollRef}
-        className="flex gap-2 sm:gap-4 md:gap-6 overflow-x-auto invisibe-scroll scroll-smooth items-center"
+        className="flex gap-2 sm:gap-4 md:gap-6 overflow-x-auto invisible-scroll scroll-smooth items-center"
       >
         <div className="w-2 sm:w-4 md:w-16 aspect-square flex-none" />
         {children}
