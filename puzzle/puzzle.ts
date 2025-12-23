@@ -140,6 +140,73 @@ export default class Puzzle implements IPuzzle, ISerializablePuzzle {
     return this.pieces.filter((p) => p.isSelected);
   }
 
+  // Public methods for button controls
+  public zoomIn() {
+    const graphHandler = this.inputHandler.graphHandler as any;
+    const zoomFactor = 1.2; // 20% zoom in
+    const center = this.p.createVector(this.p.width / 2, this.p.height / 2);
+
+    const currentScale = graphHandler._scale;
+    const nextScale = this.p.constrain(currentScale * zoomFactor, 0.01, 100);
+
+    // Calculate world position under zoom center before zoom
+    const translation = graphHandler._translation;
+    const worldX = (center.x - translation.x * currentScale) / currentScale;
+    const worldY = (center.y - translation.y * currentScale) / currentScale;
+
+    // Calculate new translation to keep same world point under zoom center
+    const newTranslationX = (center.x - worldX * nextScale) / nextScale;
+    const newTranslationY = (center.y - worldY * nextScale) / nextScale;
+
+    graphHandler._scale = nextScale;
+    graphHandler._translation = this.p.createVector(newTranslationX, newTranslationY);
+    graphHandler._isModified = true;
+  }
+
+  public zoomOut() {
+    const graphHandler = this.inputHandler.graphHandler as any;
+    const zoomFactor = 1 / 1.2; // 20% zoom out
+    const center = this.p.createVector(this.p.width / 2, this.p.height / 2);
+
+    const currentScale = graphHandler._scale;
+    const nextScale = this.p.constrain(currentScale * zoomFactor, 0.01, 100);
+
+    // Calculate world position under zoom center before zoom
+    const translation = graphHandler._translation;
+    const worldX = (center.x - translation.x * currentScale) / currentScale;
+    const worldY = (center.y - translation.y * currentScale) / currentScale;
+
+    // Calculate new translation to keep same world point under zoom center
+    const newTranslationX = (center.x - worldX * nextScale) / nextScale;
+    const newTranslationY = (center.y - worldY * nextScale) / nextScale;
+
+    graphHandler._scale = nextScale;
+    graphHandler._translation = this.p.createVector(newTranslationX, newTranslationY);
+    graphHandler._isModified = true;
+  }
+
+  public rotateLeft() {
+    const rotation = 0.1; // ~5.7 degrees
+    this.inputHandler.transformHandler['rotatePieces'](-rotation);
+  }
+
+  public rotateRight() {
+    const rotation = 0.1;
+    this.inputHandler.transformHandler['rotatePieces'](rotation);
+  }
+
+  public stackPieces() {
+    this.inputHandler.transformHandler['stackPieces']();
+  }
+
+  public explodePieces() {
+    this.inputHandler.transformHandler['explodePieces']();
+  }
+
+  public deselectAll() {
+    this.pieces.forEach((p) => (p.isSelected = false));
+  }
+
   public cleanup() {
     this.releaseCanvas();
     this.pieces.forEach((p) => p.releaseCanvas());

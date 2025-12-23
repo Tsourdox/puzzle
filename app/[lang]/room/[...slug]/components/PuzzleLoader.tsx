@@ -1,7 +1,7 @@
-import { useAtomValue } from 'jotai';
-import { sizeAtom } from '@/app/atoms';
+import { useAtomValue, useSetAtom } from 'jotai';
+import { sizeAtom, puzzleActionsAtom } from '@/app/atoms';
 import { PexelsImage } from '@/utils/pexels';
-import { RefObject } from 'react';
+import { RefObject, useEffect } from 'react';
 import usePuzzle from '../usePuzzle';
 
 type Props = {
@@ -13,6 +13,13 @@ type Props = {
 
 export default function PuzzleLoader({ image, roomCode, onReady, containerRef }: Props) {
   const size = useAtomValue(sizeAtom);
-  usePuzzle({ containerRef, onReady, image, size, roomCode });
+  const setPuzzleActions = useSetAtom(puzzleActionsAtom);
+  const actions = usePuzzle({ containerRef, onReady, image, size, roomCode });
+
+  useEffect(() => {
+    setPuzzleActions(actions);
+    return () => setPuzzleActions(null);
+  }, [actions, setPuzzleActions]);
+
   return null;
 }

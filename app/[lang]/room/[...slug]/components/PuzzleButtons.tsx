@@ -1,6 +1,6 @@
 'use client';
 
-import { showPuzzlePieceActionsAtom } from '@/app/atoms';
+import { puzzleActionsAtom, showPuzzlePieceActionsAtom } from '@/app/atoms';
 import Button from '@/components/Button';
 import {
   ArrowPathIcon,
@@ -17,18 +17,21 @@ interface Props {
 
 export default function PuzzleButtons({ isHidden }: Props) {
   const showPuzzlePieceActions = useAtomValue(showPuzzlePieceActionsAtom);
+  const actions = useAtomValue(puzzleActionsAtom);
 
   if (isHidden) return null;
 
   return (
     <>
       <Button
+        onClick={() => actions?.zoomIn()}
         className="transition-opacity p-2 opacity-100"
         aria-label="Zoom in"
         variant="secondary"
         icon={<PlusCircleIcon width={30} height={30} />}
       />
       <Button
+        onClick={() => actions?.zoomOut()}
         className="transition-opacity p-2 opacity-100"
         aria-label="Zoom out"
         variant="secondary"
@@ -38,30 +41,35 @@ export default function PuzzleButtons({ isHidden }: Props) {
       {showPuzzlePieceActions && (
         <>
           <Button
+            onClick={() => actions?.rotateRight()}
             className="transition-opacity p-2 opacity-100"
-            aria-label="Rotate selected pieces counter clockwise"
-            variant="secondary"
-            icon={<ArrowPathIcon width={30} height={30} />}
-          />
-          <Button
-            className="transition-opacity p-2 opacity-100 -scale-x-100 active:-scale-x-95"
             aria-label="Rotate selected pieces clockwise"
             variant="secondary"
             icon={<ArrowPathIcon width={30} height={30} />}
           />
           <Button
+            onClick={() => actions?.rotateLeft()}
+            className="transition-opacity p-2 opacity-100 -scale-x-100 active:-scale-x-95"
+            aria-label="Rotate selected pieces counter clockwise"
+            variant="secondary"
+            icon={<ArrowPathIcon width={30} height={30} />}
+          />
+          <Button
+            onClick={() => actions?.stackPieces()}
             className="transition-opacity p-2.5 opacity-100"
             aria-label="Stack all selected pieces"
             variant="secondary"
             icon={<Square3Stack3DIcon width={26} height={26} />}
           />
           <Button
+            onClick={() => actions?.explodePieces()}
             className="transition-opacity p-2.5 opacity-100"
             aria-label="Explode all selected pieces"
             variant="secondary"
             icon={<RectangleGroupIcon width={26} height={26} />}
           />
           <Button
+            onClick={() => actions?.deselectAll()}
             className="transition-opacity p-2.5 opacity-100"
             aria-label="Deselect pieces"
             variant="secondary"
