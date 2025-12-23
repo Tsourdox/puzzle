@@ -24,9 +24,9 @@ export default function Sidebar({ lang, roomCode }: SidebarProps) {
             Puzzelin
           </h1>
         </Link>
+        <RoomCodeDisplay roomCode={roomCode} lang={lang} />
       </header>
       <section className="flex-1 flex flex-col gap-6">
-        <RoomCodeDisplay roomCode={roomCode} lang={lang} />
         <NewPuzzleButton lang={lang} />
         <InviteFriendsButton roomCode={roomCode} lang={lang} />
 

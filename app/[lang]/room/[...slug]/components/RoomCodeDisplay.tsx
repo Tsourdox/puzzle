@@ -20,12 +20,12 @@ export default function RoomCodeDisplay({ roomCode, lang }: RoomCodeDisplayProps
   };
 
   return (
-    <div className="flex items-center gap-3 px-3">
-      <span className="text-xl text-zinc-400">{t('Room code')}:</span>
-      <span className="flex-1 text-center text-xl text-purple-300">{roomCode}</span>
+    <div className="flex items-center gap-3">
+      <span className="flex-1 text-xl text-zinc-400">{t('Room code')}:</span>
+      <span className="text-center text-xl text-purple-300">{roomCode}</span>
       <button
         onClick={copyRoomCode}
-        className="p-2 hover:bg-zinc-700/50 rounded-full transition-colors"
+        className="p-2 hover:bg-zinc-700/50 rounded-full transition-colors -mr-2"
         title={t('Copy room code')}
       >
         {copiedCode ? (
