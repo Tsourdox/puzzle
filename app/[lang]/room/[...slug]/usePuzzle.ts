@@ -1,9 +1,10 @@
-import Puzzle from '@/puzzle/puzzle';
-import { useSetAtom } from 'jotai';
 import { showPuzzlePieceActionsAtom } from '@/app/atoms';
+import Puzzle from '@/puzzle/puzzle';
+import { isMouseOverCanvas } from '@/puzzle/utils/general';
 import { PexelsImage } from '@/utils/pexels';
 import { preventDefaultEvents } from '@/utils/preventEvents';
 import { Size } from '@/utils/sizes';
+import { useSetAtom } from 'jotai';
 import p5 from 'p5';
 import { RefObject, WheelEvent, useEffect } from 'react';
 
@@ -17,11 +18,10 @@ type Props = {
 
 export default function usePuzzle({ containerRef, onReady, image, size, roomCode }: Props) {
   const setShowPuzzlePieceActions = useSetAtom(showPuzzlePieceActionsAtom);
-
-  useEffect(() => {
-    document.body.classList.add('overflow-hidden');
-    return () => document.body.classList.remove('overflow-hidden');
-  }, []);
+  // useEffect(() => {
+  //   document.body.classList.add('overflow-hidden');
+  //   return () => document.body.classList.remove('overflow-hidden');
+  // }, []);
 
   useEffect(() => {
     let puzzle: Puzzle;
@@ -67,8 +67,12 @@ export default function usePuzzle({ containerRef, onReady, image, size, roomCode
       };
 
       p.mouseWheel = (event: WheelEvent & { delta: number }) => {
-        scrollDelta = event.delta;
-        return false;
+        if (isMouseOverCanvas(p)) {
+          scrollDelta = event.delta;
+          return false;
+        }
+
+        return true;
       };
     };
 

@@ -1,14 +1,14 @@
-import { supabase } from '@/utils/supabase';
+import PuzzleSelectionGrid from '@/app/[lang]/components/PuzzleSelectionGrid';
 import { Lang, getTranslation } from '@/language';
 import { SearchParams } from '@/utils/general';
 import { getPexelsImage } from '@/utils/pexels';
+import { supabase } from '@/utils/supabase';
 import { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 import ImagePreview from './components/ImagePreview';
 import PuzzleCanvas from './components/PuzzleCanvas';
-import Sidebar from './components/Sidebar';
 import PuzzleSelectionModal from './components/PuzzleSelectionModal';
-import PuzzleSelectionGrid from '@/app/[lang]/components/PuzzleSelectionGrid';
+import Sidebar from './components/Sidebar';
 
 type Props = {
   params: Promise<{ slug: string[]; lang: Lang }>;

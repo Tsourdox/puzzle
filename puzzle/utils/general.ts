@@ -109,3 +109,8 @@ export function resizeImage(image: p5.Image, maxRes = 6000000) {
     image.resize(Math.round(width), 0);
   }
 }
+
+export function isMouseOverCanvas(p: p5): boolean {
+  const elementUnderMouse = document.elementFromPoint(p.winMouseX, p.winMouseY);
+  return elementUnderMouse?.tagName === 'CANVAS';
+}

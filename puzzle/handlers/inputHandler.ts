@@ -1,5 +1,6 @@
 import p5 from 'p5';
 import { IPuzzle } from '../puzzle';
+import { isMouseOverCanvas } from '../utils/general';
 import GraphHandler from './graphHandler';
 import SelectionHandler from './selectionHandler';
 import TransformHandler from './transformationHandler';
@@ -27,16 +28,10 @@ export default class InputHandler {
   public update(scrollDelta: number) {
     this.graphHandler.update(this.prevMouse, this.prevTouches, scrollDelta);
 
-    if (
-      // overlay UI does not prevent selection in p5 canvas - this is a workaround
-      this.puzzle.p.mouseX < this.puzzle.p.width - 76 ||
-      this.puzzle.p.mouseX > this.puzzle.p.width - 28 ||
-      this.puzzle.p.mouseY > 420
-    ) {
+    if (isMouseOverCanvas(this.puzzle.p)) {
       this.selectionHandler.update();
+      this.transformHandler.update(this.prevMouse, this.prevTouches, scrollDelta);
     }
-
-    this.transformHandler.update(this.prevMouse, this.prevTouches, scrollDelta);
 
     this.setPreviousValues();
   }
