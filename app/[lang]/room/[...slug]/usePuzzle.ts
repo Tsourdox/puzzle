@@ -24,6 +24,7 @@ export interface PuzzleActions {
   rotateRight: () => void;
   stackPieces: () => void;
   explodePieces: () => void;
+  reconnectPieces: () => void;
   deselectAll: () => void;
 }
 
@@ -38,6 +39,7 @@ export default function usePuzzle({ containerRef, onReady, image, size, roomCode
     rotateRight: () => puzzleRef.current?.rotateRight(),
     stackPieces: () => puzzleRef.current?.stackPieces(),
     explodePieces: () => puzzleRef.current?.explodePieces(),
+    reconnectPieces: () => puzzleRef.current?.reconnectPieces(),
     deselectAll: () => puzzleRef.current?.deselectAll(),
   });
 

@@ -18,7 +18,7 @@ export default function Sidebar({ lang, roomCode }: SidebarProps) {
   const t = getTranslation(lang);
 
   return (
-    <AppBar className="flex flex-col gap-4">
+    <AppBar className="flex flex-col gap-4" lang={lang}>
       <header className="border-b px-4 border-zinc-700/50 mt-2">
         <Link href={`/${lang}`}>
           <h1 className="text-center text-transparent bg-clip-text bg-linear-to-l from-purple-700 to-purple-100 cursor-pointer hover:opacity-80 transition-opacity">

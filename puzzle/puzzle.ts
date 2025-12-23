@@ -170,6 +170,10 @@ export default class Puzzle implements IPuzzle, ISerializablePuzzle {
     this.inputHandler.transformHandler.explodePieces();
   }
 
+  public reconnectPieces() {
+    this.pieceConnector.resetConnectionForSelectedPieces();
+  }
+
   public deselectAll() {
     this.inputHandler.selectionHandler.deselectAllPieces();
   }

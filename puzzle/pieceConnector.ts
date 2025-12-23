@@ -28,17 +28,17 @@ export default class PieceConnector {
   }
 
   public update() {
-    this.resetConnectionForSelectedPieces();
+    const { p } = this.puzzle;
+    if (p.keyIsPressed && p.keyCode === this.settings['koppla om bitar']) {
+      this.resetConnectionForSelectedPieces();
+    }
     this.checkForConnectedPieces();
   }
 
   /** Sometimes pieces connects incorrectly, this resets the connections */
-  private resetConnectionForSelectedPieces() {
-    const { p } = this.puzzle;
-    if (p.keyIsPressed && p.keyCode === this.settings['koppla om bitar']) {
-      for (const piece of this.puzzle.selectedPieces) {
-        piece.connectedSides = [];
-      }
+  public resetConnectionForSelectedPieces() {
+    for (const piece of this.puzzle.selectedPieces) {
+      piece.connectedSides = [];
     }
   }
 

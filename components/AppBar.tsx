@@ -1,14 +1,15 @@
 'use client';
 import PuzzleButtons from '@/app/[lang]/room/[...slug]/components/PuzzleButtons';
+import { Lang } from '@/language';
 import { PropsWithClassName, invert } from '@/utils/general';
 import { ArrowLeftCircleIcon, XCircleIcon } from '@heroicons/react/20/solid';
 import { useState } from 'react';
 import { twMerge } from 'tailwind-merge';
 import Button from './Button';
 
-type Props = PropsWithClassName;
+type Props = PropsWithClassName & { lang: Lang };
 
-export function AppBar({ className, children }: Props) {
+export function AppBar({ className, children, lang }: Props) {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
@@ -39,7 +40,7 @@ export function AppBar({ className, children }: Props) {
           onClick={() => setIsOpen(invert)}
         />
 
-        <PuzzleButtons isHidden={isOpen} />
+        <PuzzleButtons isHidden={isOpen} lang={lang} />
       </div>
       {children}
     </aside>
