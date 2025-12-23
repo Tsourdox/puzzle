@@ -27,7 +27,6 @@ export default class NetworkHandler {
   private channel?: RealtimeChannel;
   private isInitialized: boolean;
   private lastSyncTime: number;
-  private syncThrottle: number = 50; // 50ms = 20Hz
   private userColors: Map<string, string> = new Map();
   private availableColors = ['#ef4444', '#3b82f6', '#10b981', '#a855f7', '#f59e0b', '#ec4899'];
   private currentSelections: Map<string, number[]> = new Map(); // userId -> pieceIds
@@ -204,6 +203,14 @@ export default class NetworkHandler {
       .subscribe();
   }
 
+  private getAdaptiveThrottle(modifiedCount: number): number {
+    // Adaptive throttling based on number of pieces being synced
+    // More pieces = slower sync rate to reduce database/network load
+    if (modifiedCount < 50) return 50; // 20Hz - fast updates for small changes
+    if (modifiedCount < 200) return 100; // 10Hz - medium updates
+    return 200; // 5Hz - slow updates for large islands (200+ pieces)
+  }
+
   private normalizeRotationDiff(currentRotation: number, targetRotation: number): number {
     // Calculate the shortest rotation path
     let diff = targetRotation - currentRotation;
@@ -362,16 +369,17 @@ export default class NetworkHandler {
   public async syncPieces(pieces: Piece[], force = false): Promise<void> {
     if (!this.isInitialized) return;
 
-    // Throttle sync (unless forced)
-    if (!force) {
-      const now = Date.now();
-      if (now - this.lastSyncTime < this.syncThrottle) return;
-      this.lastSyncTime = now;
-    }
-
-    // Get modified pieces
+    // Get modified pieces first to calculate adaptive throttle
     const modifiedPieces = pieces.filter((p) => p.isModified);
     if (modifiedPieces.length === 0) return;
+
+    // Adaptive throttling (unless forced) - slower sync for larger updates
+    if (!force) {
+      const throttle = this.getAdaptiveThrottle(modifiedPieces.length);
+      const now = Date.now();
+      if (now - this.lastSyncTime < throttle) return;
+      this.lastSyncTime = now;
+    }
 
     const updates = modifiedPieces.map((piece) => {
       const serialized = piece.serialize();
