@@ -290,7 +290,7 @@ export default class Piece implements ISerializablePiece {
   }
 
   public serialize(): ISerializedPieceData {
-    this.isModified = false;
+    // Don't clear isModified here - let the network handler clear it after successful sync
     return {
       id: this.id,
       rotation: this.rotation,

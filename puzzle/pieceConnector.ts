@@ -1,6 +1,7 @@
 import p5 from 'p5';
 import type { ISelectionHandler } from './handlers/selectionHandler';
 import type { ITransformHandler } from './handlers/transformationHandler';
+import type NetworkHandler from './network/networkHandler';
 import Piece, { Side } from './piece';
 import type { IPuzzle } from './puzzle';
 import { getAdjecentPiece, getConnectedPieces } from './utils/pieces';
@@ -10,16 +11,19 @@ export default class PieceConnector {
   private puzzle: IPuzzle;
   private selectionHandler: ISelectionHandler;
   private transformHandler: ITransformHandler;
+  private networkHandler: NetworkHandler;
   private settings: ISettingsMap;
 
   constructor(
     puzzle: IPuzzle,
     selectionHandler: ISelectionHandler,
     transformHandler: ITransformHandler,
+    networkHandler: NetworkHandler,
   ) {
     this.puzzle = puzzle;
     this.selectionHandler = selectionHandler;
     this.transformHandler = transformHandler;
+    this.networkHandler = networkHandler;
     this.settings = settings;
   }
 
@@ -64,15 +68,15 @@ export default class PieceConnector {
       if (side === Side.Bottom && length - i <= x) continue;
       if (side === Side.Left && (length - i) % x === 0) continue;
 
-      // Find adjecentPiece
-      const adjecentPiece = getAdjecentPiece(piece, side, this.puzzle);
+      // Find adjacentPiece
+      const adjacentPiece = getAdjecentPiece(piece, side, this.puzzle);
 
       // Dont check pieces selected by others
-      if (adjecentPiece.isSelectedByOther) continue;
+      if (adjacentPiece.isSelectedByOther) continue;
 
       // Find matching edges
       const pieceCorners = piece.getTrueCorners();
-      const adjecentCorners = adjecentPiece.getTrueCorners();
+      const adjecentCorners = adjacentPiece.getTrueCorners();
       const pcA = pieceCorners[side];
       const acA = adjecentCorners[(side + 3) % 4];
       const pcB = pieceCorners[(side + 1) % 4];
@@ -82,7 +86,7 @@ export default class PieceConnector {
       const distA = pcA.dist(acA);
       const distB = pcB.dist(acB);
       if (distA + distB < limit) {
-        this.connectPiece(piece, adjecentPiece, side, playSound && !wasConnected);
+        this.connectPiece(piece, adjacentPiece, side, playSound && !wasConnected);
         wasConnected = true;
       }
     }
@@ -95,7 +99,7 @@ export default class PieceConnector {
     }
   }
 
-  private connectPiece(piece: Piece, adjecentPiece: Piece, side: Side, playSound: boolean) {
+  private connectPiece(piece: Piece, adjacentPiece: Piece, side: Side, playSound: boolean) {
     // First matching side found
     if (piece.isSelected) {
       // Play click sound
@@ -105,10 +109,10 @@ export default class PieceConnector {
       }
 
       // Rotate and translate selected piece|s
-      const deltaRotation = adjecentPiece.rotation - piece.rotation;
+      const deltaRotation = adjacentPiece.rotation - piece.rotation;
       this.transformHandler.rotatePiece(piece, deltaRotation);
 
-      const acA = adjecentPiece.getTrueCorners()[(side + 3) % 4];
+      const acA = adjacentPiece.getTrueCorners()[(side + 3) % 4];
       const ucA = piece.getTrueCorners()[side];
       const deltaTranslation = p5.Vector.sub(acA, ucA);
       this.transformHandler.translatePiece(piece, deltaTranslation);
@@ -116,7 +120,23 @@ export default class PieceConnector {
 
     // Add to connected side list
     const oppositeSide = (side + 2) % 4;
-    adjecentPiece.connectedSides = [...adjecentPiece.connectedSides, oppositeSide];
+    adjacentPiece.connectedSides = [...adjacentPiece.connectedSides, oppositeSide];
     piece.connectedSides = [...piece.connectedSides, side];
+
+    // CRITICAL: Mark all pieces in BOTH islands as modified
+    // When pieces connect, both the moving island AND the stationary island need to be synced
+    // to ensure all players see the correct final positions
+    const movingIsland = getConnectedPieces(piece, this.puzzle);
+    const adjacentIsland = getConnectedPieces(adjacentPiece, this.puzzle);
+
+    for (const islandPiece of movingIsland) {
+      islandPiece.isModified = true;
+    }
+    for (const islandPiece of adjacentIsland) {
+      islandPiece.isModified = true;
+    }
+
+    // Force immediate sync after connection to prevent stale positions on other clients
+    this.networkHandler.syncPieces(this.puzzle.pieces as Piece[], true);
   }
 }

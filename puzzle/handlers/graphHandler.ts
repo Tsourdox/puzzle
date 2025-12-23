@@ -106,7 +106,7 @@ export default class GraphHandler implements IGraph, ISerializableGraph {
     const { image, p } = this.puzzle;
     const widthRatio = p.width / (image?.width || p.width);
     const heightRatio = p.height / (image?.height || p.height);
-    const scale = p.min(widthRatio, heightRatio) * 0.7;
+    const scale = p.min(widthRatio, heightRatio) * 0.5;
     this.setScale(scale, this.getHomeTranslation(scale));
   }
 

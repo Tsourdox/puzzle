@@ -6,7 +6,7 @@ const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
 export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
   realtime: {
     params: {
-      eventsPerSecond: 60, // High refresh rate for responsive multiplayer
+      eventsPerSecond: 20, // Refresh rate for responsive multiplayer
     },
   },
 });

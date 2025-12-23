@@ -27,7 +27,7 @@ export default class NetworkHandler {
   private channel?: RealtimeChannel;
   private isInitialized: boolean;
   private lastSyncTime: number;
-  private syncThrottle: number = 1000 / 60; // ~16ms = 60Hz
+  private syncThrottle: number = 50; // 50ms = 20Hz
   private userColors: Map<string, string> = new Map();
   private availableColors = ['#ef4444', '#3b82f6', '#10b981', '#a855f7', '#f59e0b', '#ec4899'];
   private currentSelections: Map<string, number[]> = new Map(); // userId -> pieceIds
@@ -229,7 +229,7 @@ export default class NetworkHandler {
     const currentRotation = piece.rotation;
     const normalizedRotation = this.normalizeRotationDiff(currentRotation, pieceData.rotation);
 
-    // Update piece position from network
+    // Lerp remote updates for smooth animation
     piece.deserialize(
       {
         id: pieceData.piece_id,
@@ -239,7 +239,7 @@ export default class NetworkHandler {
         elevation: pieceData.elevation,
         isSelectedByOther: piece.isSelectedByOther, // Preserve selection state
       },
-      { lerp: true }, // Smooth interpolation
+      { lerp: true },
     );
   }
 
@@ -359,13 +359,15 @@ export default class NetworkHandler {
     }
   }
 
-  public async syncPieces(pieces: Piece[]): Promise<void> {
+  public async syncPieces(pieces: Piece[], force = false): Promise<void> {
     if (!this.isInitialized) return;
 
-    // Throttle sync
-    const now = Date.now();
-    if (now - this.lastSyncTime < this.syncThrottle) return;
-    this.lastSyncTime = now;
+    // Throttle sync (unless forced)
+    if (!force) {
+      const now = Date.now();
+      if (now - this.lastSyncTime < this.syncThrottle) return;
+      this.lastSyncTime = now;
+    }
 
     // Get modified pieces
     const modifiedPieces = pieces.filter((p) => p.isModified);
@@ -429,16 +431,10 @@ export default class NetworkHandler {
   public async clearRoomData(): Promise<void> {
     try {
       // Delete all pieces for this room
-      await supabase
-        .from('pieces')
-        .delete()
-        .eq('room_code', this.roomCode);
+      await supabase.from('pieces').delete().eq('room_code', this.roomCode);
 
       // Delete all selections for this room
-      await supabase
-        .from('selections')
-        .delete()
-        .eq('room_code', this.roomCode);
+      await supabase.from('selections').delete().eq('room_code', this.roomCode);
 
       // Delete the room itself
       await supabase.from('rooms').delete().eq('room_code', this.roomCode);

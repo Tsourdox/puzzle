@@ -56,7 +56,12 @@ export default class Puzzle implements IPuzzle, ISerializablePuzzle {
     this.networkSerializer = new NetworkSerializer(this, this.inputHandler.graphHandler, roomCode);
     this.networkHandler = new NetworkHandler(this, roomCode, image.id);
     const { selectionHandler, transformHandler } = this.inputHandler;
-    this.pieceConnector = new PieceConnector(this, selectionHandler, transformHandler);
+    this.pieceConnector = new PieceConnector(
+      this,
+      selectionHandler,
+      transformHandler,
+      this.networkHandler,
+    );
   }
 
   private async loadCanvasImage(src: string) {
@@ -110,6 +115,17 @@ export default class Puzzle implements IPuzzle, ISerializablePuzzle {
 
     this.piecesFactory = new PiecesFactory(this.p, xy, xy, this.image);
     this.pieces = this.piecesFactory.createAllPieces();
+
+    // Explode pieces slightly so they're not stacked on top of each other
+    const explosionFactor = 0.5;
+    const puzzleCenter = this.p.createVector(this.image.width / 2, this.image.height / 2);
+    for (const piece of this.pieces) {
+      const pieceCenter = piece.getTrueCenter();
+      const offset = p5.Vector.sub(pieceCenter, puzzleCenter);
+      const explosion = offset.copy().mult(explosionFactor);
+      piece.translation = p5.Vector.add(piece.translation, explosion);
+    }
+
     this.inputHandler.graphHandler.zoomHome();
 
     // Save to both IndexedDB and Supabase
