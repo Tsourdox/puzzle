@@ -427,6 +427,13 @@ const translations = {
     de: 'Bitte versuchen Sie, die Datenbank zurückzusetzen oder ein anderes Bild zu verwenden',
     fi: 'Yritä nollata tietokanta tai käyttää toista kuvaa',
   },
+  Loading: {
+    sv: 'Laddar',
+    no: 'Laster',
+    da: 'Indlæser',
+    de: 'Lädt',
+    fi: 'Ladataan',
+  },
   Yes: {
     sv: 'Ja',
     no: 'Ja',
