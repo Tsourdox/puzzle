@@ -13,6 +13,13 @@ export default class ClientDB {
   }
 
   public static async getAllRoomCodes(): Promise<string[]> {
+    const roomsWithTimestamps = await this.getAllRoomCodesWithTimestamps();
+    return roomsWithTimestamps.map((room) => room.code);
+  }
+
+  public static async getAllRoomCodesWithTimestamps(): Promise<
+    Array<{ code: string; lastModified: number }>
+  > {
     try {
       // Get all IndexedDB databases
       const databases = await indexedDB.databases();
@@ -23,7 +30,26 @@ export default class ClientDB {
         .map((db) => db.name!.replace('puzzelin_', ''))
         .filter((code) => code !== 'default'); // Exclude default database
 
-      return roomCodes;
+      // Get lastModified timestamp for each room
+      const roomsWithTimestamps = await Promise.all(
+        roomCodes.map(async (code) => {
+          try {
+            const db = new ClientDB(code);
+            await db.open();
+            const puzzleData = await db.loadPuzzle();
+            db.close();
+            return {
+              code,
+              lastModified: puzzleData.lastModified || 0,
+            };
+          } catch {
+            return { code, lastModified: 0 };
+          }
+        }),
+      );
+
+      // Sort by lastModified (most recent first)
+      return roomsWithTimestamps.sort((a, b) => b.lastModified - a.lastModified);
     } catch (error) {
       console.error('Failed to get room codes:', error);
       return [];
@@ -173,12 +199,14 @@ export default class ClientDB {
   }
 
   public async savePuzzle(data: IPuzzleData): Promise<void> {
+    data.lastModified = Date.now();
     await this.saveToStore([], 'pieces');
     await this.saveToStore(data, 'puzzle');
   }
 
   public async saveGraph(data: IGraphData): Promise<void> {
     await this.saveToStore(data, 'graph');
+    await this.updateLastModified();
   }
 
   public async savePieces(data: IPieceData[]): Promise<void> {
@@ -191,6 +219,17 @@ export default class ClientDB {
       }
     }
     await this.saveToStore(data, 'pieces');
+    await this.updateLastModified();
+  }
+
+  private async updateLastModified(): Promise<void> {
+    try {
+      const puzzleData = await this.loadPuzzle();
+      puzzleData.lastModified = Date.now();
+      await this.saveToStore(puzzleData, 'puzzle');
+    } catch {
+      // Puzzle data doesn't exist yet, ignore
+    }
   }
 
   public async clearAll(): Promise<void> {

@@ -33,6 +33,7 @@ export interface IPuzzleData {
   seed: number;
   size: Size;
   updatedBy?: string;
+  lastModified?: number;
 }
 
 export interface IPieceData {

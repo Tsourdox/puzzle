@@ -1,6 +1,7 @@
 import SocialLinks from '@/components/SocialLinks';
 import { Lang, getTranslation } from '@/language';
-import ActionButtons from './components/ActionButtons';
+import JoinRoomButton from './components/JoinRoomButton';
+import UploadImageButton from './components/UploadImageButton';
 import ContinueSlideshowRow from './components/ContinueSlideshowRow';
 import PuzzleSelectionGrid from './components/PuzzleSelectionGrid';
 
@@ -31,7 +32,8 @@ export default async function HomePage({ params }: Props) {
       </header>
 
       <section className="flex gap-x-8 gap-y-4 justify-center flex-wrap">
-        <ActionButtons lang={lang} />
+        <JoinRoomButton lang={lang} />
+        <UploadImageButton lang={lang} />
       </section>
 
       <main className="flex flex-col gap-12 w-screen">

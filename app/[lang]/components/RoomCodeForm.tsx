@@ -1,5 +1,5 @@
 import { Lang, getTranslation } from '@/language';
-import { ArrowSmallRightIcon, XMarkIcon } from '@heroicons/react/20/solid';
+import { ArrowRightIcon, XMarkIcon } from '@heroicons/react/20/solid';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
@@ -46,16 +46,16 @@ export default function RoomCodeForm(props: Props) {
         maxLength={CODE_LENGTH}
         placeholder={t('Enter room code')}
         {...register('code')}
-        className="bg-transparent text-2xl px-4 w-64 uppercase focus:outline-none text-gray-300"
+        className="bg-transparent text-2xl pl-4 w-3xs uppercase focus:outline-none text-gray-300"
       />
       <button
         type="submit"
         className={twMerge(
-          'p-1 text-gray-400',
+          'px-3 text-gray-400',
           !formState.errors.code && getValues().code?.length === CODE_LENGTH && 'text-gray-100',
         )}
       >
-        <ArrowSmallRightIcon width={44} height={44} />
+        <ArrowRightIcon width={32} height={32} />
       </button>
     </form>
   );
