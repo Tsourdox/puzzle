@@ -1,4 +1,5 @@
 import { settingsAtom, showPuzzlePieceActionsAtom } from '@/app/atoms';
+import { Lang, getTranslation } from '@/language';
 import Puzzle from '@/puzzle/puzzle';
 import { isMouseOverCanvas } from '@/puzzle/utils/general';
 import { settings } from '@/puzzle/utils/settings';
@@ -15,6 +16,7 @@ type Props = {
   image: PexelsImage;
   size: Size;
   roomCode: string;
+  lang: Lang;
 };
 
 export interface PuzzleActions {
@@ -28,7 +30,7 @@ export interface PuzzleActions {
   deselectAll: () => void;
 }
 
-export default function usePuzzle({ containerRef, onReady, image, size, roomCode }: Props) {
+export default function usePuzzle({ containerRef, onReady, image, size, roomCode, lang }: Props) {
   const setShowPuzzlePieceActions = useSetAtom(showPuzzlePieceActionsAtom);
   const reactSettings = useAtomValue(settingsAtom);
   const puzzleRef = useRef<Puzzle | null>(null);
@@ -71,17 +73,26 @@ export default function usePuzzle({ containerRef, onReady, image, size, roomCode
 
         puzzle = new Puzzle(p, size, image, roomCode, setShowPuzzlePieceActions);
         puzzleRef.current = puzzle;
-        puzzle.tryLoadPuzzle().then((successfullyLoaded) => {
-          if (successfullyLoaded) {
-            onReady();
-            p.loop();
-          } else {
-            puzzle.generateNewPuzzle().then(() => {
+        puzzle
+          .tryLoadPuzzle()
+          .then((successfullyLoaded) => {
+            if (successfullyLoaded) {
               onReady();
               p.loop();
-            });
-          }
-        });
+            } else {
+              return puzzle.generateNewPuzzle().then(() => {
+                onReady();
+                p.loop();
+              });
+            }
+          })
+          .catch((error) => {
+            console.error('Failed to initialize puzzle:', error);
+            const t = getTranslation(lang);
+            alert(
+              `${t('Failed to load puzzle')}. ${t('Please try resetting the database or using a different image')}.`,
+            );
+          });
 
         p.noLoop();
       };

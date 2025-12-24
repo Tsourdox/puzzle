@@ -1,9 +1,10 @@
 import SocialLinks from '@/components/SocialLinks';
 import { Lang, getTranslation } from '@/language';
-import JoinRoomButton from './components/JoinRoomButton';
-import UploadImageButton from './components/UploadImageButton';
 import ContinueSlideshowRow from './components/ContinueSlideshowRow';
+import JoinRoomButton from './components/JoinRoomButton';
 import PuzzleSelectionGrid from './components/PuzzleSelectionGrid';
+import ResetDatabaseButton from './components/ResetDatabaseButton';
+import UploadImageButton from './components/UploadImageButton';
 
 type Props = {
   params: Promise<{ lang: Lang }>;
@@ -41,7 +42,8 @@ export default async function HomePage({ params }: Props) {
         <PuzzleSelectionGrid lang={lang} />
       </main>
 
-      <footer className="flex justify-center items-center gap-12">
+      <footer className="flex justify-center items-center gap-12 flex-col">
+        <ResetDatabaseButton lang={lang} />
         <SocialLinks className="flex gap-8">|</SocialLinks>
       </footer>
     </div>

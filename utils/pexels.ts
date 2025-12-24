@@ -22,20 +22,9 @@ export const getPexelsImage = async (id: string) => {
       process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     );
 
-    // List files in the bucket to find the one matching our ID
-    const { data: files, error } = await supabase.storage
-      .from('puzzle-images')
-      .list('', {
-        search: id,
-      });
-
-    if (error || !files || files.length === 0) {
-      throw new Error(`Custom image not found: ${id}`);
-    }
-
-    // Get the first matching file
-    const file = files[0];
-    const { data } = supabase.storage.from('puzzle-images').getPublicUrl(file.name);
+    // All custom images are converted to JPEG during upload
+    const filePath = `${id}.jpg`;
+    const { data } = supabase.storage.from('puzzle-images').getPublicUrl(filePath);
 
     return {
       id,

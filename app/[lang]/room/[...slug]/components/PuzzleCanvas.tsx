@@ -26,6 +26,7 @@ export default function PuzzleCanvas({ image, roomCode, lang }: Props) {
         roomCode={roomCode}
         onReady={onReady}
         containerRef={containerRef}
+        lang={lang}
       />
       {isLoading && (
         <div className="absolute uppercase z-20 left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 animate-pulse text-4xl text-transparent bg-clip-text bg-linear-to-r from-zinc-50 to-zinc-400 text-center">
