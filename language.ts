@@ -284,13 +284,6 @@ const translations = {
     de: 'Zoom umkehren',
     fi: 'Käännä zoomaus',
   },
-  'Show selection outline': {
-    sv: 'Visa markeringskontur',
-    no: 'Vis markeringskontur',
-    da: 'Vis markeringskontur',
-    de: 'Auswahlkontur anzeigen',
-    fi: 'Näytä valinnan ääriviiva',
-  },
   'Hide puzzle action buttons': {
     sv: 'Dölj pusselknappar',
     no: 'Skjul pusleknapper',

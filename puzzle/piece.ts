@@ -173,7 +173,7 @@ export default class Piece implements ISerializablePiece {
       this.graphics.stroke('#FF0');
       this.graphics.strokeWeight(this.size.mag() / 100);
       this.drawSelectionOutline();
-    } else if (settings['visa markeringskontur']) {
+    } else {
       this.graphics.stroke('#000');
       this.graphics.strokeWeight(this.size.mag() / 130);
       this.drawSelectionOutline();
@@ -318,6 +318,7 @@ export default class Piece implements ISerializablePiece {
     }
     this._isSelectedByOther = piece.isSelectedByOther;
     this._connectedSides = piece.connectedSides || [];
+    this.graphicNeedsUpdating = true;
     this.elevation = piece.elevation;
 
     if (options?.lerp) {

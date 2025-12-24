@@ -9,7 +9,6 @@ export interface ISettingsMap {
   'markera fler': number;
   'visa fps räknare': number;
   'invertera zoom': number;
-  'visa markeringskontur': number;
   'dölj pusselknappar': number;
   bakgrundsfärg: number;
   'koppla om bitar': number;
@@ -26,7 +25,6 @@ export const settings: ISettingsMap = {
   'koppla om bitar': KEY_R,
   'invertera zoom': 0,
   'visa fps räknare': 0,
-  'visa markeringskontur': 0,
   'dölj pusselknappar': 0,
   bakgrundsfärg: 40,
 };

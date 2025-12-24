@@ -48,16 +48,6 @@ export default function usePuzzle({ containerRef, onReady, image, size, roomCode
     Object.assign(settings, reactSettings);
   }, [reactSettings]);
 
-  // Force graphics update when accessibility outline setting changes
-  useEffect(() => {
-    if (puzzleRef.current) {
-      // Force all pieces to update their graphics when outline setting changes
-      for (const piece of puzzleRef.current.pieces) {
-        piece.forceGraphicsUpdate();
-      }
-    }
-  }, [reactSettings['visa markeringskontur']]);
-
   // useEffect(() => {
   //   document.body.classList.add('overflow-hidden');
   //   return () => document.body.classList.remove('overflow-hidden');

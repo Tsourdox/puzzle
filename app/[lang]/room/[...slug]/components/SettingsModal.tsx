@@ -186,19 +186,6 @@ export default function SettingsModal({ lang }: SettingsModalProps) {
             </div>
 
             <div className="flex items-center justify-between">
-              <span className="text-zinc-300">{t('Show selection outline')}</span>
-              <label className="relative inline-flex items-center cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={Boolean(settings['visa markeringskontur'])}
-                  onChange={(e) => handleToggleChange('visa markeringskontur', e.target.checked)}
-                  className="sr-only peer"
-                />
-                <div className="w-11 h-6 bg-zinc-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-purple-600"></div>
-              </label>
-            </div>
-
-            <div className="flex items-center justify-between">
               <span className="text-zinc-300">{t('Hide puzzle action buttons')}</span>
               <label className="relative inline-flex items-center cursor-pointer">
                 <input
