@@ -33,6 +33,7 @@ export default function ImageCardContainer({ image, children, ...props }: Props)
           alt={image.alt}
           width={300}
           height={300}
+          loading="lazy"
           className="w-full h-full object-cover transition-transform duration-300 md:group-hover:scale-110"
         />
 
