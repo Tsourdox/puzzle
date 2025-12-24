@@ -52,7 +52,7 @@ export const getCuratedPexelsImages = async (): Promise<PexelsImage[]> => {
   try {
     const domain = 'https://api.pexels.com/';
     const path = 'v1/curated';
-    const query = `?per_page=40&page=1`;
+    const query = `?per_page=30&page=1`;
     const url = `${domain}${path}${query}`;
 
     const response = await fetch(url, {
@@ -82,8 +82,8 @@ export const searchPexelsImages = async (searchTerm: string): Promise<PexelsImag
     const domain = 'https://api.pexels.com/';
     const path = 'v1/search';
     const perPage = 20;
-    const totalPages = 10;
-    const spacing = 4; // Select every 4th image
+    const totalPages = 5;
+    const spacing = 3; // Select every 3th image
     const allImages: PexelsImage[] = [];
 
     // Fetch multiple pages to get variety
