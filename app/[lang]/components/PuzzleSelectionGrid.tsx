@@ -1,8 +1,6 @@
 import SlideshowRow from '@/app/[lang]/components/SlideshowRow';
 import { Lang, getTranslation } from '@/language';
 
-export const revalidate = 345_600; // 4 days
-
 interface PuzzleSelectionGridProps {
   lang: Lang;
 }

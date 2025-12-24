@@ -11,6 +11,8 @@ import PuzzleSelectionModal from './components/PuzzleSelectionModal';
 import SettingsModal from './components/SettingsModal';
 import Sidebar from './components/Sidebar';
 
+export const revalidate = 86_400; // 1 days
+
 type Props = {
   params: Promise<{ slug: string[]; lang: Lang }>;
   searchParams: SearchParams;

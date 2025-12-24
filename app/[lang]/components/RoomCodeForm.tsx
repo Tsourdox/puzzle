@@ -32,11 +32,11 @@ export default function RoomCodeForm(props: Props) {
   return (
     <form
       onSubmit={handleSubmit(enterRoom)}
-      className="flex rounded-full bg-gradient-to-r from-[#210024] to-gray-900 drop-shadow-lg"
+      className="flex rounded-full bg-linear-to-r from-[#210024] to-gray-900 drop-shadow-lg"
     >
       <button
         type="button"
-        className="p-2 border-r-1 border-zinc-600 text-gray-400"
+        className="p-2 border-r border-zinc-600 text-gray-400"
         onClick={props.onCancel}
       >
         <XMarkIcon width={36} height={36} />

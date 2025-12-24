@@ -156,20 +156,29 @@ export default class Piece implements ISerializablePiece {
 
   private updateGraphics() {
     this.graphicNeedsUpdating = false;
-    if (this._isSelectedByOther) {
-      this.graphics.tint(150, 240);
-    } else {
-      this.graphics.noTint();
-    }
+    this.graphics.noTint();
 
     this.graphics.clear(0, 0, 0, 0);
     this.graphics.image(this.image, 0, 0);
 
-    if (this.isSelected || this._isSelectedByOther) {
+    this.graphics.push();
+    this.graphics.translate(this.offset, this.offset);
+    this.graphics.noFill();
+
+    if (this.isSelected) {
+      this.graphics.stroke('#FFF');
+      this.graphics.strokeWeight(this.size.mag() / 80);
+      this.drawSelectionOutline();
+    } else if (this._isSelectedByOther) {
+      this.graphics.stroke('#FF0');
+      this.graphics.strokeWeight(this.size.mag() / 100);
       this.drawSelectionOutline();
     } else if (settings['visa markeringskontur']) {
-      this.drawAccessibilityOutline();
+      this.graphics.stroke('#000');
+      this.graphics.strokeWeight(this.size.mag() / 130);
+      this.drawSelectionOutline();
     }
+    this.graphics.pop();
   }
 
   private createClippingMask() {
@@ -200,11 +209,7 @@ export default class Piece implements ISerializablePiece {
 
   private drawSelectionOutline() {
     const { top, right, bottom, left } = this.sides;
-    this.graphics.push();
-    this.graphics.translate(this.offset, this.offset);
-    this.graphics.stroke(this._isSelectedByOther ? '#CCC' : '#FFF');
-    this.graphics.strokeWeight(this.size.mag() / 80);
-    this.graphics.noFill();
+
     if (!this.connectedSides.includes(Side.Top)) {
       this.graphics.beginShape();
       this.drawOneSide(this.graphics, top);
@@ -224,66 +229,6 @@ export default class Piece implements ISerializablePiece {
       this.graphics.beginShape();
       this.drawOneSide(this.graphics, left);
       this.graphics.endShape();
-    }
-    this.graphics.pop();
-  }
-
-  private drawAccessibilityOutline() {
-    const { top, right, bottom, left } = this.sides;
-    const inset = this.size.mag() / 80; // Slightly smaller than actual piece
-    this.graphics.push();
-    this.graphics.translate(this.offset, this.offset);
-    this.graphics.stroke('#888'); // Subtle gray outline
-    this.graphics.strokeWeight(this.size.mag() / 100);
-    this.graphics.noFill();
-
-    // Draw inset outline for unconnected sides
-    if (!this.connectedSides.includes(Side.Top)) {
-      this.graphics.beginShape();
-      this.drawInsetSide(this.graphics, top, inset);
-      this.graphics.endShape();
-    }
-    if (!this.connectedSides.includes(Side.Right)) {
-      this.graphics.beginShape();
-      this.drawInsetSide(this.graphics, right, inset);
-      this.graphics.endShape();
-    }
-    if (!this.connectedSides.includes(Side.Bottom)) {
-      this.graphics.beginShape();
-      this.drawInsetSide(this.graphics, bottom, inset);
-      this.graphics.endShape();
-    }
-    if (!this.connectedSides.includes(Side.Left)) {
-      this.graphics.beginShape();
-      this.drawInsetSide(this.graphics, left, inset);
-      this.graphics.endShape();
-    }
-    this.graphics.pop();
-  }
-
-  private drawInsetSide(graphics: p5.Graphics, side: p5.Vector[], inset: number) {
-    // Create inset version of the side
-    const insetSide = side.map((point) => {
-      const fromOrigin = p5.Vector.sub(point, this.origin);
-      const normalized = fromOrigin.copy().normalize();
-      return fromOrigin.copy().sub(normalized.mult(inset));
-    });
-
-    const firstPoint = insetSide[0];
-
-    if (side.length === 2) {
-      const secondPoint = insetSide[1];
-      graphics.vertex(firstPoint.x, firstPoint.y);
-      graphics.vertex(secondPoint.x, secondPoint.y);
-      return;
-    }
-
-    graphics.vertex(firstPoint.x, firstPoint.y);
-    for (let i = 1; i < insetSide.length; i += 3) {
-      const p2 = insetSide[i];
-      const p3 = insetSide[(i + 1) % insetSide.length];
-      const p4 = insetSide[(i + 2) % insetSide.length];
-      graphics.bezierVertex(p2.x, p2.y, p3.x, p3.y, p4.x, p4.y);
     }
   }
 
