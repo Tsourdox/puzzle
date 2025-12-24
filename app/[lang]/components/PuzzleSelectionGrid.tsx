@@ -34,7 +34,16 @@ export default function PuzzleSelectionGrid({ lang }: PuzzleSelectionGridProps) 
       <SlideshowRow title={t('Cities')} searchTerm="city" lang={lang} />
       <SlideshowRow title={t('Babies')} searchTerm="babies" lang={lang} />
       <SlideshowRow title={t('Flowers')} searchTerm="flowers" lang={lang} />
-      <SlideshowRow title={t('Cartoon')} searchTerm="cartoon" lang={lang} />
+      <SlideshowRow title={t('Cars')} searchTerm="cars luxury sports" lang={lang} />
+      <SlideshowRow title={t('Architecture')} searchTerm="architecture building design" lang={lang} />
+      <SlideshowRow title={t('Coffee')} searchTerm="coffee cafe" lang={lang} />
+      <SlideshowRow title={t('Food')} searchTerm="food delicious gourmet" lang={lang} />
+      <SlideshowRow title={t('Waterfalls')} searchTerm="waterfall nature" lang={lang} />
+      <SlideshowRow title={t('Wildlife')} searchTerm="wildlife wild animals" lang={lang} />
+      <SlideshowRow title={t('Birds')} searchTerm="birds colorful" lang={lang} />
+      <SlideshowRow title={t('Outer space')} searchTerm="space galaxy stars nebula" lang={lang} />
+      <SlideshowRow title={t('Vintage')} searchTerm="vintage retro old" lang={lang} />
+      <SlideshowRow title={t('Abstract')} searchTerm="abstract colorful pattern" lang={lang} />
     </div>
   );
 }
