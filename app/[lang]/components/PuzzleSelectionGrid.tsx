@@ -1,5 +1,7 @@
+import CuratedSlideshowRow from '@/app/[lang]/components/CuratedSlideshowRow';
 import SlideshowRow from '@/app/[lang]/components/SlideshowRow';
 import { Lang, getTranslation } from '@/language';
+import { getSeasonalRows } from '@/utils/seasonalRows';
 
 interface PuzzleSelectionGridProps {
   lang: Lang;
@@ -7,9 +9,19 @@ interface PuzzleSelectionGridProps {
 
 export default function PuzzleSelectionGrid({ lang }: PuzzleSelectionGridProps) {
   const t = getTranslation(lang);
+  const seasonalRows = getSeasonalRows();
 
   return (
     <div className="flex flex-col gap-12 w-full">
+      {/* Seasonal rows based on current date */}
+      {seasonalRows.map((row) => (
+        <SlideshowRow key={row.titleKey} title={t(row.titleKey as any)} searchTerm={row.searchTerm} lang={lang} />
+      ))}
+
+      {/* Curated collection */}
+      <CuratedSlideshowRow title={t('Curated collection')} lang={lang} />
+
+      {/* Permanent categories */}
       <SlideshowRow title={t('Cats')} searchTerm="cats" lang={lang} />
       <SlideshowRow title={t('Beautiful oceans')} searchTerm="ocean landscape" lang={lang} />
       <SlideshowRow title={t('Nature')} searchTerm="nature" lang={lang} />

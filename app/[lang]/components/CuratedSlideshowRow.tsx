@@ -1,16 +1,15 @@
 import { Lang } from '@/language';
-import { searchPexelsImages } from '@/utils/pexels';
+import { getCuratedPexelsImages } from '@/utils/pexels';
 import ImageCardNewPuzzle from './ImageCardNewPuzzle';
 import ScrollBox from './ScrollBox';
 
 interface Props {
   title: string;
-  searchTerm: string;
   lang: Lang;
 }
 
-export default async function SlideshowRow({ title, searchTerm, lang }: Props) {
-  const pexelImages = await searchPexelsImages(searchTerm);
+export default async function CuratedSlideshowRow({ title, lang }: Props) {
+  const pexelImages = await getCuratedPexelsImages();
 
   // Don't render if no images were fetched
   if (pexelImages.length === 0) {
