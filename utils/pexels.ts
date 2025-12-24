@@ -60,12 +60,9 @@ export const searchPexelsImages = async (searchTerm: string): Promise<PexelsImag
     const spacing = 4; // Select every 4th image
     const allImages: PexelsImage[] = [];
 
-    // Random offset to get different images on each revalidation
-    const randomOffset = Math.floor(Math.random() * 4);
-
     // Fetch multiple pages to get variety
     const pagePromises = Array.from({ length: totalPages }, (_, i) => {
-      const query = `?query=${searchTerm}&orientation=landscape&per_page=${perPage}&page=${i + 1 + randomOffset}`;
+      const query = `?query=${searchTerm}&orientation=landscape&per_page=${perPage}&page=${i + 1}`;
       const url = `${domain}${path}${query}`;
       return fetch(url, {
         headers: { Authorization: API_KEY },
