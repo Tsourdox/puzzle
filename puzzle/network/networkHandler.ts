@@ -1,6 +1,7 @@
 import { supabase } from '@/utils/supabase';
 import type { RealtimeChannel } from '@supabase/supabase-js';
 import type Piece from '../piece';
+import { SYNC_RATE_MS } from './constants';
 import type { ISerializablePuzzle } from './types';
 
 export interface INetworkPieceData {
@@ -232,8 +233,6 @@ export default class NetworkHandler {
       .subscribe();
   }
 
-  // Fixed throttle for broadcast updates (batched, so piece count doesn't matter)
-  private readonly SYNC_THROTTLE_MS = 50; // 20Hz - fast and responsive
 
   private normalizeRotationDiff(currentRotation: number, targetRotation: number): number {
     // Calculate the shortest rotation path
@@ -538,7 +537,7 @@ export default class NetworkHandler {
 
     if (!force) {
       const now = Date.now();
-      if (now - this.lastSyncTime < this.SYNC_THROTTLE_MS) return;
+      if (now - this.lastSyncTime < SYNC_RATE_MS) return;
       this.lastSyncTime = now;
     }
 

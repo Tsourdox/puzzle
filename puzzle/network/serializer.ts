@@ -1,4 +1,5 @@
 import ClientDB from './clientDB';
+import { INDEXEDDB_SAVE_RATE_MS } from './constants';
 import {
   IDeserializedPieceData,
   IGraphData,
@@ -6,8 +7,6 @@ import {
   ISerializableGraph,
   ISerializablePuzzle,
 } from './types';
-
-export const NETWORK_TIMEOUT = 100; //ms
 
 export default class NetworkSerializer {
   private puzzle: ISerializablePuzzle;
@@ -20,7 +19,7 @@ export default class NetworkSerializer {
     this.puzzle = puzzle;
     this.graph = graph;
     this._roomCode = roomCode;
-    this.sendTimeout = NETWORK_TIMEOUT;
+    this.sendTimeout = INDEXEDDB_SAVE_RATE_MS;
     this.clientDB = new ClientDB(roomCode);
   }
 
@@ -35,7 +34,7 @@ export default class NetworkSerializer {
     // }
 
     if (this.sendTimeout <= 0) {
-      this.sendTimeout = NETWORK_TIMEOUT;
+      this.sendTimeout = INDEXEDDB_SAVE_RATE_MS;
       if (this.graph.isModified) {
         this.saveGraphDataToClientDB();
       }

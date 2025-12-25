@@ -1,5 +1,5 @@
 import p5 from 'p5';
-import { NETWORK_TIMEOUT } from './network/serializer';
+import { LERP_DURATION_MS } from './network/constants';
 import {
   IDeserializeOptions,
   IDeserializedPieceData,
@@ -7,7 +7,6 @@ import {
   ISerializedPieceData,
 } from './network/types';
 import { getAverageCenter, rotatePointAroundCenter, toPoint, toVector } from './utils/general';
-import { settings } from './utils/settings';
 
 export interface Sides {
   top: p5.Vector[];
@@ -43,6 +42,7 @@ export default class Piece implements ISerializablePiece {
   private _isSelected: boolean;
   private _isSelectedByOther: boolean;
   private graphicNeedsUpdating: boolean;
+  private readonly LERP_DELAY = LERP_DURATION_MS;
   private lerpTime: number;
   private LERP_DELAY = NETWORK_TIMEOUT * 3;
 
