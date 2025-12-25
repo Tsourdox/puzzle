@@ -13,9 +13,12 @@ export interface PexelsImage {
   };
 }
 
-export const getPexelsImage = async (id: string) => {
+export const getPexelsImage = async (id: string | number) => {
+  // Convert to string if needed (Pexels IDs can be numbers)
+  const imageId = String(id);
+
   // Check if this is a custom uploaded image
-  if (id.startsWith('custom_')) {
+  if (imageId.startsWith('custom_')) {
     const { createClient } = await import('@supabase/supabase-js');
     const supabase = createClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -23,11 +26,11 @@ export const getPexelsImage = async (id: string) => {
     );
 
     // All custom images are converted to JPEG during upload
-    const filePath = `${id}.jpg`;
+    const filePath = `${imageId}.jpg`;
     const { data } = supabase.storage.from('puzzle-images').getPublicUrl(filePath);
 
     return {
-      id,
+      id: imageId,
       width: 1000,
       height: 1000,
       alt: 'Custom uploaded image',
@@ -40,7 +43,7 @@ export const getPexelsImage = async (id: string) => {
     } as PexelsImage;
   }
 
-  const url = `https://api.pexels.com/v1/photos/${id}`;
+  const url = `https://api.pexels.com/v1/photos/${imageId}`;
   const response = await fetch(url, {
     headers: { Authorization: API_KEY },
     cache: 'force-cache',

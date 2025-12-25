@@ -43,6 +43,7 @@ export default class Puzzle implements IPuzzle, ISerializablePuzzle {
     image: PexelsImage,
     roomCode: string,
     setShowPuzzlePieceActions: (show: boolean) => void,
+    onImageChange?: (imageId: number | string) => void,
   ) {
     this.setShowPuzzlePieceActions = setShowPuzzlePieceActions;
     this.p = p;
@@ -54,7 +55,7 @@ export default class Puzzle implements IPuzzle, ISerializablePuzzle {
     this.isModified = false;
     this.inputHandler = new InputHandler(this);
     this.networkSerializer = new NetworkSerializer(this, this.inputHandler.graphHandler, roomCode);
-    this.networkHandler = new NetworkHandler(this, roomCode, image.id);
+    this.networkHandler = new NetworkHandler(this, roomCode, image.id, onImageChange);
     const { selectionHandler, transformHandler } = this.inputHandler;
     this.pieceConnector = new PieceConnector(
       this,
@@ -127,6 +128,9 @@ export default class Puzzle implements IPuzzle, ISerializablePuzzle {
     }
 
     this.inputHandler.graphHandler.zoomHome();
+
+    // Update NetworkHandler's target image ID to prevent false mismatch detection
+    this.networkHandler.updateTargetImageId(this.imageData.id);
 
     // Save to both IndexedDB and Supabase
     await this.networkSerializer.saveInitialData();

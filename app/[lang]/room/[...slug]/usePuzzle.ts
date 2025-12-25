@@ -7,6 +7,7 @@ import { PexelsImage } from '@/utils/pexels';
 import { preventDefaultEvents } from '@/utils/preventEvents';
 import { Size } from '@/utils/sizes';
 import { useAtomValue, useSetAtom } from 'jotai';
+import { useRouter, usePathname } from 'next/navigation';
 import p5 from 'p5';
 import { RefObject, WheelEvent, useEffect, useRef } from 'react';
 
@@ -33,6 +34,8 @@ export interface PuzzleActions {
 export default function usePuzzle({ containerRef, onReady, image, size, roomCode, lang }: Props) {
   const setShowPuzzlePieceActions = useSetAtom(showPuzzlePieceActionsAtom);
   const reactSettings = useAtomValue(settingsAtom);
+  const router = useRouter();
+  const pathname = usePathname();
   const puzzleRef = useRef<Puzzle | null>(null);
   const actionsRef = useRef<PuzzleActions>({
     zoomIn: () => puzzleRef.current?.zoomIn(),
@@ -71,7 +74,24 @@ export default function usePuzzle({ containerRef, onReady, image, size, roomCode
         p.createCanvas(width, height);
         p.frameRate(90);
 
-        puzzle = new Puzzle(p, size, image, roomCode, setShowPuzzlePieceActions);
+        // Callback for when another player changes the puzzle image
+        const handleImageChange = (newImageId: number | string) => {
+          // Stop the draw loop immediately to freeze the puzzle and prevent piece snapping
+          p.noLoop();
+
+          // Navigate to the new image URL using Next.js router (smooth client-side transition)
+          const pathParts = pathname.split('/');
+          if (pathParts.length === 4) {
+            // Format: /[lang]/room/[code] - add image ID
+            router.push(`${pathname}/${newImageId}`);
+          } else {
+            // Format: /[lang]/room/[code]/[oldImageId] - replace image ID
+            pathParts[pathParts.length - 1] = String(newImageId);
+            router.push(pathParts.join('/'));
+          }
+        };
+
+        puzzle = new Puzzle(p, size, image, roomCode, setShowPuzzlePieceActions, handleImageChange);
         puzzleRef.current = puzzle;
         puzzle
           .tryLoadPuzzle()

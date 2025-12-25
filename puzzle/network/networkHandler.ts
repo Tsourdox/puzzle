@@ -19,6 +19,27 @@ export interface INetworkSelectionData {
   piece_ids: number[];
 }
 
+// Broadcast message types (batched real-time updates)
+export interface IBroadcastPieceUpdate {
+  type: 'piece_batch';
+  user_id: string;
+  image_id: number | string; // To detect when sender has a different puzzle
+  pieces: Array<{
+    piece_id: number;
+    x: number;
+    y: number;
+    rotation: number;
+    connected_sides: number[];
+    elevation: number;
+  }>;
+}
+
+export interface IBroadcastSelectionUpdate {
+  type: 'selection';
+  user_id: string;
+  piece_ids: number[];
+}
+
 export default class NetworkHandler {
   private puzzle: ISerializablePuzzle;
   private roomCode: string;
@@ -32,13 +53,29 @@ export default class NetworkHandler {
   private currentSelections: Map<string, number[]> = new Map(); // userId -> pieceIds
   private selectionIdToUser: Map<number, string> = new Map(); // selection id -> userId
 
-  constructor(puzzle: ISerializablePuzzle, roomCode: string, targetImageId: number | string) {
+  // Receiver-side throttling to batch incoming updates
+  private pendingPieceUpdates: Map<number, INetworkPieceData> = new Map(); // pieceId -> latest data
+  private updateFlushTimer?: NodeJS.Timeout;
+  private readonly UPDATE_FLUSH_INTERVAL = 50; // Apply batched updates every 50ms
+
+  // Callback for when the puzzle image changes (so we can update without reloading)
+  private onImageChange?: (imageId: number | string) => void;
+  // Flag to prevent processing updates when transitioning to a new puzzle
+  private isChangingImage = false;
+
+  constructor(
+    puzzle: ISerializablePuzzle,
+    roomCode: string,
+    targetImageId: number | string,
+    onImageChange?: (imageId: number | string) => void,
+  ) {
     this.puzzle = puzzle;
     this.roomCode = roomCode;
     this.targetImageId = targetImageId;
     this.userId = this.generateUserId();
     this.isInitialized = false;
     this.lastSyncTime = 0;
+    this.onImageChange = onImageChange;
   }
 
   private generateUserId(): string {
@@ -163,31 +200,23 @@ export default class NetworkHandler {
 
   private subscribeToUpdates(): void {
     this.channel = supabase
-      .channel(`room:${this.roomCode}`)
-      .on(
-        'postgres_changes',
-        {
-          event: '*',
-          schema: 'public',
-          table: 'pieces',
-          filter: `room_code=eq.${this.roomCode}`,
+      .channel(`room:${this.roomCode}`, {
+        config: {
+          broadcast: { self: false }, // Don't receive our own broadcasts
         },
-        (payload) => {
-          this.handlePieceUpdate(payload);
-        },
-      )
-      .on(
-        'postgres_changes',
-        {
-          event: '*',
-          schema: 'public',
-          table: 'selections',
-          filter: `room_code=eq.${this.roomCode}`,
-        },
-        (payload) => {
-          this.handleSelectionUpdate(payload);
-        },
-      )
+      })
+      // Broadcast events for real-time updates (fast, batched)
+      .on('broadcast', { event: 'piece_update' }, (payload) => {
+        this.handleBroadcastPieceUpdate(payload.payload as IBroadcastPieceUpdate);
+      })
+      .on('broadcast', { event: 'selection_update' }, (payload) => {
+        this.handleBroadcastSelectionUpdate(payload.payload as IBroadcastSelectionUpdate);
+      })
+      // Only subscribe to room changes (image updates)
+      // NOTE: We DON'T subscribe to postgres_changes for pieces/selections anymore
+      // because they arrive delayed (200-500ms) and cause pieces to jump back
+      // after broadcast updates. Broadcast is the source of truth for real-time.
+      // Postgres is only for persistence (initial load when joining).
       .on(
         'postgres_changes',
         {
@@ -222,6 +251,89 @@ export default class NetworkHandler {
     return currentRotation + diff;
   }
 
+  // Broadcast handlers (batched real-time updates)
+  private handleBroadcastPieceUpdate(payload: IBroadcastPieceUpdate): void {
+    if (!payload || payload.user_id === this.userId) return;
+
+    // Image mismatch detection - if sender has a different puzzle, trigger image change
+    if (payload.image_id && String(payload.image_id) !== String(this.targetImageId)) {
+      if (!this.isChangingImage) {
+        console.log(
+          `[NetworkHandler] Image mismatch detected: sender has ${payload.image_id}, we have ${this.targetImageId}`,
+        );
+        this.isChangingImage = true;
+
+        // Trigger image change callback
+        if (this.onImageChange) {
+          this.onImageChange(payload.image_id);
+        }
+      }
+      // Ignore updates from different puzzle
+      return;
+    }
+
+    // Ignore updates if we're transitioning to a new puzzle
+    if (this.isChangingImage) return;
+
+    // Apply all pieces in the batch immediately (already batched by sender)
+    for (const pieceData of payload.pieces) {
+      const piece = this.puzzle.pieces[pieceData.piece_id] as Piece;
+      if (!piece) continue;
+
+      // Normalize rotation to take shortest path (prevent 350° -> 10° going the long way)
+      const currentRotation = piece.rotation;
+      const normalizedRotation = this.normalizeRotationDiff(currentRotation, pieceData.rotation);
+
+      // Lerp remote updates for smooth animation
+      piece.deserialize(
+        {
+          id: pieceData.piece_id,
+          translation: { x: pieceData.x, y: pieceData.y },
+          rotation: normalizedRotation,
+          connectedSides: pieceData.connected_sides,
+          elevation: pieceData.elevation,
+          isSelectedByOther: piece.isSelectedByOther, // Preserve selection state
+        },
+        { lerp: true },
+      );
+    }
+  }
+
+  private handleBroadcastSelectionUpdate(payload: IBroadcastSelectionUpdate): void {
+    if (!payload || payload.user_id === this.userId) return;
+    // Ignore updates if we're transitioning to a new puzzle
+    if (this.isChangingImage) return;
+
+    const userId = payload.user_id;
+    const newPieceIds = payload.piece_ids || [];
+
+    // Clear old selections for this user
+    const oldSelections = this.currentSelections.get(userId) || [];
+    oldSelections.forEach((pieceId) => {
+      if (!newPieceIds.includes(pieceId)) {
+        const piece = this.puzzle.pieces[pieceId] as Piece;
+        if (piece) {
+          piece.setSelectedByOther(false);
+        }
+      }
+    });
+
+    // Apply new selections
+    if (newPieceIds.length > 0) {
+      newPieceIds.forEach((pieceId) => {
+        const piece = this.puzzle.pieces[pieceId] as Piece;
+        if (piece) {
+          piece.setSelectedByOther(true);
+        }
+      });
+      this.currentSelections.set(userId, newPieceIds);
+    } else {
+      // Clear all selections for this user
+      this.currentSelections.delete(userId);
+    }
+  }
+
+  // Postgres handlers (fallback for late joiners, kept for persistence)
   private handlePieceUpdate(payload: any): void {
     const pieceData = payload.new as INetworkPieceData;
     if (!pieceData) return;
@@ -229,25 +341,47 @@ export default class NetworkHandler {
     // Ignore our own updates (prevent echo/bounce)
     if (pieceData.updated_by === this.userId) return;
 
-    const piece = this.puzzle.pieces[pieceData.piece_id] as Piece;
-    if (!piece) return;
+    // Queue the update instead of applying immediately
+    // This allows us to batch hundreds of rapid updates into one application
+    this.pendingPieceUpdates.set(pieceData.piece_id, pieceData);
 
-    // Normalize rotation to take shortest path (prevent 350° -> 10° going the long way)
-    const currentRotation = piece.rotation;
-    const normalizedRotation = this.normalizeRotationDiff(currentRotation, pieceData.rotation);
+    // Schedule a flush if not already scheduled
+    if (!this.updateFlushTimer) {
+      this.updateFlushTimer = setTimeout(() => {
+        this.flushPendingUpdates();
+      }, this.UPDATE_FLUSH_INTERVAL);
+    }
+  }
 
-    // Lerp remote updates for smooth animation
-    piece.deserialize(
-      {
-        id: pieceData.piece_id,
-        translation: { x: pieceData.x, y: pieceData.y },
-        rotation: normalizedRotation,
-        connectedSides: pieceData.connected_sides,
-        elevation: pieceData.elevation,
-        isSelectedByOther: piece.isSelectedByOther, // Preserve selection state
-      },
-      { lerp: true },
-    );
+  private flushPendingUpdates(): void {
+    // Clear the timer
+    this.updateFlushTimer = undefined;
+
+    // Apply all pending updates in batch
+    for (const [pieceId, pieceData] of this.pendingPieceUpdates) {
+      const piece = this.puzzle.pieces[pieceId] as Piece;
+      if (!piece) continue;
+
+      // Normalize rotation to take shortest path (prevent 350° -> 10° going the long way)
+      const currentRotation = piece.rotation;
+      const normalizedRotation = this.normalizeRotationDiff(currentRotation, pieceData.rotation);
+
+      // Lerp remote updates for smooth animation
+      piece.deserialize(
+        {
+          id: pieceData.piece_id,
+          translation: { x: pieceData.x, y: pieceData.y },
+          rotation: normalizedRotation,
+          connectedSides: pieceData.connected_sides,
+          elevation: pieceData.elevation,
+          isSelectedByOther: piece.isSelectedByOther, // Preserve selection state
+        },
+        { lerp: true },
+      );
+    }
+
+    // Clear the queue
+    this.pendingPieceUpdates.clear();
   }
 
   private getUserColor(userId: string): string {
@@ -333,9 +467,26 @@ export default class NetworkHandler {
     // Handle INSERT or UPDATE events (new puzzle created or changed)
     if ((payload.eventType === 'INSERT' || payload.eventType === 'UPDATE') && payload.new) {
       const newImageId = payload.new.puzzle_data?.imageData?.id;
-      if (newImageId && newImageId !== this.targetImageId) {
-        // Navigate to the new puzzle URL instead of reloading
-        this.navigateToNewPuzzle(newImageId);
+      if (newImageId && String(newImageId) !== String(this.targetImageId)) {
+        // Only trigger if not already changing (might have been triggered by broadcast)
+        if (!this.isChangingImage) {
+          console.log(
+            `[NetworkHandler] Room update detected: image changed from ${this.targetImageId} to ${newImageId}`,
+          );
+          // Image changed - stop processing updates to prevent piece snapping
+          this.isChangingImage = true;
+
+          // Trigger callback to update client-side
+          if (this.onImageChange) {
+            // Use callback for smooth client-side update (no reload)
+            this.onImageChange(newImageId);
+          } else {
+            // Fallback: navigate/reload (old behavior)
+            setTimeout(() => {
+              this.navigateToNewPuzzle(newImageId);
+            }, 500);
+          }
+        }
       }
     }
   }
@@ -343,9 +494,27 @@ export default class NetworkHandler {
   private navigateToNewPuzzle(newImageId: number | string): void {
     // Get current pathname and replace the image ID (last segment) with the new one
     const pathParts = window.location.pathname.split('/');
-    pathParts[pathParts.length - 1] = String(newImageId);
-    const newPath = pathParts.join('/');
-    window.location.href = newPath;
+
+    // Handle both formats: /[lang]/room/[code] and /[lang]/room/[code]/[imageId]
+    if (pathParts.length >= 4) {
+      // Replace or add the image ID as the last segment
+      if (pathParts.length === 4) {
+        // Format: /[lang]/room/[code] - add image ID
+        pathParts.push(String(newImageId));
+      } else {
+        // Format: /[lang]/room/[code]/[oldImageId] - replace image ID
+        pathParts[pathParts.length - 1] = String(newImageId);
+      }
+      const newPath = pathParts.join('/');
+      window.location.href = newPath;
+    } else {
+      // Fallback: just reload the page
+      window.location.reload();
+    }
+  }
+
+  public updateTargetImageId(newImageId: number | string): void {
+    this.targetImageId = newImageId;
   }
 
   private lastSelectionSync: number[] = [];
@@ -367,7 +536,7 @@ export default class NetworkHandler {
   }
 
   public async syncPieces(pieces: Piece[], force = false): Promise<void> {
-    if (!this.isInitialized) return;
+    if (!this.isInitialized || !this.channel) return;
 
     // Get modified pieces first to calculate adaptive throttle
     const modifiedPieces = pieces.filter((p) => p.isModified);
@@ -396,11 +565,39 @@ export default class NetworkHandler {
     });
 
     try {
-      await supabase.from('pieces').upsert(updates, {
-        onConflict: 'room_code,piece_id',
+      // Send broadcast first (real-time, fast)
+      const broadcastPayload: IBroadcastPieceUpdate = {
+        type: 'piece_batch',
+        user_id: this.userId,
+        image_id: this.targetImageId, // Include image ID to detect mismatches
+        pieces: updates.map((u) => ({
+          piece_id: u.piece_id,
+          x: u.x,
+          y: u.y,
+          rotation: u.rotation,
+          connected_sides: u.connected_sides,
+          elevation: u.elevation,
+        })),
+      };
+
+      await this.channel.send({
+        type: 'broadcast',
+        event: 'piece_update',
+        payload: broadcastPayload,
       });
 
-      // Mark pieces as synced
+      // Then persist to DB (slower, but needed for late joiners)
+      // Use fire-and-forget to avoid blocking on DB writes
+      supabase
+        .from('pieces')
+        .upsert(updates, {
+          onConflict: 'room_code,piece_id',
+        })
+        .then(({ error }) => {
+          if (error) console.error('Failed to persist pieces to DB:', error);
+        });
+
+      // Mark pieces as synced immediately after broadcast
       modifiedPieces.forEach((p) => (p.isModified = false));
     } catch (error) {
       console.error('Failed to sync pieces:', error);
@@ -408,28 +605,50 @@ export default class NetworkHandler {
   }
 
   public async syncSelection(pieceIds: number[]): Promise<void> {
-    if (!this.isInitialized) return;
+    if (!this.isInitialized || !this.channel) return;
 
     try {
+      // Send broadcast first (real-time)
+      const broadcastPayload: IBroadcastSelectionUpdate = {
+        type: 'selection',
+        user_id: this.userId,
+        piece_ids: pieceIds,
+      };
+
+      await this.channel.send({
+        type: 'broadcast',
+        event: 'selection_update',
+        payload: broadcastPayload,
+      });
+
+      // Then persist to DB (fire-and-forget)
       if (pieceIds.length === 0) {
         // Clear selection
-        await supabase
+        supabase
           .from('selections')
           .delete()
           .eq('room_code', this.roomCode)
-          .eq('user_id', this.userId);
+          .eq('user_id', this.userId)
+          .then(({ error }) => {
+            if (error) console.error('Failed to clear selection in DB:', error);
+          });
       } else {
         // Update selection
-        await supabase.from('selections').upsert(
-          {
-            room_code: this.roomCode,
-            user_id: this.userId,
-            piece_ids: pieceIds,
-          },
-          {
-            onConflict: 'room_code,user_id',
-          },
-        );
+        supabase
+          .from('selections')
+          .upsert(
+            {
+              room_code: this.roomCode,
+              user_id: this.userId,
+              piece_ids: pieceIds,
+            },
+            {
+              onConflict: 'room_code,user_id',
+            },
+          )
+          .then(({ error }) => {
+            if (error) console.error('Failed to persist selection to DB:', error);
+          });
       }
     } catch (error) {
       console.error('Failed to sync selection:', error);
@@ -462,6 +681,12 @@ export default class NetworkHandler {
   public cleanup(): void {
     if (this.channel) {
       supabase.removeChannel(this.channel);
+    }
+
+    // Clear pending update timer
+    if (this.updateFlushTimer) {
+      clearTimeout(this.updateFlushTimer);
+      this.updateFlushTimer = undefined;
     }
 
     // Clear selection on cleanup
