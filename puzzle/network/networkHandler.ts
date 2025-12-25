@@ -232,13 +232,8 @@ export default class NetworkHandler {
       .subscribe();
   }
 
-  private getAdaptiveThrottle(modifiedCount: number): number {
-    // Adaptive throttling based on number of pieces being synced
-    // More pieces = slower sync rate to reduce database/network load
-    if (modifiedCount < 50) return 50; // 20Hz - fast updates for small changes
-    if (modifiedCount < 200) return 100; // 10Hz - medium updates
-    return 200; // 5Hz - slow updates for large islands (200+ pieces)
-  }
+  // Fixed throttle for broadcast updates (batched, so piece count doesn't matter)
+  private readonly SYNC_THROTTLE_MS = 50; // 20Hz - fast and responsive
 
   private normalizeRotationDiff(currentRotation: number, targetRotation: number): number {
     // Calculate the shortest rotation path
@@ -538,15 +533,12 @@ export default class NetworkHandler {
   public async syncPieces(pieces: Piece[], force = false): Promise<void> {
     if (!this.isInitialized || !this.channel) return;
 
-    // Get modified pieces first to calculate adaptive throttle
     const modifiedPieces = pieces.filter((p) => p.isModified);
     if (modifiedPieces.length === 0) return;
 
-    // Adaptive throttling (unless forced) - slower sync for larger updates
     if (!force) {
-      const throttle = this.getAdaptiveThrottle(modifiedPieces.length);
       const now = Date.now();
-      if (now - this.lastSyncTime < throttle) return;
+      if (now - this.lastSyncTime < this.SYNC_THROTTLE_MS) return;
       this.lastSyncTime = now;
     }
 
