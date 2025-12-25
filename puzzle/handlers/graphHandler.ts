@@ -125,6 +125,13 @@ export default class GraphHandler implements IGraph, ISerializableGraph {
     this.setScale(scale, this.getHomeTranslation(scale));
   }
 
+  public screenToWorld(screenX: number, screenY: number): p5.Vector {
+    // Convert screen coordinates to world coordinates (accounting for pan/zoom)
+    const worldX = (screenX - this._translation.x * this.scale) / this.scale;
+    const worldY = (screenY - this._translation.y * this.scale) / this.scale;
+    return this.puzzle.p.createVector(worldX, worldY);
+  }
+
   private handleTranslation(prevMouse: p5.Vector, prevTouches: Touches) {
     const { p } = this.puzzle;
     // Touch

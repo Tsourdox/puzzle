@@ -8,3 +8,12 @@ export const LERP_DURATION_MS = 100;
 
 /** How often to persist state to local IndexedDB, just for rejoining */
 export const INDEXEDDB_SAVE_RATE_MS = 200;
+
+/** How often to broadcast cursor position to other players (10Hz = 100ms) */
+export const CURSOR_UPDATE_RATE_MS = 100;
+
+/** How long to animate cursor movement */
+export const CURSOR_LERP_DURATION_MS = 200;
+
+/** How long before a remote cursor fades out due to inactivity (5 seconds) */
+export const CURSOR_INACTIVE_TIMEOUT_MS = 5000;

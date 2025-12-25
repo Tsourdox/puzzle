@@ -2,6 +2,7 @@ import { PexelsImage } from '@/utils/pexels';
 import { Size } from '@/utils/sizes';
 import p5 from 'p5';
 import InputHandler from './handlers/inputHandler';
+import { CURSOR_INACTIVE_TIMEOUT_MS } from './network/constants';
 import NetworkHandler from './network/networkHandler';
 import NetworkSerializer from './network/serializer';
 import { IDeserializeOptions, IPuzzleData, ISerializablePuzzle } from './network/types';
@@ -201,6 +202,14 @@ export default class Puzzle implements IPuzzle, ISerializablePuzzle {
     this.networkSerializer.update(this.p.deltaTime);
     this.networkHandler.syncPieces(this.pieces as Piece[]);
     this.networkHandler.syncSelections(this.selectedPieces);
+
+    // Broadcast cursor position in world coordinates
+    const worldPos = this.inputHandler.graphHandler.screenToWorld(this.p.mouseX, this.p.mouseY);
+    this.networkHandler.syncCursorPosition(worldPos.x, worldPos.y);
+
+    // Update remote cursor lerping
+    this.networkHandler.updateCursors(this.p.deltaTime);
+
     this.inputHandler.update(scrollDelta);
     this.pieceConnector.update();
     for (const piece of this.pieces) {
@@ -217,12 +226,72 @@ export default class Puzzle implements IPuzzle, ISerializablePuzzle {
     this.drawPieces();
     this.p.pop();
 
+    // Draw cursors in screen space (after pop) so they don't scale with world zoom
+    this.drawRemoteCursors();
+
     this.inputHandler.draw();
   }
 
   private drawPieces() {
     for (const piece of sortPieces(this.pieces)) {
       piece.draw();
+    }
+  }
+
+  private drawRemoteCursors() {
+    const remoteCursors = this.networkHandler.getRemoteCursors();
+    const now = Date.now();
+    const scale = this.inputHandler.graphHandler.scale;
+    const translation = this.inputHandler.graphHandler.translation;
+
+    for (const [userId, cursor] of remoteCursors) {
+      // Skip cursors that haven't been updated recently (user idle or left)
+      if (now - cursor.lastUpdate > CURSOR_INACTIVE_TIMEOUT_MS) {
+        continue;
+      }
+
+      // Convert world coordinates to screen coordinates
+      const screenX = (cursor.x + translation.x) * scale;
+      const screenY = (cursor.y + translation.y) * scale;
+
+      // Draw mouse pointer icon (40% smaller)
+      this.p.push();
+      this.p.translate(screenX, screenY);
+      this.p.strokeJoin(this.p.ROUND);
+
+      const vertices = {
+        tip: [0, 0],
+        leftBottom: [0, 14.7],
+        notchStart: [3.6, 12],
+        handleBottomLeft: [6, 18],
+        handleBottom1: [6.9, 18.5],
+        handleBottom2: [8.16, 18],
+        handleBottomRight: [8.4, 17],
+        notchEnd: [6.12, 11],
+        rightPoint: [10.9, 10.8],
+      };
+
+      // White outline for visibility
+      this.p.fill(255);
+      this.p.stroke(255);
+      this.p.strokeWeight(3);
+      this.p.beginShape();
+      for (const [x, y] of Object.values(vertices)) {
+        this.p.vertex(x, y);
+      }
+      this.p.endShape(this.p.CLOSE);
+
+      // Colored pointer with black outline
+      this.p.fill(cursor.color);
+      this.p.stroke(0);
+      this.p.strokeWeight(1.2);
+      this.p.beginShape();
+      for (const [x, y] of Object.values(vertices)) {
+        this.p.vertex(x, y);
+      }
+      this.p.endShape(this.p.CLOSE);
+
+      this.p.pop();
     }
   }
 

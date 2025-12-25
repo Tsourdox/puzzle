@@ -44,7 +44,6 @@ export default class Piece implements ISerializablePiece {
   private graphicNeedsUpdating: boolean;
   private readonly LERP_DELAY = LERP_DURATION_MS;
   private lerpTime: number;
-  private LERP_DELAY = NETWORK_TIMEOUT * 3;
 
   constructor(
     p: p5,
@@ -167,15 +166,15 @@ export default class Piece implements ISerializablePiece {
 
     if (this.isSelected) {
       this.graphics.stroke('#FFF');
-      this.graphics.strokeWeight(this.size.mag() / 80);
+      this.graphics.strokeWeight(this.size.mag() / 100);
       this.drawSelectionOutline();
     } else if (this._isSelectedByOther) {
       this.graphics.stroke('#FF0');
-      this.graphics.strokeWeight(this.size.mag() / 100);
+      this.graphics.strokeWeight(this.size.mag() / 120);
       this.drawSelectionOutline();
     } else {
       this.graphics.stroke('#000');
-      this.graphics.strokeWeight(this.size.mag() / 130);
+      this.graphics.strokeWeight(this.size.mag() / 140);
       this.drawSelectionOutline();
     }
     this.graphics.pop();

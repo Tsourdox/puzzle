@@ -1,7 +1,7 @@
 import { supabase } from '@/utils/supabase';
 import type { RealtimeChannel } from '@supabase/supabase-js';
 import type Piece from '../piece';
-import { SYNC_RATE_MS } from './constants';
+import { CURSOR_LERP_DURATION_MS, CURSOR_UPDATE_RATE_MS, SYNC_RATE_MS } from './constants';
 import type { ISerializablePuzzle } from './types';
 
 export interface INetworkPieceData {
@@ -41,6 +41,24 @@ export interface IBroadcastSelectionUpdate {
   piece_ids: number[];
 }
 
+export interface IBroadcastCursorUpdate {
+  type: 'cursor';
+  user_id: string;
+  x: number;
+  y: number;
+  timestamp: number;
+}
+
+export interface IRemoteCursor {
+  x: number;
+  y: number;
+  nextX: number;
+  nextY: number;
+  lerpTime: number;
+  lastUpdate: number;
+  color: string;
+}
+
 export default class NetworkHandler {
   private puzzle: ISerializablePuzzle;
   private roomCode: string;
@@ -49,10 +67,12 @@ export default class NetworkHandler {
   private channel?: RealtimeChannel;
   private isInitialized: boolean;
   private lastSyncTime: number;
+  private lastCursorSyncTime: number = 0;
   private userColors: Map<string, string> = new Map();
   private availableColors = ['#ef4444', '#3b82f6', '#10b981', '#a855f7', '#f59e0b', '#ec4899'];
   private currentSelections: Map<string, number[]> = new Map(); // userId -> pieceIds
   private selectionIdToUser: Map<number, string> = new Map(); // selection id -> userId
+  private remoteCursors: Map<string, IRemoteCursor> = new Map(); // userId -> cursor data
 
   // Receiver-side throttling to batch incoming updates
   private pendingPieceUpdates: Map<number, INetworkPieceData> = new Map(); // pieceId -> latest data
@@ -213,6 +233,9 @@ export default class NetworkHandler {
       .on('broadcast', { event: 'selection_update' }, (payload) => {
         this.handleBroadcastSelectionUpdate(payload.payload as IBroadcastSelectionUpdate);
       })
+      .on('broadcast', { event: 'cursor_update' }, (payload) => {
+        this.handleBroadcastCursorUpdate(payload.payload as IBroadcastCursorUpdate);
+      })
       // Only subscribe to room changes (image updates)
       // NOTE: We DON'T subscribe to postgres_changes for pieces/selections anymore
       // because they arrive delayed (200-500ms) and cause pieces to jump back
@@ -327,6 +350,36 @@ export default class NetworkHandler {
     }
   }
 
+  private handleBroadcastCursorUpdate(payload: IBroadcastCursorUpdate): void {
+    if (!payload || payload.user_id === this.userId) return;
+    // Ignore updates if we're transitioning to a new puzzle
+    if (this.isChangingImage) return;
+
+    const userId = payload.user_id;
+    const color = this.getUserColor(userId);
+
+    const existingCursor = this.remoteCursors.get(userId);
+
+    if (existingCursor) {
+      // Update existing cursor with lerp
+      existingCursor.nextX = payload.x;
+      existingCursor.nextY = payload.y;
+      existingCursor.lerpTime = 0;
+      existingCursor.lastUpdate = payload.timestamp;
+    } else {
+      // Create new cursor (no lerp on first appearance)
+      this.remoteCursors.set(userId, {
+        x: payload.x,
+        y: payload.y,
+        nextX: payload.x,
+        nextY: payload.y,
+        lerpTime: CURSOR_LERP_DURATION_MS, // Start fully lerped
+        lastUpdate: payload.timestamp,
+        color,
+      });
+    }
+  }
+
   // Postgres handlers (fallback for late joiners, kept for persistence)
   private handlePieceUpdate(payload: any): void {
     const pieceData = payload.new as INetworkPieceData;
@@ -378,12 +431,28 @@ export default class NetworkHandler {
     this.pendingPieceUpdates.clear();
   }
 
-  private getUserColor(userId: string): string {
+  public getUserColor(userId: string): string {
     if (!this.userColors.has(userId)) {
       const colorIndex = this.userColors.size % this.availableColors.length;
       this.userColors.set(userId, this.availableColors[colorIndex]);
     }
     return this.userColors.get(userId)!;
+  }
+
+  public getRemoteCursors(): Map<string, IRemoteCursor> {
+    return this.remoteCursors;
+  }
+
+  public updateCursors(deltaTime: number): void {
+    // Update lerp for all remote cursors
+    for (const cursor of this.remoteCursors.values()) {
+      if (cursor.lerpTime < CURSOR_LERP_DURATION_MS) {
+        cursor.lerpTime += deltaTime;
+        const t = Math.min(1, cursor.lerpTime / CURSOR_LERP_DURATION_MS);
+        cursor.x = cursor.x + (cursor.nextX - cursor.x) * t;
+        cursor.y = cursor.y + (cursor.nextY - cursor.y) * t;
+      }
+    }
   }
 
   private handleSelectionUpdate(payload: any): void {
@@ -643,6 +712,33 @@ export default class NetworkHandler {
       }
     } catch (error) {
       console.error('Failed to sync selection:', error);
+    }
+  }
+
+  public async syncCursorPosition(x: number, y: number): Promise<void> {
+    if (!this.isInitialized || !this.channel) return;
+
+    // Throttle cursor updates
+    const now = Date.now();
+    if (now - this.lastCursorSyncTime < CURSOR_UPDATE_RATE_MS) return;
+    this.lastCursorSyncTime = now;
+
+    try {
+      const broadcastPayload: IBroadcastCursorUpdate = {
+        type: 'cursor',
+        user_id: this.userId,
+        x,
+        y,
+        timestamp: now,
+      };
+
+      await this.channel.send({
+        type: 'broadcast',
+        event: 'cursor_update',
+        payload: broadcastPayload,
+      });
+    } catch (error) {
+      console.error('Failed to sync cursor position:', error);
     }
   }
 
