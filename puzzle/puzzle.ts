@@ -11,6 +11,7 @@ import PieceConnector from './pieceConnector';
 import PiecesFactory from './piecesFactory';
 import { toPoint } from './utils/general';
 import { sortPieces } from './utils/pieces';
+import { settings } from './utils/settings';
 
 export interface IPuzzle {
   p: p5;
@@ -248,6 +249,11 @@ export default class Puzzle implements IPuzzle, ISerializablePuzzle {
   }
 
   private drawRemoteCursors() {
+    // Check if user wants to hide multiplayer cursors
+    if (settings['dölj multiplayer-muspekare']) {
+      return;
+    }
+
     const remoteCursors = this.networkHandler.getRemoteCursors();
     const now = Date.now();
     const scale = this.inputHandler.graphHandler.scale;
@@ -273,14 +279,14 @@ export default class Puzzle implements IPuzzle, ISerializablePuzzle {
 
       const vertices = {
         tip: [0, 0],
-        leftBottom: [0, 14.7],
-        notchStart: [3.6, 12],
-        handleBottomLeft: [6, 18],
-        handleBottom1: [6.9, 18.5],
-        handleBottom2: [8.16, 18],
-        handleBottomRight: [8.4, 17],
-        notchEnd: [6.12, 11],
-        rightPoint: [10.9, 10.8],
+        leftBottom: [0, 11.76],
+        notchStart: [2.88, 9.6],
+        handleBottomLeft: [4.8, 14.4],
+        handleBottom1: [5.52, 14.8],
+        handleBottom2: [6.53, 14.4],
+        handleBottomRight: [6.72, 13.6],
+        notchEnd: [4.9, 8.8],
+        rightPoint: [8.72, 8.64],
       };
 
       // White outline for visibility

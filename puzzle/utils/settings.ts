@@ -10,6 +10,7 @@ export interface ISettingsMap {
   'visa fps räknare': number;
   'invertera zoom': number;
   'dölj pusselknappar': number;
+  'dölj multiplayer-muspekare': number;
   bakgrundsfärg: number;
   'koppla om bitar': number;
 }
@@ -26,6 +27,7 @@ export const settings: ISettingsMap = {
   'invertera zoom': 0,
   'visa fps räknare': 0,
   'dölj pusselknappar': 0,
+  'dölj multiplayer-muspekare': 0,
   bakgrundsfärg: 40,
 };
 

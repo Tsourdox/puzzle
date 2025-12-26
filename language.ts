@@ -291,6 +291,13 @@ const translations = {
     de: 'Puzzle-Aktionsschaltflächen ausblenden',
     fi: 'Piilota pulman toimintopainikkeet',
   },
+  'Hide multiplayer cursors': {
+    sv: 'Dölj multiplayer-muspekare',
+    no: 'Skjul multiplayer-musepekere',
+    da: 'Skjul multiplayer-musemarkører',
+    de: 'Multiplayer-Mauszeiger ausblenden',
+    fi: 'Piilota moninpelin kursorit',
+  },
   'Show FPS counter': {
     sv: 'Visa FPS räknare',
     no: 'Vis FPS-teller',
