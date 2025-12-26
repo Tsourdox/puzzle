@@ -44,6 +44,8 @@ export default class Piece implements ISerializablePiece {
   private graphicNeedsUpdating: boolean;
   private readonly LERP_DELAY = LERP_DURATION_MS;
   private lerpTime: number;
+  private userColor: string;
+  private otherUserColor: string;
 
   constructor(
     p: p5,
@@ -71,6 +73,8 @@ export default class Piece implements ISerializablePiece {
     this.center = getAverageCenter(this.p, this.getCorners());
     this._isSelected = false;
     this._isSelectedByOther = false;
+    this.userColor = '#fff';
+    this.otherUserColor = '#fff';
     this._connectedSides = [];
     this.graphicNeedsUpdating = false;
     this.graphics = p.createGraphics(
@@ -153,6 +157,16 @@ export default class Piece implements ISerializablePiece {
     this.graphicNeedsUpdating = true;
   }
 
+  public setUserColor(color: string): void {
+    this.userColor = color;
+    this.graphicNeedsUpdating = true;
+  }
+
+  public setOtherUserColor(color: string): void {
+    this.otherUserColor = color;
+    this.graphicNeedsUpdating = true;
+  }
+
   private updateGraphics() {
     this.graphicNeedsUpdating = false;
     this.graphics.noTint();
@@ -165,11 +179,11 @@ export default class Piece implements ISerializablePiece {
     this.graphics.noFill();
 
     if (this.isSelected) {
-      this.graphics.stroke('#FFF');
+      this.graphics.stroke(this.userColor);
       this.graphics.strokeWeight(this.size.mag() / 70);
       this.drawSelectionOutline();
     } else if (this._isSelectedByOther) {
-      this.graphics.stroke('#FF0');
+      this.graphics.stroke(this.otherUserColor);
       this.graphics.strokeWeight(this.size.mag() / 80);
       this.drawSelectionOutline();
     } else {

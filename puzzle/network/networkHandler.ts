@@ -62,7 +62,6 @@ export interface IRemoteCursor {
   nextY: number;
   lerpTime: number;
   lastUpdate: number;
-  color: string;
 }
 
 export default class NetworkHandler {
@@ -75,15 +74,23 @@ export default class NetworkHandler {
   private lastSyncTime: number;
   private lastCursorSyncTime: number = 0;
   private userColors: Map<string, string> = new Map();
-  private availableColors = ['#ef4444', '#3b82f6', '#10b981', '#a855f7', '#f59e0b', '#ec4899'];
+  private availableColors = [
+    '#a855f7', // purple
+    '#3b82f6', // blue
+    '#10b981', // emerald
+    '#ef4444', // red
+    '#f59e0b', // amber
+    '#ec4899', // pink
+    '#eab308', // yellow
+    '#06b6d4', // cyan
+    '#84cc16', // lime
+    '#8b5cf6', // violet
+  ];
+  private myColor: string = '';
   private currentSelections: Map<string, number[]> = new Map(); // userId -> pieceIds
   private selectionIdToUser: Map<number, string> = new Map(); // selection id -> userId
   private remoteCursors: Map<string, IRemoteCursor> = new Map(); // userId -> cursor data
-
-  // Receiver-side throttling to batch incoming updates
-  private pendingPieceUpdates: Map<number, INetworkPieceData> = new Map(); // pieceId -> latest data
-  private updateFlushTimer?: NodeJS.Timeout;
-  private readonly UPDATE_FLUSH_INTERVAL = 50; // Apply batched updates every 50ms
+  private presenceState: Map<string, { color: string; online_at: string }> = new Map();
 
   // Callback for when the puzzle image changes (so we can update without reloading)
   private onImageChange?: (imageId: number | string) => void;
@@ -230,6 +237,7 @@ export default class NetworkHandler {
       .channel(`room:${this.roomCode}`, {
         config: {
           broadcast: { self: false }, // Don't receive our own broadcasts
+          presence: { key: this.userId },
         },
       })
       // Broadcast events for real-time updates (fast, batched)
@@ -244,6 +252,18 @@ export default class NetworkHandler {
       })
       .on('broadcast', { event: 'connection' }, (payload) => {
         this.handleBroadcastConnection(payload.payload as IBroadcastConnectionUpdate);
+      })
+      // Presence tracking for user colors and online status
+      .on('presence', { event: 'sync' }, () => {
+        this.handlePresenceSync();
+      })
+      .on('presence', { event: 'join' }, ({ key, newPresences }) => {
+        console.log('User joined:', key, newPresences);
+      })
+      .on('presence', { event: 'leave' }, ({ key, leftPresences }) => {
+        console.log('User left:', key, leftPresences);
+        // Clean up cursor for departed user
+        this.remoteCursors.delete(key);
       })
       // Only subscribe to room changes (image updates)
       // NOTE: We DON'T subscribe to postgres_changes for pieces/selections anymore
@@ -262,7 +282,19 @@ export default class NetworkHandler {
           this.handleRoomUpdate(payload);
         },
       )
-      .subscribe();
+      .subscribe(async (status) => {
+        if (status === 'SUBSCRIBED') {
+          // Initial color assignment (will be refined during presence sync)
+          this.myColor = this.availableColors[0];
+
+          // Track our presence with initial color
+          await this.channel?.track({
+            user_id: this.userId,
+            color: this.myColor,
+            online_at: new Date().toISOString(),
+          });
+        }
+      });
   }
 
 
@@ -332,6 +364,7 @@ export default class NetworkHandler {
 
     const userId = payload.user_id;
     const newPieceIds = payload.piece_ids || [];
+    const userColor = this.getUserColor(userId);
 
     // Clear old selections for this user
     const oldSelections = this.currentSelections.get(userId) || [];
@@ -344,12 +377,13 @@ export default class NetworkHandler {
       }
     });
 
-    // Apply new selections
+    // Apply new selections with user's color
     if (newPieceIds.length > 0) {
       newPieceIds.forEach((pieceId) => {
         const piece = this.puzzle.pieces[pieceId] as Piece;
         if (piece) {
           piece.setSelectedByOther(true);
+          piece.setOtherUserColor(userColor);
         }
       });
       this.currentSelections.set(userId, newPieceIds);
@@ -365,8 +399,6 @@ export default class NetworkHandler {
     if (this.isChangingImage) return;
 
     const userId = payload.user_id;
-    const color = this.getUserColor(userId);
-
     const existingCursor = this.remoteCursors.get(userId);
 
     if (existingCursor) {
@@ -384,7 +416,6 @@ export default class NetworkHandler {
         nextY: payload.y,
         lerpTime: CURSOR_LERP_DURATION_MS, // Start fully lerped
         lastUpdate: payload.timestamp,
-        color,
       });
     }
   }
@@ -405,63 +436,65 @@ export default class NetworkHandler {
     }
   }
 
-  // Postgres handlers (fallback for late joiners, kept for persistence)
-  private handlePieceUpdate(payload: any): void {
-    const pieceData = payload.new as INetworkPieceData;
-    if (!pieceData) return;
 
-    // Ignore our own updates (prevent echo/bounce)
-    if (pieceData.updated_by === this.userId) return;
-
-    // Queue the update instead of applying immediately
-    // This allows us to batch hundreds of rapid updates into one application
-    this.pendingPieceUpdates.set(pieceData.piece_id, pieceData);
-
-    // Schedule a flush if not already scheduled
-    if (!this.updateFlushTimer) {
-      this.updateFlushTimer = setTimeout(() => {
-        this.flushPendingUpdates();
-      }, this.UPDATE_FLUSH_INTERVAL);
-    }
+  private assignMyColor(): void {
+    // Pick first available color not taken by other users
+    const takenColors = Array.from(this.presenceState.values()).map((p) => p.color);
+    const availableColor = this.availableColors.find((c) => !takenColors.includes(c));
+    this.myColor = availableColor || this.availableColors[0];
   }
 
-  private flushPendingUpdates(): void {
-    // Clear the timer
-    this.updateFlushTimer = undefined;
+  private async handlePresenceSync(): Promise<void> {
+    if (!this.channel) return;
 
-    // Apply all pending updates in batch
-    for (const [pieceId, pieceData] of this.pendingPieceUpdates) {
-      const piece = this.puzzle.pieces[pieceId] as Piece;
-      if (!piece) continue;
+    const presenceState = this.channel.presenceState();
+    this.presenceState.clear();
 
-      // Normalize rotation to take shortest path (prevent 350° -> 10° going the long way)
-      const currentRotation = piece.rotation;
-      const normalizedRotation = this.normalizeRotationDiff(currentRotation, pieceData.rotation);
-
-      // Lerp remote updates for smooth animation
-      piece.deserialize(
-        {
-          id: pieceData.piece_id,
-          translation: { x: pieceData.x, y: pieceData.y },
-          rotation: normalizedRotation,
-          connectedSides: pieceData.connected_sides,
-          elevation: pieceData.elevation,
-          isSelectedByOther: piece.isSelectedByOther, // Preserve selection state
-        },
-        { lerp: true },
-      );
+    // Build presence map (exclude ourselves)
+    for (const [userId, presences] of Object.entries(presenceState)) {
+      const presence = presences[0] as any;
+      if (presence && userId !== this.userId) {
+        this.presenceState.set(userId, {
+          color: presence.color,
+          online_at: presence.online_at,
+        });
+        this.userColors.set(userId, presence.color);
+      }
     }
 
-    // Clear the queue
-    this.pendingPieceUpdates.clear();
+    // Reassign our color based on updated presence state
+    const previousColor = this.myColor;
+    this.assignMyColor();
+
+    // If our color changed, update our presence
+    if (this.myColor !== previousColor) {
+      await this.channel.track({
+        user_id: this.userId,
+        color: this.myColor,
+        online_at: new Date().toISOString(),
+      });
+    }
   }
 
   public getUserColor(userId: string): string {
+    // Return from presence state if available
+    if (this.presenceState.has(userId)) {
+      return this.presenceState.get(userId)!.color;
+    }
+    // Fallback to local map
     if (!this.userColors.has(userId)) {
       const colorIndex = this.userColors.size % this.availableColors.length;
       this.userColors.set(userId, this.availableColors[colorIndex]);
     }
     return this.userColors.get(userId)!;
+  }
+
+  public getMyColor(): string {
+    return this.myColor;
+  }
+
+  public getPresenceState(): Map<string, { color: string; online_at: string }> {
+    return this.presenceState;
   }
 
   public getRemoteCursors(): Map<string, IRemoteCursor> {
@@ -480,76 +513,6 @@ export default class NetworkHandler {
     }
   }
 
-  private handleSelectionUpdate(payload: any): void {
-    // Handle DELETE events (user deselected)
-    if (payload.eventType === 'DELETE' && payload.old) {
-      // Supabase only sends the id in DELETE events, so we need to lookup the user
-      const selectionId = payload.old.id;
-      const oldUserId = this.selectionIdToUser.get(selectionId);
-
-      if (oldUserId && oldUserId !== this.userId) {
-        // Clear selections for this user
-        const oldSelections = this.currentSelections.get(oldUserId) || [];
-        oldSelections.forEach((pieceId) => {
-          const piece = this.puzzle.pieces[pieceId] as Piece;
-          if (piece) {
-            piece.setSelectedByOther(false);
-          }
-        });
-        this.currentSelections.delete(oldUserId);
-        this.selectionIdToUser.delete(selectionId);
-      }
-      return;
-    }
-
-    const selectionData = payload.new as INetworkSelectionData;
-    if (!selectionData || selectionData.user_id === this.userId) return;
-
-    // Track the selection id -> user mapping for DELETE events
-    if (selectionData.id) {
-      this.selectionIdToUser.set(selectionData.id, selectionData.user_id);
-    }
-
-    const userId = selectionData.user_id;
-    const newPieceIds = selectionData.piece_ids || [];
-
-    // If empty array, clear all selections for this user
-    if (newPieceIds.length === 0) {
-      const oldSelections = this.currentSelections.get(userId) || [];
-      oldSelections.forEach((pieceId) => {
-        const piece = this.puzzle.pieces[pieceId] as Piece;
-        if (piece) {
-          piece.setSelectedByOther(false);
-        }
-      });
-      this.currentSelections.delete(userId);
-      return;
-    }
-
-    // Clear old selections for this user
-    const oldSelections = this.currentSelections.get(userId) || [];
-    oldSelections.forEach((pieceId) => {
-      if (!newPieceIds.includes(pieceId)) {
-        const piece = this.puzzle.pieces[pieceId] as Piece;
-        if (piece) {
-          piece.setSelectedByOther(false);
-        }
-      }
-    });
-
-    // Apply new selections
-    newPieceIds.forEach((pieceId) => {
-      const piece = this.puzzle.pieces[pieceId] as Piece;
-      if (piece) {
-        piece.setSelectedByOther(true);
-        // TODO: Get user color and pass to piece for custom outline color
-        // const color = this.getUserColor(userId);
-        // For now, piece will use default "selected by other" color
-      }
-    });
-
-    this.currentSelections.set(userId, newPieceIds);
-  }
 
   private handleRoomUpdate(payload: any): void {
     // Handle INSERT or UPDATE events (new puzzle created or changed)
@@ -816,12 +779,6 @@ export default class NetworkHandler {
   public cleanup(): void {
     if (this.channel) {
       supabase.removeChannel(this.channel);
-    }
-
-    // Clear pending update timer
-    if (this.updateFlushTimer) {
-      clearTimeout(this.updateFlushTimer);
-      this.updateFlushTimer = undefined;
     }
 
     // Clear selection on cleanup

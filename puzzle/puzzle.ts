@@ -210,6 +210,12 @@ export default class Puzzle implements IPuzzle, ISerializablePuzzle {
     // Update remote cursor lerping
     this.networkHandler.updateCursors(this.p.deltaTime);
 
+    // Update selected pieces with user color
+    const myColor = this.networkHandler.getMyColor();
+    for (const piece of this.selectedPieces) {
+      (piece as Piece).setUserColor(myColor);
+    }
+
     this.inputHandler.update(scrollDelta);
     this.pieceConnector.update();
     for (const piece of this.pieces) {
@@ -228,6 +234,9 @@ export default class Puzzle implements IPuzzle, ISerializablePuzzle {
 
     // Draw cursors in screen space (after pop) so they don't scale with world zoom
     this.drawRemoteCursors();
+
+    // Draw presence indicators
+    this.drawPresenceIndicators();
 
     this.inputHandler.draw();
   }
@@ -249,6 +258,9 @@ export default class Puzzle implements IPuzzle, ISerializablePuzzle {
       if (now - cursor.lastUpdate > CURSOR_INACTIVE_TIMEOUT_MS) {
         continue;
       }
+
+      // Get fresh color from presence (not cached in cursor)
+      const color = this.networkHandler.getUserColor(userId);
 
       // Convert world coordinates to screen coordinates
       const screenX = (cursor.x + translation.x) * scale;
@@ -282,7 +294,7 @@ export default class Puzzle implements IPuzzle, ISerializablePuzzle {
       this.p.endShape(this.p.CLOSE);
 
       // Colored pointer with black outline
-      this.p.fill(cursor.color);
+      this.p.fill(color);
       this.p.stroke(0);
       this.p.strokeWeight(1.2);
       this.p.beginShape();
@@ -292,6 +304,37 @@ export default class Puzzle implements IPuzzle, ISerializablePuzzle {
       this.p.endShape(this.p.CLOSE);
 
       this.p.pop();
+    }
+  }
+
+  private drawPresenceIndicators() {
+    const presenceState = this.networkHandler.getPresenceState();
+    const myColor = this.networkHandler.getMyColor();
+
+    // Draw in top-left corner
+    const startX = 20;
+    const startY = 20;
+    const size = 16;
+    const spacing = 8;
+
+    // Draw my indicator first
+    this.p.push();
+    this.p.fill(myColor);
+    this.p.stroke(255);
+    this.p.strokeWeight(2);
+    this.p.circle(startX, startY, size);
+    this.p.pop();
+
+    // Draw other users
+    let index = 1;
+    for (const [userId, presence] of presenceState) {
+      this.p.push();
+      this.p.fill(presence.color);
+      this.p.stroke(255);
+      this.p.strokeWeight(2);
+      this.p.circle(startX + index * (size + spacing), startY, size);
+      this.p.pop();
+      index++;
     }
   }
 
