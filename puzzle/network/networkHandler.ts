@@ -124,6 +124,11 @@ export default class NetworkHandler {
 
   public async initialize(): Promise<boolean> {
     try {
+      // Clear any stale multiplayer state from previous session
+      this.remoteCursors.clear();
+      this.currentSelections.clear();
+      this.presenceState.clear();
+
       // Check if room exists and get puzzle data
       const { data: room, error: roomError } = await supabase
         .from('rooms')
@@ -219,6 +224,11 @@ export default class NetworkHandler {
 
   public async createRoom(puzzleData: any): Promise<void> {
     try {
+      // Clear any stale multiplayer state from previous session
+      this.remoteCursors.clear();
+      this.currentSelections.clear();
+      this.presenceState.clear();
+
       await supabase.from('rooms').insert({
         room_code: this.roomCode,
         puzzle_data: puzzleData,
@@ -259,6 +269,9 @@ export default class NetworkHandler {
       })
       .on('presence', { event: 'join' }, ({ key, newPresences }) => {
         console.log('User joined:', key, newPresences);
+        // Clear any stale cursor data when user joins/rejoins (e.g., after HMR)
+        // This prevents flickering from old cursor positions
+        this.remoteCursors.delete(key);
       })
       .on('presence', { event: 'leave' }, ({ key, leftPresences }) => {
         console.log('User left:', key, leftPresences);
@@ -297,7 +310,6 @@ export default class NetworkHandler {
       });
   }
 
-
   private normalizeRotationDiff(currentRotation: number, targetRotation: number): number {
     // Calculate the shortest rotation path
     let diff = targetRotation - currentRotation;
@@ -320,6 +332,10 @@ export default class NetworkHandler {
           `[NetworkHandler] Image mismatch detected: sender has ${payload.image_id}, we have ${this.targetImageId}`,
         );
         this.isChangingImage = true;
+
+        // Clear multiplayer state when changing images
+        this.remoteCursors.clear();
+        this.currentSelections.clear();
 
         // Trigger image change callback
         if (this.onImageChange) {
@@ -451,7 +467,6 @@ export default class NetworkHandler {
     }
   }
 
-
   private assignMyColor(): void {
     // Pick first available color not taken by other users
     const takenColors = Array.from(this.presenceState.values()).map((p) => p.color);
@@ -466,6 +481,7 @@ export default class NetworkHandler {
     this.presenceState.clear();
 
     // Build presence map (exclude ourselves)
+    const activeUserIds = new Set<string>();
     for (const [userId, presences] of Object.entries(presenceState)) {
       const presence = presences[0] as any;
       if (presence && userId !== this.userId) {
@@ -474,6 +490,20 @@ export default class NetworkHandler {
           online_at: presence.online_at,
         });
         this.userColors.set(userId, presence.color);
+        activeUserIds.add(userId);
+      }
+    }
+
+    // Clean up cursors and selections for users no longer in presence
+    // This fixes flickering after HMR when a user reconnects
+    for (const userId of this.remoteCursors.keys()) {
+      if (!activeUserIds.has(userId)) {
+        this.remoteCursors.delete(userId);
+      }
+    }
+    for (const userId of this.currentSelections.keys()) {
+      if (!activeUserIds.has(userId)) {
+        this.currentSelections.delete(userId);
       }
     }
 
@@ -528,7 +558,6 @@ export default class NetworkHandler {
     }
   }
 
-
   private handleRoomUpdate(payload: any): void {
     // Handle INSERT or UPDATE events (new puzzle created or changed)
     if ((payload.eventType === 'INSERT' || payload.eventType === 'UPDATE') && payload.new) {
@@ -541,6 +570,10 @@ export default class NetworkHandler {
           );
           // Image changed - stop processing updates to prevent piece snapping
           this.isChangingImage = true;
+
+          // Clear multiplayer state when changing images
+          this.remoteCursors.clear();
+          this.currentSelections.clear();
 
           // Trigger callback to update client-side
           if (this.onImageChange) {
@@ -795,6 +828,11 @@ export default class NetworkHandler {
     if (this.channel) {
       supabase.removeChannel(this.channel);
     }
+
+    // Clear multiplayer state on cleanup
+    this.remoteCursors.clear();
+    this.currentSelections.clear();
+    this.presenceState.clear();
 
     // Clear selection on cleanup
     this.syncSelection([]).catch(() => {});

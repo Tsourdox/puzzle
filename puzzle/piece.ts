@@ -180,15 +180,15 @@ export default class Piece implements ISerializablePiece {
 
     if (this.isSelected) {
       this.graphics.stroke(this.userColor);
-      this.graphics.strokeWeight(this.size.mag() / 70);
+      this.graphics.strokeWeight(this.size.mag() / 60);
       this.drawSelectionOutline();
     } else if (this._isSelectedByOther) {
       this.graphics.stroke(this.otherUserColor);
-      this.graphics.strokeWeight(this.size.mag() / 80);
+      this.graphics.strokeWeight(this.size.mag() / 70);
       this.drawSelectionOutline();
     } else {
       this.graphics.stroke('#000');
-      this.graphics.strokeWeight(this.size.mag() / 100);
+      this.graphics.strokeWeight(this.size.mag() / 80);
       this.drawSelectionOutline();
     }
     this.graphics.pop();
