@@ -71,9 +71,6 @@ export default class PieceConnector {
       // Find adjacentPiece
       const adjacentPiece = getAdjecentPiece(piece, side, this.puzzle);
 
-      // Dont check pieces selected by others
-      if (adjacentPiece.isSelectedByOther) continue;
-
       // Find matching edges
       const pieceCorners = piece.getTrueCorners();
       const adjecentCorners = adjacentPiece.getTrueCorners();
@@ -135,6 +132,11 @@ export default class PieceConnector {
     for (const islandPiece of adjacentIsland) {
       islandPiece.isModified = true;
     }
+
+    // Broadcast connection to force all players to deselect these pieces
+    // Connection takes precedence over any active dragging
+    const allConnectedPieceIds = [...movingIsland, ...adjacentIsland].map((p) => p.id);
+    this.networkHandler.broadcastConnection(allConnectedPieceIds);
 
     // Force immediate sync after connection to prevent stale positions on other clients
     this.networkHandler.syncPieces(this.puzzle.pieces as Piece[], true);

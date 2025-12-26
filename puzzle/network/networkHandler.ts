@@ -49,6 +49,12 @@ export interface IBroadcastCursorUpdate {
   timestamp: number;
 }
 
+export interface IBroadcastConnectionUpdate {
+  type: 'connection';
+  user_id: string;
+  piece_ids: number[]; // All pieces involved in the connection (both islands)
+}
+
 export interface IRemoteCursor {
   x: number;
   y: number;
@@ -236,6 +242,9 @@ export default class NetworkHandler {
       .on('broadcast', { event: 'cursor_update' }, (payload) => {
         this.handleBroadcastCursorUpdate(payload.payload as IBroadcastCursorUpdate);
       })
+      .on('broadcast', { event: 'connection' }, (payload) => {
+        this.handleBroadcastConnection(payload.payload as IBroadcastConnectionUpdate);
+      })
       // Only subscribe to room changes (image updates)
       // NOTE: We DON'T subscribe to postgres_changes for pieces/selections anymore
       // because they arrive delayed (200-500ms) and cause pieces to jump back
@@ -377,6 +386,22 @@ export default class NetworkHandler {
         lastUpdate: payload.timestamp,
         color,
       });
+    }
+  }
+
+  private handleBroadcastConnection(payload: IBroadcastConnectionUpdate): void {
+    if (!payload) return;
+    // Ignore updates if we're transitioning to a new puzzle
+    if (this.isChangingImage) return;
+
+    // Force deselect all connected pieces (for ALL users, including ourselves)
+    // Connection takes precedence over any active dragging
+    for (const pieceId of payload.piece_ids) {
+      const piece = this.puzzle.pieces[pieceId] as Piece;
+      if (piece) {
+        piece.isSelected = false;
+        piece.setSelectedByOther(false);
+      }
     }
   }
 
@@ -739,6 +764,29 @@ export default class NetworkHandler {
       });
     } catch (error) {
       console.error('Failed to sync cursor position:', error);
+    }
+  }
+
+  public async broadcastConnection(pieceIds: number[]): Promise<void> {
+    if (!this.isInitialized || !this.channel) return;
+
+    try {
+      const broadcastPayload: IBroadcastConnectionUpdate = {
+        type: 'connection',
+        user_id: this.userId,
+        piece_ids: pieceIds,
+      };
+
+      await this.channel.send({
+        type: 'broadcast',
+        event: 'connection',
+        payload: broadcastPayload,
+      });
+
+      // Also force deselect locally (same as other clients)
+      this.handleBroadcastConnection(broadcastPayload);
+    } catch (error) {
+      console.error('Failed to broadcast connection:', error);
     }
   }
 
