@@ -366,6 +366,18 @@ export default class NetworkHandler {
     const newPieceIds = payload.piece_ids || [];
     const userColor = this.getUserColor(userId);
 
+    // "Last one wins" - if another user selects pieces we have selected, we lose them
+    // Check if any of the incoming selected pieces are currently selected by us
+    let hadConflict = false;
+    for (const pieceId of newPieceIds) {
+      const piece = this.puzzle.pieces[pieceId] as Piece;
+      if (piece && piece.isSelected) {
+        // Another user grabbed a piece we had selected - deselect it locally
+        piece.isSelected = false;
+        hadConflict = true;
+      }
+    }
+
     // Clear old selections for this user
     const oldSelections = this.currentSelections.get(userId) || [];
     oldSelections.forEach((pieceId) => {
@@ -391,6 +403,9 @@ export default class NetworkHandler {
       // Clear all selections for this user
       this.currentSelections.delete(userId);
     }
+
+    // If we had a conflict, our selection changed - sync will happen automatically
+    // via the puzzle's update loop which calls syncSelections
   }
 
   private handleBroadcastCursorUpdate(payload: IBroadcastCursorUpdate): void {
