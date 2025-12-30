@@ -67,7 +67,6 @@ export default class NetworkSerializer {
   }
 
   public async init() {
-    // Initialize DB and create object store for this room if needed
     await this.clientDB.initVersion();
     await this.clientDB.createObjectStore(this.roomCode);
     await this.clientDB.open();
@@ -93,7 +92,6 @@ export default class NetworkSerializer {
 
   public async loadPuzzle() {
     try {
-      // Wait for connections to DB's to be established
       await this.clientDB.open();
       const graphData = await this.clientDB.loadGraph();
       const puzzleData = await this.clientDB.loadPuzzle();

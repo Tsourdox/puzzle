@@ -20,11 +20,10 @@ export interface INetworkSelectionData {
   piece_ids: number[];
 }
 
-// Broadcast message types (batched real-time updates)
 export interface IBroadcastPieceUpdate {
   type: 'piece_batch';
   user_id: string;
-  image_id: number | string; // To detect when sender has a different puzzle
+  image_id: number | string;
   pieces: Array<{
     piece_id: number;
     x: number;
@@ -52,7 +51,7 @@ export interface IBroadcastCursorUpdate {
 export interface IBroadcastConnectionUpdate {
   type: 'connection';
   user_id: string;
-  piece_ids: number[]; // All pieces involved in the connection (both islands)
+  piece_ids: number[];
 }
 
 export interface IRemoteCursor {
@@ -92,9 +91,7 @@ export default class NetworkHandler {
   private remoteCursors: Map<string, IRemoteCursor> = new Map(); // userId -> cursor data
   private presenceState: Map<string, { color: string; online_at: string }> = new Map();
 
-  // Callback for when the puzzle image changes (so we can update without reloading)
   private onImageChange?: (imageId: number | string) => void;
-  // Flag to prevent processing updates when transitioning to a new puzzle
   private isChangingImage = false;
 
   constructor(
@@ -113,7 +110,6 @@ export default class NetworkHandler {
   }
 
   private generateUserId(): string {
-    // Generate or retrieve user ID (could use localStorage for persistence)
     let userId = localStorage.getItem('puzzelin_user_id');
     if (!userId) {
       userId = `user_${Math.random().toString(36).substring(2, 15)}`;
@@ -124,12 +120,10 @@ export default class NetworkHandler {
 
   public async initialize(): Promise<boolean> {
     try {
-      // Clear any stale multiplayer state from previous session
       this.remoteCursors.clear();
       this.currentSelections.clear();
       this.presenceState.clear();
 
-      // Check if room exists and get puzzle data
       const { data: room, error: roomError } = await supabase
         .from('rooms')
         .select('*')
@@ -137,27 +131,22 @@ export default class NetworkHandler {
         .single();
 
       if (roomError || !room) {
-        // Room doesn't exist yet, will be created when saving puzzle
         return false;
       }
 
-      // Check if the loaded puzzle's image matches the target image
       const loadedImageId = room.puzzle_data?.imageData?.id;
       if (loadedImageId && loadedImageId !== this.targetImageId) {
-        // Image changed - clear old data before proceeding
         await this.clearRoomData();
-        return false; // Signal to generate new puzzle
+        return false;
       }
-      // Load the puzzle (creates pieces, sets up board)
+
       await this.puzzle.deserialize(room.puzzle_data);
 
-      // Load all piece positions
       const { data: pieces } = await supabase
         .from('pieces')
         .select('*')
         .eq('room_code', this.roomCode);
 
-      // Apply piece positions
       if (pieces) {
         for (const pieceData of pieces) {
           const piece = this.puzzle.pieces[pieceData.piece_id];
@@ -177,19 +166,16 @@ export default class NetworkHandler {
         }
       }
 
-      // Load current selections
       const { data: selections } = await supabase
         .from('selections')
         .select('*')
         .eq('room_code', this.roomCode);
 
-      // Apply existing selections
       if (selections) {
         for (const selection of selections) {
           const pieceIds = selection.piece_ids || [];
 
           if (selection.user_id === this.userId) {
-            // Restore your own selection
             pieceIds.forEach((pieceId: number) => {
               const piece = this.puzzle.pieces[pieceId] as Piece;
               if (piece) {
@@ -197,7 +183,6 @@ export default class NetworkHandler {
               }
             });
           } else {
-            // Show other users' selections
             pieceIds.forEach((pieceId: number) => {
               const piece = this.puzzle.pieces[pieceId] as Piece;
               if (piece) {
@@ -212,7 +197,6 @@ export default class NetworkHandler {
         }
       }
 
-      // Subscribe to real-time updates
       this.subscribeToUpdates();
       this.isInitialized = true;
       return true;
@@ -224,7 +208,6 @@ export default class NetworkHandler {
 
   public async createRoom(puzzleData: any): Promise<void> {
     try {
-      // Clear any stale multiplayer state from previous session
       this.remoteCursors.clear();
       this.currentSelections.clear();
       this.presenceState.clear();
@@ -246,11 +229,10 @@ export default class NetworkHandler {
     this.channel = supabase
       .channel(`room:${this.roomCode}`, {
         config: {
-          broadcast: { self: false }, // Don't receive our own broadcasts
+          broadcast: { self: false },
           presence: { key: this.userId },
         },
       })
-      // Broadcast events for real-time updates (fast, batched)
       .on('broadcast', { event: 'piece_update' }, (payload) => {
         this.handleBroadcastPieceUpdate(payload.payload as IBroadcastPieceUpdate);
       })
@@ -263,26 +245,18 @@ export default class NetworkHandler {
       .on('broadcast', { event: 'connection' }, (payload) => {
         this.handleBroadcastConnection(payload.payload as IBroadcastConnectionUpdate);
       })
-      // Presence tracking for user colors and online status
       .on('presence', { event: 'sync' }, () => {
         this.handlePresenceSync();
       })
       .on('presence', { event: 'join' }, ({ key, newPresences }) => {
         console.log('User joined:', key, newPresences);
-        // Clear any stale cursor data when user joins/rejoins (e.g., after HMR)
-        // This prevents flickering from old cursor positions
+        // Clear stale cursor data when user joins/rejoins to prevent flickering (e.g., after HMR)
         this.remoteCursors.delete(key);
       })
       .on('presence', { event: 'leave' }, ({ key, leftPresences }) => {
         console.log('User left:', key, leftPresences);
-        // Clean up cursor for departed user
         this.remoteCursors.delete(key);
       })
-      // Only subscribe to room changes (image updates)
-      // NOTE: We DON'T subscribe to postgres_changes for pieces/selections anymore
-      // because they arrive delayed (200-500ms) and cause pieces to jump back
-      // after broadcast updates. Broadcast is the source of truth for real-time.
-      // Postgres is only for persistence (initial load when joining).
       .on(
         'postgres_changes',
         {
@@ -297,10 +271,8 @@ export default class NetworkHandler {
       )
       .subscribe(async (status) => {
         if (status === 'SUBSCRIBED') {
-          // Initial color assignment (will be refined during presence sync)
           this.myColor = this.availableColors[0];
 
-          // Track our presence with initial color
           await this.channel?.track({
             user_id: this.userId,
             color: this.myColor,
@@ -311,21 +283,17 @@ export default class NetworkHandler {
   }
 
   private normalizeRotationDiff(currentRotation: number, targetRotation: number): number {
-    // Calculate the shortest rotation path
     let diff = targetRotation - currentRotation;
 
-    // Normalize difference to [-PI, PI] range (shortest path)
     while (diff > Math.PI) diff -= Math.PI * 2;
     while (diff < -Math.PI) diff += Math.PI * 2;
 
     return currentRotation + diff;
   }
 
-  // Broadcast handlers (batched real-time updates)
   private handleBroadcastPieceUpdate(payload: IBroadcastPieceUpdate): void {
     if (!payload || payload.user_id === this.userId) return;
 
-    // Image mismatch detection - if sender has a different puzzle, trigger image change
     if (payload.image_id && String(payload.image_id) !== String(this.targetImageId)) {
       if (!this.isChangingImage) {
         console.log(
@@ -333,23 +301,18 @@ export default class NetworkHandler {
         );
         this.isChangingImage = true;
 
-        // Clear multiplayer state when changing images
         this.remoteCursors.clear();
         this.currentSelections.clear();
 
-        // Trigger image change callback
         if (this.onImageChange) {
           this.onImageChange(payload.image_id);
         }
       }
-      // Ignore updates from different puzzle
       return;
     }
 
-    // Ignore updates if we're transitioning to a new puzzle
     if (this.isChangingImage) return;
 
-    // Apply all pieces in the batch immediately (already batched by sender)
     for (const pieceData of payload.pieces) {
       const piece = this.puzzle.pieces[pieceData.piece_id] as Piece;
       if (!piece) continue;
@@ -358,7 +321,6 @@ export default class NetworkHandler {
       const currentRotation = piece.rotation;
       const normalizedRotation = this.normalizeRotationDiff(currentRotation, pieceData.rotation);
 
-      // Lerp remote updates for smooth animation
       piece.deserialize(
         {
           id: pieceData.piece_id,
@@ -366,7 +328,7 @@ export default class NetworkHandler {
           rotation: normalizedRotation,
           connectedSides: pieceData.connected_sides,
           elevation: pieceData.elevation,
-          isSelectedByOther: piece.isSelectedByOther, // Preserve selection state
+          isSelectedByOther: piece.isSelectedByOther,
         },
         { lerp: true },
       );
@@ -375,7 +337,6 @@ export default class NetworkHandler {
 
   private handleBroadcastSelectionUpdate(payload: IBroadcastSelectionUpdate): void {
     if (!payload || payload.user_id === this.userId) return;
-    // Ignore updates if we're transitioning to a new puzzle
     if (this.isChangingImage) return;
 
     const userId = payload.user_id;
@@ -383,18 +344,13 @@ export default class NetworkHandler {
     const userColor = this.getUserColor(userId);
 
     // "Last one wins" - if another user selects pieces we have selected, we lose them
-    // Check if any of the incoming selected pieces are currently selected by us
-    let hadConflict = false;
     for (const pieceId of newPieceIds) {
       const piece = this.puzzle.pieces[pieceId] as Piece;
       if (piece && piece.isSelected) {
-        // Another user grabbed a piece we had selected - deselect it locally
         piece.isSelected = false;
-        hadConflict = true;
       }
     }
 
-    // Clear old selections for this user
     const oldSelections = this.currentSelections.get(userId) || [];
     oldSelections.forEach((pieceId) => {
       if (!newPieceIds.includes(pieceId)) {
@@ -405,7 +361,6 @@ export default class NetworkHandler {
       }
     });
 
-    // Apply new selections with user's color
     if (newPieceIds.length > 0) {
       newPieceIds.forEach((pieceId) => {
         const piece = this.puzzle.pieces[pieceId] as Piece;
@@ -416,7 +371,6 @@ export default class NetworkHandler {
       });
       this.currentSelections.set(userId, newPieceIds);
     } else {
-      // Clear all selections for this user
       this.currentSelections.delete(userId);
     }
 
@@ -426,26 +380,23 @@ export default class NetworkHandler {
 
   private handleBroadcastCursorUpdate(payload: IBroadcastCursorUpdate): void {
     if (!payload || payload.user_id === this.userId) return;
-    // Ignore updates if we're transitioning to a new puzzle
     if (this.isChangingImage) return;
 
     const userId = payload.user_id;
     const existingCursor = this.remoteCursors.get(userId);
 
     if (existingCursor) {
-      // Update existing cursor with lerp
       existingCursor.nextX = payload.x;
       existingCursor.nextY = payload.y;
       existingCursor.lerpTime = 0;
       existingCursor.lastUpdate = payload.timestamp;
     } else {
-      // Create new cursor (no lerp on first appearance)
       this.remoteCursors.set(userId, {
         x: payload.x,
         y: payload.y,
         nextX: payload.x,
         nextY: payload.y,
-        lerpTime: CURSOR_LERP_DURATION_MS, // Start fully lerped
+        lerpTime: CURSOR_LERP_DURATION_MS,
         lastUpdate: payload.timestamp,
       });
     }
@@ -453,7 +404,6 @@ export default class NetworkHandler {
 
   private handleBroadcastConnection(payload: IBroadcastConnectionUpdate): void {
     if (!payload) return;
-    // Ignore updates if we're transitioning to a new puzzle
     if (this.isChangingImage) return;
 
     // Force deselect all connected pieces (for ALL users, including ourselves)
@@ -468,7 +418,6 @@ export default class NetworkHandler {
   }
 
   private assignMyColor(): void {
-    // Pick first available color not taken by other users
     const takenColors = Array.from(this.presenceState.values()).map((p) => p.color);
     const availableColor = this.availableColors.find((c) => !takenColors.includes(c));
     this.myColor = availableColor || this.availableColors[0];
@@ -480,7 +429,6 @@ export default class NetworkHandler {
     const presenceState = this.channel.presenceState();
     this.presenceState.clear();
 
-    // Build presence map (exclude ourselves)
     const activeUserIds = new Set<string>();
     for (const [userId, presences] of Object.entries(presenceState)) {
       const presence = presences[0] as any;
@@ -507,11 +455,9 @@ export default class NetworkHandler {
       }
     }
 
-    // Reassign our color based on updated presence state
     const previousColor = this.myColor;
     this.assignMyColor();
 
-    // If our color changed, update our presence
     if (this.myColor !== previousColor) {
       await this.channel.track({
         user_id: this.userId,
@@ -522,11 +468,9 @@ export default class NetworkHandler {
   }
 
   public getUserColor(userId: string): string {
-    // Return from presence state if available
     if (this.presenceState.has(userId)) {
       return this.presenceState.get(userId)!.color;
     }
-    // Fallback to local map
     if (!this.userColors.has(userId)) {
       const colorIndex = this.userColors.size % this.availableColors.length;
       this.userColors.set(userId, this.availableColors[colorIndex]);
@@ -547,7 +491,6 @@ export default class NetworkHandler {
   }
 
   public updateCursors(deltaTime: number): void {
-    // Update lerp for all remote cursors
     for (const cursor of this.remoteCursors.values()) {
       if (cursor.lerpTime < CURSOR_LERP_DURATION_MS) {
         cursor.lerpTime += deltaTime;
@@ -559,28 +502,21 @@ export default class NetworkHandler {
   }
 
   private handleRoomUpdate(payload: any): void {
-    // Handle INSERT or UPDATE events (new puzzle created or changed)
     if ((payload.eventType === 'INSERT' || payload.eventType === 'UPDATE') && payload.new) {
       const newImageId = payload.new.puzzle_data?.imageData?.id;
       if (newImageId && String(newImageId) !== String(this.targetImageId)) {
-        // Only trigger if not already changing (might have been triggered by broadcast)
         if (!this.isChangingImage) {
           console.log(
             `[NetworkHandler] Room update detected: image changed from ${this.targetImageId} to ${newImageId}`,
           );
-          // Image changed - stop processing updates to prevent piece snapping
           this.isChangingImage = true;
 
-          // Clear multiplayer state when changing images
           this.remoteCursors.clear();
           this.currentSelections.clear();
 
-          // Trigger callback to update client-side
           if (this.onImageChange) {
-            // Use callback for smooth client-side update (no reload)
             this.onImageChange(newImageId);
           } else {
-            // Fallback: navigate/reload (old behavior)
             setTimeout(() => {
               this.navigateToNewPuzzle(newImageId);
             }, 500);
@@ -591,23 +527,17 @@ export default class NetworkHandler {
   }
 
   private navigateToNewPuzzle(newImageId: number | string): void {
-    // Get current pathname and replace the image ID (last segment) with the new one
     const pathParts = window.location.pathname.split('/');
 
-    // Handle both formats: /[lang]/room/[code] and /[lang]/room/[code]/[imageId]
     if (pathParts.length >= 4) {
-      // Replace or add the image ID as the last segment
       if (pathParts.length === 4) {
-        // Format: /[lang]/room/[code] - add image ID
         pathParts.push(String(newImageId));
       } else {
-        // Format: /[lang]/room/[code]/[oldImageId] - replace image ID
         pathParts[pathParts.length - 1] = String(newImageId);
       }
       const newPath = pathParts.join('/');
       window.location.href = newPath;
     } else {
-      // Fallback: just reload the page
       window.location.reload();
     }
   }
@@ -623,7 +553,6 @@ export default class NetworkHandler {
 
     const pieceIds = selectedPieces.map((p) => p.id);
 
-    // Only sync if selection changed
     const changed =
       pieceIds.length !== this.lastSelectionSync.length ||
       !pieceIds.every((id) => this.lastSelectionSync.includes(id));
@@ -656,16 +585,15 @@ export default class NetworkHandler {
         rotation: serialized.rotation,
         connected_sides: serialized.connectedSides || [],
         elevation: serialized.elevation,
-        updated_by: this.userId, // Track who updated this
+        updated_by: this.userId,
       };
     });
 
     try {
-      // Send broadcast first (real-time, fast)
       const broadcastPayload: IBroadcastPieceUpdate = {
         type: 'piece_batch',
         user_id: this.userId,
-        image_id: this.targetImageId, // Include image ID to detect mismatches
+        image_id: this.targetImageId,
         pieces: updates.map((u) => ({
           piece_id: u.piece_id,
           x: u.x,
@@ -693,7 +621,6 @@ export default class NetworkHandler {
           if (error) console.error('Failed to persist pieces to DB:', error);
         });
 
-      // Mark pieces as synced immediately after broadcast
       modifiedPieces.forEach((p) => (p.isModified = false));
     } catch (error) {
       console.error('Failed to sync pieces:', error);
@@ -704,7 +631,6 @@ export default class NetworkHandler {
     if (!this.isInitialized || !this.channel) return;
 
     try {
-      // Send broadcast first (real-time)
       const broadcastPayload: IBroadcastSelectionUpdate = {
         type: 'selection',
         user_id: this.userId,
@@ -717,9 +643,7 @@ export default class NetworkHandler {
         payload: broadcastPayload,
       });
 
-      // Then persist to DB (fire-and-forget)
       if (pieceIds.length === 0) {
-        // Clear selection
         supabase
           .from('selections')
           .delete()
@@ -729,7 +653,6 @@ export default class NetworkHandler {
             if (error) console.error('Failed to clear selection in DB:', error);
           });
       } else {
-        // Update selection
         supabase
           .from('selections')
           .upsert(
@@ -754,7 +677,6 @@ export default class NetworkHandler {
   public async syncCursorPosition(x: number, y: number): Promise<void> {
     if (!this.isInitialized || !this.channel) return;
 
-    // Throttle cursor updates
     const now = Date.now();
     if (now - this.lastCursorSyncTime < CURSOR_UPDATE_RATE_MS) return;
     this.lastCursorSyncTime = now;
@@ -794,7 +716,6 @@ export default class NetworkHandler {
         payload: broadcastPayload,
       });
 
-      // Also force deselect locally (same as other clients)
       this.handleBroadcastConnection(broadcastPayload);
     } catch (error) {
       console.error('Failed to broadcast connection:', error);
@@ -803,16 +724,12 @@ export default class NetworkHandler {
 
   public async clearRoomData(): Promise<void> {
     try {
-      // Delete all pieces for this room
       await supabase.from('pieces').delete().eq('room_code', this.roomCode);
 
-      // Delete all selections for this room
       await supabase.from('selections').delete().eq('room_code', this.roomCode);
 
-      // Delete the room itself
       await supabase.from('rooms').delete().eq('room_code', this.roomCode);
 
-      // Unsubscribe from real-time updates
       if (this.channel) {
         await supabase.removeChannel(this.channel);
         this.channel = undefined;
@@ -829,12 +746,10 @@ export default class NetworkHandler {
       supabase.removeChannel(this.channel);
     }
 
-    // Clear multiplayer state on cleanup
     this.remoteCursors.clear();
     this.currentSelections.clear();
     this.presenceState.clear();
 
-    // Clear selection on cleanup
     this.syncSelection([]).catch(() => {});
   }
 }

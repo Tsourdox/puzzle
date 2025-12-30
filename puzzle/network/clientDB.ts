@@ -21,16 +21,13 @@ export default class ClientDB {
     Array<{ code: string; lastModified: number }>
   > {
     try {
-      // Get all IndexedDB databases
       const databases = await indexedDB.databases();
 
-      // Filter for puzzelin databases and extract room codes
       const roomCodes = databases
         .filter((db) => db.name?.startsWith('puzzelin_'))
         .map((db) => db.name!.replace('puzzelin_', ''))
-        .filter((code) => code !== 'default'); // Exclude default database
+        .filter((code) => code !== 'default');
 
-      // Get lastModified timestamp for each room
       const roomsWithTimestamps = await Promise.all(
         roomCodes.map(async (code) => {
           try {
@@ -48,7 +45,6 @@ export default class ClientDB {
         }),
       );
 
-      // Sort by lastModified (most recent first)
       return roomsWithTimestamps.sort((a, b) => b.lastModified - a.lastModified);
     } catch (error) {
       console.error('Failed to get room codes:', error);
@@ -88,7 +84,6 @@ export default class ClientDB {
     return new Promise((resolve, reject) => {
       if (this.version === 0) throw new Error('initVersion must be called before creating object store');
 
-      // Check if object store already exists
       const checkRequest = indexedDB.open(this.dbName);
       checkRequest.onsuccess = (e: Event) => {
         const db = (e.target as IDBOpenDBRequest).result;
@@ -96,12 +91,10 @@ export default class ClientDB {
         db.close();
 
         if (storeExists) {
-          // Object store already exists, no need to create
           resolve();
           return;
         }
 
-        // Create the object store
         const newVersion = this.version + 1;
         this.version = newVersion;
         const request = indexedDB.open(this.dbName, newVersion);

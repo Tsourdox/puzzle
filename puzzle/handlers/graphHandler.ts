@@ -76,7 +76,6 @@ export default class GraphHandler implements IGraph, ISerializableGraph {
       zoomCenter = pointBetween(p, t1, t2);
     }
 
-    // Apply zoom
     if (zoomDelta !== 0) {
       const invert = this.settings.puzzle.invertZoom;
       const zoomFactor = 1 + zoomDelta * -0.002 * (invert ? -1 : 1);
@@ -126,7 +125,6 @@ export default class GraphHandler implements IGraph, ISerializableGraph {
   }
 
   public screenToWorld(screenX: number, screenY: number): p5.Vector {
-    // Convert screen coordinates to world coordinates (accounting for pan/zoom)
     const worldX = (screenX - this._translation.x * this.scale) / this.scale;
     const worldY = (screenY - this._translation.y * this.scale) / this.scale;
     return this.puzzle.p.createVector(worldX, worldY);

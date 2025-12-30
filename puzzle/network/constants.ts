@@ -1,5 +1,3 @@
-// Network timing constants for multiplayer sync (values in milliseconds)
-
 /** How often to broadcast updates to other players (20Hz = 50ms) */
 export const SYNC_RATE_MS = 50;
 

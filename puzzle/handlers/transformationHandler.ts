@@ -1,9 +1,9 @@
 import p5 from 'p5';
 import Piece from '../piece';
 import type { IPuzzle } from '../puzzle';
+import { ISettings } from '../settings';
 import { angleBetween, getAverageCenter, getMostDistantPoints } from '../utils/general';
 import { getConnectedPieces, rotateAroundCenter } from '../utils/pieces';
-import { ISettings } from '../settings';
 import type { IGraph } from './graphHandler';
 import type { Touches } from './inputHandler';
 import type { ISelectionHandler } from './selectionHandler';
@@ -146,23 +146,19 @@ export default class TransformHandler implements ITransformHandler {
     const pieces = this.selectedPieces;
     if (pieces.length <= 1) return;
 
-    // Calculate center of selected pieces
     const centers = pieces.map((piece) => piece.getTrueCenter());
     const groupCenter = getAverageCenter(p, centers);
     const pieceSize = this.puzzle.pieceSize.mag();
 
-    // Check if pieces are stacked (all at approximately same position)
     const maxDistance = Math.max(...centers.map((c) => p5.Vector.dist(c, groupCenter)));
-    const areStacked = maxDistance < pieceSize * 0.1; // If all pieces within 10% of piece size
+    const areStacked = maxDistance < pieceSize * 0.1;
 
     if (areStacked) {
-      // Sort by elevation (which was randomized during stacking)
-      // This creates consistent grid arrangement across multiple explode operations
+      // Sort by elevation (randomized during stacking to prevent revealing solution)
       const sorted = [...pieces].sort((a, b) => a.elevation - b.elevation);
 
-      // Arrange pieces in a grid pattern around the center
       const gridSize = Math.ceil(Math.sqrt(sorted.length));
-      const spacing = pieceSize * 0.8; // 80% of piece size - pieces overlap slightly
+      const spacing = pieceSize * 0.8;
 
       for (let i = 0; i < sorted.length; i++) {
         const row = Math.floor(i / gridSize);
@@ -175,8 +171,8 @@ export default class TransformHandler implements ITransformHandler {
         this.translatePiece(sorted[i], delta);
       }
     } else {
-      // Spread pieces outward from group center, maintaining relative positions
-      const explosionFactor = 0.2; // 20% spread outward - gradual expansion
+      // Spread pieces outward, maintaining relative positions
+      const explosionFactor = 0.2;
       for (const piece of pieces) {
         const pieceCenter = piece.getTrueCenter();
         const offset = p5.Vector.sub(pieceCenter, groupCenter);
@@ -191,8 +187,7 @@ export default class TransformHandler implements ITransformHandler {
     const centers = pieces.map((p) => p.getTrueCenter());
     const groupCenter = getAverageCenter(this.puzzle.p, centers);
 
-    // Shuffle pieces and assign random elevations (z-order)
-    // This prevents revealing the solution when later exploding
+    // Shuffle to prevent revealing solution when exploding
     const shuffled = [...pieces].sort(() => Math.random() - 0.5);
 
     for (let i = 0; i < shuffled.length; i++) {
@@ -200,8 +195,6 @@ export default class TransformHandler implements ITransformHandler {
       const pieceCenter = piece.getTrueCenter();
       const delta = p5.Vector.sub(groupCenter, pieceCenter);
       this.translatePiece(piece, delta);
-
-      // Assign elevation based on shuffled order
       piece.elevation = i;
     }
   }

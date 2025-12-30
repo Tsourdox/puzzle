@@ -9,9 +9,9 @@ import { IDeserializeOptions, IPuzzleData, ISerializablePuzzle } from './network
 import Piece from './piece';
 import PieceConnector from './pieceConnector';
 import PiecesFactory from './piecesFactory';
+import { ISettings } from './settings';
 import { toPoint } from './utils/general';
 import { sortPieces } from './utils/pieces';
-import { ISettings } from './settings';
 
 export interface IPuzzle {
   p: p5;
@@ -85,32 +85,22 @@ export default class Puzzle implements IPuzzle, ISerializablePuzzle {
   }
 
   public async tryLoadPuzzle() {
-    // Try to load from Supabase first (multiplayer)
-    // NetworkHandler will check image ID and clear data if needed
+    // Try Supabase first (multiplayer). NetworkHandler checks image ID and clears stale data.
     const loadedFromNetwork = await this.networkHandler.initialize();
     if (loadedFromNetwork) {
-      // Initialize IndexedDB for local state persistence
       await this.networkSerializer.init();
-      // Save the puzzle data to IndexedDB so joiners can continue later
       const puzzleData = this.serialize();
       await this.networkSerializer.clientDB.savePuzzle(puzzleData);
-      // Load user's personal zoom/pan state from IndexedDB
       const hasGraphData = await this.networkSerializer.loadGraphData();
-      // If no saved zoom/pan state, zoom to fit all pieces
       if (!hasGraphData) {
         this.inputHandler.graphHandler.zoomHome();
       }
       return true;
     }
 
-    // If initialize returned false, it might be because:
-    // 1. No room exists yet (first time)
-    // 2. Image mismatch was detected and data was cleared
-    // In case of image mismatch, we need to clear local IndexedDB too
+    // No room exists yet OR image mismatch detected. Clear local IndexedDB to stay in sync.
     await this.networkSerializer.init();
     await this.networkSerializer.clearAll();
-
-    // Don't try to load from IndexedDB - let generateNewPuzzle() be called
     return false;
   }
 
@@ -128,7 +118,7 @@ export default class Puzzle implements IPuzzle, ISerializablePuzzle {
     this.piecesFactory = new PiecesFactory(this.p, xy, xy, this.image);
     this.pieces = this.piecesFactory.createAllPieces();
 
-    // Explode pieces slightly so they're not stacked on top of each other
+    // Explode pieces slightly to avoid initial stacking
     const explosionFactor = 0.5;
     const puzzleCenter = this.p.createVector(this.image.width / 2, this.image.height / 2);
     for (const piece of this.pieces) {
@@ -140,10 +130,9 @@ export default class Puzzle implements IPuzzle, ISerializablePuzzle {
 
     this.inputHandler.graphHandler.zoomHome();
 
-    // Update NetworkHandler's target image ID to prevent false mismatch detection
+    // Prevent false mismatch detection when puzzle is reset
     this.networkHandler.updateTargetImageId(this.imageData.id);
 
-    // Save to both IndexedDB and Supabase
     await this.networkSerializer.saveInitialData();
     const puzzleData = this.serialize();
     await this.networkHandler.createRoom(puzzleData);
@@ -213,14 +202,11 @@ export default class Puzzle implements IPuzzle, ISerializablePuzzle {
     this.networkHandler.syncPieces(this.pieces as Piece[]);
     this.networkHandler.syncSelections(this.selectedPieces);
 
-    // Broadcast cursor position in world coordinates
     const worldPos = this.inputHandler.graphHandler.screenToWorld(this.p.mouseX, this.p.mouseY);
     this.networkHandler.syncCursorPosition(worldPos.x, worldPos.y);
 
-    // Update remote cursor lerping
     this.networkHandler.updateCursors(this.p.deltaTime);
 
-    // Update selected pieces with user color
     const myColor = this.networkHandler.getMyColor();
     for (const piece of this.selectedPieces) {
       (piece as Piece).setUserColor(myColor);
@@ -242,12 +228,8 @@ export default class Puzzle implements IPuzzle, ISerializablePuzzle {
     this.drawPieces();
     this.p.pop();
 
-    // Draw cursors in screen space (after pop) so they don't scale with world zoom
     this.drawRemoteCursors();
-
-    // Draw presence indicators
     this.drawPresenceIndicators();
-
     this.inputHandler.draw();
   }
 
@@ -258,7 +240,6 @@ export default class Puzzle implements IPuzzle, ISerializablePuzzle {
   }
 
   private drawRemoteCursors() {
-    // Check if user wants to hide multiplayer cursors
     if (this.settings.network.hideMultiplayerCursors) {
       return;
     }
@@ -269,19 +250,15 @@ export default class Puzzle implements IPuzzle, ISerializablePuzzle {
     const translation = this.inputHandler.graphHandler.translation;
 
     for (const [userId, cursor] of remoteCursors) {
-      // Skip cursors that haven't been updated recently (user idle or left)
+      // Skip stale cursors (user idle or left)
       if (now - cursor.lastUpdate > CURSOR_INACTIVE_TIMEOUT_MS) {
         continue;
       }
 
-      // Get fresh color from presence (not cached in cursor)
       const color = this.networkHandler.getUserColor(userId);
-
-      // Convert world coordinates to screen coordinates
       const screenX = (cursor.x + translation.x) * scale;
       const screenY = (cursor.y + translation.y) * scale;
 
-      // Draw mouse pointer icon (40% smaller)
       this.p.push();
       this.p.translate(screenX, screenY);
       this.p.strokeJoin(this.p.ROUND);
@@ -308,7 +285,6 @@ export default class Puzzle implements IPuzzle, ISerializablePuzzle {
       }
       this.p.endShape(this.p.CLOSE);
 
-      // Colored pointer with black outline
       this.p.fill(color);
       this.p.stroke(0);
       this.p.strokeWeight(1.2);
@@ -326,13 +302,11 @@ export default class Puzzle implements IPuzzle, ISerializablePuzzle {
     const presenceState = this.networkHandler.getPresenceState();
     const myColor = this.networkHandler.getMyColor();
 
-    // Draw in top-left corner
     const startX = 20;
     const startY = 20;
     const size = 16;
     const spacing = 8;
 
-    // Draw my indicator first
     this.p.push();
     this.p.fill(myColor);
     this.p.stroke(255);
@@ -340,7 +314,6 @@ export default class Puzzle implements IPuzzle, ISerializablePuzzle {
     this.p.circle(startX, startY, size);
     this.p.pop();
 
-    // Draw other users
     let index = 1;
     for (const [userId, presence] of presenceState) {
       this.p.push();
