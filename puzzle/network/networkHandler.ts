@@ -366,7 +366,7 @@ export default class NetworkHandler {
         const piece = this.puzzle.pieces[pieceId] as Piece;
         if (piece) {
           piece.setSelectedByOther(true);
-          piece.setOtherUserColor(userColor);
+          piece.setSelectionColor(userColor);
         }
       });
       this.currentSelections.set(userId, newPieceIds);
@@ -473,7 +473,7 @@ export default class NetworkHandler {
     for (const piece of this.puzzle.pieces) {
       const p = piece as Piece;
       if (p.isSelected) {
-        p.setUserColor(this.myColor);
+        p.setSelectionColor(this.myColor);
       }
     }
   }
@@ -572,7 +572,7 @@ export default class NetworkHandler {
       this.lastSelectionSync = pieceIds;
       // Update newly selected pieces with our color
       for (const piece of selectedPieces) {
-        (piece as Piece).setUserColor(this.myColor);
+        (piece as Piece).setSelectionColor(this.myColor);
       }
       await this.syncSelection(pieceIds);
     }

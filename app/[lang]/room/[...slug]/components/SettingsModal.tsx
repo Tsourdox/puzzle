@@ -245,6 +245,17 @@ export default function SettingsModal({ lang }: SettingsModalProps) {
                 })
               }
             />
+
+            <Switch
+              label={t('Show remote selections')}
+              checked={settings.network.showRemoteSelections}
+              onChange={(checked) =>
+                setSettings({
+                  ...settings,
+                  network: { ...settings.network, showRemoteSelections: checked },
+                })
+              }
+            />
           </div>
 
           <div className="space-y-4 pt-6">

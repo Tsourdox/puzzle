@@ -389,6 +389,13 @@ const translations = {
     de: 'Multiplayer-Mauszeiger anzeigen',
     fi: 'Näytä moninpelin kursorit',
   },
+  'Show remote selections': {
+    sv: 'Visa fjärrval',
+    no: 'Vis fjernvalg',
+    da: 'Vis fjernvalg',
+    de: 'Remote-Auswahlen anzeigen',
+    fi: 'Näytä etävalinnat',
+  },
   'Show FPS counter': {
     sv: 'Visa FPS räknare',
     no: 'Vis FPS-teller',

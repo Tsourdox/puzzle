@@ -130,7 +130,7 @@ export default class Puzzle implements IPuzzle, ISerializablePuzzle {
     this.pieceCount = this.p.createVector(xy, xy);
     this.pieceSize = this.p.createVector(this.image.width / xy, this.image.height / xy);
 
-    this.piecesFactory = new PiecesFactory(this.p, xy, xy, this.image);
+    this.piecesFactory = new PiecesFactory(this.p, xy, xy, this.image, this.settings);
     this.pieces = this.piecesFactory.createAllPieces();
     this.invalidatePieceSortCache();
 
@@ -363,7 +363,7 @@ export default class Puzzle implements IPuzzle, ISerializablePuzzle {
           this.image = image;
           this.pieceCount = this.p.createVector(x, y);
           this.pieceSize = this.p.createVector(image.width / x, image.height / y);
-          this.piecesFactory = new PiecesFactory(this.p, x, y, image, puzzle.seed);
+          this.piecesFactory = new PiecesFactory(this.p, x, y, image, this.settings, puzzle.seed);
           this.pieces = this.piecesFactory.createAllPieces(true);
           this.invalidatePieceSortCache();
           resolve();

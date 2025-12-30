@@ -1,5 +1,6 @@
 import p5 from 'p5';
 import Piece, { Sides } from './piece';
+import { ISettings } from './settings';
 import { angleBetween } from './utils/general';
 
 export default class PiecesFactory {
@@ -10,14 +11,16 @@ export default class PiecesFactory {
   private image: p5.Image;
   private offset: number;
   public seed: number;
+  private settings: ISettings;
 
-  constructor(p: p5, x: number, y: number, image: p5.Image, seed?: number) {
+  constructor(p: p5, x: number, y: number, image: p5.Image, settings: ISettings, seed?: number) {
     this.p = p;
     this.puzzleSize = this.p.createVector(x, y);
     this.cellSize = this.p.createVector(image.width / x, image.height / y);
     this.grid = [];
     this.image = image;
     this.offset = this.cellSize.mag() / 12;
+    this.settings = settings;
     this.seed = seed || this.p.floor(this.p.random(0, 100));
     this.p.randomSeed(this.seed);
 
@@ -49,7 +52,7 @@ export default class PiecesFactory {
 
         const image = imageWithOffset.get(pieceX, pieceY, pieceW, pieceH);
         const id = pieces.length; // array index
-        const piece = new Piece(this.p, id, image, origin, this.cellSize, sides, offset);
+        const piece = new Piece(this.p, id, image, origin, this.cellSize, sides, offset, this.settings);
         pieces.push(piece);
       }
 

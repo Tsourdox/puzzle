@@ -21,6 +21,7 @@ export interface ISettings {
   };
   network: {
     showMultiplayerCursors: boolean;
+    showRemoteSelections: boolean;
   };
 }
 
@@ -47,6 +48,7 @@ export const DEFAULT_SETTINGS: ISettings = {
   },
   network: {
     showMultiplayerCursors: true,
+    showRemoteSelections: true,
   },
 };
 

@@ -6,6 +6,7 @@ import {
   ISerializablePiece,
   ISerializedPieceData,
 } from './network/types';
+import { ISettings } from './settings';
 import { getAverageCenter, rotatePointAroundCenter, toPoint, toVector } from './utils/general';
 
 export interface Sides {
@@ -41,11 +42,10 @@ export default class Piece implements ISerializablePiece {
   private offset: number;
   private _isSelected: boolean;
   private _isSelectedByOther: boolean;
+  private selectionColor: string;
   private graphicNeedsUpdating: boolean;
-  private readonly LERP_DELAY = LERP_DURATION_MS;
   private lerpTime: number;
-  private userColor: string;
-  private otherUserColor: string;
+  private settings: ISettings;
 
   constructor(
     p: p5,
@@ -55,6 +55,7 @@ export default class Piece implements ISerializablePiece {
     size: p5.Vector,
     sides: Sides,
     offset: number,
+    settings: ISettings,
   ) {
     this.p = p;
     this.id = id;
@@ -64,7 +65,7 @@ export default class Piece implements ISerializablePiece {
     this.nextRotation = 0;
     this._translation = p.createVector(0, 0);
     this.nextTranslation = p.createVector(0, 0);
-    this.lerpTime = this.LERP_DELAY;
+    this.lerpTime = LERP_DURATION_MS;
     this.image = image;
     this.origin = origin;
     this.size = size;
@@ -73,10 +74,10 @@ export default class Piece implements ISerializablePiece {
     this.center = getAverageCenter(this.p, this.getCorners());
     this._isSelected = false;
     this._isSelectedByOther = false;
-    this.userColor = '#fff';
-    this.otherUserColor = '#fff';
+    this.selectionColor = '#fff';
     this._connectedSides = [];
     this.graphicNeedsUpdating = false;
+    this.settings = settings;
     this.graphics = p.createGraphics(
       p.round(this.size.x + offset * 2),
       p.round(this.size.y + offset * 2),
@@ -157,16 +158,9 @@ export default class Piece implements ISerializablePiece {
     this.graphicNeedsUpdating = true;
   }
 
-  public setUserColor(color: string): void {
-    if (this.userColor !== color) {
-      this.userColor = color;
-      this.graphicNeedsUpdating = true;
-    }
-  }
-
-  public setOtherUserColor(color: string): void {
-    if (this.otherUserColor !== color) {
-      this.otherUserColor = color;
+  public setSelectionColor(color: string): void {
+    if (this.selectionColor !== color) {
+      this.selectionColor = color;
       this.graphicNeedsUpdating = true;
     }
   }
@@ -182,13 +176,9 @@ export default class Piece implements ISerializablePiece {
     this.graphics.translate(this.offset, this.offset);
     this.graphics.noFill();
 
-    if (this.isSelected) {
-      this.graphics.stroke(this.userColor);
+    if (this._isSelected || (this._isSelectedByOther && this.settings.network.showRemoteSelections)) {
+      this.graphics.stroke(this.selectionColor);
       this.graphics.strokeWeight(this.size.mag() / 60);
-      this.drawSelectionOutline();
-    } else if (this._isSelectedByOther) {
-      this.graphics.stroke(this.otherUserColor);
-      this.graphics.strokeWeight(this.size.mag() / 70);
       this.drawSelectionOutline();
     } else {
       this.graphics.stroke('#000');
@@ -287,9 +277,9 @@ export default class Piece implements ISerializablePiece {
 
   public update() {
     const { p } = this;
-    if (this.lerpTime < this.LERP_DELAY) {
+    if (this.lerpTime < LERP_DURATION_MS) {
       this.lerpTime += p.deltaTime;
-      const t = p.min(1, this.lerpTime / this.LERP_DELAY);
+      const t = p.min(1, this.lerpTime / LERP_DURATION_MS);
       this._translation.lerp(this.nextTranslation, t);
       this._rotation = p.lerp(this._rotation, this.nextRotation, t);
     }
