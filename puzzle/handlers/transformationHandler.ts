@@ -197,6 +197,5 @@ export default class TransformHandler implements ITransformHandler {
       this.translatePiece(piece, delta);
       piece.elevation = i;
     }
-    this.puzzle.invalidatePieceSortCache();
   }
 }

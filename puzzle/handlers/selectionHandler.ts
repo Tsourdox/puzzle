@@ -142,8 +142,6 @@ export default class SelectionHandler implements ISelectionHandler {
       piece.isSelected = false;
     }
 
-    this.puzzle.invalidateSelectedPiecesCache();
-
     // Sync with React Store
     this.puzzle.setShowPuzzlePieceActions(false);
   }
@@ -159,9 +157,6 @@ export default class SelectionHandler implements ISelectionHandler {
         piece.elevation = maxElev + 1;
       }
     });
-
-    this.puzzle.invalidatePieceSortCache();
-    this.puzzle.invalidateSelectedPiecesCache();
 
     const selectedPieces = this.puzzle.selectedPieces;
     this.puzzle.setShowPuzzlePieceActions(Boolean(selectedPieces.length));

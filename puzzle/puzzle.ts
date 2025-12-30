@@ -21,8 +21,6 @@ export interface IPuzzle {
   pieceSize: p5.Vector;
   readonly selectedPieces: ReadonlyArray<Piece>;
   readonly setShowPuzzlePieceActions: (show: boolean) => void;
-  invalidatePieceSortCache(): void;
-  invalidateSelectedPiecesCache(): void;
 }
 
 export default class Puzzle implements IPuzzle, ISerializablePuzzle {
@@ -40,8 +38,6 @@ export default class Puzzle implements IPuzzle, ISerializablePuzzle {
   private piecesFactory?: PiecesFactory;
   private size: Size;
   private imageData: PexelsImage;
-  private sortedPiecesCache?: Piece[];
-  private selectedPiecesCache?: Piece[];
   private readonly cursorVertices = {
     tip: [0, 0],
     leftBottom: [0, 11.76],
@@ -132,7 +128,6 @@ export default class Puzzle implements IPuzzle, ISerializablePuzzle {
 
     this.piecesFactory = new PiecesFactory(this.p, xy, xy, this.image, this.settings);
     this.pieces = this.piecesFactory.createAllPieces();
-    this.invalidatePieceSortCache();
 
     // Explode pieces slightly to avoid initial stacking
     const explosionFactor = 0.5;
@@ -155,10 +150,7 @@ export default class Puzzle implements IPuzzle, ISerializablePuzzle {
   }
 
   public get selectedPieces(): Piece[] {
-    if (!this.selectedPiecesCache) {
-      this.selectedPiecesCache = this.pieces.filter((p) => p.isSelected);
-    }
-    return this.selectedPiecesCache;
+    return this.pieces.filter((p) => p.isSelected);
   }
 
   public zoomIn() {
@@ -246,20 +238,10 @@ export default class Puzzle implements IPuzzle, ISerializablePuzzle {
   }
 
   private drawPieces() {
-    if (!this.sortedPiecesCache) {
-      this.sortedPiecesCache = sortPieces(this.pieces);
-    }
-    for (const piece of this.sortedPiecesCache) {
+    const sortedPieces = sortPieces(this.pieces);
+    for (const piece of sortedPieces) {
       piece.draw();
     }
-  }
-
-  public invalidatePieceSortCache() {
-    this.sortedPiecesCache = undefined;
-  }
-
-  public invalidateSelectedPiecesCache() {
-    this.selectedPiecesCache = undefined;
   }
 
   private drawRemoteCursors() {
@@ -365,7 +347,6 @@ export default class Puzzle implements IPuzzle, ISerializablePuzzle {
           this.pieceSize = this.p.createVector(image.width / x, image.height / y);
           this.piecesFactory = new PiecesFactory(this.p, x, y, image, this.settings, puzzle.seed);
           this.pieces = this.piecesFactory.createAllPieces(true);
-          this.invalidatePieceSortCache();
           resolve();
         });
       } catch (error) {
