@@ -21,6 +21,8 @@ export interface IPuzzle {
   pieceSize: p5.Vector;
   readonly selectedPieces: ReadonlyArray<Piece>;
   readonly setShowPuzzlePieceActions: (show: boolean) => void;
+  invalidatePieceSortCache(): void;
+  invalidateSelectedPiecesCache(): void;
 }
 
 export default class Puzzle implements IPuzzle, ISerializablePuzzle {
@@ -38,6 +40,19 @@ export default class Puzzle implements IPuzzle, ISerializablePuzzle {
   private piecesFactory?: PiecesFactory;
   private size: Size;
   private imageData: PexelsImage;
+  private sortedPiecesCache?: Piece[];
+  private selectedPiecesCache?: Piece[];
+  private readonly cursorVertices = {
+    tip: [0, 0],
+    leftBottom: [0, 11.76],
+    notchStart: [2.88, 9.6],
+    handleBottomLeft: [4.8, 14.4],
+    handleBottom1: [5.52, 14.8],
+    handleBottom2: [6.53, 14.4],
+    handleBottomRight: [6.72, 13.6],
+    notchEnd: [4.9, 8.8],
+    rightPoint: [8.72, 8.64],
+  };
 
   private settings: ISettings;
 
@@ -117,6 +132,7 @@ export default class Puzzle implements IPuzzle, ISerializablePuzzle {
 
     this.piecesFactory = new PiecesFactory(this.p, xy, xy, this.image);
     this.pieces = this.piecesFactory.createAllPieces();
+    this.invalidatePieceSortCache();
 
     // Explode pieces slightly to avoid initial stacking
     const explosionFactor = 0.5;
@@ -138,10 +154,11 @@ export default class Puzzle implements IPuzzle, ISerializablePuzzle {
     await this.networkHandler.createRoom(puzzleData);
   }
 
-  // todo: borde sparas eftersom detta blir kostsamt med många bitar
-  // samt flytta till InputHandler
   public get selectedPieces(): Piece[] {
-    return this.pieces.filter((p) => p.isSelected);
+    if (!this.selectedPiecesCache) {
+      this.selectedPiecesCache = this.pieces.filter((p) => p.isSelected);
+    }
+    return this.selectedPiecesCache;
   }
 
   public zoomIn() {
@@ -234,23 +251,33 @@ export default class Puzzle implements IPuzzle, ISerializablePuzzle {
   }
 
   private drawPieces() {
-    for (const piece of sortPieces(this.pieces)) {
+    if (!this.sortedPiecesCache) {
+      this.sortedPiecesCache = sortPieces(this.pieces);
+    }
+    for (const piece of this.sortedPiecesCache) {
       piece.draw();
     }
   }
 
+  public invalidatePieceSortCache() {
+    this.sortedPiecesCache = undefined;
+  }
+
+  public invalidateSelectedPiecesCache() {
+    this.selectedPiecesCache = undefined;
+  }
+
   private drawRemoteCursors() {
-    if (this.settings.network.hideMultiplayerCursors) {
-      return;
-    }
+    if (this.settings.network.hideMultiplayerCursors) return;
 
     const remoteCursors = this.networkHandler.getRemoteCursors();
+    if (!remoteCursors.size) return;
+
     const now = Date.now();
     const scale = this.inputHandler.graphHandler.scale;
     const translation = this.inputHandler.graphHandler.translation;
 
     for (const [userId, cursor] of remoteCursors) {
-      // Skip stale cursors (user idle or left)
       if (now - cursor.lastUpdate > CURSOR_INACTIVE_TIMEOUT_MS) {
         continue;
       }
@@ -263,24 +290,11 @@ export default class Puzzle implements IPuzzle, ISerializablePuzzle {
       this.p.translate(screenX, screenY);
       this.p.strokeJoin(this.p.ROUND);
 
-      const vertices = {
-        tip: [0, 0],
-        leftBottom: [0, 11.76],
-        notchStart: [2.88, 9.6],
-        handleBottomLeft: [4.8, 14.4],
-        handleBottom1: [5.52, 14.8],
-        handleBottom2: [6.53, 14.4],
-        handleBottomRight: [6.72, 13.6],
-        notchEnd: [4.9, 8.8],
-        rightPoint: [8.72, 8.64],
-      };
-
-      // White outline for visibility
       this.p.fill(255);
       this.p.stroke(255);
       this.p.strokeWeight(3);
       this.p.beginShape();
-      for (const [x, y] of Object.values(vertices)) {
+      for (const [x, y] of Object.values(this.cursorVertices)) {
         this.p.vertex(x, y);
       }
       this.p.endShape(this.p.CLOSE);
@@ -289,7 +303,7 @@ export default class Puzzle implements IPuzzle, ISerializablePuzzle {
       this.p.stroke(0);
       this.p.strokeWeight(1.2);
       this.p.beginShape();
-      for (const [x, y] of Object.values(vertices)) {
+      for (const [x, y] of Object.values(this.cursorVertices)) {
         this.p.vertex(x, y);
       }
       this.p.endShape(this.p.CLOSE);
@@ -356,6 +370,7 @@ export default class Puzzle implements IPuzzle, ISerializablePuzzle {
           this.pieceSize = this.p.createVector(image.width / x, image.height / y);
           this.piecesFactory = new PiecesFactory(this.p, x, y, image, puzzle.seed);
           this.pieces = this.piecesFactory.createAllPieces(true);
+          this.invalidatePieceSortCache();
           resolve();
         });
       } catch (error) {

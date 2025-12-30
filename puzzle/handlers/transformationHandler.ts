@@ -31,7 +31,7 @@ export default class TransformHandler implements ITransformHandler {
   }
 
   private get selectedPieces(): Piece[] {
-    return this.puzzle.pieces.filter((p) => p.isSelected);
+    return this.puzzle.selectedPieces as Piece[];
   }
 
   public update(prevMouse: p5.Vector, prevTouches: Touches, scrollDelta: number) {
@@ -197,5 +197,6 @@ export default class TransformHandler implements ITransformHandler {
       this.translatePiece(piece, delta);
       piece.elevation = i;
     }
+    this.puzzle.invalidatePieceSortCache();
   }
 }

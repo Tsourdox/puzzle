@@ -158,7 +158,9 @@ export default class SelectionHandler implements ISelectionHandler {
       }
     });
 
-    // Sync with React Store
+    this.puzzle.invalidatePieceSortCache();
+    this.puzzle.invalidateSelectedPiecesCache();
+
     const selectedPieces = this.puzzle.selectedPieces;
     this.puzzle.setShowPuzzlePieceActions(Boolean(selectedPieces.length));
   }
