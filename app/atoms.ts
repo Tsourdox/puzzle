@@ -1,4 +1,4 @@
-import { ISettingsMap, settings as defaultSettings } from '@/puzzle/utils/settings';
+import { DEFAULT_SETTINGS, ISettings } from '@/puzzle/settings';
 import { Size } from '@/utils/sizes';
 import { atom } from 'jotai';
 import { atomWithStorage } from 'jotai/utils';
@@ -17,5 +17,6 @@ export const showPuzzlePieceActionsAtom = atom(false);
 // Puzzle actions (methods to control the puzzle)
 export const puzzleActionsAtom = atom<PuzzleActions | null>(null);
 
-// Settings state with localStorage persistence (using Jotai's built-in storage atom)
-export const settingsAtom = atomWithStorage<ISettingsMap>('puzzelin-settings', defaultSettings);
+// Settings state with localStorage persistence
+// Using 'v2' key to ignore old settings structure
+export const settingsAtom = atomWithStorage<ISettings>('puzzelin-settings-v2', DEFAULT_SETTINGS);

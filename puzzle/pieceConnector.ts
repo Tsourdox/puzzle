@@ -5,20 +5,21 @@ import type NetworkHandler from './network/networkHandler';
 import Piece, { Side } from './piece';
 import type { IPuzzle } from './puzzle';
 import { getAdjecentPiece, getConnectedPieces } from './utils/pieces';
-import { ISettingsMap, settings } from './utils/settings';
+import { ISettings } from './settings';
 
 export default class PieceConnector {
   private puzzle: IPuzzle;
   private selectionHandler: ISelectionHandler;
   private transformHandler: ITransformHandler;
   private networkHandler: NetworkHandler;
-  private settings: ISettingsMap;
+  private settings: ISettings;
 
   constructor(
     puzzle: IPuzzle,
     selectionHandler: ISelectionHandler,
     transformHandler: ITransformHandler,
     networkHandler: NetworkHandler,
+    settings: ISettings,
   ) {
     this.puzzle = puzzle;
     this.selectionHandler = selectionHandler;
@@ -29,7 +30,7 @@ export default class PieceConnector {
 
   public update() {
     const { p } = this.puzzle;
-    if (p.keyIsPressed && p.keyCode === this.settings['koppla om bitar']) {
+    if (p.keyIsPressed && p.keyCode === this.settings.keybindings.reconnectPieces) {
       this.resetConnectionForSelectedPieces();
     }
     this.checkForConnectedPieces();

@@ -11,7 +11,7 @@ import PieceConnector from './pieceConnector';
 import PiecesFactory from './piecesFactory';
 import { toPoint } from './utils/general';
 import { sortPieces } from './utils/pieces';
-import { settings } from './utils/settings';
+import { ISettings } from './settings';
 
 export interface IPuzzle {
   p: p5;
@@ -39,11 +39,14 @@ export default class Puzzle implements IPuzzle, ISerializablePuzzle {
   private size: Size;
   private imageData: PexelsImage;
 
+  private settings: ISettings;
+
   constructor(
     p: p5,
     size: Size,
     image: PexelsImage,
     roomCode: string,
+    settings: ISettings,
     setShowPuzzlePieceActions: (show: boolean) => void,
     onImageChange?: (imageId: number | string) => void,
   ) {
@@ -51,11 +54,12 @@ export default class Puzzle implements IPuzzle, ISerializablePuzzle {
     this.p = p;
     this.size = size;
     this.imageData = image;
+    this.settings = settings;
     this.pieces = [];
     this.pieceCount = p.createVector(0, 0);
     this.pieceSize = p.createVector(0, 0);
     this.isModified = false;
-    this.inputHandler = new InputHandler(this);
+    this.inputHandler = new InputHandler(this, settings);
     this.networkSerializer = new NetworkSerializer(this, this.inputHandler.graphHandler, roomCode);
     this.networkHandler = new NetworkHandler(this, roomCode, image.id, onImageChange);
     const { selectionHandler, transformHandler } = this.inputHandler;
@@ -64,7 +68,12 @@ export default class Puzzle implements IPuzzle, ISerializablePuzzle {
       selectionHandler,
       transformHandler,
       this.networkHandler,
+      settings,
     );
+  }
+
+  public updateSettings(settings: ISettings) {
+    Object.assign(this.settings, settings);
   }
 
   private async loadCanvasImage(src: string) {
@@ -250,7 +259,7 @@ export default class Puzzle implements IPuzzle, ISerializablePuzzle {
 
   private drawRemoteCursors() {
     // Check if user wants to hide multiplayer cursors
-    if (settings['dölj multiplayer-muspekare']) {
+    if (this.settings.network.hideMultiplayerCursors) {
       return;
     }
 

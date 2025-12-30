@@ -3,7 +3,7 @@ import Piece from '../piece';
 import type { IPuzzle } from '../puzzle';
 import { angleBetween, getAverageCenter, getMostDistantPoints } from '../utils/general';
 import { getConnectedPieces, rotateAroundCenter } from '../utils/pieces';
-import { ISettingsMap, settings } from '../utils/settings';
+import { ISettings } from '../settings';
 import type { IGraph } from './graphHandler';
 import type { Touches } from './inputHandler';
 import type { ISelectionHandler } from './selectionHandler';
@@ -19,9 +19,9 @@ export default class TransformHandler implements ITransformHandler {
   private selection: ISelectionHandler;
   private stackKeyPrevDown: boolean;
   private explodeKeyPrevDown: boolean;
-  private settings: ISettingsMap;
+  private settings: ISettings;
 
-  constructor(puzzle: IPuzzle, graph: IGraph, selection: ISelectionHandler) {
+  constructor(puzzle: IPuzzle, graph: IGraph, selection: ISelectionHandler, settings: ISettings) {
     this.puzzle = puzzle;
     this.graph = graph;
     this.selection = selection;
@@ -43,8 +43,8 @@ export default class TransformHandler implements ITransformHandler {
 
   protected setPreviousValues() {
     const { p } = this.puzzle;
-    this.stackKeyPrevDown = p.keyIsDown(this.settings['stapla bitar']);
-    this.explodeKeyPrevDown = p.keyIsDown(this.settings['sprid bitar']);
+    this.stackKeyPrevDown = p.keyIsDown(this.settings.keybindings.stackPieces);
+    this.explodeKeyPrevDown = p.keyIsDown(this.settings.keybindings.explodePieces);
   }
 
   /** Will also rotate connected pieces */
@@ -72,7 +72,7 @@ export default class TransformHandler implements ITransformHandler {
     if (p.touches.length > 1) return;
 
     // Dragging with mouse or touch
-    const isMassSelecting = p.keyIsDown(this.settings['markera fler']);
+    const isMassSelecting = p.keyIsDown(this.settings.keybindings.selectMultiple);
     if (
       ((p.mouseIsPressed && p.mouseButton === p.LEFT) || p.touches.length) &&
       !this.selection.isDragSelecting &&
@@ -89,12 +89,12 @@ export default class TransformHandler implements ITransformHandler {
   private handlePieceRotation(prevTouches: Touches, scrollDelta: number) {
     const { p } = this.puzzle;
     // Keyboard
-    const userSpeed = this.settings['rotationshastighet'];
+    const userSpeed = this.settings.puzzle.rotationSpeed;
     const rotation = (2 / p.frameRate()) * userSpeed;
-    if (p.keyIsDown(this.settings['rotera vänster'])) {
+    if (p.keyIsDown(this.settings.keybindings.rotateLeft)) {
       this.rotatePieces(-rotation);
     }
-    if (p.keyIsDown(this.settings['rotera höger'])) {
+    if (p.keyIsDown(this.settings.keybindings.rotateRight)) {
       this.rotatePieces(rotation);
     }
 
@@ -117,10 +117,10 @@ export default class TransformHandler implements ITransformHandler {
 
   private handlePieceExploding() {
     const { p } = this.puzzle;
-    if (p.keyIsDown(this.settings['sprid bitar']) && !this.explodeKeyPrevDown) {
+    if (p.keyIsDown(this.settings.keybindings.explodePieces) && !this.explodeKeyPrevDown) {
       this.explodePieces();
     }
-    if (p.keyIsDown(this.settings['stapla bitar']) && !this.stackKeyPrevDown) {
+    if (p.keyIsDown(this.settings.keybindings.stackPieces) && !this.stackKeyPrevDown) {
       this.stackPieces();
     }
   }

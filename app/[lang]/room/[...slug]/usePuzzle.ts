@@ -2,12 +2,11 @@ import { settingsAtom, showPuzzlePieceActionsAtom } from '@/app/atoms';
 import { Lang, getTranslation } from '@/language';
 import Puzzle from '@/puzzle/puzzle';
 import { isMouseOverCanvas } from '@/puzzle/utils/general';
-import { settings } from '@/puzzle/utils/settings';
 import { PexelsImage } from '@/utils/pexels';
 import { preventDefaultEvents } from '@/utils/preventEvents';
 import { Size } from '@/utils/sizes';
 import { useAtomValue, useSetAtom } from 'jotai';
-import { useRouter, usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import p5 from 'p5';
 import { RefObject, WheelEvent, useEffect, useRef } from 'react';
 
@@ -33,7 +32,7 @@ export interface PuzzleActions {
 
 export default function usePuzzle({ containerRef, onReady, image, size, roomCode, lang }: Props) {
   const setShowPuzzlePieceActions = useSetAtom(showPuzzlePieceActionsAtom);
-  const reactSettings = useAtomValue(settingsAtom);
+  const settings = useAtomValue(settingsAtom);
   const router = useRouter();
   const pathname = usePathname();
   const puzzleRef = useRef<Puzzle | null>(null);
@@ -48,15 +47,19 @@ export default function usePuzzle({ containerRef, onReady, image, size, roomCode
     deselectAll: () => puzzleRef.current?.deselectAll(),
   });
 
-  // Sync React settings to global puzzle settings object
   useEffect(() => {
-    Object.assign(settings, reactSettings);
-  }, [reactSettings]);
+    if (puzzleRef.current) {
+      puzzleRef.current.updateSettings(settings);
+      // Apply frameRate immediately (doesn't require reload)
+      const fps = settings.puzzle.fpsMode === 'low' ? 30 : settings.puzzle.fpsMode === 'normal' ? 60 : 90;
+      puzzleRef.current.p.frameRate(fps);
+    }
+  }, [settings]);
 
-  // useEffect(() => {
-  //   document.body.classList.add('overflow-hidden');
-  //   return () => document.body.classList.remove('overflow-hidden');
-  // }, []);
+  useEffect(() => {
+    document.body.classList.add('overflow-hidden');
+    return () => document.body.classList.remove('overflow-hidden');
+  }, []);
 
   useEffect(() => {
     let puzzle: Puzzle;
@@ -72,7 +75,8 @@ export default function usePuzzle({ containerRef, onReady, image, size, roomCode
       p.setup = () => {
         preventDefaultEvents();
         p.createCanvas(width, height);
-        p.frameRate(90);
+        const fps = settings.puzzle.fpsMode === 'low' ? 30 : settings.puzzle.fpsMode === 'normal' ? 60 : 90;
+        p.frameRate(fps);
 
         // Callback for when another player changes the puzzle image
         const handleImageChange = (newImageId: number | string) => {
@@ -91,7 +95,15 @@ export default function usePuzzle({ containerRef, onReady, image, size, roomCode
           }
         };
 
-        puzzle = new Puzzle(p, size, image, roomCode, setShowPuzzlePieceActions, handleImageChange);
+        puzzle = new Puzzle(
+          p,
+          size,
+          image,
+          roomCode,
+          settings,
+          setShowPuzzlePieceActions,
+          handleImageChange,
+        );
         puzzleRef.current = puzzle;
         puzzle
           .tryLoadPuzzle()

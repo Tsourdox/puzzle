@@ -2,7 +2,7 @@ import p5 from 'p5';
 import { IGraphData, ISerializableGraph } from '../network/types';
 import { IPuzzle } from '../puzzle';
 import { getMostDistantPoints, pointBetween, toPoint, toVector } from '../utils/general';
-import { ISettingsMap, settings } from '../utils/settings';
+import { ISettings } from '../settings';
 import { Touches } from './inputHandler';
 
 export interface IGraph {
@@ -14,11 +14,11 @@ export default class GraphHandler implements IGraph, ISerializableGraph {
   private _isModified: boolean;
   private _scale: number;
   private _translation: p5.Vector;
-  private settings: ISettingsMap;
+  private settings: ISettings;
   private puzzle: IPuzzle;
   private isGraphDisabled: number;
 
-  constructor(puzzle: IPuzzle) {
+  constructor(puzzle: IPuzzle, settings: ISettings) {
     this.puzzle = puzzle;
     this.settings = settings;
     this._isModified = false;
@@ -78,7 +78,7 @@ export default class GraphHandler implements IGraph, ISerializableGraph {
 
     // Apply zoom
     if (zoomDelta !== 0) {
-      const invert = this.settings['invertera zoom'];
+      const invert = this.settings.puzzle.invertZoom;
       const zoomFactor = 1 + zoomDelta * -0.002 * (invert ? -1 : 1);
       const nextScale = p.constrain(this.scale * zoomFactor, 0.01, 100);
 

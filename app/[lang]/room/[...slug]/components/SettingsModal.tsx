@@ -1,7 +1,7 @@
 'use client';
 import { settingsAtom, showSettingsAtom } from '@/app/atoms';
 import { getTranslation, Lang } from '@/language';
-import { ISetting } from '@/puzzle/utils/settings';
+import { DEFAULT_SETTINGS, KeybindingKey } from '@/puzzle/settings';
 import { XMarkIcon } from '@heroicons/react/24/outline';
 import { useAtom } from 'jotai';
 import { useEffect, useState } from 'react';
@@ -10,11 +10,25 @@ interface SettingsModalProps {
   lang: Lang;
 }
 
+const KEYBINDING_KEYS = Object.keys(DEFAULT_SETTINGS.keybindings) as KeybindingKey[];
+
 export default function SettingsModal({ lang }: SettingsModalProps) {
   const t = getTranslation(lang);
   const [isOpen, setIsOpen] = useAtom(showSettingsAtom);
   const [settings, setSettings] = useAtom(settingsAtom);
-  const [waitingForKey, setWaitingForKey] = useState<ISetting | null>(null);
+  const [waitingForKey, setWaitingForKey] = useState<KeybindingKey | null>(null);
+
+  const getKeybindingLabel = (key: KeybindingKey): string => {
+    const labels: Record<KeybindingKey, string> = {
+      rotateLeft: t('Rotate left'),
+      rotateRight: t('Rotate right'),
+      stackPieces: t('Stack pieces'),
+      explodePieces: t('Explode pieces'),
+      selectMultiple: t('Select multiple'),
+      reconnectPieces: t('Reconnect pieces'),
+    };
+    return labels[key];
+  };
 
   // Convert e.code to keyCode for p5.js compatibility
   const codeToKeyCode = (code: string): number => {
@@ -59,7 +73,10 @@ export default function SettingsModal({ lang }: SettingsModalProps) {
       const keyCode = codeToKeyCode(e.code);
       const newSettings = {
         ...settings,
-        [waitingForKey]: keyCode,
+        keybindings: {
+          ...settings.keybindings,
+          [waitingForKey]: keyCode,
+        },
       };
       setSettings(newSettings);
 
@@ -70,20 +87,14 @@ export default function SettingsModal({ lang }: SettingsModalProps) {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [waitingForKey, settings, setSettings]);
 
-  const handleSliderChange = (key: ISetting, value: number) => {
-    const newSettings = {
+  const handleRotationSpeedChange = (value: number) => {
+    setSettings({
       ...settings,
-      [key]: value,
-    };
-    setSettings(newSettings);
-  };
-
-  const handleToggleChange = (key: ISetting, checked: boolean) => {
-    const newSettings = {
-      ...settings,
-      [key]: checked ? 1 : 0,
-    };
-    setSettings(newSettings);
+      puzzle: {
+        ...settings.puzzle,
+        rotationSpeed: value,
+      },
+    });
   };
 
   const getKeyName = (keyCode: number): string => {
@@ -125,37 +136,125 @@ export default function SettingsModal({ lang }: SettingsModalProps) {
 
           <h2 className="text-3xl font-bold text-zinc-100 mb-8">{t('Settings')}</h2>
 
-          {/* Rotation Speed Slider */}
-          <div className="space-y-2">
-            <label className="text-zinc-300 text-sm font-medium">{t('Rotation speed')}</label>
-            <input
-              type="range"
-              min="0.2"
-              max="5"
-              step="0.1"
-              value={settings.rotationshastighet}
-              onChange={(e) => handleSliderChange('rotationshastighet', parseFloat(e.target.value))}
-              className="w-full h-2 bg-zinc-700 rounded-lg appearance-none cursor-pointer [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:bg-purple-500 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:cursor-pointer"
-            />
-            <div className="text-zinc-500 text-xs text-right">
-              {settings.rotationshastighet.toFixed(1)}
+          {/* Puzzle Settings */}
+          <div className="space-y-4">
+            <h3 className="text-xl font-semibold text-zinc-200">{t('Puzzle')}</h3>
+
+            {/* Performance Mode */}
+            <div className="space-y-2">
+              <label className="text-zinc-300 text-sm font-medium">{t('Optimize for')}</label>
+              <div className="flex gap-2">
+                {(['low', 'normal', 'performance'] as const).map((mode) => (
+                  <button
+                    key={mode}
+                    onClick={() =>
+                      setSettings({
+                        ...settings,
+                        puzzle: { ...settings.puzzle, fpsMode: mode },
+                      })
+                    }
+                    className={`flex-1 px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+                      settings.puzzle.fpsMode === mode
+                        ? 'bg-purple-600 text-white'
+                        : 'bg-zinc-700 text-zinc-200 hover:bg-zinc-600'
+                    }`}
+                  >
+                    {mode === 'low' ? t('Battery') : mode === 'normal' ? t('Balance') : t('Performance')}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Rotation Speed */}
+            <div className="space-y-2">
+              <label className="text-zinc-300 text-sm font-medium">{t('Rotation speed')}</label>
+              <input
+                type="range"
+                min="0.2"
+                max="5"
+                step="0.1"
+                value={settings.puzzle.rotationSpeed}
+                onChange={(e) => handleRotationSpeedChange(parseFloat(e.target.value))}
+                className="w-full h-2 bg-zinc-700 rounded-lg appearance-none cursor-pointer [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:bg-purple-500 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:cursor-pointer"
+              />
+              <div className="text-zinc-500 text-xs text-right">
+                {settings.puzzle.rotationSpeed.toFixed(1)}
+              </div>
+            </div>
+
+            {/* Invert Zoom */}
+            <div className="flex items-center justify-between">
+              <span className="text-zinc-300">{t('Invert zoom')}</span>
+              <label className="relative inline-flex items-center cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={settings.puzzle.invertZoom}
+                  onChange={(e) =>
+                    setSettings({
+                      ...settings,
+                      puzzle: { ...settings.puzzle, invertZoom: e.target.checked },
+                    })
+                  }
+                  className="sr-only peer"
+                />
+                <div className="w-11 h-6 bg-zinc-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-purple-600"></div>
+              </label>
             </div>
           </div>
 
-          {/* Key Bindings */}
-          <div className="space-y-4">
-            <h3 className="text-xl font-semibold text-zinc-200 mt-6">{t('Key bindings')}</h3>
+          {/* UI Settings */}
+          <div className="space-y-4 pt-6">
+            <h3 className="text-xl font-semibold text-zinc-200">{t('Interface')}</h3>
 
-            {[
-              { key: 'rotera vänster' as ISetting, label: t('Rotate left') },
-              { key: 'rotera höger' as ISetting, label: t('Rotate right') },
-              { key: 'stapla bitar' as ISetting, label: t('Stack pieces') },
-              { key: 'sprid bitar' as ISetting, label: t('Explode pieces') },
-              { key: 'markera fler' as ISetting, label: t('Select multiple') },
-              { key: 'koppla om bitar' as ISetting, label: t('Reconnect pieces') },
-            ].map(({ key, label }) => (
+            <div className="flex items-center justify-between">
+              <span className="text-zinc-300">{t('Hide puzzle action buttons')}</span>
+              <label className="relative inline-flex items-center cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={settings.ui.hidePuzzleButtons}
+                  onChange={(e) =>
+                    setSettings({
+                      ...settings,
+                      ui: { ...settings.ui, hidePuzzleButtons: e.target.checked },
+                    })
+                  }
+                  className="sr-only peer"
+                />
+                <div className="w-11 h-6 bg-zinc-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-purple-600"></div>
+              </label>
+            </div>
+          </div>
+
+          {/* Network Settings */}
+          <div className="space-y-4 pt-6">
+            <h3 className="text-xl font-semibold text-zinc-200">{t('Network')}</h3>
+
+            <div className="flex items-center justify-between">
+              <span className="text-zinc-300">{t('Hide multiplayer cursors')}</span>
+              <label className="relative inline-flex items-center cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={settings.network.hideMultiplayerCursors}
+                  onChange={(e) =>
+                    setSettings({
+                      ...settings,
+                      network: { ...settings.network, hideMultiplayerCursors: e.target.checked },
+                    })
+                  }
+                  className="sr-only peer"
+                />
+                <div className="w-11 h-6 bg-zinc-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-purple-600"></div>
+              </label>
+            </div>
+          </div>
+
+          {/* Keybindings */}
+          <div className="space-y-4 pt-6">
+            <h3 className="text-xl font-semibold text-zinc-200">{t('Key bindings')}</h3>
+
+            {KEYBINDING_KEYS.map((key) => (
               <div key={key} className="flex items-center justify-between">
-                <span className="text-zinc-300">{label}</span>
+                <span className="text-zinc-300">{getKeybindingLabel(key)}</span>
                 <button
                   onClick={() => setWaitingForKey(key)}
                   className={`px-4 py-2 rounded-md min-w-25 font-mono text-sm transition-colors ${
@@ -164,52 +263,10 @@ export default function SettingsModal({ lang }: SettingsModalProps) {
                       : 'bg-zinc-700 text-zinc-200 hover:bg-zinc-600'
                   }`}
                 >
-                  {waitingForKey === key ? t('Press key') : getKeyName(settings[key])}
+                  {waitingForKey === key ? t('Press key') : getKeyName(settings.keybindings[key])}
                 </button>
               </div>
             ))}
-          </div>
-
-          {/* Toggles */}
-          <div className="space-y-4 pt-4">
-            <div className="flex items-center justify-between">
-              <span className="text-zinc-300">{t('Invert zoom')}</span>
-              <label className="relative inline-flex items-center cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={Boolean(settings['invertera zoom'])}
-                  onChange={(e) => handleToggleChange('invertera zoom', e.target.checked)}
-                  className="sr-only peer"
-                />
-                <div className="w-11 h-6 bg-zinc-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-purple-600"></div>
-              </label>
-            </div>
-
-            <div className="flex items-center justify-between">
-              <span className="text-zinc-300">{t('Hide puzzle action buttons')}</span>
-              <label className="relative inline-flex items-center cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={Boolean(settings['dölj pusselknappar'])}
-                  onChange={(e) => handleToggleChange('dölj pusselknappar', e.target.checked)}
-                  className="sr-only peer"
-                />
-                <div className="w-11 h-6 bg-zinc-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-purple-600"></div>
-              </label>
-            </div>
-
-            <div className="flex items-center justify-between">
-              <span className="text-zinc-300">{t('Hide multiplayer cursors')}</span>
-              <label className="relative inline-flex items-center cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={Boolean(settings['dölj multiplayer-muspekare'])}
-                  onChange={(e) => handleToggleChange('dölj multiplayer-muspekare', e.target.checked)}
-                  className="sr-only peer"
-                />
-                <div className="w-11 h-6 bg-zinc-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-purple-600"></div>
-              </label>
-            </div>
           </div>
         </div>
       </div>

@@ -1,5 +1,6 @@
 import p5 from 'p5';
 import { IPuzzle } from '../puzzle';
+import { ISettings } from '../settings';
 import { isMouseOverCanvas } from '../utils/general';
 import GraphHandler from './graphHandler';
 import SelectionHandler from './selectionHandler';
@@ -15,11 +16,11 @@ export default class InputHandler {
   private prevTouches: Touches;
   private puzzle: IPuzzle;
 
-  constructor(puzzle: IPuzzle) {
+  constructor(puzzle: IPuzzle, settings: ISettings) {
     this.puzzle = puzzle;
-    this.graphHandler = new GraphHandler(puzzle);
-    this.selectionHandler = new SelectionHandler(puzzle, this.graphHandler);
-    this.transformHandler = new TransformHandler(puzzle, this.graphHandler, this.selectionHandler);
+    this.graphHandler = new GraphHandler(puzzle, settings);
+    this.selectionHandler = new SelectionHandler(puzzle, this.graphHandler, settings);
+    this.transformHandler = new TransformHandler(puzzle, this.graphHandler, this.selectionHandler, settings);
     const { createVector, mouseX, mouseY } = puzzle.p;
     this.prevMouse = createVector(mouseX, mouseY);
     this.prevTouches = [];

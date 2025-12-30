@@ -3,7 +3,7 @@ import Piece from '../piece';
 import type { IPuzzle } from '../puzzle';
 import { Line, pointSideLocationOfLine, sum } from '../utils/general';
 import { getConnectedPieces, sortPieces } from '../utils/pieces';
-import { ISettingsMap, settings } from '../utils/settings';
+import { ISettings } from '../settings';
 import type { IGraph } from './graphHandler';
 
 export interface ISelectionHandler {
@@ -20,10 +20,10 @@ export default class SelectionHandler implements ISelectionHandler {
   private dragSelectionStroke: p5.Color;
   private timeSincePress: number;
   private dragSelectionOrigin?: p5.Vector;
-  private settings: ISettingsMap;
+  private settings: ISettings;
   private pressDelay: number;
 
-  constructor(puzzle: IPuzzle, graph: IGraph) {
+  constructor(puzzle: IPuzzle, graph: IGraph, settings: ISettings) {
     this.puzzle = puzzle;
     this.graph = graph;
     this.settings = settings;
@@ -69,7 +69,7 @@ export default class SelectionHandler implements ISelectionHandler {
 
     if (didPress && (p.mouseButton === p.LEFT || p.touches.length)) {
       const mouseOverAnyPiece = this.isMouseOverAnyPiece(this.puzzle.pieces);
-      if (!mouseOverAnyPiece || p.keyIsDown(this.settings['markera fler'])) {
+      if (!mouseOverAnyPiece || p.keyIsDown(this.settings.keybindings.selectMultiple)) {
         this.dragSelectionOrigin = p.createVector(p.mouseX, p.mouseY);
       }
     }
@@ -84,7 +84,7 @@ export default class SelectionHandler implements ISelectionHandler {
     if (didPress && (p.mouseButton === p.LEFT || p.touches.length)) {
       // Deselection
       if (this.puzzle.selectedPieces.length) {
-        const selectMore = p.keyIsDown(this.settings['markera fler']);
+        const selectMore = p.keyIsDown(this.settings.keybindings.selectMultiple);
         const mouseOverSelectedPiece = this.isMouseOverAnyPiece(this.puzzle.selectedPieces);
         if (!mouseOverSelectedPiece && !selectMore) {
           this.deselectAllPieces();
@@ -94,7 +94,7 @@ export default class SelectionHandler implements ISelectionHandler {
       // Selection
       for (const piece of sortPieces(this.puzzle.pieces, true)) {
         if (this.isMouseOverPiece(piece)) {
-          if (p.keyIsDown(this.settings['markera fler'])) {
+          if (p.keyIsDown(this.settings.keybindings.selectMultiple)) {
             this.select(piece, !piece.isSelected);
           } else {
             this.select(piece, true);
@@ -121,7 +121,7 @@ export default class SelectionHandler implements ISelectionHandler {
         }
         checkedPieces.push(...connectedPieces);
 
-        if (p.keyIsDown(this.settings['markera fler'])) {
+        if (p.keyIsDown(this.settings.keybindings.selectMultiple)) {
           this.select(piece, piece.isSelected || selectionIsOverAnyConnectedPiece);
         } else {
           this.select(piece, selectionIsOverAnyConnectedPiece);
