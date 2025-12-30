@@ -464,6 +464,17 @@ export default class NetworkHandler {
         color: this.myColor,
         online_at: new Date().toISOString(),
       });
+      // Update all currently selected pieces with new color
+      this.updateSelectedPiecesColor();
+    }
+  }
+
+  private updateSelectedPiecesColor(): void {
+    for (const piece of this.puzzle.pieces) {
+      const p = piece as Piece;
+      if (p.isSelected) {
+        p.setUserColor(this.myColor);
+      }
     }
   }
 
@@ -559,6 +570,10 @@ export default class NetworkHandler {
 
     if (changed) {
       this.lastSelectionSync = pieceIds;
+      // Update newly selected pieces with our color
+      for (const piece of selectedPieces) {
+        (piece as Piece).setUserColor(this.myColor);
+      }
       await this.syncSelection(pieceIds);
     }
   }

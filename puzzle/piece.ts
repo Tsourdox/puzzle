@@ -158,13 +158,17 @@ export default class Piece implements ISerializablePiece {
   }
 
   public setUserColor(color: string): void {
-    this.userColor = color;
-    this.graphicNeedsUpdating = true;
+    if (this.userColor !== color) {
+      this.userColor = color;
+      this.graphicNeedsUpdating = true;
+    }
   }
 
   public setOtherUserColor(color: string): void {
-    this.otherUserColor = color;
-    this.graphicNeedsUpdating = true;
+    if (this.otherUserColor !== color) {
+      this.otherUserColor = color;
+      this.graphicNeedsUpdating = true;
+    }
   }
 
   private updateGraphics() {

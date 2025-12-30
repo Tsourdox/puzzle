@@ -224,11 +224,6 @@ export default class Puzzle implements IPuzzle, ISerializablePuzzle {
 
     this.networkHandler.updateCursors(this.p.deltaTime);
 
-    const myColor = this.networkHandler.getMyColor();
-    for (const piece of this.selectedPieces) {
-      (piece as Piece).setUserColor(myColor);
-    }
-
     this.inputHandler.update(scrollDelta);
     this.pieceConnector.update();
     for (const piece of this.pieces) {

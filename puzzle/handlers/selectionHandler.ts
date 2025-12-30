@@ -142,6 +142,8 @@ export default class SelectionHandler implements ISelectionHandler {
       piece.isSelected = false;
     }
 
+    this.puzzle.invalidateSelectedPiecesCache();
+
     // Sync with React Store
     this.puzzle.setShowPuzzlePieceActions(false);
   }
