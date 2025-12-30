@@ -8,6 +8,7 @@ export interface ISettings {
     invertZoom: boolean;
     rotationSpeed: number;
     fpsMode: 'low' | 'normal' | 'performance';
+    snapTolerance: number;
   };
   keybindings: {
     rotateLeft: number;
@@ -32,6 +33,7 @@ export const DEFAULT_SETTINGS: ISettings = {
     invertZoom: false,
     rotationSpeed: 1,
     fpsMode: 'normal',
+    snapTolerance: 1,
   },
   keybindings: {
     rotateLeft: KEY_Z,

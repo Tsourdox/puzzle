@@ -159,7 +159,11 @@ export default function SettingsModal({ lang }: SettingsModalProps) {
                         : 'bg-zinc-700 text-zinc-200 hover:bg-zinc-600'
                     }`}
                   >
-                    {mode === 'low' ? t('Battery') : mode === 'normal' ? t('Balance') : t('Performance')}
+                    {mode === 'low'
+                      ? t('Battery')
+                      : mode === 'normal'
+                        ? t('Balance')
+                        : t('Performance')}
                   </button>
                 ))}
               </div>
@@ -177,8 +181,34 @@ export default function SettingsModal({ lang }: SettingsModalProps) {
                 onChange={(e) => handleRotationSpeedChange(parseFloat(e.target.value))}
                 className="w-full h-2 bg-zinc-700 rounded-lg appearance-none cursor-pointer [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:bg-purple-500 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:cursor-pointer"
               />
-              <div className="text-zinc-500 text-xs text-right">
-                {settings.puzzle.rotationSpeed.toFixed(1)}
+              <div className="text-zinc-500 text-xs flex">
+                <span className="flex-1">{t('Slower')}</span>
+                <span className="text-zinc-200">{settings.puzzle.rotationSpeed.toFixed(1)}x</span>
+                <span className="flex-1 text-right">{t('Faster')}</span>
+              </div>
+            </div>
+
+            {/* Snap Tolerance */}
+            <div className="space-y-2">
+              <label className="text-zinc-300 text-sm font-medium">{t('Snap tolerance')}</label>
+              <input
+                type="range"
+                min="0.6"
+                max="3"
+                step="0.1"
+                value={settings.puzzle.snapTolerance}
+                onChange={(e) =>
+                  setSettings({
+                    ...settings,
+                    puzzle: { ...settings.puzzle, snapTolerance: parseFloat(e.target.value) },
+                  })
+                }
+                className="w-full h-2 bg-zinc-700 rounded-lg appearance-none cursor-pointer [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:bg-purple-500 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:cursor-pointer"
+              />
+              <div className="text-zinc-500 text-xs flex">
+                <span className="flex-1">{t('Harder')}</span>
+                <span className="text-zinc-200">{settings.puzzle.snapTolerance.toFixed(1)}x</span>
+                <span className="flex-1 text-right">{t('Easier')}</span>
               </div>
             </div>
 

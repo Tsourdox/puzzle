@@ -8,30 +8,30 @@ export function sortPieces(pieces: ReadonlyArray<Piece>, reversed = false): Piec
   return [...pieces].sort((a, b) => (a.elevation - b.elevation) * (reversed ? -1 : 1));
 }
 
-/** Will get and return connected pieces recusivly */
+/** Will get and return connected pieces recursively */
 export function getConnectedPieces(piece: Piece, puzzle: IPuzzle, result: Piece[] = []): Piece[] {
   if (result.includes(piece)) return result;
 
   result.push(piece);
   for (const side of piece.connectedSides) {
-    const adjecentPiece = getAdjecentPiece(piece, side, puzzle);
-    getConnectedPieces(adjecentPiece, puzzle, result);
+    const adjacentPiece = getAdjacentPiece(piece, side, puzzle);
+    getConnectedPieces(adjacentPiece, puzzle, result);
   }
   return result;
 }
 
-export function getAdjecentPiece(piece: Piece, side: Side, puzzle: IPuzzle): Piece {
+export function getAdjacentPiece(piece: Piece, side: Side, puzzle: IPuzzle): Piece {
   const { pieces, pieceCount } = puzzle;
   const { x } = pieceCount;
   const i = pieces.indexOf(piece);
 
-  let adjecentPiece!: Piece;
-  if (side === Side.Top) adjecentPiece = pieces[i - x];
-  if (side === Side.Right) adjecentPiece = pieces[i + 1];
-  if (side === Side.Bottom) adjecentPiece = pieces[i + x];
-  if (side === Side.Left) adjecentPiece = pieces[i - 1];
+  let adjacentPiece!: Piece;
+  if (side === Side.Top) adjacentPiece = pieces[i - x];
+  if (side === Side.Right) adjacentPiece = pieces[i + 1];
+  if (side === Side.Bottom) adjacentPiece = pieces[i + x];
+  if (side === Side.Left) adjacentPiece = pieces[i - 1];
 
-  return adjecentPiece;
+  return adjacentPiece;
 }
 
 /** Rotate a piece around a center point by applying translation */

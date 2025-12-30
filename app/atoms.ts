@@ -19,4 +19,4 @@ export const puzzleActionsAtom = atom<PuzzleActions | null>(null);
 
 // Settings state with localStorage persistence
 // Using 'v2' key to ignore old settings structure
-export const settingsAtom = atomWithStorage<ISettings>('puzzelin-settings-v2', DEFAULT_SETTINGS);
+export const settingsAtom = atomWithStorage<ISettings>('puzzelin-settings-v3', DEFAULT_SETTINGS);

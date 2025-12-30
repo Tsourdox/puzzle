@@ -4,8 +4,8 @@ import type { ITransformHandler } from './handlers/transformationHandler';
 import type NetworkHandler from './network/networkHandler';
 import Piece, { Side } from './piece';
 import type { IPuzzle } from './puzzle';
-import { getAdjecentPiece, getConnectedPieces } from './utils/pieces';
 import { ISettings } from './settings';
+import { getAdjacentPiece, getConnectedPieces } from './utils/pieces';
 
 export default class PieceConnector {
   private puzzle: IPuzzle;
@@ -44,15 +44,14 @@ export default class PieceConnector {
   }
 
   private checkForConnectedPieces() {
-    for (const piece of this.puzzle.pieces) {
-      if (piece.isSelected) {
-        this.checkPieceConnection(piece, true);
-      }
+    for (const piece of this.puzzle.selectedPieces) {
+      this.checkPieceConnection(piece as Piece, true);
     }
   }
 
   private checkPieceConnection(piece: Piece, playSound: boolean) {
-    const limit = this.puzzle.pieceSize.mag() / 8;
+    const baseLimit = this.puzzle.pieceSize.mag() / 5;
+    const limit = baseLimit * this.settings.puzzle.snapTolerance;
     const length = this.puzzle.pieces.length;
     const { x } = this.puzzle.pieceCount;
     let wasConnected = false;
@@ -70,15 +69,15 @@ export default class PieceConnector {
       if (side === Side.Left && (length - i) % x === 0) continue;
 
       // Find adjacentPiece
-      const adjacentPiece = getAdjecentPiece(piece, side, this.puzzle);
+      const adjacentPiece = getAdjacentPiece(piece, side, this.puzzle);
 
       // Find matching edges
       const pieceCorners = piece.getTrueCorners();
-      const adjecentCorners = adjacentPiece.getTrueCorners();
+      const adjacentCorners = adjacentPiece.getTrueCorners();
       const pcA = pieceCorners[side];
-      const acA = adjecentCorners[(side + 3) % 4];
+      const acA = adjacentCorners[(side + 3) % 4];
       const pcB = pieceCorners[(side + 1) % 4];
-      const acB = adjecentCorners[(side + 2) % 4];
+      const acB = adjacentCorners[(side + 2) % 4];
 
       // Check distance between matching edges
       const distA = pcA.dist(acA);
