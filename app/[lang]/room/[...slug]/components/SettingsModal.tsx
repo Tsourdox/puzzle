@@ -206,7 +206,7 @@ export default function SettingsModal({ lang }: SettingsModalProps) {
             />
           </div>
 
-          <div className="space-y-4 pt-6">
+          <div className="space-y-4 pt-6 mt-6 border-t border-zinc-700">
             <h3 className="text-xl font-semibold text-zinc-200">{t('Interface')}</h3>
 
             <Switch
@@ -232,7 +232,7 @@ export default function SettingsModal({ lang }: SettingsModalProps) {
             />
           </div>
 
-          <div className="space-y-4 pt-6">
+          <div className="space-y-4 pt-6 mt-6 border-t border-zinc-700">
             <h3 className="text-xl font-semibold text-zinc-200">{t('Network')}</h3>
 
             <Switch
@@ -258,7 +258,7 @@ export default function SettingsModal({ lang }: SettingsModalProps) {
             />
           </div>
 
-          <div className="space-y-4 pt-6">
+          <div className="space-y-4 pt-6 mt-6 border-t border-zinc-700">
             <h3 className="text-xl font-semibold text-zinc-200">{t('Key bindings')}</h3>
 
             {KEYBINDING_KEYS.map((key) => (
