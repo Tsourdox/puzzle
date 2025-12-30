@@ -10,6 +10,9 @@ export const showPuzzleSelectionAtom = atom(false);
 // Settings modal state
 export const showSettingsAtom = atom(false);
 
+// Sidebar state
+export const sidebarOpenAtom = atom(false);
+
 // Store state (migrated from StoreProvider)
 export const sizeAtom = atom<Size>('s');
 export const showPuzzlePieceActionsAtom = atom(false);
