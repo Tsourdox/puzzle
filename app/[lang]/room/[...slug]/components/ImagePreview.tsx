@@ -1,6 +1,8 @@
 'use client';
+import { settingsAtom } from '@/app/atoms';
 import { invert } from '@/utils/general';
 import { PexelsImage } from '@/utils/pexels';
+import { useAtomValue } from 'jotai';
 import Image from 'next/image';
 import { useState } from 'react';
 import { twMerge } from 'tailwind-merge';
@@ -11,10 +13,14 @@ type Props = {
 
 export default function ImagePreview({ image }: Props) {
   const [fullscreen, setFullscreen] = useState(false);
+  const settings = useAtomValue(settingsAtom);
 
   const aspectRatio = image.width / image.height;
-  const width = fullscreen ? 'calc(100% - 2rem)' : `calc(((10vw + 10vh) / 2) * ${aspectRatio})`;
-  const height = fullscreen ? 'calc(100% - 2rem)' : 'calc((10vw + 10vh) / 2)';
+  const size = settings.ui.showLargePreview ? 20 : 10;
+  const width = fullscreen
+    ? 'calc(100% - 2rem)'
+    : `calc(((${size}vw + ${size}vh) / 2) * ${aspectRatio})`;
+  const height = fullscreen ? 'calc(100% - 2rem)' : `calc((${size}vw + ${size}vh) / 2)`;
 
   return (
     <>

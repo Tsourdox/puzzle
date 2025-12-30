@@ -2,7 +2,8 @@ import { KEY_C, KEY_R, KEY_X, KEY_Z, SHIFT, SPACE } from './utils/keys';
 
 export interface ISettings {
   ui: {
-    hidePuzzleButtons: boolean;
+    showPuzzleButtons: boolean;
+    showLargePreview: boolean;
   };
   puzzle: {
     invertZoom: boolean;
@@ -19,7 +20,7 @@ export interface ISettings {
     reconnectPieces: number;
   };
   network: {
-    hideMultiplayerCursors: boolean;
+    showMultiplayerCursors: boolean;
   };
 }
 
@@ -27,7 +28,8 @@ export type KeybindingKey = keyof ISettings['keybindings'];
 
 export const DEFAULT_SETTINGS: ISettings = {
   ui: {
-    hidePuzzleButtons: false,
+    showPuzzleButtons: true,
+    showLargePreview: false,
   },
   puzzle: {
     invertZoom: false,
@@ -44,7 +46,7 @@ export const DEFAULT_SETTINGS: ISettings = {
     reconnectPieces: KEY_R,
   },
   network: {
-    hideMultiplayerCursors: false,
+    showMultiplayerCursors: true,
   },
 };
 

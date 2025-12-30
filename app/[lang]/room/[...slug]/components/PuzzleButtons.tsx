@@ -25,7 +25,7 @@ export default function PuzzleButtons({ isHidden, lang }: Props) {
   const actions = useAtomValue(puzzleActionsAtom);
   const settings = useAtomValue(settingsAtom);
 
-  if (isHidden || settings.ui.hidePuzzleButtons) return null;
+  if (isHidden || !settings.ui.showPuzzleButtons) return null;
 
   return (
     <>

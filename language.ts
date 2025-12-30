@@ -368,19 +368,26 @@ const translations = {
     de: 'Zoom umkehren',
     fi: 'Käännä zoomaus',
   },
-  'Hide puzzle action buttons': {
-    sv: 'Dölj pusselknappar',
-    no: 'Skjul pusleknapper',
-    da: 'Skjul puslespilknapper',
-    de: 'Puzzle-Aktionsschaltflächen ausblenden',
-    fi: 'Piilota pulman toimintopainikkeet',
+  'Show puzzle action buttons': {
+    sv: 'Visa pusselknappar',
+    no: 'Vis pusleknapper',
+    da: 'Vis puslespilknapper',
+    de: 'Puzzle-Aktionsschaltflächen anzeigen',
+    fi: 'Näytä pulman toimintopainikkeet',
   },
-  'Hide multiplayer cursors': {
-    sv: 'Dölj multiplayer-muspekare',
-    no: 'Skjul multiplayer-musepekere',
-    da: 'Skjul multiplayer-musemarkører',
-    de: 'Multiplayer-Mauszeiger ausblenden',
-    fi: 'Piilota moninpelin kursorit',
+  'Show large preview': {
+    sv: 'Visa stor förhandsgranskning',
+    no: 'Vis stor forhåndsvisning',
+    da: 'Vis stor forhåndsvisning',
+    de: 'Große Vorschau anzeigen',
+    fi: 'Näytä suuri esikatselu',
+  },
+  'Show multiplayer cursors': {
+    sv: 'Visa multiplayer-muspekare',
+    no: 'Vis multiplayer-musepekere',
+    da: 'Vis multiplayer-musemarkører',
+    de: 'Multiplayer-Mauszeiger anzeigen',
+    fi: 'Näytä moninpelin kursorit',
   },
   'Show FPS counter': {
     sv: 'Visa FPS räknare',

@@ -263,7 +263,7 @@ export default class Puzzle implements IPuzzle, ISerializablePuzzle {
   }
 
   private drawRemoteCursors() {
-    if (this.settings.network.hideMultiplayerCursors) return;
+    if (!this.settings.network.showMultiplayerCursors) return;
 
     const remoteCursors = this.networkHandler.getRemoteCursors();
     if (!remoteCursors.size) return;

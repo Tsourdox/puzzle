@@ -1,5 +1,7 @@
 'use client';
 import { settingsAtom, showSettingsAtom } from '@/app/atoms';
+import Slider from '@/components/Slider';
+import Switch from '@/components/Switch';
 import { getTranslation, Lang } from '@/language';
 import { DEFAULT_SETTINGS, KeybindingKey } from '@/puzzle/settings';
 import { XMarkIcon } from '@heroicons/react/24/outline';
@@ -120,13 +122,11 @@ export default function SettingsModal({ lang }: SettingsModalProps) {
       className="fixed inset-0 z-50 bg-zinc-900/80 backdrop-blur-md overflow-y-auto"
       onClick={() => setIsOpen(false)}
     >
-      {/* Content */}
       <div className="min-h-screen w-full py-16 px-4 flex items-center justify-center">
         <div
           className="relative max-w-2xl w-full bg-zinc-800/90 rounded-lg p-8 space-y-6"
           onClick={(e) => e.stopPropagation()}
         >
-          {/* Close button */}
           <button
             onClick={() => setIsOpen(false)}
             className="absolute top-4 right-4 p-2 hover:bg-zinc-700/50 rounded-full transition-colors"
@@ -136,11 +136,9 @@ export default function SettingsModal({ lang }: SettingsModalProps) {
 
           <h2 className="text-3xl font-bold text-zinc-100 mb-8">{t('Settings')}</h2>
 
-          {/* Puzzle Settings */}
           <div className="space-y-4">
             <h3 className="text-xl font-semibold text-zinc-200">{t('Puzzle')}</h3>
 
-            {/* Performance Mode */}
             <div className="space-y-2">
               <label className="text-zinc-300 text-sm font-medium">{t('Optimize for')}</label>
               <div className="flex gap-2">
@@ -169,116 +167,86 @@ export default function SettingsModal({ lang }: SettingsModalProps) {
               </div>
             </div>
 
-            {/* Rotation Speed */}
-            <div className="space-y-2">
-              <label className="text-zinc-300 text-sm font-medium">{t('Rotation speed')}</label>
-              <input
-                type="range"
-                min="0.2"
-                max="5"
-                step="0.1"
-                value={settings.puzzle.rotationSpeed}
-                onChange={(e) => handleRotationSpeedChange(parseFloat(e.target.value))}
-                className="w-full h-2 bg-zinc-700 rounded-lg appearance-none cursor-pointer [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:bg-purple-500 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:cursor-pointer"
-              />
-              <div className="text-zinc-500 text-xs flex">
-                <span className="flex-1">{t('Slower')}</span>
-                <span className="text-zinc-200">{settings.puzzle.rotationSpeed.toFixed(1)}x</span>
-                <span className="flex-1 text-right">{t('Faster')}</span>
-              </div>
-            </div>
+            <Slider
+              label={t('Rotation speed')}
+              value={settings.puzzle.rotationSpeed}
+              onChange={handleRotationSpeedChange}
+              min={0.2}
+              max={5}
+              step={0.1}
+              leftLabel={t('Slower')}
+              rightLabel={t('Faster')}
+            />
 
-            {/* Snap Tolerance */}
-            <div className="space-y-2">
-              <label className="text-zinc-300 text-sm font-medium">{t('Snap tolerance')}</label>
-              <input
-                type="range"
-                min="0.6"
-                max="3"
-                step="0.1"
-                value={settings.puzzle.snapTolerance}
-                onChange={(e) =>
-                  setSettings({
-                    ...settings,
-                    puzzle: { ...settings.puzzle, snapTolerance: parseFloat(e.target.value) },
-                  })
-                }
-                className="w-full h-2 bg-zinc-700 rounded-lg appearance-none cursor-pointer [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:bg-purple-500 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:cursor-pointer"
-              />
-              <div className="text-zinc-500 text-xs flex">
-                <span className="flex-1">{t('Harder')}</span>
-                <span className="text-zinc-200">{settings.puzzle.snapTolerance.toFixed(1)}x</span>
-                <span className="flex-1 text-right">{t('Easier')}</span>
-              </div>
-            </div>
+            <Slider
+              label={t('Snap tolerance')}
+              value={settings.puzzle.snapTolerance}
+              onChange={(value) =>
+                setSettings({
+                  ...settings,
+                  puzzle: { ...settings.puzzle, snapTolerance: value },
+                })
+              }
+              min={0.6}
+              max={3}
+              step={0.1}
+              leftLabel={t('Harder')}
+              rightLabel={t('Easier')}
+            />
 
-            {/* Invert Zoom */}
-            <div className="flex items-center justify-between">
-              <span className="text-zinc-300">{t('Invert zoom')}</span>
-              <label className="relative inline-flex items-center cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={settings.puzzle.invertZoom}
-                  onChange={(e) =>
-                    setSettings({
-                      ...settings,
-                      puzzle: { ...settings.puzzle, invertZoom: e.target.checked },
-                    })
-                  }
-                  className="sr-only peer"
-                />
-                <div className="w-11 h-6 bg-zinc-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-purple-600"></div>
-              </label>
-            </div>
+            <Switch
+              label={t('Invert zoom')}
+              checked={settings.puzzle.invertZoom}
+              onChange={(checked) =>
+                setSettings({
+                  ...settings,
+                  puzzle: { ...settings.puzzle, invertZoom: checked },
+                })
+              }
+            />
           </div>
 
-          {/* UI Settings */}
           <div className="space-y-4 pt-6">
             <h3 className="text-xl font-semibold text-zinc-200">{t('Interface')}</h3>
 
-            <div className="flex items-center justify-between">
-              <span className="text-zinc-300">{t('Hide puzzle action buttons')}</span>
-              <label className="relative inline-flex items-center cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={settings.ui.hidePuzzleButtons}
-                  onChange={(e) =>
-                    setSettings({
-                      ...settings,
-                      ui: { ...settings.ui, hidePuzzleButtons: e.target.checked },
-                    })
-                  }
-                  className="sr-only peer"
-                />
-                <div className="w-11 h-6 bg-zinc-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-purple-600"></div>
-              </label>
-            </div>
+            <Switch
+              label={t('Show puzzle action buttons')}
+              checked={settings.ui.showPuzzleButtons}
+              onChange={(checked) =>
+                setSettings({
+                  ...settings,
+                  ui: { ...settings.ui, showPuzzleButtons: checked },
+                })
+              }
+            />
+
+            <Switch
+              label={t('Show large preview')}
+              checked={settings.ui.showLargePreview}
+              onChange={(checked) =>
+                setSettings({
+                  ...settings,
+                  ui: { ...settings.ui, showLargePreview: checked },
+                })
+              }
+            />
           </div>
 
-          {/* Network Settings */}
           <div className="space-y-4 pt-6">
             <h3 className="text-xl font-semibold text-zinc-200">{t('Network')}</h3>
 
-            <div className="flex items-center justify-between">
-              <span className="text-zinc-300">{t('Hide multiplayer cursors')}</span>
-              <label className="relative inline-flex items-center cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={settings.network.hideMultiplayerCursors}
-                  onChange={(e) =>
-                    setSettings({
-                      ...settings,
-                      network: { ...settings.network, hideMultiplayerCursors: e.target.checked },
-                    })
-                  }
-                  className="sr-only peer"
-                />
-                <div className="w-11 h-6 bg-zinc-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-purple-600"></div>
-              </label>
-            </div>
+            <Switch
+              label={t('Show multiplayer cursors')}
+              checked={settings.network.showMultiplayerCursors}
+              onChange={(checked) =>
+                setSettings({
+                  ...settings,
+                  network: { ...settings.network, showMultiplayerCursors: checked },
+                })
+              }
+            />
           </div>
 
-          {/* Keybindings */}
           <div className="space-y-4 pt-6">
             <h3 className="text-xl font-semibold text-zinc-200">{t('Key bindings')}</h3>
 
