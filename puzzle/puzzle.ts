@@ -10,7 +10,7 @@ import Piece from './piece';
 import PieceConnector from './pieceConnector';
 import PiecesFactory from './piecesFactory';
 import { ISettings } from './settings';
-import { toPoint } from './utils/general';
+import { isMouseOverCanvas, toPoint } from './utils/general';
 import { sortPieces } from './utils/pieces';
 
 export interface IPuzzle {
@@ -211,8 +211,11 @@ export default class Puzzle implements IPuzzle, ISerializablePuzzle {
     this.networkHandler.syncPieces(this.pieces as Piece[]);
     this.networkHandler.syncSelections(this.selectedPieces);
 
-    const worldPos = this.inputHandler.graphHandler.screenToWorld(this.p.mouseX, this.p.mouseY);
-    this.networkHandler.syncCursorPosition(worldPos.x, worldPos.y);
+    // Only sync cursor position if mouse is over the canvas
+    if (isMouseOverCanvas(this.p)) {
+      const worldPos = this.inputHandler.graphHandler.screenToWorld(this.p.mouseX, this.p.mouseY);
+      this.networkHandler.syncCursorPosition(worldPos.x, worldPos.y);
+    }
 
     this.networkHandler.updateCursors(this.p.deltaTime);
 

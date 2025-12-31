@@ -122,7 +122,7 @@ export default function SettingsModal({ lang }: SettingsModalProps) {
       className="fixed inset-0 z-50 bg-zinc-900/80 backdrop-blur-md overflow-y-auto"
       onClick={() => setIsOpen(false)}
     >
-      <div className="min-h-screen w-full py-16 px-4 flex items-center justify-center">
+      <div className="min-h-screen w-full p-4 md:py-12 flex items-center justify-center">
         <div
           className="relative max-w-2xl w-full bg-zinc-800/90 rounded-lg p-8 space-y-6"
           onClick={(e) => e.stopPropagation()}
