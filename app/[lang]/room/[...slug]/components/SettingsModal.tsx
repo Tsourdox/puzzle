@@ -210,7 +210,7 @@ export default function SettingsModal({ lang }: SettingsModalProps) {
             <h3 className="text-xl font-semibold text-zinc-200">{t('Interface')}</h3>
 
             <Switch
-              label={t('Show puzzle action buttons')}
+              label={t('Show puzzle controls')}
               checked={settings.ui.showPuzzleButtons}
               onChange={(checked) =>
                 setSettings({
@@ -221,7 +221,7 @@ export default function SettingsModal({ lang }: SettingsModalProps) {
             />
 
             <Switch
-              label={t('Show large preview')}
+              label={t('Large image preview')}
               checked={settings.ui.showLargePreview}
               onChange={(checked) =>
                 setSettings({
@@ -236,7 +236,7 @@ export default function SettingsModal({ lang }: SettingsModalProps) {
             <h3 className="text-xl font-semibold text-zinc-200">{t('Network')}</h3>
 
             <Switch
-              label={t('Show multiplayer cursors')}
+              label={t('Show cursors')}
               checked={settings.network.showMultiplayerCursors}
               onChange={(checked) =>
                 setSettings({
@@ -247,7 +247,7 @@ export default function SettingsModal({ lang }: SettingsModalProps) {
             />
 
             <Switch
-              label={t('Show remote selections')}
+              label={t('Show selected pieces')}
               checked={settings.network.showRemoteSelections}
               onChange={(checked) =>
                 setSettings({
