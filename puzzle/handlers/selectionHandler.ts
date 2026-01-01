@@ -1,9 +1,9 @@
 import p5 from 'p5';
 import Piece from '../piece';
 import type { IPuzzle } from '../puzzle';
+import { ISettings } from '../settings';
 import { Line, pointSideLocationOfLine, sum } from '../utils/general';
 import { getConnectedPieces, sortPieces } from '../utils/pieces';
-import { ISettings } from '../settings';
 import type { IGraph } from './graphHandler';
 
 export interface ISelectionHandler {
@@ -22,6 +22,7 @@ export default class SelectionHandler implements ISelectionHandler {
   private dragSelectionOrigin?: p5.Vector;
   private settings: ISettings;
   private pressDelay: number;
+  private prevTouchCount: number;
 
   constructor(puzzle: IPuzzle, graph: IGraph, settings: ISettings) {
     this.puzzle = puzzle;
@@ -33,12 +34,13 @@ export default class SelectionHandler implements ISelectionHandler {
     this.dragSelectionStroke = puzzle.p.color('rgba(255,255,255,0.6)');
     this.timeSincePress = 0;
     this.pressDelay = 30;
+    this.prevTouchCount = 0;
   }
 
   public get isDragSelecting(): boolean {
     const { p } = this.puzzle;
     if (!this.dragSelectionOrigin) return false;
-    const enoughTimePassed = this.timeSincePress > 200;
+    const enoughTimePassed = this.timeSincePress > this.pressDelay;
     const moved = p.createVector(p.mouseX, p.mouseY).dist(this.dragSelectionOrigin);
     const enoughDistMoved = moved > 10;
     return enoughTimePassed || enoughDistMoved;
@@ -59,6 +61,7 @@ export default class SelectionHandler implements ISelectionHandler {
     }
 
     this.prevMouseIsPressed = this.mouseIsPressed;
+    this.prevTouchCount = p.touches.length;
   }
 
   private handleDragSelection() {
@@ -77,11 +80,17 @@ export default class SelectionHandler implements ISelectionHandler {
 
   private handlePieceSelection() {
     const { p } = this.puzzle;
-    const didPress = !this.prevMouseIsPressed && p.mouseIsPressed;
-    if (p.touches.length > 1 || this.timeSincePress < this.pressDelay) return;
+    const touchCount = p.touches.length;
 
-    // Select by clicking
-    if (didPress && (p.mouseButton === p.LEFT || p.touches.length)) {
+    // Multi-touch: ignore
+    if (touchCount > 1) return;
+
+    const didPress = !this.prevMouseIsPressed && p.mouseIsPressed;
+    const delayPassed = this.timeSincePress > this.pressDelay;
+    const wasQuickTap = !touchCount && this.prevTouchCount && !delayPassed;
+    const leftClick = p.mouseButton === p.LEFT || touchCount;
+
+    if (wasQuickTap || (didPress && leftClick && delayPassed)) {
       // Deselection
       if (this.puzzle.selectedPieces.length) {
         const selectMore = p.keyIsDown(this.settings.keybindings.selectMultiple);
