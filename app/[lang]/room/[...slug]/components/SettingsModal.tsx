@@ -140,7 +140,7 @@ export default function SettingsModal({ lang }: SettingsModalProps) {
             <h3 className="text-xl font-semibold text-zinc-200">{t('Puzzle')}</h3>
 
             <div className="space-y-2">
-              <label className="text-zinc-300 text-sm font-medium">{t('Optimize for')}</label>
+              <label className="block text-zinc-300 font-medium">{t('Optimize for')}</label>
               <div className="flex gap-2">
                 {(['battery', 'balance', 'performance'] as const).map((mode) => (
                   <button

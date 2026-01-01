@@ -22,8 +22,8 @@ export default function Slider({
   formatValue = (v) => `${v.toFixed(1)}x`,
 }: SliderProps) {
   return (
-    <div className="space-y-2">
-      <label className="text-zinc-300 text-sm font-medium">{label}</label>
+    <div>
+      <label className="block text-zinc-300 font-medium">{label}</label>
       <input
         type="range"
         min={min}
