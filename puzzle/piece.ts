@@ -176,7 +176,7 @@ export default class Piece implements ISerializablePiece {
     this.graphics.translate(this.offset, this.offset);
     this.graphics.noFill();
 
-    if (this._isSelected || (this._isSelectedByOther && this.settings.network.showRemoteSelections)) {
+    if (this._isSelected || (this._isSelectedByOther && this.settings.network.showSelectedPieces)) {
       this.graphics.stroke(this.selectionColor);
       this.graphics.strokeWeight(this.size.mag() / 60);
       this.drawSelectionOutline();

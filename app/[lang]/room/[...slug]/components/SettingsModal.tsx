@@ -142,7 +142,7 @@ export default function SettingsModal({ lang }: SettingsModalProps) {
             <div className="space-y-2">
               <label className="text-zinc-300 text-sm font-medium">{t('Optimize for')}</label>
               <div className="flex gap-2">
-                {(['low', 'normal', 'performance'] as const).map((mode) => (
+                {(['battery', 'balance', 'performance'] as const).map((mode) => (
                   <button
                     key={mode}
                     onClick={() =>
@@ -157,9 +157,9 @@ export default function SettingsModal({ lang }: SettingsModalProps) {
                         : 'bg-zinc-700 text-zinc-200 hover:bg-zinc-600'
                     }`}
                   >
-                    {mode === 'low'
+                    {mode === 'battery'
                       ? t('Battery')
-                      : mode === 'normal'
+                      : mode === 'balance'
                         ? t('Balance')
                         : t('Performance')}
                   </button>
@@ -211,22 +211,22 @@ export default function SettingsModal({ lang }: SettingsModalProps) {
 
             <Switch
               label={t('Show puzzle controls')}
-              checked={settings.ui.showPuzzleButtons}
+              checked={settings.ui.showPuzzleControls}
               onChange={(checked) =>
                 setSettings({
                   ...settings,
-                  ui: { ...settings.ui, showPuzzleButtons: checked },
+                  ui: { ...settings.ui, showPuzzleControls: checked },
                 })
               }
             />
 
             <Switch
               label={t('Large image preview')}
-              checked={settings.ui.showLargePreview}
+              checked={settings.ui.largeImagePreview}
               onChange={(checked) =>
                 setSettings({
                   ...settings,
-                  ui: { ...settings.ui, showLargePreview: checked },
+                  ui: { ...settings.ui, largeImagePreview: checked },
                 })
               }
             />
@@ -237,22 +237,22 @@ export default function SettingsModal({ lang }: SettingsModalProps) {
 
             <Switch
               label={t('Show cursors')}
-              checked={settings.network.showMultiplayerCursors}
+              checked={settings.network.showCursors}
               onChange={(checked) =>
                 setSettings({
                   ...settings,
-                  network: { ...settings.network, showMultiplayerCursors: checked },
+                  network: { ...settings.network, showCursors: checked },
                 })
               }
             />
 
             <Switch
               label={t('Show selected pieces')}
-              checked={settings.network.showRemoteSelections}
+              checked={settings.network.showSelectedPieces}
               onChange={(checked) =>
                 setSettings({
                   ...settings,
-                  network: { ...settings.network, showRemoteSelections: checked },
+                  network: { ...settings.network, showSelectedPieces: checked },
                 })
               }
             />

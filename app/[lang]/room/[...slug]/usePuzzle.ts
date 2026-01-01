@@ -1,4 +1,4 @@
-import { addToastAtom, settingsAtom, showPuzzlePieceActionsAtom } from '@/app/atoms';
+import { addToastAtom, settingsAtom, showPuzzlePieceControlsAtom } from '@/app/atoms';
 import { Lang, getTranslation } from '@/language';
 import Puzzle from '@/puzzle/puzzle';
 import { isMouseOverCanvas } from '@/puzzle/utils/general';
@@ -19,7 +19,7 @@ type Props = {
   lang: Lang;
 };
 
-export interface PuzzleActions {
+export interface PuzzleControls {
   zoomIn: () => void;
   zoomOut: () => void;
   rotateLeft: () => void;
@@ -31,13 +31,13 @@ export interface PuzzleActions {
 }
 
 export default function usePuzzle({ containerRef, onReady, image, size, roomCode, lang }: Props) {
-  const setShowPuzzlePieceActions = useSetAtom(showPuzzlePieceActionsAtom);
+  const setShowPuzzlePieceControls = useSetAtom(showPuzzlePieceControlsAtom);
   const addToast = useSetAtom(addToastAtom);
   const settings = useAtomValue(settingsAtom);
   const router = useRouter();
   const pathname = usePathname();
   const puzzleRef = useRef<Puzzle | null>(null);
-  const actionsRef = useRef<PuzzleActions>({
+  const actionsRef = useRef<PuzzleControls>({
     zoomIn: () => puzzleRef.current?.zoomIn(),
     zoomOut: () => puzzleRef.current?.zoomOut(),
     rotateLeft: () => puzzleRef.current?.rotateLeft(),
@@ -52,7 +52,7 @@ export default function usePuzzle({ containerRef, onReady, image, size, roomCode
     if (puzzleRef.current) {
       puzzleRef.current.updateSettings(settings);
       // Apply frameRate immediately (doesn't require reload)
-      const fps = settings.puzzle.fpsMode === 'low' ? 30 : settings.puzzle.fpsMode === 'normal' ? 60 : 90;
+      const fps = settings.puzzle.fpsMode === 'battery' ? 30 : settings.puzzle.fpsMode === 'balance' ? 60 : 90;
       puzzleRef.current.p.frameRate(fps);
     }
   }, [settings]);
@@ -76,7 +76,7 @@ export default function usePuzzle({ containerRef, onReady, image, size, roomCode
       p.setup = () => {
         preventDefaultEvents();
         p.createCanvas(width, height);
-        const fps = settings.puzzle.fpsMode === 'low' ? 30 : settings.puzzle.fpsMode === 'normal' ? 60 : 90;
+        const fps = settings.puzzle.fpsMode === 'battery' ? 30 : settings.puzzle.fpsMode === 'balance' ? 60 : 90;
         p.frameRate(fps);
 
         // Callback for when another player changes the puzzle image
@@ -102,7 +102,7 @@ export default function usePuzzle({ containerRef, onReady, image, size, roomCode
           image,
           roomCode,
           settings,
-          setShowPuzzlePieceActions,
+          setShowPuzzlePieceControls,
           handleImageChange,
         );
         puzzleRef.current = puzzle;
@@ -158,7 +158,7 @@ export default function usePuzzle({ containerRef, onReady, image, size, roomCode
       puzzle?.cleanup();
       puzzleRef.current = null;
     };
-  }, [containerRef, onReady, image, size, roomCode, setShowPuzzlePieceActions]);
+  }, [containerRef, onReady, image, size, roomCode, setShowPuzzlePieceControls]);
 
   return actionsRef.current;
 }

@@ -2,7 +2,7 @@ import { DEFAULT_SETTINGS, ISettings } from '@/puzzle/settings';
 import { Size } from '@/utils/sizes';
 import { atom } from 'jotai';
 import { atomWithStorage } from 'jotai/utils';
-import type { PuzzleActions } from './[lang]/room/[...slug]/usePuzzle';
+import type { PuzzleControls } from './[lang]/room/[...slug]/usePuzzle';
 
 // Puzzle selection modal state
 export const showPuzzleSelectionAtom = atom(false);
@@ -15,14 +15,14 @@ export const sidebarOpenAtom = atom(false);
 
 // Store state (migrated from StoreProvider)
 export const sizeAtom = atom<Size>('s');
-export const showPuzzlePieceActionsAtom = atom(false);
+export const showPuzzlePieceControlsAtom = atom(false);
 
-// Puzzle actions (methods to control the puzzle)
-export const puzzleActionsAtom = atom<PuzzleActions | null>(null);
+// Puzzle controls (methods to control the puzzle)
+export const puzzleControlsAtom = atom<PuzzleControls | null>(null);
 
 // Settings state with localStorage persistence
 // Using 'v2' key to ignore old settings structure
-export const settingsAtom = atomWithStorage<ISettings>('puzzelin-settings-v4', DEFAULT_SETTINGS);
+export const settingsAtom = atomWithStorage<ISettings>('puzzelin-settings-v5', DEFAULT_SETTINGS);
 
 // Toast state
 export type Toast = {

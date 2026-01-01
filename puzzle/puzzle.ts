@@ -20,12 +20,12 @@ export interface IPuzzle {
   pieceCount: p5.Vector;
   pieceSize: p5.Vector;
   readonly selectedPieces: ReadonlyArray<Piece>;
-  readonly setShowPuzzlePieceActions: (show: boolean) => void;
+  readonly setShowPuzzlePieceControls: (show: boolean) => void;
   getMyColor(): string;
 }
 
 export default class Puzzle implements IPuzzle, ISerializablePuzzle {
-  public setShowPuzzlePieceActions: (show: boolean) => void;
+  public setShowPuzzlePieceControls: (show: boolean) => void;
   public p: p5;
   public image?: p5.Image;
   public pieces: ReadonlyArray<Piece>;
@@ -59,10 +59,10 @@ export default class Puzzle implements IPuzzle, ISerializablePuzzle {
     image: PexelsImage,
     roomCode: string,
     settings: ISettings,
-    setShowPuzzlePieceActions: (show: boolean) => void,
+    setShowPuzzlePieceControls: (show: boolean) => void,
     onImageChange?: (imageId: number | string) => void,
   ) {
-    this.setShowPuzzlePieceActions = setShowPuzzlePieceActions;
+    this.setShowPuzzlePieceControls = setShowPuzzlePieceControls;
     this.p = p;
     this.size = size;
     this.imageData = image;
@@ -253,7 +253,7 @@ export default class Puzzle implements IPuzzle, ISerializablePuzzle {
   }
 
   private drawRemoteCursors() {
-    if (!this.settings.network.showMultiplayerCursors) return;
+    if (!this.settings.network.showCursors) return;
 
     const remoteCursors = this.networkHandler.getRemoteCursors();
     if (!remoteCursors.size) return;

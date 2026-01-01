@@ -2,13 +2,13 @@ import { KEY_C, KEY_R, KEY_X, KEY_Z, SHIFT, SPACE } from './utils/keys';
 
 export interface ISettings {
   ui: {
-    showPuzzleButtons: boolean;
-    showLargePreview: boolean;
+    showPuzzleControls: boolean;
+    largeImagePreview: boolean;
   };
   puzzle: {
     invertZoom: boolean;
     rotationSpeed: number;
-    fpsMode: 'low' | 'normal' | 'performance';
+    fpsMode: 'battery' | 'balance' | 'performance';
     snapTolerance: number;
   };
   keybindings: {
@@ -20,8 +20,8 @@ export interface ISettings {
     reconnectPieces: number;
   };
   network: {
-    showMultiplayerCursors: boolean;
-    showRemoteSelections: boolean;
+    showCursors: boolean;
+    showSelectedPieces: boolean;
   };
 }
 
@@ -29,13 +29,13 @@ export type KeybindingKey = keyof ISettings['keybindings'];
 
 export const DEFAULT_SETTINGS: ISettings = {
   ui: {
-    showPuzzleButtons: true,
-    showLargePreview: false,
+    showPuzzleControls: true,
+    largeImagePreview: false,
   },
   puzzle: {
     invertZoom: false,
     rotationSpeed: 1,
-    fpsMode: 'normal',
+    fpsMode: 'balance',
     snapTolerance: 1,
   },
   keybindings: {
@@ -47,8 +47,8 @@ export const DEFAULT_SETTINGS: ISettings = {
     reconnectPieces: KEY_R,
   },
   network: {
-    showMultiplayerCursors: true,
-    showRemoteSelections: true,
+    showCursors: true,
+    showSelectedPieces: true,
   },
 };
 

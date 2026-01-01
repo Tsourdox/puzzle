@@ -1,5 +1,5 @@
 'use client';
-import PuzzleButtons from '@/app/[lang]/room/[...slug]/components/PuzzleButtons';
+import PuzzleControls from '@/app/[lang]/room/[...slug]/components/PuzzleControls';
 import { sidebarOpenAtom } from '@/app/atoms';
 import { Lang } from '@/language';
 import { PropsWithClassName, invert } from '@/utils/general';
@@ -42,7 +42,7 @@ export function AppBar({ className, children, lang }: Props) {
             onClick={() => setIsOpen(invert)}
           />
 
-          <PuzzleButtons isHidden={isOpen} lang={lang} />
+          <PuzzleControls isHidden={isOpen} lang={lang} />
         </div>
         {children}
       </aside>
