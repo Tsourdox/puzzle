@@ -1,4 +1,4 @@
-import { settingsAtom, showPuzzlePieceActionsAtom } from '@/app/atoms';
+import { addToastAtom, settingsAtom, showPuzzlePieceActionsAtom } from '@/app/atoms';
 import { Lang, getTranslation } from '@/language';
 import Puzzle from '@/puzzle/puzzle';
 import { isMouseOverCanvas } from '@/puzzle/utils/general';
@@ -32,6 +32,7 @@ export interface PuzzleActions {
 
 export default function usePuzzle({ containerRef, onReady, image, size, roomCode, lang }: Props) {
   const setShowPuzzlePieceActions = useSetAtom(showPuzzlePieceActionsAtom);
+  const addToast = useSetAtom(addToastAtom);
   const settings = useAtomValue(settingsAtom);
   const router = useRouter();
   const pathname = usePathname();
@@ -121,9 +122,10 @@ export default function usePuzzle({ containerRef, onReady, image, size, roomCode
           .catch((error) => {
             console.error('Failed to initialize puzzle:', error);
             const t = getTranslation(lang);
-            alert(
-              `${t('Failed to load puzzle')}. ${t('Please try resetting the database or using a different image')}.`,
-            );
+            addToast({
+              message: `${t('Failed to load puzzle')}. ${t('Please try resetting the database or using a different image')}.`,
+              type: 'error',
+            });
           });
 
         p.noLoop();

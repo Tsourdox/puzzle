@@ -4,6 +4,7 @@ import type { Metadata } from 'next';
 import localFont from 'next/font/local';
 import { twMerge } from 'tailwind-merge';
 import { Provider as JotaiProvider } from 'jotai';
+import ToastContainer from '@/components/ToastContainer';
 import './globals.css';
 
 const myFont = localFont({
@@ -38,7 +39,10 @@ export default async function RootLayout({ children, params }: PropsWithLangPara
           'relative min-h-full flex flex-col text-zinc-100 bg-zinc-950',
         )}
       >
-        <JotaiProvider>{children}</JotaiProvider>
+        <JotaiProvider>
+          {children}
+          <ToastContainer />
+        </JotaiProvider>
       </body>
     </html>
   );

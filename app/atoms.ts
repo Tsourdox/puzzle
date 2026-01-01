@@ -23,3 +23,29 @@ export const puzzleActionsAtom = atom<PuzzleActions | null>(null);
 // Settings state with localStorage persistence
 // Using 'v2' key to ignore old settings structure
 export const settingsAtom = atomWithStorage<ISettings>('puzzelin-settings-v4', DEFAULT_SETTINGS);
+
+// Toast state
+export type Toast = {
+  id: string;
+  message: string;
+  type?: 'error' | 'success' | 'info';
+};
+
+export const toastsAtom = atom<Toast[]>([]);
+
+export const addToastAtom = atom(null, (get, set, toast: Omit<Toast, 'id'>) => {
+  const id = Math.random().toString(36).substring(7);
+  const newToast = { ...toast, id };
+  set(toastsAtom, [...get(toastsAtom), newToast]);
+
+  setTimeout(() => {
+    set(toastsAtom, (prev) => prev.filter((t) => t.id !== id));
+  }, 5000);
+});
+
+export const removeToastAtom = atom(null, (get, set, id: string) => {
+  set(
+    toastsAtom,
+    get(toastsAtom).filter((t) => t.id !== id),
+  );
+});
