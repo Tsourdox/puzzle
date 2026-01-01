@@ -160,7 +160,6 @@ export default class SelectionHandler implements ISelectionHandler {
     const { p } = this.puzzle;
     const maxElev = p.max(this.puzzle.pieces.map((p) => p.elevation));
     const pieces = getConnectedPieces(piece, this.puzzle);
-    const myColor = this.puzzle.getMyColor();
     pieces.forEach((piece) => {
       piece.setSelectionColor(this.puzzle.getMyColor());
       piece.isSelected = value;
