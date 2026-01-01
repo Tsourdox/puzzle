@@ -88,7 +88,7 @@ export default class TransformHandler implements ITransformHandler {
 
   private handlePieceRotation(prevTouches: Touches, scrollDelta: number) {
     const { p } = this.puzzle;
-    // Keyboard
+    // Keyboard controls
     const userSpeed = this.settings.puzzle.rotationSpeed;
     const rotation = (2 / p.frameRate()) * userSpeed;
     if (p.keyIsDown(this.settings.keybindings.rotateLeft)) {
@@ -125,7 +125,21 @@ export default class TransformHandler implements ITransformHandler {
     }
   }
 
-  public rotatePieces(angle: number) {
+  public rotateLeft() {
+    const userSpeed = this.settings.puzzle.rotationSpeed;
+    const rotation = (2 / this.puzzle.p.frameRate()) * userSpeed;
+    this.rotatePieces(-rotation);
+  }
+
+  public rotateRight() {
+    const userSpeed = this.settings.puzzle.rotationSpeed;
+    const rotation = (2 / this.puzzle.p.frameRate()) * userSpeed;
+    this.rotatePieces(rotation);
+  }
+
+  private rotatePieces(angle: number) {
+    if (this.selectedPieces.length === 0) return;
+
     const centers = this.selectedPieces.map((p) => p.getTrueCenter());
     const averageCenter = getAverageCenter(this.puzzle.p, centers);
 

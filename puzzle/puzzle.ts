@@ -171,13 +171,11 @@ export default class Puzzle implements IPuzzle, ISerializablePuzzle {
   }
 
   public rotateLeft() {
-    const rotation = 0.1;
-    this.inputHandler.transformHandler.rotatePieces(-rotation);
+    this.inputHandler.transformHandler.rotateLeft();
   }
 
   public rotateRight() {
-    const rotation = 0.1;
-    this.inputHandler.transformHandler.rotatePieces(rotation);
+    this.inputHandler.transformHandler.rotateRight();
   }
 
   public stackPieces() {

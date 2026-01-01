@@ -25,29 +25,28 @@ export default function PuzzleControls({ isHidden, lang }: Props) {
   const showPuzzlePieceControls = useAtomValue(showPuzzlePieceControlsAtom);
   const controls = useAtomValue(puzzleControlsAtom);
   const settings = useAtomValue(settingsAtom);
-  const rotateIntervalRef = useRef<number | null>(null);
+  const rotateAnimationRef = useRef<number | null>(null);
 
   const startContinuousRotation = useCallback(
     (direction: 'left' | 'right') => {
-      if (rotateIntervalRef.current) return;
+      if (rotateAnimationRef.current) return;
 
-      const rotate = direction === 'left' ? controls?.rotateLeft : controls?.rotateRight;
+      const rotate = direction === 'left' ? controls.rotateLeft : controls.rotateRight;
 
-      // Call immediately
-      rotate && rotate();
+      const animate = () => {
+        rotate();
+        rotateAnimationRef.current = requestAnimationFrame(animate);
+      };
 
-      // Then continue calling at ~60fps
-      rotateIntervalRef.current = window.setInterval(() => {
-        rotate?.();
-      }, 16); // ~60fps
+      animate();
     },
     [controls],
   );
 
   const stopContinuousRotation = useCallback(() => {
-    if (rotateIntervalRef.current) {
-      clearInterval(rotateIntervalRef.current);
-      rotateIntervalRef.current = null;
+    if (rotateAnimationRef.current) {
+      cancelAnimationFrame(rotateAnimationRef.current);
+      rotateAnimationRef.current = null;
     }
   }, []);
 
@@ -57,7 +56,7 @@ export default function PuzzleControls({ isHidden, lang }: Props) {
     <>
       <Tooltip content={t('Zoom in on the puzzle')} position="left">
         <Button
-          onClick={() => controls?.zoomIn()}
+          onClick={() => controls.zoomIn()}
           className="transition-opacity p-2 opacity-100"
           aria-label={t('Zoom in on the puzzle')}
           variant="secondary"
@@ -66,7 +65,7 @@ export default function PuzzleControls({ isHidden, lang }: Props) {
       </Tooltip>
       <Tooltip content={t('Zoom out on the puzzle')} position="left">
         <Button
-          onClick={() => controls?.zoomOut()}
+          onClick={() => controls.zoomOut()}
           className="transition-opacity p-2 opacity-100"
           aria-label={t('Zoom out on the puzzle')}
           variant="secondary"
@@ -104,7 +103,7 @@ export default function PuzzleControls({ isHidden, lang }: Props) {
           </Tooltip>
           <Tooltip content={t('Stack all selected pieces')} position="left">
             <Button
-              onClick={() => controls?.stackPieces()}
+              onClick={() => controls.stackPieces()}
               className="transition-opacity p-2.5 opacity-100"
               aria-label={t('Stack all selected pieces')}
               variant="secondary"
@@ -113,7 +112,7 @@ export default function PuzzleControls({ isHidden, lang }: Props) {
           </Tooltip>
           <Tooltip content={t('Spread out selected pieces')} position="left">
             <Button
-              onClick={() => controls?.explodePieces()}
+              onClick={() => controls.explodePieces()}
               className="transition-opacity p-2.5 opacity-100"
               aria-label={t('Spread out selected pieces')}
               variant="secondary"
@@ -122,7 +121,7 @@ export default function PuzzleControls({ isHidden, lang }: Props) {
           </Tooltip>
           <Tooltip content={t('Reconnect selected pieces')} position="left">
             <Button
-              onClick={() => controls?.reconnectPieces()}
+              onClick={() => controls.reconnectPieces()}
               className="transition-opacity p-3 opacity-100"
               aria-label={t('Reconnect selected pieces')}
               variant="secondary"
@@ -131,7 +130,7 @@ export default function PuzzleControls({ isHidden, lang }: Props) {
           </Tooltip>
           <Tooltip content={t('Deselect all pieces')} position="left">
             <Button
-              onClick={() => controls?.deselectAll()}
+              onClick={() => controls.deselectAll()}
               className="transition-opacity p-2.5 opacity-100"
               aria-label={t('Deselect all pieces')}
               variant="secondary"
