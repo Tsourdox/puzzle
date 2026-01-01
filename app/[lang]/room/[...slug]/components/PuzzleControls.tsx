@@ -28,8 +28,6 @@ export default function PuzzleControls({ isHidden, lang }: Props) {
   const rotateAnimationRef = useRef<number | null>(null);
   const zoomAnimationRef = useRef<number | null>(null);
 
-  if (!controls) return null;
-
   const startContinuousRotation = useCallback(
     (direction: 'left' | 'right') => {
       if (rotateAnimationRef.current) return;
