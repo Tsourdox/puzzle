@@ -1,4 +1,4 @@
-import { ReactNode, useState } from 'react';
+import { PointerEvent, ReactNode, useState } from 'react';
 
 interface TooltipProps {
   content: string;
@@ -25,9 +25,21 @@ export default function Tooltip({ content, children, position = 'top' }: Tooltip
       'right-full top-1/2 -translate-y-1/2 -mr-px border-4 border-transparent border-r-zinc-700/80',
   };
 
+  const handlePointerEnter = (e: PointerEvent) => {
+    if (e.pointerType === 'mouse') {
+      setIsVisible(true);
+    }
+  };
+
+  const handlePointerLeave = (e: PointerEvent) => {
+    if (e.pointerType === 'mouse') {
+      setIsVisible(false);
+    }
+  };
+
   return (
     <div className="relative inline-block">
-      <div onMouseEnter={() => setIsVisible(true)} onMouseLeave={() => setIsVisible(false)}>
+      <div onPointerEnter={handlePointerEnter} onPointerLeave={handlePointerLeave}>
         {children}
       </div>
       {isVisible && (
