@@ -85,8 +85,8 @@ export const searchPexelsImages = async (searchTerm: string): Promise<PexelsImag
     const domain = 'https://api.pexels.com/';
     const path = 'v1/search';
     const perPage = 20;
-    const totalPages = 5;
-    const spacing = 3; // Select every 3th image
+    const totalPages = 6;
+    const spacing = 4;
     const allImages: PexelsImage[] = [];
 
     // Fetch multiple pages to get variety
@@ -118,7 +118,10 @@ export const searchPexelsImages = async (searchTerm: string): Promise<PexelsImag
       }
     }
 
-    return allImages;
+    // Deduplicate images by ID
+    const uniqueImages = Array.from(new Map(allImages.map((img) => [img.id, img])).values());
+
+    return uniqueImages;
   } catch (error) {
     console.error(`Failed to fetch images for "${searchTerm}":`, error);
     return [];
