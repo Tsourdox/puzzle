@@ -26,6 +26,9 @@ export default function PuzzleControls({ isHidden, lang }: Props) {
   const controls = useAtomValue(puzzleControlsAtom);
   const settings = useAtomValue(settingsAtom);
   const rotateAnimationRef = useRef<number | null>(null);
+  const zoomAnimationRef = useRef<number | null>(null);
+
+  if (!controls) return null;
 
   const startContinuousRotation = useCallback(
     (direction: 'left' | 'right') => {
@@ -50,13 +53,40 @@ export default function PuzzleControls({ isHidden, lang }: Props) {
     }
   }, []);
 
+  const startContinuousZoom = useCallback(
+    (direction: 'in' | 'out') => {
+      if (zoomAnimationRef.current) return;
+
+      const zoom = direction === 'in' ? controls.zoomIn : controls.zoomOut;
+
+      const animate = () => {
+        zoom();
+        zoomAnimationRef.current = requestAnimationFrame(animate);
+      };
+
+      animate();
+    },
+    [controls],
+  );
+
+  const stopContinuousZoom = useCallback(() => {
+    if (zoomAnimationRef.current) {
+      cancelAnimationFrame(zoomAnimationRef.current);
+      zoomAnimationRef.current = null;
+    }
+  }, []);
+
   if (isHidden || !settings.ui.showPuzzleControls) return null;
 
   return (
     <>
       <Tooltip content={t('Zoom in on the puzzle')} position="left">
         <Button
-          onClick={() => controls.zoomIn()}
+          onMouseDown={() => startContinuousZoom('in')}
+          onMouseUp={stopContinuousZoom}
+          onMouseLeave={stopContinuousZoom}
+          onTouchStart={() => startContinuousZoom('in')}
+          onTouchEnd={stopContinuousZoom}
           className="transition-opacity p-2 opacity-100"
           aria-label={t('Zoom in on the puzzle')}
           variant="secondary"
@@ -65,7 +95,11 @@ export default function PuzzleControls({ isHidden, lang }: Props) {
       </Tooltip>
       <Tooltip content={t('Zoom out on the puzzle')} position="left">
         <Button
-          onClick={() => controls.zoomOut()}
+          onMouseDown={() => startContinuousZoom('out')}
+          onMouseUp={stopContinuousZoom}
+          onMouseLeave={stopContinuousZoom}
+          onTouchStart={() => startContinuousZoom('out')}
+          onTouchEnd={stopContinuousZoom}
           className="transition-opacity p-2 opacity-100"
           aria-label={t('Zoom out on the puzzle')}
           variant="secondary"

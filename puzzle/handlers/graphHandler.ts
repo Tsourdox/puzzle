@@ -1,8 +1,8 @@
 import p5 from 'p5';
 import { IGraphData, ISerializableGraph } from '../network/types';
 import { IPuzzle } from '../puzzle';
-import { getMostDistantPoints, pointBetween, toPoint, toVector } from '../utils/general';
 import { ISettings } from '../settings';
+import { getMostDistantPoints, pointBetween, toPoint, toVector } from '../utils/general';
 import { Touches } from './inputHandler';
 
 export interface IGraph {
@@ -101,7 +101,7 @@ export default class GraphHandler implements IGraph, ISerializableGraph {
     return p.createVector(homeX, homeY);
   }
 
-  public zoom(zoomFactor: number, zoomCenter: p5.Vector) {
+  private zoom(zoomFactor: number, zoomCenter: p5.Vector) {
     const { p } = this.puzzle;
     const nextScale = p.constrain(this.scale * zoomFactor, 0.01, 100);
 
@@ -114,6 +114,20 @@ export default class GraphHandler implements IGraph, ISerializableGraph {
     const newTranslationY = (zoomCenter.y - worldY * nextScale) / nextScale;
 
     this.setScale(nextScale, p.createVector(newTranslationX, newTranslationY));
+  }
+
+  public zoomIn() {
+    const { p } = this.puzzle;
+    const zoomFactor = 1.02; // 2% zoom in per frame
+    const center = p.createVector(p.width / 2, p.height / 2);
+    this.zoom(zoomFactor, center);
+  }
+
+  public zoomOut() {
+    const { p } = this.puzzle;
+    const zoomFactor = 1 / 1.02; // 2% zoom out per frame
+    const center = p.createVector(p.width / 2, p.height / 2);
+    this.zoom(zoomFactor, center);
   }
 
   public zoomHome() {

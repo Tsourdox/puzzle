@@ -159,15 +159,11 @@ export default class Puzzle implements IPuzzle, ISerializablePuzzle {
   }
 
   public zoomIn() {
-    const zoomFactor = 1.2; // 20% zoom in
-    const center = this.p.createVector(this.p.width / 2, this.p.height / 2);
-    this.inputHandler.graphHandler.zoom(zoomFactor, center);
+    this.inputHandler.graphHandler.zoomIn();
   }
 
   public zoomOut() {
-    const zoomFactor = 1 / 1.2; // 20% zoom out
-    const center = this.p.createVector(this.p.width / 2, this.p.height / 2);
-    this.inputHandler.graphHandler.zoom(zoomFactor, center);
+    this.inputHandler.graphHandler.zoomOut();
   }
 
   public rotateLeft() {
