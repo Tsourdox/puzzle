@@ -21,6 +21,7 @@ export interface IPuzzle {
   pieceSize: p5.Vector;
   readonly selectedPieces: ReadonlyArray<Piece>;
   readonly setShowPuzzlePieceActions: (show: boolean) => void;
+  getMyColor(): string;
 }
 
 export default class Puzzle implements IPuzzle, ISerializablePuzzle {
@@ -85,6 +86,10 @@ export default class Puzzle implements IPuzzle, ISerializablePuzzle {
 
   public updateSettings(settings: ISettings) {
     Object.assign(this.settings, settings);
+  }
+
+  public getMyColor(): string {
+    return this.networkHandler.getMyColor();
   }
 
   private async loadCanvasImage(src: string) {
