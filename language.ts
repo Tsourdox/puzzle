@@ -945,4 +945,42 @@ const translations = {
     fi: 'Abstrakti',
   },
   // --- Categories ---
+
+  // --- Error Boundary ---
+  'Oops! Something went wrong': {
+    sv: 'Hoppsan! Något gick fel',
+    no: 'Oops! Noe gikk galt',
+    da: 'Ups! Noget gik galt',
+    de: 'Hoppla! Etwas ist schiefgelaufen',
+    fi: 'Hups! Jotain meni pieleen',
+  },
+  "The puzzle encountered an unexpected error. Don't worry, your progress should be saved locally.": {
+    sv: 'Pusslet stötte på ett oväntat fel. Oroa dig inte, dina framsteg bör vara sparade lokalt.',
+    no: 'Puslespillet støtte på en uventet feil. Ikke bekymre deg, fremgangen din skal være lagret lokalt.',
+    da: 'Puslespillet stødte på en uventet fejl. Bare rolig, dine fremskridt burde være gemt lokalt.',
+    de: 'Das Puzzle ist auf einen unerwarteten Fehler gestoßen. Keine Sorge, Ihr Fortschritt sollte lokal gespeichert sein.',
+    fi: 'Pulma kohtasi odottamattoman virheen. Älä huoli, edistymisesi pitäisi olla tallennettuna paikallisesti.',
+  },
+  'Technical details': {
+    sv: 'Tekniska detaljer',
+    no: 'Tekniske detaljer',
+    da: 'Tekniske detaljer',
+    de: 'Technische Details',
+    fi: 'Tekniset tiedot',
+  },
+  'Reload Page': {
+    sv: 'Ladda om sidan',
+    no: 'Last inn siden på nytt',
+    da: 'Genindlæs siden',
+    de: 'Seite neu laden',
+    fi: 'Lataa sivu uudelleen',
+  },
+  'Go Home': {
+    sv: 'Gå hem',
+    no: 'Gå hjem',
+    da: 'Gå hjem',
+    de: 'Zur Startseite',
+    fi: 'Mene kotiin',
+  },
+  // --- Error Boundary ---
 } as const;

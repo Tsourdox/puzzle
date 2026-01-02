@@ -30,7 +30,7 @@ export default function PuzzleControls({ isHidden, lang }: Props) {
 
   const startContinuousRotation = useCallback(
     (direction: 'left' | 'right') => {
-      if (rotateAnimationRef.current) return;
+      if (!controls || rotateAnimationRef.current) return;
 
       const rotate = direction === 'left' ? controls.rotateLeft : controls.rotateRight;
 
@@ -53,7 +53,7 @@ export default function PuzzleControls({ isHidden, lang }: Props) {
 
   const startContinuousZoom = useCallback(
     (direction: 'in' | 'out') => {
-      if (zoomAnimationRef.current) return;
+      if (!controls || zoomAnimationRef.current) return;
 
       const zoom = direction === 'in' ? controls.zoomIn : controls.zoomOut;
 
@@ -74,7 +74,7 @@ export default function PuzzleControls({ isHidden, lang }: Props) {
     }
   }, []);
 
-  if (isHidden || !settings.ui.showPuzzleControls) return null;
+  if (!controls || isHidden || !settings.ui.showPuzzleControls) return null;
 
   return (
     <>
