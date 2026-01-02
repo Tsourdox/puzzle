@@ -1,6 +1,8 @@
 import { NextConfig } from 'next';
 import path from 'path';
 
+const rootPath = path.join(__dirname, '..');
+
 const nextConfig: NextConfig = {
   reactStrictMode: false,
   images: {
@@ -10,8 +12,9 @@ const nextConfig: NextConfig = {
       { hostname: 'wupuhaalpiroswvyhucu.supabase.co' },
     ],
   },
+  outputFileTracingRoot: rootPath,
   turbopack: {
-    root: path.join(__dirname, '..'),
+    root: rootPath,
   },
 };
 
