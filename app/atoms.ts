@@ -18,7 +18,7 @@ export const sizeAtom = atom<Size>('s');
 export const showPuzzlePieceControlsAtom = atom(false);
 
 // Puzzle controls (methods to control the puzzle)
-export const puzzleControlsAtom = atom<PuzzleControls>();
+export const puzzleControlsAtom = atom<PuzzleControls | null>(null);
 
 // Settings state with localStorage persistence
 // Using 'v2' key to ignore old settings structure
