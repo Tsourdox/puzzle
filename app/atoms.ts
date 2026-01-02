@@ -1,8 +1,8 @@
+import type { IPuzzleControls } from '@/puzzle/puzzle';
 import { DEFAULT_SETTINGS, ISettings } from '@/puzzle/settings';
 import { Size } from '@/utils/sizes';
 import { atom } from 'jotai';
 import { atomWithStorage } from 'jotai/utils';
-import type { PuzzleControls } from './[lang]/room/[...slug]/usePuzzle';
 
 // Puzzle selection modal state
 export const showPuzzleSelectionAtom = atom(false);
@@ -17,8 +17,9 @@ export const sidebarOpenAtom = atom(false);
 export const sizeAtom = atom<Size>('s');
 export const showPuzzlePieceControlsAtom = atom(false);
 
-// Puzzle controls (methods to control the puzzle)
-export const puzzleControlsAtom = atom<PuzzleControls | null>(null);
+// Puzzle controls (public interface to control the puzzle)
+// Stores the Puzzle instance typed as IPuzzleControls to hide internal methods
+export const puzzleControlsAtom = atom<IPuzzleControls | null>(null);
 
 // Settings state with localStorage persistence
 // Using 'v2' key to ignore old settings structure

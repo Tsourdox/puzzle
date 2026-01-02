@@ -1,4 +1,9 @@
-import { addToastAtom, settingsAtom, showPuzzlePieceControlsAtom } from '@/app/atoms';
+import {
+  addToastAtom,
+  puzzleControlsAtom,
+  settingsAtom,
+  showPuzzlePieceControlsAtom,
+} from '@/app/atoms';
 import { Lang, getTranslation } from '@/language';
 import Puzzle from '@/puzzle/puzzle';
 import { isMouseOverCanvas } from '@/puzzle/utils/general';
@@ -10,6 +15,12 @@ import { usePathname, useRouter } from 'next/navigation';
 import p5 from 'p5';
 import { RefObject, WheelEvent, useEffect, useRef } from 'react';
 
+const fpsModes = {
+  battery: 30,
+  balance: 60,
+  performance: 90,
+} as const;
+
 type Props = {
   containerRef: RefObject<HTMLElement | null>;
   onReady: () => void;
@@ -19,41 +30,20 @@ type Props = {
   lang: Lang;
 };
 
-export interface PuzzleControls {
-  zoomIn: () => void;
-  zoomOut: () => void;
-  rotateLeft: () => void;
-  rotateRight: () => void;
-  stackPieces: () => void;
-  explodePieces: () => void;
-  reconnectPieces: () => void;
-  deselectAll: () => void;
-}
-
 export default function usePuzzle({ containerRef, onReady, image, size, roomCode, lang }: Props) {
   const setShowPuzzlePieceControls = useSetAtom(showPuzzlePieceControlsAtom);
+  const setPuzzleControls = useSetAtom(puzzleControlsAtom);
   const addToast = useSetAtom(addToastAtom);
   const settings = useAtomValue(settingsAtom);
   const router = useRouter();
   const pathname = usePathname();
   const puzzleRef = useRef<Puzzle | null>(null);
-  const actionsRef = useRef<PuzzleControls>({
-    zoomIn: () => puzzleRef.current?.zoomIn(),
-    zoomOut: () => puzzleRef.current?.zoomOut(),
-    rotateLeft: () => puzzleRef.current?.rotateLeft(),
-    rotateRight: () => puzzleRef.current?.rotateRight(),
-    stackPieces: () => puzzleRef.current?.stackPieces(),
-    explodePieces: () => puzzleRef.current?.explodePieces(),
-    reconnectPieces: () => puzzleRef.current?.reconnectPieces(),
-    deselectAll: () => puzzleRef.current?.deselectAll(),
-  });
 
   useEffect(() => {
     if (puzzleRef.current) {
-      puzzleRef.current.updateSettings(settings);
-      // Apply frameRate immediately (doesn't require reload)
-      const fps = settings.puzzle.fpsMode === 'battery' ? 30 : settings.puzzle.fpsMode === 'balance' ? 60 : 90;
-      puzzleRef.current.p.frameRate(fps);
+      const { updateSettings, p } = puzzleRef.current;
+      updateSettings(settings);
+      p.frameRate(fpsModes[settings.puzzle.fpsMode]);
     }
   }, [settings]);
 
@@ -76,8 +66,7 @@ export default function usePuzzle({ containerRef, onReady, image, size, roomCode
       p.setup = () => {
         preventDefaultEvents();
         p.createCanvas(width, height);
-        const fps = settings.puzzle.fpsMode === 'battery' ? 30 : settings.puzzle.fpsMode === 'balance' ? 60 : 90;
-        p.frameRate(fps);
+        p.frameRate(fpsModes[settings.puzzle.fpsMode]);
 
         // Callback for when another player changes the puzzle image
         const handleImageChange = (newImageId: number | string) => {
@@ -106,6 +95,7 @@ export default function usePuzzle({ containerRef, onReady, image, size, roomCode
           handleImageChange,
         );
         puzzleRef.current = puzzle;
+        setPuzzleControls(puzzle);
         puzzle
           .tryLoadPuzzle()
           .then((successfullyLoaded) => {
@@ -157,8 +147,7 @@ export default function usePuzzle({ containerRef, onReady, image, size, roomCode
     return () => {
       puzzle?.cleanup();
       puzzleRef.current = null;
+      setPuzzleControls(null);
     };
-  }, [containerRef, onReady, image, size, roomCode, setShowPuzzlePieceControls]);
-
-  return actionsRef.current;
+  }, [containerRef, onReady, image, size, roomCode, setShowPuzzlePieceControls, setPuzzleControls]);
 }

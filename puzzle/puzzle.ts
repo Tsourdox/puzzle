@@ -24,7 +24,18 @@ export interface IPuzzle {
   getMyColor(): string;
 }
 
-export default class Puzzle implements IPuzzle, ISerializablePuzzle {
+export interface IPuzzleControls {
+  zoomIn(): void;
+  zoomOut(): void;
+  rotateLeft(): void;
+  rotateRight(): void;
+  stackPieces(): void;
+  explodePieces(): void;
+  reconnectPieces(): void;
+  deselectAll(): void;
+}
+
+export default class Puzzle implements IPuzzle, ISerializablePuzzle, IPuzzleControls {
   public setShowPuzzlePieceControls: (show: boolean) => void;
   public p: p5;
   public image?: p5.Image;
@@ -158,37 +169,37 @@ export default class Puzzle implements IPuzzle, ISerializablePuzzle {
     return this.pieces.filter((p) => p.isSelected);
   }
 
-  public zoomIn() {
+  public zoomIn = () => {
     this.inputHandler.graphHandler.zoomIn();
-  }
+  };
 
-  public zoomOut() {
+  public zoomOut = () => {
     this.inputHandler.graphHandler.zoomOut();
-  }
+  };
 
-  public rotateLeft() {
+  public rotateLeft = () => {
     this.inputHandler.transformHandler.rotateLeft();
-  }
+  };
 
-  public rotateRight() {
+  public rotateRight = () => {
     this.inputHandler.transformHandler.rotateRight();
-  }
+  };
 
-  public stackPieces() {
+  public stackPieces = () => {
     this.inputHandler.transformHandler.stackPieces();
-  }
+  };
 
-  public explodePieces() {
+  public explodePieces = () => {
     this.inputHandler.transformHandler.explodePieces();
-  }
+  };
 
-  public reconnectPieces() {
+  public reconnectPieces = () => {
     this.pieceConnector.resetConnectionForSelectedPieces();
-  }
+  };
 
-  public deselectAll() {
+  public deselectAll = () => {
     this.inputHandler.selectionHandler.deselectAllPieces();
-  }
+  };
 
   public cleanup() {
     this.releaseCanvas();
