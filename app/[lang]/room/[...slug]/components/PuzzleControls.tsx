@@ -32,10 +32,12 @@ export default function PuzzleControls({ isHidden, lang }: Props) {
     (direction: 'left' | 'right') => {
       if (!controls || rotateAnimationRef.current) return;
 
-      const rotate = direction === 'left' ? controls.rotateLeft : controls.rotateRight;
-
       const animate = () => {
-        rotate();
+        if (direction === 'left') {
+          controls.rotateLeft();
+        } else {
+          controls.rotateRight();
+        }
         rotateAnimationRef.current = requestAnimationFrame(animate);
       };
 
@@ -55,10 +57,12 @@ export default function PuzzleControls({ isHidden, lang }: Props) {
     (direction: 'in' | 'out') => {
       if (!controls || zoomAnimationRef.current) return;
 
-      const zoom = direction === 'in' ? controls.zoomIn : controls.zoomOut;
-
       const animate = () => {
-        zoom();
+        if (direction === 'in') {
+          controls.zoomIn();
+        } else {
+          controls.zoomOut();
+        }
         zoomAnimationRef.current = requestAnimationFrame(animate);
       };
 
