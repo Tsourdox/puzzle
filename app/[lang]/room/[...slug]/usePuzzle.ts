@@ -41,9 +41,8 @@ export default function usePuzzle({ containerRef, onReady, image, size, roomCode
 
   useEffect(() => {
     if (puzzleRef.current) {
-      const { updateSettings, p } = puzzleRef.current;
-      updateSettings(settings);
-      p.frameRate(fpsModes[settings.puzzle.fpsMode]);
+      puzzleRef.current.updateSettings(settings);
+      puzzleRef.current.p.frameRate(fpsModes[settings.puzzle.fpsMode]);
     }
   }, [settings]);
 
