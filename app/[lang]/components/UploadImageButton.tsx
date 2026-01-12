@@ -1,25 +1,37 @@
 'use client';
-import { sizeAtom } from '@/app/atoms';
+import { sidebarOpenAtom, sizeAtom } from '@/app/atoms';
 import Button from '@/components/Button';
 import { getTranslation } from '@/language';
 import { PropsWithLang } from '@/utils/general';
 import { sizes } from '@/utils/sizes';
 import { supabase } from '@/utils/supabase';
 import { PhotoIcon, XMarkIcon } from '@heroicons/react/20/solid';
-import { useAtom } from 'jotai';
-import { useRouter } from 'next/navigation';
+import { useAtom, useSetAtom } from 'jotai';
+import { usePathname, useRouter } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { twMerge } from 'tailwind-merge';
 
 export default function UploadImageButton({ lang }: PropsWithLang) {
   const t = getTranslation(lang);
   const router = useRouter();
+  const pathname = usePathname();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isUploading, setIsUploading] = useState(false);
   const [showSizeSelector, setShowSizeSelector] = useState(false);
   const [selectedSize, setSelectedSize] = useAtom(sizeAtom);
   const [uploadedImageId, setUploadedImageId] = useState<string | null>(null);
   const [isWaitingForUpload, setIsWaitingForUpload] = useState(false);
+  const [isMounted, setIsMounted] = useState(false);
+  const setSidebarOpen = useSetAtom(sidebarOpenAtom);
+
+  const isInRoom = pathname?.includes('/room/');
+  const currentRoomCode = isInRoom ? pathname?.split('/room/')[1]?.split('/')[0] : null;
+  const roomCode = currentRoomCode || Math.random().toString().slice(4, 8);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   /**
    * Resizes and compresses an image to reduce file size
@@ -125,6 +137,7 @@ export default function UploadImageButton({ lang }: PropsWithLang) {
   };
 
   const handleUploadClick = () => {
+    setSidebarOpen(false);
     fileInputRef.current?.click();
   };
 
@@ -132,7 +145,7 @@ export default function UploadImageButton({ lang }: PropsWithLang) {
     if (uploadedImageId) {
       // Upload already complete, navigate immediately
       setShowSizeSelector(false);
-      router.push(`/${lang}/room/${Math.random().toString().slice(4, 8)}/${uploadedImageId}`);
+      router.push(`/${lang}/room/${roomCode}/${uploadedImageId}`);
     } else if (isUploading) {
       // Still uploading, show loading state
       setIsWaitingForUpload(true);
@@ -143,9 +156,9 @@ export default function UploadImageButton({ lang }: PropsWithLang) {
   useEffect(() => {
     if (isWaitingForUpload && uploadedImageId) {
       setShowSizeSelector(false);
-      router.push(`/${lang}/room/${Math.random().toString().slice(4, 8)}/${uploadedImageId}`);
+      router.push(`/${lang}/room/${roomCode}/${uploadedImageId}`);
     }
-  }, [isWaitingForUpload, uploadedImageId, lang, router]);
+  }, [isWaitingForUpload, uploadedImageId, lang, router, roomCode]);
 
   return (
     <>
@@ -166,47 +179,49 @@ export default function UploadImageButton({ lang }: PropsWithLang) {
         {isUploading ? 'Uploading...' : t('Upload image')}
       </Button>
 
-      {/* Size selection modal */}
-      {showSizeSelector && (
-        <div
-          className="fixed inset-0 z-50 bg-zinc-900/80 backdrop-blur-md flex items-center justify-center p-4"
-          onClick={() => setShowSizeSelector(false)}
-        >
+      {isMounted &&
+        showSizeSelector &&
+        createPortal(
           <div
-            className="bg-zinc-800/90 rounded-lg p-6 md:p-8 max-w-md w-full"
-            onClick={(e) => e.stopPropagation()}
+            className="fixed inset-0 z-100 bg-zinc-950/95 flex items-center justify-center p-4"
+            onClick={() => setShowSizeSelector(false)}
           >
-            <div className="flex justify-between items-center mb-6">
-              <h2 className="text-2xl font-bold text-zinc-100">{t('Select size')}</h2>
-              <button
-                onClick={() => setShowSizeSelector(false)}
-                className="p-2 hover:bg-zinc-700 rounded-full transition-colors"
-              >
-                <XMarkIcon width={24} height={24} className="text-zinc-300" />
-              </button>
-            </div>
-
-            <div className="flex gap-2 md:gap-3 justify-between mb-6">
-              {sizes.map((size) => (
+            <div
+              className="bg-zinc-800/90 rounded-lg p-6 md:p-8 max-w-md w-full"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="flex justify-between items-center mb-6">
+                <h2 className="text-2xl font-bold text-zinc-100">{t('Select size')}</h2>
                 <button
-                  key={size}
-                  onClick={() => setSelectedSize(size)}
-                  className={twMerge(
-                    'rounded-full uppercase px-4 py-2 md:px-5 md:py-3 text-base md:text-lg font-semibold cursor-pointer bg-zinc-500/20 hover:bg-purple-800/40 active:bg-purple-900/50 transition-colors',
-                    size === selectedSize && 'bg-purple-800/60',
-                  )}
+                  onClick={() => setShowSizeSelector(false)}
+                  className="p-2 hover:bg-zinc-700 rounded-full transition-colors"
                 >
-                  {size}
+                  <XMarkIcon width={24} height={24} className="text-zinc-300" />
                 </button>
-              ))}
-            </div>
+              </div>
 
-            <Button onClick={handleStartPuzzle} className="w-full justify-center">
-              {isWaitingForUpload ? t('Loading') + '...' : t('Begin puzzle')}
-            </Button>
-          </div>
-        </div>
-      )}
+              <div className="flex gap-2 md:gap-3 justify-between mb-6">
+                {sizes.map((size) => (
+                  <button
+                    key={size}
+                    onClick={() => setSelectedSize(size)}
+                    className={twMerge(
+                      'rounded-full uppercase px-4 py-2 md:px-5 md:py-3 text-base md:text-lg font-semibold cursor-pointer bg-zinc-500/20 hover:bg-purple-800/40 active:bg-purple-900/50 transition-colors',
+                      size === selectedSize && 'bg-purple-800/60',
+                    )}
+                  >
+                    {size}
+                  </button>
+                ))}
+              </div>
+
+              <Button onClick={handleStartPuzzle} className="w-full justify-center">
+                {isWaitingForUpload ? t('Loading') + '...' : t('Begin puzzle')}
+              </Button>
+            </div>
+          </div>,
+          document.body,
+        )}
     </>
   );
 }

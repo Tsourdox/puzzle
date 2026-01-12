@@ -36,7 +36,7 @@ export default function RoomCodeForm(props: Props) {
     >
       <button
         type="button"
-        className="p-2 border-r border-zinc-600 text-gray-400"
+        className="p-2 pl-3 border-r border-zinc-600 text-gray-400"
         onClick={props.onCancel}
       >
         <XMarkIcon width={36} height={36} />
@@ -44,14 +44,14 @@ export default function RoomCodeForm(props: Props) {
       <input
         autoFocus
         maxLength={CODE_LENGTH}
-        placeholder={t('Enter room code')}
+        placeholder={t('Enter code')}
         {...register('code')}
-        className="bg-transparent text-2xl pl-4 w-3xs uppercase focus:outline-none text-gray-300"
+        className="bg-transparent text-2xl pl-4 w-48 uppercase focus:outline-none text-gray-300"
       />
       <button
         type="submit"
         className={twMerge(
-          'px-3 text-gray-400',
+          'py-2 px-3 text-gray-400',
           !formState.errors.code && getValues().code?.length === CODE_LENGTH && 'text-gray-100',
         )}
       >

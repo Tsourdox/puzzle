@@ -1,7 +1,7 @@
 'use client';
 import Button from '@/components/Button';
 import { getTranslation, Lang } from '@/language';
-import { UserGroupIcon } from '@heroicons/react/20/solid';
+import { UserPlusIcon } from '@heroicons/react/20/solid';
 import { CheckIcon } from '@heroicons/react/24/outline';
 import { useState } from 'react';
 
@@ -30,7 +30,7 @@ export default function InviteFriendsButton({ roomCode, lang }: InviteFriendsBut
         copiedLink ? (
           <CheckIcon width={24} height={24} className="stroke-3" />
         ) : (
-          <UserGroupIcon width={24} height={24} />
+          <UserPlusIcon width={24} height={24} />
         )
       }
       onClick={copyRoomLink}

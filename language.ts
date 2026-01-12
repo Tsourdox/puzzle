@@ -78,12 +78,12 @@ const translations = {
     de: 'Raum wechseln',
     fi: 'Vaihda huonetta',
   },
-  'Enter room code': {
-    sv: 'Ange rumskod',
-    no: 'Skriv inn romkode',
-    da: 'Indtast rumkode',
-    de: 'Geben Sie den Raumcode ein',
-    fi: 'Anna huonekoodi',
+  'Enter code': {
+    sv: 'Ange kod',
+    no: 'Skriv kode',
+    da: 'Indtast kode',
+    de: 'Code eingeben',
+    fi: 'Anna koodi',
   },
   'In Room': {
     sv: 'I rum',
@@ -954,13 +954,14 @@ const translations = {
     de: 'Hoppla! Etwas ist schiefgelaufen',
     fi: 'Hups! Jotain meni pieleen',
   },
-  "The puzzle encountered an unexpected error. Don't worry, your progress should be saved locally.": {
-    sv: 'Pusslet stötte på ett oväntat fel. Oroa dig inte, dina framsteg bör vara sparade lokalt.',
-    no: 'Puslespillet støtte på en uventet feil. Ikke bekymre deg, fremgangen din skal være lagret lokalt.',
-    da: 'Puslespillet stødte på en uventet fejl. Bare rolig, dine fremskridt burde være gemt lokalt.',
-    de: 'Das Puzzle ist auf einen unerwarteten Fehler gestoßen. Keine Sorge, Ihr Fortschritt sollte lokal gespeichert sein.',
-    fi: 'Pulma kohtasi odottamattoman virheen. Älä huoli, edistymisesi pitäisi olla tallennettuna paikallisesti.',
-  },
+  "The puzzle encountered an unexpected error. Don't worry, your progress should be saved locally.":
+    {
+      sv: 'Pusslet stötte på ett oväntat fel. Oroa dig inte, dina framsteg bör vara sparade lokalt.',
+      no: 'Puslespillet støtte på en uventet feil. Ikke bekymre deg, fremgangen din skal være lagret lokalt.',
+      da: 'Puslespillet stødte på en uventet fejl. Bare rolig, dine fremskridt burde være gemt lokalt.',
+      de: 'Das Puzzle ist auf einen unerwarteten Fehler gestoßen. Keine Sorge, Ihr Fortschritt sollte lokal gespeichert sein.',
+      fi: 'Pulma kohtasi odottamattoman virheen. Älä huoli, edistymisesi pitäisi olla tallennettuna paikallisesti.',
+    },
   'Technical details': {
     sv: 'Tekniska detaljer',
     no: 'Tekniske detaljer',

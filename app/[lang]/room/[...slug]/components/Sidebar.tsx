@@ -1,9 +1,8 @@
+import JoinRoomButton from '@/app/[lang]/components/JoinRoomButton';
+import UploadImageButton from '@/app/[lang]/components/UploadImageButton';
 import { AppBar } from '@/components/AppBar';
-import Button from '@/components/Button';
 import SocialLinks from '@/components/SocialLinks';
-import { getTranslation } from '@/language';
 import { PropsWithLang } from '@/utils/general';
-import { ArrowPathRoundedSquareIcon } from '@heroicons/react/20/solid';
 import Link from 'next/link';
 import InviteFriendsButton from './InviteFriendsButton';
 import NewPuzzleButton from './NewPuzzleButton';
@@ -15,8 +14,6 @@ interface SidebarProps extends PropsWithLang {
 }
 
 export default function Sidebar({ lang, roomCode }: SidebarProps) {
-  const t = getTranslation(lang);
-
   return (
     <AppBar className="flex flex-col gap-4" lang={lang}>
       <header className="border-b px-4 border-zinc-700/50 mt-2">
@@ -29,16 +26,9 @@ export default function Sidebar({ lang, roomCode }: SidebarProps) {
       </header>
       <section className="flex-1 flex flex-col gap-6">
         <NewPuzzleButton lang={lang} />
+        <UploadImageButton lang={lang} />
         <InviteFriendsButton roomCode={roomCode} lang={lang} />
-
-        <Button
-          disabled
-          disabledText={t('Coming soon')}
-          variant="secondary"
-          icon={<ArrowPathRoundedSquareIcon width={24} height={24} />}
-        >
-          {t('Change room')}
-        </Button>
+        <JoinRoomButton lang={lang} />
         <SettingsButton lang={lang} />
       </section>
       <footer className="flex justify-between">
