@@ -1,5 +1,5 @@
-# Values come from .env next to this file (not in git): the Supabase ones are
-# needed at build time, PEXELS_API_KEY at runtime.
+# Values come from .env next to this file (not in git). The Supabase ones are
+# public build args; PEXELS_API_KEY is a build secret and a runtime variable.
 services:
   puzzelin:
     build:
@@ -7,9 +7,14 @@ services:
       args:
         NEXT_PUBLIC_SUPABASE_URL: ${NEXT_PUBLIC_SUPABASE_URL}
         NEXT_PUBLIC_SUPABASE_ANON_KEY: ${NEXT_PUBLIC_SUPABASE_ANON_KEY}
+      secrets: [pexels]
     restart: unless-stopped
     env_file: .env
     networks: [edge]
+
+secrets:
+  pexels:
+    environment: PEXELS_API_KEY
 
 networks:
   edge:
