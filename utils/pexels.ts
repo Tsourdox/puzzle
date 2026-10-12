@@ -1,4 +1,5 @@
-const API_KEY = '563492ad6f91700001000001e9543e64cc6240f3a18b3b0d9f42629d';
+// Server-side only (all callers are server components) — set in .env.local / .env.production.
+const API_KEY = process.env.PEXELS_API_KEY!;
 
 export interface PexelsImage {
   id: string;
