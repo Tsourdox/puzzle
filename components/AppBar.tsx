@@ -1,5 +1,4 @@
-'use client';
-import PuzzleControls from '@/app/[lang]/room/[...slug]/components/PuzzleControls';
+import PuzzleControls from '@/app/room/components/PuzzleControls';
 import { sidebarOpenAtom } from '@/app/atoms';
 import { Lang } from '@/language';
 import { PropsWithClassName, invert } from '@/utils/general';

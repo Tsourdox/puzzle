@@ -1,15 +1,32 @@
 import { IDeserializedPieceData, IGraphData, IPieceData, IPuzzleData } from './types';
 
-type DBKey = 'puzzle' | 'graph' | 'pieces';
+type DBKey = 'puzzle' | 'graph' | 'pieces' | 'unsynced';
 
+const PREFIX = 'puzzelin_';
+const STORE = 'data';
+
+/** Everything saved for one room */
+export interface ILocalPuzzle {
+  puzzle: IPuzzleData;
+  pieces: IDeserializedPieceData[];
+  graph?: IGraphData;
+  /** Pieces moved while offline, not yet sent to the server */
+  unsynced: number[];
+}
+
+const request = <T>(req: IDBRequest<T>) =>
+  new Promise<T>((resolve, reject) => {
+    req.onsuccess = () => resolve(req.result);
+    req.onerror = () => reject(req.error);
+  });
+
+/** One IndexedDB database per room, so the puzzle works (and is kept) offline */
 export default class ClientDB {
   private dbName: string;
-  private storeName: string = 'data';
   private db?: IDBDatabase;
-  private version: number = 0;
 
   constructor(roomCode: string = 'default') {
-    this.dbName = `puzzelin_${roomCode}`;
+    this.dbName = `${PREFIX}${roomCode}`;
   }
 
   public static async getAllRoomCodes(): Promise<string[]> {
@@ -24,222 +41,126 @@ export default class ClientDB {
       const databases = await indexedDB.databases();
 
       const roomCodes = databases
-        .filter((db) => db.name?.startsWith('puzzelin_'))
-        .map((db) => db.name!.replace('puzzelin_', ''))
+        .filter((db) => db.name?.startsWith(PREFIX))
+        .map((db) => db.name!.replace(PREFIX, ''))
         .filter((code) => code !== 'default');
 
       const roomsWithTimestamps = await Promise.all(
         roomCodes.map(async (code) => {
+          const db = new ClientDB(code);
           try {
-            const db = new ClientDB(code);
             await db.open();
             const puzzleData = await db.loadPuzzle();
-            db.close();
-            return {
-              code,
-              lastModified: puzzleData.lastModified || 0,
-            };
+            return { code, lastModified: puzzleData.lastModified || 0 };
           } catch {
-            return { code, lastModified: 0 };
+            return null;
+          } finally {
+            db.close();
           }
         }),
       );
 
-      return roomsWithTimestamps.sort((a, b) => b.lastModified - a.lastModified);
+      return roomsWithTimestamps
+        .filter((room) => room !== null)
+        .sort((a, b) => b.lastModified - a.lastModified);
     } catch (error) {
       console.error('Failed to get room codes:', error);
       return [];
     }
   }
 
+  /** Opens the database, creating its object store the first time */
+  public async open(): Promise<void> {
+    let db = await request(indexedDB.open(this.dbName));
+    if (!db.objectStoreNames.contains(STORE)) {
+      const version = db.version + 1;
+      db.close();
+      const upgrade = indexedDB.open(this.dbName, version);
+      upgrade.onupgradeneeded = () => upgrade.result.createObjectStore(STORE);
+      db = await request(upgrade);
+    }
+    // Let another tab upgrade or delete the database instead of blocking it
+    db.onversionchange = () => db.close();
+    this.db = db;
+  }
+
   public close() {
     this.db?.close();
+    this.db = undefined;
   }
 
-  public initVersion(): Promise<void> {
-    return new Promise((resolve, reject) => {
-      const request = indexedDB.open(this.dbName);
-      request.onerror = reject;
-      request.onsuccess = (e: Event) => {
-        const db = (e.target as IDBOpenDBRequest).result;
-        this.version = db.version;
-        db.close();
-        resolve();
-      };
-    });
+  public async delete(): Promise<void> {
+    this.close();
+    await request(indexedDB.deleteDatabase(this.dbName));
   }
 
-  public open(): Promise<void> {
-    return new Promise((resolve, reject) => {
-      const request = indexedDB.open(this.dbName);
-      request.onerror = reject;
-      request.onsuccess = (e: Event) => {
-        this.db = (e.target as IDBOpenDBRequest).result;
-        resolve();
-      };
+  private transaction(mode: IDBTransactionMode) {
+    if (!this.db) throw new Error('Client DB must be opened first');
+    const transaction = this.db.transaction(STORE, mode);
+    const done = new Promise<void>((resolve, reject) => {
+      transaction.oncomplete = () => resolve();
+      transaction.onerror = () => reject(transaction.error);
+      transaction.onabort = () => reject(transaction.error);
     });
-  }
-
-  public createObjectStore(_name: string): Promise<void> {
-    return new Promise((resolve, reject) => {
-      if (this.version === 0) throw new Error('initVersion must be called before creating object store');
-
-      const checkRequest = indexedDB.open(this.dbName);
-      checkRequest.onsuccess = (e: Event) => {
-        const db = (e.target as IDBOpenDBRequest).result;
-        const storeExists = db.objectStoreNames.contains(this.storeName);
-        db.close();
-
-        if (storeExists) {
-          resolve();
-          return;
-        }
-
-        const newVersion = this.version + 1;
-        this.version = newVersion;
-        const request = indexedDB.open(this.dbName, newVersion);
-        request.onupgradeneeded = (e: IDBVersionChangeEvent) => {
-          const db = (e.target as IDBOpenDBRequest).result;
-          db.createObjectStore(this.storeName, { autoIncrement: true });
-        };
-
-        request.onerror = reject;
-        request.onsuccess = (e: Event) => {
-          const db = (e.target as IDBOpenDBRequest).result;
-          db.close();
-          resolve();
-        };
-        request.onblocked = () => {
-          reject(new Error('Client DB is blocked'));
-        };
-      };
-      checkRequest.onerror = reject;
-    });
-  }
-
-  public delete(): Promise<void> {
-    return new Promise((resolve, reject) => {
-      const lookupVersionRequest = indexedDB.open(this.dbName);
-      lookupVersionRequest.onerror = reject;
-      lookupVersionRequest.onsuccess = (e: Event) => {
-        this.db = (e.target as IDBOpenDBRequest).result;
-        const version = this.db.version;
-        this.db.close();
-
-        const request = indexedDB.open(this.dbName, version + 1);
-        request.onupgradeneeded = (e: IDBVersionChangeEvent) => {
-          const db = (e.target as IDBOpenDBRequest).result;
-          db.deleteObjectStore(this.storeName);
-        };
-
-        request.onerror = reject;
-        request.onsuccess = (e: Event) => {
-          const db = (e.target as IDBOpenDBRequest).result;
-          db.close();
-          resolve();
-        };
-      };
-    });
-  }
-
-  private loadFromStore<T>(key: DBKey): Promise<T> {
-    return new Promise((resolve, reject) => {
-      try {
-        if (!this.db) throw new Error('Init must be called before loading data from the store');
-        const trans = this.db.transaction(this.storeName, 'readwrite');
-        const store = trans.objectStore(this.storeName);
-        const request = store.get(key);
-        request.onsuccess = (e: Event) => {
-          const result = (e.target as IDBRequest).result;
-          if (!result) {
-            reject(new Error('No data to load from Client DB'));
-          } else {
-            resolve(result);
-          }
-        };
-        request.onerror = reject;
-      } catch (error) {
-        reject(error);
-      }
-    });
-  }
-
-  private saveToStore<T>(data: T, key: DBKey) {
-    return new Promise<void>((resolve, reject) => {
-      if (!this.db) throw new Error('Init must be called before saving data to the store');
-      const trans = this.db.transaction(this.storeName, 'readwrite');
-      const store = trans.objectStore(this.storeName);
-      const request = store.put(data, key);
-      request.onsuccess = () => resolve();
-      request.onerror = reject;
-    });
+    return { store: transaction.objectStore(STORE), done };
   }
 
   public async loadPuzzle(): Promise<IPuzzleData> {
-    return this.loadFromStore<IPuzzleData>('puzzle');
+    const puzzle = await request(this.transaction('readonly').store.get('puzzle' satisfies DBKey));
+    if (!puzzle) throw new Error('No puzzle saved in Client DB');
+    return puzzle;
   }
 
-  public async loadGraph(): Promise<IGraphData> {
-    return this.loadFromStore<IGraphData>('graph');
+  /** The saved puzzle, or null if this room has none */
+  public async loadAll(): Promise<ILocalPuzzle | null> {
+    const { store } = this.transaction('readonly');
+    const get = (key: DBKey) => request(store.get(key));
+    const [puzzle, pieces, graph, unsynced] = await Promise.all([
+      get('puzzle'),
+      get('pieces'),
+      get('graph'),
+      get('unsynced'),
+    ]);
+    if (!puzzle) return null;
+    return { puzzle, pieces: pieces ?? [], graph, unsynced: unsynced ?? [] };
   }
 
-  public async loadPieces(): Promise<IDeserializedPieceData[]> {
-    try {
-      return await this.loadFromStore<IDeserializedPieceData[]>('pieces');
-    } catch {
-      return [];
-    }
+  /** Replaces everything saved for the room */
+  public saveAll(puzzle: IPuzzleData, pieces: IPieceData[], unsynced: number[]) {
+    const { store, done } = this.transaction('readwrite');
+    store.put({ ...puzzle, lastModified: Date.now() }, 'puzzle' satisfies DBKey);
+    store.put(pieces, 'pieces' satisfies DBKey);
+    store.put(unsynced, 'unsynced' satisfies DBKey);
+    return done;
   }
 
-  public async savePuzzle(data: IPuzzleData): Promise<void> {
-    data.lastModified = Date.now();
-    await this.saveToStore([], 'pieces');
-    await this.saveToStore(data, 'puzzle');
+  public saveGraph(graph: IGraphData) {
+    const { store, done } = this.transaction('readwrite');
+    store.put(graph, 'graph' satisfies DBKey);
+    return done;
   }
 
-  public async saveGraph(data: IGraphData): Promise<void> {
-    await this.saveToStore(data, 'graph');
-    await this.updateLastModified();
-  }
+  /** Updates the given pieces (and the unsynced list) in a single transaction */
+  public savePieces(updates: IPieceData[], unsynced?: number[]) {
+    const { store, done } = this.transaction('readwrite');
 
-  public async savePieces(data: IPieceData[]): Promise<void> {
-    // preserve old data
-    const pieces = await this.loadPieces();
-    for (const piece of pieces) {
-      const oldData = !data.find((d) => d.id === piece.id);
-      if (oldData) {
-        data.push(piece);
+    const piecesRequest = store.get('pieces' satisfies DBKey);
+    piecesRequest.onsuccess = () => {
+      const pieces = new Map<number, IPieceData>(
+        (piecesRequest.result ?? []).map((piece: IPieceData) => [piece.id, piece]),
+      );
+      for (const piece of updates) pieces.set(piece.id, piece);
+      store.put([...pieces.values()], 'pieces' satisfies DBKey);
+    };
+
+    const puzzleRequest = store.get('puzzle' satisfies DBKey);
+    puzzleRequest.onsuccess = () => {
+      if (puzzleRequest.result) {
+        store.put({ ...puzzleRequest.result, lastModified: Date.now() }, 'puzzle' satisfies DBKey);
       }
-    }
-    await this.saveToStore(data, 'pieces');
-    await this.updateLastModified();
-  }
+    };
 
-  private async updateLastModified(): Promise<void> {
-    try {
-      const puzzleData = await this.loadPuzzle();
-      puzzleData.lastModified = Date.now();
-      await this.saveToStore(puzzleData, 'puzzle');
-    } catch {
-      // Puzzle data doesn't exist yet, ignore
-    }
-  }
-
-  public async clearAll(): Promise<void> {
-    return new Promise<void>((resolve, reject) => {
-      if (!this.db) {
-        reject(new Error('Database not initialized'));
-        return;
-      }
-      try {
-        const trans = this.db.transaction(this.storeName, 'readwrite');
-        const store = trans.objectStore(this.storeName);
-        const request = store.clear();
-        request.onsuccess = () => resolve();
-        request.onerror = reject;
-      } catch (error) {
-        reject(error);
-      }
-    });
+    if (unsynced) store.put(unsynced, 'unsynced' satisfies DBKey);
+    return done;
   }
 }

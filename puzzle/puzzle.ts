@@ -1,10 +1,11 @@
-import { PexelsImage } from '@/utils/pexels';
+import { puzzleKey, type RoomSnapshot } from '@/shared/protocol';
+import { PexelsImage } from '@/utils/pexelsImage';
 import { Size } from '@/utils/sizes';
 import p5 from 'p5';
 import InputHandler from './handlers/inputHandler';
-import { CURSOR_INACTIVE_TIMEOUT_MS } from './network/constants';
+import { CONNECT_TIMEOUT_MS, CURSOR_INACTIVE_TIMEOUT_MS } from './network/constants';
 import NetworkHandler from './network/networkHandler';
-import NetworkSerializer from './network/serializer';
+import NetworkSerializer, { toPieceData } from './network/serializer';
 import { IDeserializeOptions, IPuzzleData, ISerializablePuzzle } from './network/types';
 import Piece from './piece';
 import PieceConnector from './pieceConnector';
@@ -50,6 +51,16 @@ export default class Puzzle implements IPuzzle, ISerializablePuzzle, IPuzzleCont
   private piecesFactory?: PiecesFactory;
   private size: Size;
   private imageData: PexelsImage;
+  private onImageChange?: (imageId: number | string) => void;
+  private isLoaded = false;
+  /** Room state that arrived while we were still loading */
+  private pendingRoom?: RoomSnapshot;
+  /**
+   * Until we've reached the server once, the puzzle in the URL wins over the room's: that's
+   * someone starting a new puzzle. After that, a different puzzle in the room means someone
+   * else started one, and we follow them.
+   */
+  private claimsRoom = true;
   private readonly cursorVertices = {
     tip: [0, 0],
     leftBottom: [0, 11.76],
@@ -82,9 +93,11 @@ export default class Puzzle implements IPuzzle, ISerializablePuzzle, IPuzzleCont
     this.pieceCount = p.createVector(0, 0);
     this.pieceSize = p.createVector(0, 0);
     this.isModified = false;
+    this.onImageChange = onImageChange;
     this.inputHandler = new InputHandler(this, settings);
     this.networkSerializer = new NetworkSerializer(this, this.inputHandler.graphHandler, roomCode);
-    this.networkHandler = new NetworkHandler(this, roomCode, image.id, onImageChange);
+    this.networkHandler = new NetworkHandler(this, roomCode, this.networkSerializer);
+    this.networkHandler.onRoom = (room) => this.handleRoom(room);
     const { selectionHandler, transformHandler } = this.inputHandler;
     this.pieceConnector = new PieceConnector(
       this,
@@ -104,41 +117,96 @@ export default class Puzzle implements IPuzzle, ISerializablePuzzle, IPuzzleCont
   }
 
   private async loadCanvasImage(src: string) {
-    return new Promise<p5.Image>((resolve) => {
-      this.p.loadImage(src, (image) => {
-        resolve(image);
-      });
+    return new Promise<p5.Image>((resolve, reject) => {
+      this.p.loadImage(src, resolve, () => reject(new Error(`Could not load image ${src}`)));
     });
   }
 
-  public async tryLoadPuzzle() {
-    // Try Supabase first (multiplayer). NetworkHandler checks image ID and clears stale data.
-    const loadedFromNetwork = await this.networkHandler.initialize();
-    if (loadedFromNetwork) {
-      await this.networkSerializer.init();
-      const puzzleData = this.serialize();
-      await this.networkSerializer.clientDB.savePuzzle(puzzleData);
-      const hasGraphData = await this.networkSerializer.loadGraphData();
-      if (!hasGraphData) {
-        this.inputHandler.graphHandler.zoomHome();
+  /**
+   * Builds the puzzle from what the room has on the server, else from what's saved in this
+   * browser, else from scratch. Saved progress is applied on top when it's the same puzzle.
+   */
+  public async load() {
+    const imageId = String(this.imageData.id);
+    const local = await this.networkSerializer.open();
+    const room = await this.networkHandler.connect(CONNECT_TIMEOUT_MS);
+    const localPuzzle = local && String(local.puzzle.imageData.id) === imageId ? local : null;
+    const roomPuzzle =
+      room?.puzzle && String(room.puzzle.imageData.id) === imageId ? room.puzzle : null;
+
+    if (roomPuzzle) await this.deserialize(roomPuzzle);
+    else if (localPuzzle) await this.deserialize(localPuzzle.puzzle);
+    else await this.generateNewPuzzle();
+
+    const { graphHandler } = this.inputHandler;
+    if (localPuzzle && puzzleKey(localPuzzle.puzzle) === puzzleKey(this.serialize())) {
+      for (const data of localPuzzle.pieces) {
+        this.pieces[data.id]?.deserialize({ ...data, isSelectedByOther: false }, { lerp: false });
       }
-      return true;
+      if (localPuzzle.graph) await graphHandler.deserialize(localPuzzle.graph);
+      else graphHandler.zoomHome();
+    } else {
+      // Anything saved belonged to another puzzle
+      this.networkSerializer.clearUnsynced();
+      graphHandler.zoomHome();
     }
 
-    // No room exists yet OR image mismatch detected. Clear local IndexedDB to stay in sync.
-    await this.networkSerializer.init();
-    await this.networkSerializer.clearAll();
-    return false;
+    this.pieces.forEach((piece) => (piece.isModified = false));
+    await this.networkSerializer.saveAll();
+    this.isLoaded = true;
+
+    const pendingRoom = this.pendingRoom;
+    this.pendingRoom = undefined;
+    if (pendingRoom) this.handleRoom(pendingRoom);
+  }
+
+  /** The room's state, on every (re)connect and when someone starts a new puzzle */
+  private handleRoom(room: RoomSnapshot) {
+    if (!this.isLoaded) {
+      this.pendingRoom = room;
+      return;
+    }
+    const mine = this.serialize();
+    const theirs = room.puzzle;
+    const claimsRoom = this.claimsRoom;
+    this.claimsRoom = false;
+
+    if (theirs && puzzleKey(theirs) === puzzleKey(mine)) {
+      this.applyRoomPieces(room);
+    } else if (!theirs || claimsRoom) {
+      this.networkHandler.create(mine, this.pieces.map(toPieceData));
+      this.networkSerializer.clearUnsynced();
+    } else if (String(theirs.imageData.id) !== String(mine.imageData.id)) {
+      this.networkHandler.stopForImageChange();
+      this.p.noLoop();
+      this.onImageChange?.(theirs.imageData.id);
+    } else {
+      // Same image cut another way (e.g. another size); a reload picks up the room's
+      this.networkHandler.stopForImageChange();
+      window.location.reload();
+    }
+    this.networkHandler.refreshPeerSelections();
+  }
+
+  /** Takes the room's pieces, except the ones we moved offline or are holding: those are sent */
+  private applyRoomPieces(room: RoomSnapshot) {
+    const ours = new Set(this.networkSerializer.unsyncedIds);
+    this.selectedPieces.forEach((piece) => ours.add(piece.id));
+    this.networkHandler.applyRemotePieces(room.pieces, ours);
+    this.networkSerializer.clearUnsynced();
+    if (ours.size) {
+      this.networkHandler.queuePieces(ours);
+      this.networkHandler.requestSync();
+    }
   }
 
   private getPiecesCountFromSize(size: Size) {
     return { xs: 4, s: 8, m: 12, l: 20, xl: 30 }[size];
   }
 
-  public async generateNewPuzzle() {
+  private async generateNewPuzzle() {
     const xy = this.getPiecesCountFromSize(this.size);
     this.image = await this.loadCanvasImage(this.imageData.src.large2x);
-    this.isModified = true;
     this.pieceCount = this.p.createVector(xy, xy);
     this.pieceSize = this.p.createVector(this.image.width / xy, this.image.height / xy);
 
@@ -154,15 +222,6 @@ export default class Puzzle implements IPuzzle, ISerializablePuzzle, IPuzzleCont
       const explosion = offset.copy().mult(explosionFactor);
       piece.translation = p5.Vector.add(piece.translation, explosion);
     }
-
-    this.inputHandler.graphHandler.zoomHome();
-
-    // Prevent false mismatch detection when puzzle is reset
-    this.networkHandler.updateTargetImageId(this.imageData.id);
-
-    await this.networkSerializer.saveInitialData();
-    const puzzleData = this.serialize();
-    await this.networkHandler.createRoom(puzzleData);
   }
 
   public get selectedPieces(): Piece[] {
@@ -217,17 +276,20 @@ export default class Puzzle implements IPuzzle, ISerializablePuzzle, IPuzzleCont
   }
 
   public update(scrollDelta: number) {
+    const moved = this.pieces.filter((piece) => piece.isModified).map((piece) => piece.id);
+    if (moved.length) {
+      moved.forEach((id) => (this.pieces[id].isModified = false));
+      this.networkSerializer.queueMoved(moved);
+      this.networkHandler.queuePieces(moved);
+    }
     this.networkSerializer.update(this.p.deltaTime);
-    this.networkHandler.syncPieces(this.pieces as Piece[]);
-    this.networkHandler.syncSelections(this.selectedPieces);
+    this.networkHandler.update(this.p.deltaTime, this.selectedPieces);
 
     // Only sync cursor position if mouse is over the canvas
     if (isMouseOverCanvas(this.p)) {
       const worldPos = this.inputHandler.graphHandler.screenToWorld(this.p.mouseX, this.p.mouseY);
       this.networkHandler.syncCursorPosition(worldPos.x, worldPos.y);
     }
-
-    this.networkHandler.updateCursors(this.p.deltaTime);
 
     this.inputHandler.update(scrollDelta);
     this.pieceConnector.update();
@@ -311,15 +373,17 @@ export default class Puzzle implements IPuzzle, ISerializablePuzzle, IPuzzleCont
     const size = 16;
     const spacing = 8;
 
+    // Hollow while offline
     this.p.push();
-    this.p.fill(myColor);
+    if (this.networkHandler.isOnline) this.p.fill(myColor);
+    else this.p.noFill();
     this.p.stroke(255);
     this.p.strokeWeight(2);
     this.p.circle(startX, startY, size);
     this.p.pop();
 
     let index = 1;
-    for (const [userId, presence] of presenceState) {
+    for (const presence of presenceState.values()) {
       this.p.push();
       this.p.fill(presence.color);
       this.p.stroke(255);
@@ -346,22 +410,27 @@ export default class Puzzle implements IPuzzle, ISerializablePuzzle, IPuzzleCont
     delete this.piecesFactory;
   }
 
-  public deserialize(puzzle: IPuzzleData, options: IDeserializeOptions) {
+  public deserialize(puzzle: IPuzzleData, _options?: IDeserializeOptions) {
     return new Promise<void>((resolve, reject) => {
       if (!puzzle) {
         this.resetPuzzle();
+        resolve();
         return;
       }
       try {
-        this.p.loadImage(puzzle.imageData.src.large2x, (image) => {
-          const { x, y } = puzzle.pieceCount;
-          this.image = image;
-          this.pieceCount = this.p.createVector(x, y);
-          this.pieceSize = this.p.createVector(image.width / x, image.height / y);
-          this.piecesFactory = new PiecesFactory(this.p, x, y, image, this.settings, puzzle.seed);
-          this.pieces = this.piecesFactory.createAllPieces(true);
-          resolve();
-        });
+        this.p.loadImage(
+          puzzle.imageData.src.large2x,
+          (image) => {
+            const { x, y } = puzzle.pieceCount;
+            this.image = image;
+            this.pieceCount = this.p.createVector(x, y);
+            this.pieceSize = this.p.createVector(image.width / x, image.height / y);
+            this.piecesFactory = new PiecesFactory(this.p, x, y, image, this.settings, puzzle.seed);
+            this.pieces = this.piecesFactory.createAllPieces(true);
+            resolve();
+          },
+          () => reject(new Error(`Could not load image ${puzzle.imageData.src.large2x}`)),
+        );
       } catch (error) {
         reject(error);
       }

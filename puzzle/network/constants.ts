@@ -15,3 +15,9 @@ export const CURSOR_LERP_DURATION_MS = 200;
 
 /** How long before a remote cursor fades out due to inactivity (5 seconds) */
 export const CURSOR_INACTIVE_TIMEOUT_MS = 5000;
+
+/** How long a new puzzle waits for the server before starting offline */
+export const CONNECT_TIMEOUT_MS = 3000;
+
+/** Waits between reconnect attempts; the last one repeats */
+export const RECONNECT_DELAYS_MS = [1000, 2000, 5000, 10000];

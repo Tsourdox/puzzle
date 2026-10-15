@@ -30,6 +30,9 @@ export default class GraphHandler implements IGraph, ISerializableGraph {
   public get isModified() {
     return this._isModified;
   }
+  public set isModified(value: boolean) {
+    this._isModified = value;
+  }
   public get scale() {
     return this._scale;
   }

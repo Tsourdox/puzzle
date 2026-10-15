@@ -1,4 +1,3 @@
-'use client';
 import { toastsAtom } from '@/app/atoms';
 import { useAtomValue } from 'jotai';
 import Toast from './Toast';

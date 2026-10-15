@@ -1,4 +1,3 @@
-'use client';
 import { removeToastAtom, Toast as ToastType } from '@/app/atoms';
 import { XMarkIcon } from '@heroicons/react/20/solid';
 import { useSetAtom } from 'jotai';

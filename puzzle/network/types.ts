@@ -1,4 +1,4 @@
-import { PexelsImage } from '@/utils/pexels';
+import type { PexelsImage } from '@/utils/pexelsImage';
 import { Size } from '@/utils/sizes';
 import { Point } from '../utils/general';
 
@@ -19,8 +19,10 @@ export interface ISerializablePuzzle extends ISerializable<IPuzzleData, IPuzzleD
   pieces: ReadonlyArray<ISerializablePiece>;
 }
 
-export interface ISerializablePiece
-  extends ISerializable<ISerializedPieceData, IDeserializedPieceData> {
+export interface ISerializablePiece extends ISerializable<
+  ISerializedPieceData,
+  IDeserializedPieceData
+> {
   isSelectedByOther: boolean;
 }
 export type ISerializableGraph = ISerializable<IGraphData, IGraphData>;

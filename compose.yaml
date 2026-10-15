@@ -1,20 +1,13 @@
-# Values come from .env next to this file (not in git). The Supabase ones are
-# public build args; PEXELS_API_KEY is a build secret and a runtime variable.
+# PEXELS_API_KEY comes from .env next to this file (not in git). Caddy (edge) sends
+# puzzelin.se here; the SQLite database and uploaded images live in /srv/data/puzzelin.
 services:
   puzzelin:
-    build:
-      context: .
-      args:
-        NEXT_PUBLIC_SUPABASE_URL: ${NEXT_PUBLIC_SUPABASE_URL}
-        NEXT_PUBLIC_SUPABASE_ANON_KEY: ${NEXT_PUBLIC_SUPABASE_ANON_KEY}
-      secrets: [pexels]
+    build: .
     restart: unless-stopped
     env_file: .env
+    volumes:
+      - /srv/data/puzzelin:/data
     networks: [edge]
-
-secrets:
-  pexels:
-    environment: PEXELS_API_KEY
 
 networks:
   edge:

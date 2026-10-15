@@ -138,7 +138,7 @@ export default class PieceConnector {
     const allConnectedPieceIds = [...movingIsland, ...adjacentIsland].map((p) => p.id);
     this.networkHandler.broadcastConnection(allConnectedPieceIds);
 
-    // Force immediate sync after connection to prevent stale positions on other clients
-    this.networkHandler.syncPieces(this.puzzle.pieces as Piece[], true);
+    // Sync right away, so other players don't see stale positions
+    this.networkHandler.requestSync();
   }
 }

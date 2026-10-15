@@ -1,48 +1,42 @@
 {
-  "name": "next-app",
+  "name": "puzzelin",
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
-    "build": "next build",
-    "start": "next start",
+    "dev": "NODE_ENV=development bun --watch server/index.ts",
+    "build": "bun scripts/build.ts",
+    "start": "bun server/index.ts",
     "lint": "eslint .",
     "format": "prettier --check .",
     "types": "tsc --pretty --noEmit"
   },
-  "engines": {
-    "node": "24"
-  },
   "dependencies": {
     "@heroicons/react": "^2.2.0",
     "@hookform/resolvers": "^5.2.2",
-    "@supabase/supabase-js": "^2.89.0",
-    "@tailwindcss/postcss": "^4.1.18",
-    "autoprefixer": "10.4.23",
-    "eslint": "9.39.2",
-    "eslint-config-next": "16.1.0",
+    "bun-plugin-tailwind": "^0.1.2",
     "jotai": "^2.16.0",
     "negotiator": "^1.0.0",
-    "next": "16.1.0",
     "p5": "^1.11.10",
-    "postcss": "^8.5.6",
     "react": "19.2.3",
     "react-dom": "19.2.3",
     "react-hook-form": "^7.69.0",
-    "sharp": "^0.34.5",
     "tailwind-merge": "^3.4.0",
     "tailwindcss": "^4.1.18",
-    "typescript": "^5.9.3",
     "zod": "^4.1.5"
   },
   "devDependencies": {
+    "@eslint/js": "^9",
+    "@types/bun": "^1.4.3",
     "@types/negotiator": "^0.6.4",
-    "@types/node": "^24.10.4",
     "@types/p5": "^1.7.6",
     "@types/react": "^19.2.7",
     "@types/react-dom": "19.2.3",
+    "eslint": "9.39.2",
     "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-react-hooks": "^7.1.1",
     "prettier": "^3.7.4",
-    "prettier-plugin-tailwindcss": "^0.7.2"
+    "prettier-plugin-tailwindcss": "^0.7.2",
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.71.2"
   }
 }

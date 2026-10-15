@@ -52,7 +52,16 @@ export default class PiecesFactory {
 
         const image = imageWithOffset.get(pieceX, pieceY, pieceW, pieceH);
         const id = pieces.length; // array index
-        const piece = new Piece(this.p, id, image, origin, this.cellSize, sides, offset, this.settings);
+        const piece = new Piece(
+          this.p,
+          id,
+          image,
+          origin,
+          this.cellSize,
+          sides,
+          offset,
+          this.settings,
+        );
         pieces.push(piece);
       }
 

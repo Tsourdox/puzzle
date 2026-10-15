@@ -1,10 +1,11 @@
 node_modules
-.next
+dist
+server/data
 .git
 .github
 .claude
 .vscode
 .env*
+.playwright-cli
 documentation
-*.tsbuildinfo
 .DS_Store

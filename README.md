@@ -17,12 +17,12 @@ Mouse (+Keyboard) or Touch is all fully supported.
 
 ## Installation
 
-Run `npm install` followed by `npm start` and you should be good to go!
+Run `bun install` followed by `bun dev` (with `PEXELS_API_KEY` in `.env.local`) and open http://localhost:3000.
 
 ## About the code
 
-- **Frontend Stack:** [HMTL, CSS, Typescript, P5.js];
-- **Backend Stack:** Firebase for realtime communication;
+- **Frontend Stack:** [React, Tailwind, Typescript, P5.js];
+- **Backend Stack:** Bun server with SQLite and WebSockets for realtime collaboration;
 - **Paradigm:** Mostly OOP, with some helper functions;
 - **Modules:** Configured to run "module-less";
 - **Class Diagram:** Slightly outdated, but communicates the gernal architecture of the codebase:
