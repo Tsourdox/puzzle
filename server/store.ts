@@ -94,6 +94,15 @@ export default class Store {
     return row ? { value: JSON.parse(row.value), expires: row.expires } : null;
   }
 
+  /** Values of every cache key matching one of the LIKE patterns */
+  public getCacheValues<T>(patterns: string[]): T[] {
+    const where = patterns.map(() => 'key LIKE ?').join(' OR ');
+    return this.db
+      .query<{ value: string }, string[]>(`SELECT value FROM cache WHERE ${where}`)
+      .all(...patterns)
+      .map((row) => JSON.parse(row.value));
+  }
+
   public setCache(key: string, value: unknown, ttl: number) {
     this.upsertCache.run(key, JSON.stringify(value), Date.now() + ttl);
   }

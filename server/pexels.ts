@@ -3,6 +3,7 @@ import type Store from './store';
 
 const API_KEY = process.env.PEXELS_API_KEY ?? '';
 const DAY_MS = 86_400_000;
+const PHOTO_TTL_MS = 30 * DAY_MS;
 /** After hitting their rate limit, don't ask again for a while (cached answers still work) */
 const RATE_LIMIT_PAUSE_MS = 10 * 60_000;
 let pausedUntil = 0;
@@ -66,7 +67,18 @@ const logError = (error: unknown) => {
 export default class Pexels {
   private refreshing = new Map<string, Promise<unknown>>();
 
-  constructor(private store: Store) {}
+  constructor(private store: Store) {
+    // Gallery answers cached before images were remembered one by one
+    for (const images of store.getCacheValues<PexelsImage[]>(['curated', 'search:%'])) {
+      this.remember(images);
+    }
+  }
+
+  /** Every image we've shown can be opened as a puzzle without asking Pexels again */
+  private remember(images: PexelsImage[]) {
+    for (const image of images) this.store.setCache(`photo:${image.id}`, image, PHOTO_TTL_MS);
+    return images;
+  }
 
   private async cached<T>(key: string, ttl: number, load: () => Promise<T>): Promise<T> {
     const hit = this.store.getCache<T>(key);
@@ -106,7 +118,7 @@ export default class Pexels {
     }
     if (!/^\d{1,20}$/.test(id)) return null;
     try {
-      return await this.cached(`photo:${id}`, 30 * DAY_MS, async () =>
+      return await this.cached(`photo:${id}`, PHOTO_TTL_MS, async () =>
         toImage(await pexels<PexelsPhoto>(`photos/${id}`)),
       );
     } catch (error) {
@@ -119,7 +131,7 @@ export default class Pexels {
     try {
       return await this.cached('curated', DAY_MS, async () => {
         const result = await pexels<{ photos: PexelsPhoto[] }>('curated?per_page=30&page=1');
-        return result.photos.map(toImage);
+        return this.remember(result.photos.map(toImage));
       });
     } catch (error) {
       logError(error);
@@ -158,6 +170,6 @@ export default class Pexels {
         .filter((_, index) => index % spacing === 0)
         .forEach((photo) => images.set(photo.id, toImage(photo)));
     }
-    return [...images.values()];
+    return this.remember([...images.values()]);
   }
 }
