@@ -65,6 +65,7 @@ Rooms live in memory while someone is connected; moved pieces are flushed to SQL
 - Moves made offline are recorded in `unsynced` and sent on reconnect; they (and pieces you're holding) win over the room's copy. Everything else takes the room's state
 - On first contact the URL's image wins (someone starting a new puzzle replaces the room's); afterwards a different image in the room means someone else started one, and the client navigates to it
 - The server drops `pieces` messages whose `key` isn't the room's current puzzle
+- Selections don't lock: the last one to take a piece gets it and the previous holder lets go. Another player's outline is only a hint
 
 ## Important Patterns
 

@@ -2,7 +2,7 @@ import p5 from 'p5';
 import Piece from '../piece';
 import type { IPuzzle } from '../puzzle';
 import { ISettings } from '../settings';
-import { Line, pointSideLocationOfLine, sum } from '../utils/general';
+import { isMouseOverCanvas, Line, pointSideLocationOfLine, sum } from '../utils/general';
 import { getConnectedPieces, sortPieces } from '../utils/pieces';
 import type { IGraph } from './graphHandler';
 
@@ -19,6 +19,8 @@ export default class SelectionHandler implements ISelectionHandler {
   private dragSelectionFill: p5.Color;
   private dragSelectionStroke: p5.Color;
   private timeSincePress: number;
+  /** Where the current press started (screen coordinates) */
+  private pressOrigin?: p5.Vector;
   private dragSelectionOrigin?: p5.Vector;
   private settings: ISettings;
   private pressDelay: number;
@@ -35,6 +37,14 @@ export default class SelectionHandler implements ISelectionHandler {
     this.timeSincePress = 0;
     this.pressDelay = 30;
     this.prevTouchCount = 0;
+
+    // Pieces are picked once the press delay has passed. By then a quick drag can have left
+    // the piece (more so at low frame rates), so remember where the press started.
+    // (p5 calls these for presses anywhere in the window, so only presses on the canvas count.)
+    puzzle.p.mousePressed = puzzle.p.touchStarted = () => {
+      const { p } = this.puzzle;
+      this.pressOrigin = isMouseOverCanvas(p) ? p.createVector(p.mouseX, p.mouseY) : undefined;
+    };
   }
 
   public get isDragSelecting(): boolean {
@@ -56,6 +66,7 @@ export default class SelectionHandler implements ISelectionHandler {
     if (p.mouseIsPressed) {
       this.timeSincePress += p.deltaTime;
     } else {
+      delete this.pressOrigin;
       delete this.dragSelectionOrigin;
       this.timeSincePress = 0;
     }
@@ -71,9 +82,9 @@ export default class SelectionHandler implements ISelectionHandler {
     const didPress = !this.prevMouseIsPressed && this.mouseIsPressed;
 
     if (didPress && (p.mouseButton === p.LEFT || p.touches.length)) {
-      const mouseOverAnyPiece = this.isMouseOverAnyPiece(this.puzzle.pieces);
-      if (!mouseOverAnyPiece || p.keyIsDown(this.settings.keybindings.selectMultiple)) {
-        this.dragSelectionOrigin = p.createVector(p.mouseX, p.mouseY);
+      const pressedPiece = this.getPressedPiece();
+      if (!pressedPiece || p.keyIsDown(this.settings.keybindings.selectMultiple)) {
+        this.dragSelectionOrigin = this.getPressOrigin().copy();
       }
     }
   }
@@ -91,24 +102,22 @@ export default class SelectionHandler implements ISelectionHandler {
     const leftClick = p.mouseButton === p.LEFT || touchCount;
 
     if (wasQuickTap || (didPress && leftClick && delayPassed)) {
+      const piece = this.getPressedPiece();
+
       // Deselection
       if (this.puzzle.selectedPieces.length) {
         const selectMore = p.keyIsDown(this.settings.keybindings.selectMultiple);
-        const mouseOverSelectedPiece = this.isMouseOverAnyPiece(this.puzzle.selectedPieces);
-        if (!mouseOverSelectedPiece && !selectMore) {
+        if (!piece?.isSelected && !selectMore) {
           this.deselectAllPieces();
         }
       }
 
       // Selection
-      for (const piece of sortPieces(this.puzzle.pieces, true)) {
-        if (this.isMouseOverPiece(piece)) {
-          if (p.keyIsDown(this.settings.keybindings.selectMultiple)) {
-            this.select(piece, !piece.isSelected);
-          } else {
-            this.select(piece, true);
-          }
-          break;
+      if (piece) {
+        if (p.keyIsDown(this.settings.keybindings.selectMultiple)) {
+          this.select(piece, !piece.isSelected);
+        } else {
+          this.select(piece, true);
         }
       }
     }
@@ -172,23 +181,31 @@ export default class SelectionHandler implements ISelectionHandler {
     this.puzzle.setShowPuzzlePieceControls(Boolean(selectedPieces.length));
   }
 
-  private isMouseOverAnyPiece(pieces: ReadonlyArray<Piece>) {
-    let mouseOverPiece = false;
-    for (const piece of pieces) {
-      if (this.isMouseOverPiece(piece)) {
-        mouseOverPiece = true;
-        break;
-      }
-    }
-    return mouseOverPiece;
+  private getPressOrigin(): p5.Vector {
+    const { p } = this.puzzle;
+    return this.pressOrigin ?? p.createVector(p.mouseX, p.mouseY);
   }
 
-  private isMouseOverPiece(piece: Piece) {
+  /**
+   * The piece the press is on: one we hold, which has followed the pointer since the press,
+   * else the topmost piece where the press started.
+   */
+  private getPressedPiece(): Piece | undefined {
     const { p } = this.puzzle;
+    const mouse = p.createVector(p.mouseX, p.mouseY);
+    const pressOrigin = this.getPressOrigin();
+    const sorted = sortPieces(this.puzzle.pieces, true);
+    return (
+      sorted.find((piece) => piece.isSelected && this.isPointOverPiece(mouse, piece)) ??
+      sorted.find((piece) => this.isPointOverPiece(pressOrigin, piece))
+    );
+  }
+
+  private isPointOverPiece(point: p5.Vector, piece: Piece) {
     const { scale, translation } = this.graph;
-    const mouse = p.createVector(p.mouseX, p.mouseY).div(scale).sub(translation);
+    const worldPoint = point.copy().div(scale).sub(translation);
     const corners = piece.getTrueCorners();
-    return this.isPointInsideRect(mouse, corners);
+    return this.isPointInsideRect(worldPoint, corners);
   }
 
   private isDragSelectionOverPiece(piece: Piece): boolean {

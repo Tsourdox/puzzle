@@ -245,8 +245,20 @@ export default class NetworkHandler {
       const piece = this.pieces[id];
       if (piece?.isSelected) piece.isSelected = false;
     }
+    this.releasePeerPieces(pieceIds, peer);
     peer.pieceIds = pieceIds;
     this.refreshPeerSelections();
+  }
+
+  /**
+   * Last one to take a piece gets it: other peers (but `keep`) no longer hold these. A peer
+   * that lost them may not say so for a while (e.g. its tab is in the background).
+   */
+  private releasePeerPieces(pieceIds: number[], keep?: Peer) {
+    const taken = new Set(pieceIds);
+    for (const peer of this.peers.values()) {
+      if (peer !== keep) peer.pieceIds = peer.pieceIds.filter((id) => !taken.has(id));
+    }
   }
 
   private handleCursor(userId: string, x: number, y: number) {
@@ -332,6 +344,7 @@ export default class NetworkHandler {
     if (!changed) return;
 
     this.lastSelection = pieceIds;
+    this.releasePeerPieces(pieceIds);
     selectedPieces.forEach((piece) => piece.setSelectionColor(this.myColor));
     this.send({ type: 'select', pieceIds });
   }

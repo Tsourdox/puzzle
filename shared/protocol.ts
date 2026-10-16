@@ -22,6 +22,7 @@ export type ClientMessage =
   | { type: 'create'; puzzle: IPuzzleData; pieces: IPieceData[] }
   /** `key` is the puzzleKey we moved them in; the server drops pieces for a puzzle it has replaced */
   | { type: 'pieces'; key: string; pieces: IPieceData[] }
+  /** Pieces we hold. Not a lock: the last one to take a piece gets it, others let go */
   | { type: 'select'; pieceIds: number[] }
   | { type: 'cursor'; x: number; y: number }
   /** Pieces snapped together; everyone lets go of them */

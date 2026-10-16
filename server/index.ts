@@ -169,6 +169,17 @@ const toPieces = (value: unknown, puzzle: IPuzzleData) =>
 
 /* -------------------------------- messages -------------------------------- */
 
+/**
+ * Nobody holds these pieces any more. Holding doesn't lock: the last one to take a piece gets
+ * it, and whoever had it lets go when they hear (or never says so, if its tab is asleep).
+ */
+function release(room: Room, pieceIds: number[]) {
+  const ids = new Set(pieceIds);
+  for (const client of room.clients) {
+    client.data.pieceIds = client.data.pieceIds.filter((id) => !ids.has(id));
+  }
+}
+
 const send = (ws: WS, message: ServerMessage) => ws.send(JSON.stringify(message));
 /** To everyone in the room except `ws` */
 const publish = (ws: WS, message: ServerMessage) =>
@@ -203,6 +214,7 @@ function handleMessage(ws: WS, message: ClientMessage) {
     }
     case 'select': {
       if (!isIdList(message.pieceIds)) return;
+      release(room, message.pieceIds);
       ws.data.pieceIds = message.pieceIds;
       publish(ws, { type: 'select', from: id, pieceIds: message.pieceIds });
       return;
@@ -214,6 +226,7 @@ function handleMessage(ws: WS, message: ClientMessage) {
     }
     case 'connect': {
       if (!isIdList(message.pieceIds)) return;
+      release(room, message.pieceIds);
       publish(ws, { type: 'connect', from: id, pieceIds: message.pieceIds });
       return;
     }
