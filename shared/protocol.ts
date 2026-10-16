@@ -36,6 +36,11 @@ export type ServerMessage =
   /** Everyone else in the room, sent when someone joins or leaves */
   | { type: 'peers'; peers: Peer[] }
   | { type: 'pieces'; from: string; pieces: IPieceData[] }
+  /**
+   * Answers each of our 'pieces' messages, in order. Pieces from others that arrive before
+   * the ack were stored before ours, so ours overwrite them for everyone: we skip them.
+   */
+  | { type: 'ack' }
   | { type: 'select'; from: string; pieceIds: number[] }
   | { type: 'cursor'; from: string; x: number; y: number }
   | { type: 'connect'; from: string; pieceIds: number[] };

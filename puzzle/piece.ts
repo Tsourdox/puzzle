@@ -125,6 +125,32 @@ export default class Piece implements ISerializablePiece {
     return this._connectedSides;
   }
 
+  /** For a side the adjacent piece says is connected; derived, so not a move of ours to send */
+  public addConnectedSide(side: Side) {
+    if (this._connectedSides.includes(side)) return;
+    this._connectedSides = [...this._connectedSides, side];
+    this.graphicNeedsUpdating = true;
+  }
+
+  /**
+   * Puts this piece exactly where it belongs next to `anchor` in the solved image: same
+   * rotation, and its center offset from the anchor's by that offset in the image, rotated.
+   * Derived from the anchor, so it's not a move of ours to send.
+   */
+  public alignTo(anchor: Piece) {
+    const rotation = anchor._rotation;
+    const cos = Math.cos(rotation);
+    const sin = Math.sin(rotation);
+    const dx = this.center.x - anchor.center.x;
+    const dy = this.center.y - anchor.center.y;
+    const x = anchor._translation.x + dx * cos - dy * sin - dx;
+    const y = anchor._translation.y + dx * sin + dy * cos - dy;
+    this._rotation = rotation;
+    if (this._translation.x !== x || this._translation.y !== y) {
+      this._translation = this.p.createVector(x, y);
+    }
+  }
+
   public set isSelected(value: boolean) {
     if (this._isSelected !== value) {
       this._isSelected = value;

@@ -63,6 +63,8 @@ export default class NetworkHandler {
 
   /** Pieces we moved since the last sync */
   private pendingIds = new Set<number>();
+  /** Pieces in each 'pieces' message we sent that the server hasn't acked yet, oldest first */
+  private unacked: number[][] = [];
   private syncTimeout = 0;
   private forceSync = false;
   private lastSelection: number[] = [];
@@ -119,6 +121,7 @@ export default class NetworkHandler {
       if (this.ws !== ws) return;
       this.ws = undefined;
       this.myId = '';
+      this.unacked = [];
       this.clearPeers();
       this.onWelcome?.(null);
       if (this.isClosed) return;
@@ -163,7 +166,11 @@ export default class NetworkHandler {
         this.setPeers(message.peers);
         return;
       case 'pieces':
-        this.applyRemotePieces(message.pieces);
+        // Our unacked pieces were stored after these, so everyone ends up with ours
+        this.applyRemotePieces(message.pieces, new Set(this.unacked.flat()));
+        return;
+      case 'ack':
+        this.unacked.shift();
         return;
       case 'select':
         this.handleSelection(message.from, message.pieceIds);
@@ -334,6 +341,7 @@ export default class NetworkHandler {
       this.pieces[id] ? [toWire(toPieceData(this.pieces[id]))] : [],
     );
     this.send({ type: 'pieces', key: puzzleKey(this.puzzle.serialize()), pieces });
+    this.unacked.push(pieces.map((piece) => piece.id));
   }
 
   private syncSelection(selectedPieces: Piece[]) {

@@ -66,6 +66,8 @@ Rooms live in memory while someone is connected; moved pieces are flushed to SQL
 - On first contact the URL's image wins (someone starting a new puzzle replaces the room's); afterwards a different image in the room means someone else started one, and the client navigates to it
 - The server drops `pieces` messages whose `key` isn't the room's current puzzle
 - Selections don't lock: the last one to take a piece gets it and the previous holder lets go. Another player's outline is only a hint
+- The server acks every `pieces` message; pieces from others that arrive before our ack were stored before ours, so we skip them. That way every client ends with the server's copy
+- A connected group is rigid: every frame `alignGroups()` (`puzzle/utils/pieces.ts`) places each piece from its group's lowest-id piece, at its spot in the solved image, and an edge counts when either piece claims it. That placement is derived, so it isn't sent
 
 ## Important Patterns
 

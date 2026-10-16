@@ -202,6 +202,8 @@ function handleMessage(ws: WS, message: ClientMessage) {
       return;
     }
     case 'pieces': {
+      // Tells the sender where its message landed among everyone's (see 'ack')
+      send(ws, { type: 'ack' });
       // Moves made in a puzzle the room has since replaced
       if (!room.puzzle || message.key !== puzzleKey(room.puzzle)) return;
       const pieces = toPieces(message.pieces, room.puzzle);

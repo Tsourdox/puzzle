@@ -1,6 +1,4 @@
-import p5 from 'p5';
 import type { ISelectionHandler } from './handlers/selectionHandler';
-import type { ITransformHandler } from './handlers/transformationHandler';
 import type NetworkHandler from './network/networkHandler';
 import Piece, { Side } from './piece';
 import type { IPuzzle } from './puzzle';
@@ -10,20 +8,17 @@ import { getAdjacentPiece, getConnectedPieces } from './utils/pieces';
 export default class PieceConnector {
   private puzzle: IPuzzle;
   private selectionHandler: ISelectionHandler;
-  private transformHandler: ITransformHandler;
   private networkHandler: NetworkHandler;
   private settings: ISettings;
 
   constructor(
     puzzle: IPuzzle,
     selectionHandler: ISelectionHandler,
-    transformHandler: ITransformHandler,
     networkHandler: NetworkHandler,
     settings: ISettings,
   ) {
     this.puzzle = puzzle;
     this.selectionHandler = selectionHandler;
-    this.transformHandler = transformHandler;
     this.networkHandler = networkHandler;
     this.settings = settings;
   }
@@ -52,8 +47,6 @@ export default class PieceConnector {
   private checkPieceConnection(piece: Piece, playSound: boolean) {
     const baseLimit = this.puzzle.pieceSize.mag() / 5;
     const limit = baseLimit * this.settings.puzzle.snapTolerance;
-    const length = this.puzzle.pieces.length;
-    const { x } = this.puzzle.pieceCount;
     let wasConnected = false;
 
     // Check each side [top, right, bottom, left]
@@ -61,15 +54,9 @@ export default class PieceConnector {
       // Dont check connected pieces
       if (piece.connectedSides.includes(side)) continue;
 
-      // Dont check outside of puzzle
-      const i = this.puzzle.pieces.indexOf(piece);
-      if (side === Side.Top && i < x) continue;
-      if (side === Side.Right && i % x === x - 1) continue;
-      if (side === Side.Bottom && length - i <= x) continue;
-      if (side === Side.Left && (length - i) % x === 0) continue;
-
-      // Find adjacentPiece
+      // Find adjacentPiece, none outside of puzzle
       const adjacentPiece = getAdjacentPiece(piece, side, this.puzzle);
+      if (!adjacentPiece) continue;
 
       // Find matching edges
       const pieceCorners = piece.getTrueCorners();
@@ -105,19 +92,17 @@ export default class PieceConnector {
         // globals.sounds?.snaps[index]?.play();
       }
 
-      // Rotate and translate selected piece|s
-      const deltaRotation = adjacentPiece.rotation - piece.rotation;
-      this.transformHandler.rotatePiece(piece, deltaRotation);
-
-      const acA = adjacentPiece.getTrueCorners()[(side + 3) % 4];
-      const ucA = piece.getTrueCorners()[side];
-      const deltaTranslation = p5.Vector.sub(acA, ucA);
-      this.transformHandler.translatePiece(piece, deltaTranslation);
+      // Snap the selected piece|s exactly into place next to the adjacent piece
+      for (const groupPiece of getConnectedPieces(piece, this.puzzle)) {
+        groupPiece.alignTo(adjacentPiece);
+      }
     }
 
-    // Add to connected side list
+    // Add to connected side list (the adjacent piece may already have it, from an update)
     const oppositeSide = (side + 2) % 4;
-    adjacentPiece.connectedSides = [...adjacentPiece.connectedSides, oppositeSide];
+    if (!adjacentPiece.connectedSides.includes(oppositeSide)) {
+      adjacentPiece.connectedSides = [...adjacentPiece.connectedSides, oppositeSide];
+    }
     piece.connectedSides = [...piece.connectedSides, side];
 
     // CRITICAL: Mark all pieces in BOTH islands as modified

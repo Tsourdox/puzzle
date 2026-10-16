@@ -12,7 +12,7 @@ import PieceConnector from './pieceConnector';
 import PiecesFactory from './piecesFactory';
 import { ISettings } from './settings';
 import { isMouseOverCanvas, toPoint } from './utils/general';
-import { sortPieces } from './utils/pieces';
+import { alignGroups, sortPieces } from './utils/pieces';
 
 export interface IPuzzle {
   p: p5;
@@ -98,11 +98,9 @@ export default class Puzzle implements IPuzzle, ISerializablePuzzle, IPuzzleCont
     this.networkSerializer = new NetworkSerializer(this, this.inputHandler.graphHandler, roomCode);
     this.networkHandler = new NetworkHandler(this, roomCode, this.networkSerializer);
     this.networkHandler.onRoom = (room) => this.handleRoom(room);
-    const { selectionHandler, transformHandler } = this.inputHandler;
     this.pieceConnector = new PieceConnector(
       this,
-      selectionHandler,
-      transformHandler,
+      this.inputHandler.selectionHandler,
       this.networkHandler,
       settings,
     );
@@ -296,6 +294,7 @@ export default class Puzzle implements IPuzzle, ISerializablePuzzle, IPuzzleCont
     for (const piece of this.pieces) {
       piece.update();
     }
+    alignGroups(this);
   }
 
   public draw() {

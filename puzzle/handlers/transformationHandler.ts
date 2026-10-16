@@ -9,7 +9,6 @@ import type { Touches } from './inputHandler';
 import type { ISelectionHandler } from './selectionHandler';
 
 export interface ITransformHandler {
-  rotatePiece(piece: Piece, angle: number): void;
   translatePiece(piece: Piece, translation: p5.Vector): void;
 }
 
@@ -45,17 +44,6 @@ export default class TransformHandler implements ITransformHandler {
     const { p } = this.puzzle;
     this.stackKeyPrevDown = p.keyIsDown(this.settings.keybindings.stackPieces);
     this.explodeKeyPrevDown = p.keyIsDown(this.settings.keybindings.explodePieces);
-  }
-
-  /** Will also rotate connected pieces */
-  public rotatePiece(piece: Piece, angle: number) {
-    const pieces = getConnectedPieces(piece, this.puzzle);
-    const centeres = pieces.map((p) => p.getTrueCenter());
-    const averageCenter = getAverageCenter(this.puzzle.p, centeres);
-
-    for (const piece of pieces) {
-      rotateAroundCenter(piece, averageCenter, angle);
-    }
   }
 
   /** Will also translate connected pieces */
