@@ -1,5 +1,5 @@
 import { PexelsImage } from '@/utils/pexelsImage';
-import { ComponentProps, useState } from 'react';
+import { ComponentProps, useEffect, useRef, useState } from 'react';
 import { twMerge } from 'tailwind-merge';
 import ImageCardModal from './ImageCardModal';
 
@@ -10,6 +10,13 @@ type Props = ComponentProps<'div'> & {
 export default function ImageCardContainer({ image, children, ...props }: Props) {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isImageLoaded, setIsImageLoaded] = useState(false);
+  const imageRef = useRef<HTMLImageElement>(null);
+
+  // Server-rendered images can finish loading before hydration, and React never replays
+  // that load event, so they would stay invisible
+  useEffect(() => {
+    if (imageRef.current?.complete && imageRef.current.naturalWidth) setIsImageLoaded(true);
+  }, []);
 
   const handleCardClick = () => {
     // Open modal on touch devices OR small screens (even with mouse)
@@ -28,6 +35,7 @@ export default function ImageCardContainer({ image, children, ...props }: Props)
         {...props}
       >
         <img
+          ref={imageRef}
           src={image.src.medium}
           alt={image.alt}
           loading="lazy"

@@ -4,6 +4,10 @@ import type Store from './store';
 const API_KEY = process.env.PEXELS_API_KEY ?? '';
 const DAY_MS = 86_400_000;
 const PHOTO_TTL_MS = 30 * DAY_MS;
+/** Gallery rows rotate every few days; until a refresh succeeds the old images stay */
+const GALLERY_TTL_MS = 3 * DAY_MS;
+/** A failed lookup waits this long before asking again, so it can't eat the rate limit */
+const RETRY_MS = 15 * 60_000;
 /** After hitting their rate limit, don't ask again for a while (cached answers still work) */
 const RATE_LIMIT_PAUSE_MS = 10 * 60_000;
 let pausedUntil = 0;
@@ -66,6 +70,7 @@ const logError = (error: unknown) => {
  */
 export default class Pexels {
   private refreshing = new Map<string, Promise<unknown>>();
+  private retryAt = new Map<string, number>();
 
   constructor(private store: Store) {
     // Gallery answers cached before images were remembered one by one
@@ -83,14 +88,24 @@ export default class Pexels {
   private async cached<T>(key: string, ttl: number, load: () => Promise<T>): Promise<T> {
     const hit = this.store.getCache<T>(key);
     if (hit && hit.expires > Date.now()) return hit.value;
+    if (Date.now() < (this.retryAt.get(key) ?? 0)) {
+      if (hit) return hit.value;
+      throw new PausedError();
+    }
 
     let refresh = this.refreshing.get(key) as Promise<T> | undefined;
     if (!refresh) {
       refresh = load()
         .then((value) => {
-          // Empty answers are usually failures; try again next time
-          if (!Array.isArray(value) || value.length) this.store.setCache(key, value, ttl);
+          // Empty answers are usually failures; keep the previous answer
+          if (Array.isArray(value) && !value.length) throw new Error(`Pexels ${key}: no images`);
+          this.store.setCache(key, value, ttl);
+          this.retryAt.delete(key);
           return value;
+        })
+        .catch((error) => {
+          if (!(error instanceof PausedError)) this.retryAt.set(key, Date.now() + RETRY_MS);
+          throw error;
         })
         .finally(() => this.refreshing.delete(key));
       this.refreshing.set(key, refresh);
@@ -129,7 +144,7 @@ export default class Pexels {
 
   public async curated(): Promise<PexelsImage[]> {
     try {
-      return await this.cached('curated', DAY_MS, async () => {
+      return await this.cached('curated', GALLERY_TTL_MS, async () => {
         const result = await pexels<{ photos: PexelsPhoto[] }>('curated?per_page=30&page=1');
         return this.remember(result.photos.map(toImage));
       });
@@ -141,7 +156,9 @@ export default class Pexels {
 
   public async search(searchTerm: string): Promise<PexelsImage[]> {
     try {
-      return await this.cached(`search:${searchTerm}`, DAY_MS, () => this.fetchSearch(searchTerm));
+      return await this.cached(`search:${searchTerm}`, GALLERY_TTL_MS, () =>
+        this.fetchSearch(searchTerm),
+      );
     } catch (error) {
       logError(error);
       return [];
