@@ -204,8 +204,7 @@ export default class SelectionHandler implements ISelectionHandler {
   private isPointOverPiece(point: p5.Vector, piece: Piece) {
     const { scale, translation } = this.graph;
     const worldPoint = point.copy().div(scale).sub(translation);
-    const corners = piece.getTrueCorners();
-    return this.isPointInsideRect(worldPoint, corners);
+    return piece.containsPoint(worldPoint);
   }
 
   private isDragSelectionOverPiece(piece: Piece): boolean {
@@ -222,8 +221,9 @@ export default class SelectionHandler implements ISelectionHandler {
     ];
     const pieceCorners = piece.getTrueCorners();
 
+    // By its outline, so a click in a bay (an empty selection there) doesn't take the piece
     for (const corner of dragSelectionCorners) {
-      if (this.isPointInsideRect(corner, pieceCorners)) {
+      if (piece.containsPoint(corner)) {
         return true;
       }
     }

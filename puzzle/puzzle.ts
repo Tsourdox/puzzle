@@ -312,9 +312,12 @@ export default class Puzzle implements IPuzzle, ISerializablePuzzle, IPuzzleCont
   }
 
   private drawPieces() {
-    const sortedPieces = sortPieces(this.pieces);
-    for (const piece of sortedPieces) {
-      piece.draw();
+    // Only the pieces on screen (in world coordinates, like the pieces)
+    const { scale, translation } = this.inputHandler.graphHandler;
+    const width = this.p.width / scale;
+    const height = this.p.height / scale;
+    for (const piece of sortPieces(this.pieces)) {
+      if (piece.isInView(-translation.x, -translation.y, width, height)) piece.draw();
     }
   }
 

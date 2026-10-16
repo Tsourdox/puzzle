@@ -16,6 +16,14 @@ export interface Sides {
   left: p5.Vector[];
 }
 
+let hitTestContext: CanvasRenderingContext2D | undefined;
+
+/** A context without transforms, so points are tested against paths as they are */
+function getHitTestContext() {
+  hitTestContext ??= document.createElement('canvas').getContext('2d')!;
+  return hitTestContext;
+}
+
 export enum Side {
   Top,
   Right,
@@ -46,6 +54,10 @@ export default class Piece implements ISerializablePiece {
   private graphicNeedsUpdating: boolean;
   private lerpTime: number;
   private settings: ISettings;
+  /** The piece's outline in the solved image, for hit testing */
+  private outline: Path2D;
+  /** Distance from the center that the graphics reach, whatever the rotation */
+  private radius: number;
 
   constructor(
     p: p5,
@@ -78,9 +90,16 @@ export default class Piece implements ISerializablePiece {
     this._connectedSides = [];
     this.graphicNeedsUpdating = false;
     this.settings = settings;
+    this.outline = this.createOutline();
     this.graphics = p.createGraphics(
       p.round(this.size.x + offset * 2),
       p.round(this.size.y + offset * 2),
+    );
+    // The piece image has one pixel per image pixel, so more would only cost memory and fill
+    this.graphics.pixelDensity(1);
+    this.radius = this.getGraphicsCorners().reduce(
+      (max, corner) => Math.max(max, corner.dist(this.center)),
+      0,
     );
     this.image.mask(this.createClippingMask());
     this.updateGraphics();
@@ -219,6 +238,7 @@ export default class Piece implements ISerializablePiece {
     const { width, height } = this.graphics;
     const { top, right, bottom, left } = this.sides;
     const mask = p.createGraphics(width, height);
+    mask.pixelDensity(1);
     mask.push();
     mask.clear(0, 0, 0, 0);
     mask.translate(this.offset, this.offset);
@@ -263,6 +283,55 @@ export default class Piece implements ISerializablePiece {
       this.drawOneSide(this.graphics, left);
       this.graphics.endShape();
     }
+  }
+
+  private createOutline() {
+    const path = new Path2D();
+    const { top, right, bottom, left } = this.sides;
+    path.moveTo(top[0].x, top[0].y);
+    for (const side of [top, right, bottom, left]) {
+      if (side.length === 2) {
+        path.lineTo(side[1].x, side[1].y);
+        continue;
+      }
+      for (let i = 1; i < side.length; i += 3) {
+        const [c1, c2, end] = [side[i], side[i + 1], side[i + 2]];
+        path.bezierCurveTo(c1.x, c1.y, c2.x, c2.y, end.x, end.y);
+      }
+    }
+    path.closePath();
+    return path;
+  }
+
+  /** Whether a point in the world is on the piece, tabs included and the bays between them not */
+  public containsPoint(point: p5.Vector): boolean {
+    const trueCenter = this.getTrueCenter();
+    if (point.dist(trueCenter) > this.radius) return false;
+    // Back to where the point would be on the piece in the solved image
+    const local = rotatePointAroundCenter(point, trueCenter, -this._rotation).sub(
+      this._translation,
+    );
+    return getHitTestContext().isPointInPath(this.outline, local.x, local.y);
+  }
+
+  /** Whether any of the piece can be inside the rect (in world coordinates) */
+  public isInView(x: number, y: number, width: number, height: number): boolean {
+    const { x: cx, y: cy } = this.getTrueCenter();
+    const r = this.radius;
+    return cx + r >= x && cx - r <= x + width && cy + r >= y && cy - r <= y + height;
+  }
+
+  private getGraphicsCorners(): p5.Vector[] {
+    const { p, origin, offset } = this;
+    const { width, height } = this.graphics;
+    const x = origin.x - offset;
+    const y = origin.y - offset;
+    return [
+      p.createVector(x, y),
+      p.createVector(x + width, y),
+      p.createVector(x + width, y + height),
+      p.createVector(x, y + height),
+    ];
   }
 
   private drawOneSide(graphics: p5.Graphics, side: p5.Vector[]) {
@@ -315,22 +384,13 @@ export default class Piece implements ISerializablePiece {
   }
 
   public draw() {
-    this.p.push();
-    this.applyTranslation();
-    this.applyRotation();
-    const { graphics, origin, offset } = this;
-    this.p.image(graphics, origin.x - offset, origin.y - offset);
-    this.p.pop();
-  }
-
-  private applyRotation() {
-    this.p.translate(this.center.x, this.center.y);
-    this.p.rotate(this.rotation);
-    this.p.translate(-this.center.x, -this.center.y);
-  }
-
-  private applyTranslation() {
-    this.p.translate(this.translation.x, this.translation.y);
+    const { p, graphics, origin, offset, center, _translation } = this;
+    // Rotate around the center: move there, rotate, and draw the graphics relative to it
+    p.push();
+    p.translate(_translation.x + center.x, _translation.y + center.y);
+    p.rotate(this._rotation);
+    p.image(graphics, origin.x - offset - center.x, origin.y - offset - center.y);
+    p.pop();
   }
 
   public serialize(): ISerializedPieceData {
