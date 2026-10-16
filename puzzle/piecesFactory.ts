@@ -30,32 +30,16 @@ export default class PiecesFactory {
 
   public createAllPieces(preventModifyFlag?: boolean): Piece[] {
     try {
-      const p = this.p;
       const pieces: Piece[] = [];
       const offset = this.offset * 4;
 
-      const w = this.image.width;
-      const h = this.image.height;
-
-      // Create offset around image before croping piece-images,
-      // because Safari makes edge pieces transparent.
-      // For some reason offset * 2 is not enough, why?
-      const imageWithOffset = p.createImage(p.round(w + offset * 3), p.round(h + offset * 3));
-      imageWithOffset.copy(this.image, 0, 0, w, h, p.round(offset), p.round(offset), w, h);
-
       for (const sides of this.generatePiecesOutlines()) {
         const origin = sides.top[0];
-        const pieceX = p.round(origin.x);
-        const pieceY = p.round(origin.y);
-        const pieceW = p.round(this.cellSize.x + offset * 2);
-        const pieceH = p.round(this.cellSize.y + offset * 2);
-
-        const image = imageWithOffset.get(pieceX, pieceY, pieceW, pieceH);
         const id = pieces.length; // array index
         const piece = new Piece(
           this.p,
           id,
-          image,
+          this.image,
           origin,
           this.cellSize,
           sides,

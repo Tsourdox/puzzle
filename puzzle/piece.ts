@@ -24,6 +24,18 @@ function getHitTestContext() {
   return hitTestContext;
 }
 
+/** Continues the path along a side, from its first point (a line or bezier curves) */
+function traceSide(path: Path2D, side: p5.Vector[]) {
+  if (side.length === 2) {
+    path.lineTo(side[1].x, side[1].y);
+    return;
+  }
+  for (let i = 1; i < side.length; i += 3) {
+    const [c1, c2, end] = [side[i], side[i + 1], side[i + 2]];
+    path.bezierCurveTo(c1.x, c1.y, c2.x, c2.y, end.x, end.y);
+  }
+}
+
 export enum Side {
   Top,
   Right,
@@ -42,6 +54,7 @@ export default class Piece implements ISerializablePiece {
   private nextTranslation: p5.Vector;
   private _connectedSides: Side[];
   private graphics: p5.Graphics;
+  /** The whole puzzle image, shared by all pieces */
   private image: p5.Image;
   private origin: p5.Vector;
   private size: p5.Vector;
@@ -54,8 +67,10 @@ export default class Piece implements ISerializablePiece {
   private graphicNeedsUpdating: boolean;
   private lerpTime: number;
   private settings: ISettings;
-  /** The piece's outline in the solved image, for hit testing */
+  /** The piece's outline in the solved image, for clipping and hit testing */
   private outline: Path2D;
+  /** Each side on its own, to stroke the ones that aren't connected */
+  private sidePaths: Path2D[];
   /** Distance from the center that the graphics reach, whatever the rotation */
   private radius: number;
 
@@ -90,18 +105,16 @@ export default class Piece implements ISerializablePiece {
     this._connectedSides = [];
     this.graphicNeedsUpdating = false;
     this.settings = settings;
+    this.sidePaths = this.createSidePaths();
     this.outline = this.createOutline();
     this.graphics = p.createGraphics(
       p.round(this.size.x + offset * 2),
       p.round(this.size.y + offset * 2),
     );
-    // The piece image has one pixel per image pixel, so more would only cost memory and fill
-    this.graphics.pixelDensity(1);
     this.radius = this.getGraphicsCorners().reduce(
       (max, corner) => Math.max(max, corner.dist(this.center)),
       0,
     );
-    this.image.mask(this.createClippingMask());
     this.updateGraphics();
   }
 
@@ -210,79 +223,49 @@ export default class Piece implements ISerializablePiece {
     }
   }
 
+  /**
+   * Clips the puzzle image with the outline, then strokes the sides that aren't connected.
+   * As paths, so the edges are smooth at the screen's density, not cut at the image's pixels.
+   */
   private updateGraphics() {
     this.graphicNeedsUpdating = false;
-    this.graphics.noTint();
+    const { graphics, image, origin, offset, size } = this;
+    const ctx = graphics.drawingContext as CanvasRenderingContext2D;
+    graphics.clear(0, 0, 0, 0);
+    ctx.save();
+    // Draw in the solved image's coordinates
+    ctx.translate(offset - origin.x, offset - origin.y);
 
-    this.graphics.clear(0, 0, 0, 0);
-    this.graphics.image(this.image, 0, 0);
+    ctx.save();
+    ctx.clip(this.outline);
+    // Only the part of the image under the piece (Safari draws nothing when outside the image)
+    const x0 = Math.max(0, origin.x - offset);
+    const y0 = Math.max(0, origin.y - offset);
+    const x1 = Math.min(image.width, origin.x - offset + graphics.width);
+    const y1 = Math.min(image.height, origin.y - offset + graphics.height);
+    graphics.image(image, x0, y0, x1 - x0, y1 - y0, x0, y0, x1 - x0, y1 - y0);
+    ctx.restore();
 
-    this.graphics.push();
-    this.graphics.translate(this.offset, this.offset);
-    this.graphics.noFill();
-
-    if (this._isSelected || (this._isSelectedByOther && this.settings.network.showSelectedPieces)) {
-      this.graphics.stroke(this.selectionColor);
-      this.graphics.strokeWeight(this.size.mag() / 60);
-      this.drawSelectionOutline();
-    } else {
-      this.graphics.stroke('#000');
-      this.graphics.strokeWeight(this.size.mag() / 80);
-      this.drawSelectionOutline();
-    }
-    this.graphics.pop();
+    const selected =
+      this._isSelected || (this._isSelectedByOther && this.settings.network.showSelectedPieces);
+    ctx.strokeStyle = selected ? this.selectionColor : '#000';
+    ctx.lineWidth = size.mag() / (selected ? 60 : 80);
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+    this.sidePaths.forEach((path, side) => {
+      if (!this._connectedSides.includes(side)) ctx.stroke(path);
+    });
+    ctx.restore();
   }
 
-  private createClippingMask() {
-    const { p } = this;
-    const { width, height } = this.graphics;
+  private createSidePaths() {
     const { top, right, bottom, left } = this.sides;
-    const mask = p.createGraphics(width, height);
-    mask.pixelDensity(1);
-    mask.push();
-    mask.clear(0, 0, 0, 0);
-    mask.translate(this.offset, this.offset);
-    mask.fill(0);
-    mask.beginShape();
-    this.drawOneSide(mask, top);
-    this.drawOneSide(mask, right);
-    this.drawOneSide(mask, bottom);
-    this.drawOneSide(mask, left);
-    mask.endShape(p.CLOSE);
-    mask.pop();
-
-    const image = p.createImage(width, height);
-    image.copy(mask, 0, 0, width, height, 0, 0, width, height);
-    mask.width = 0;
-    mask.height = 0;
-    mask.remove();
-
-    return image;
-  }
-
-  private drawSelectionOutline() {
-    const { top, right, bottom, left } = this.sides;
-
-    if (!this.connectedSides.includes(Side.Top)) {
-      this.graphics.beginShape();
-      this.drawOneSide(this.graphics, top);
-      this.graphics.endShape();
-    }
-    if (!this.connectedSides.includes(Side.Right)) {
-      this.graphics.beginShape();
-      this.drawOneSide(this.graphics, right);
-      this.graphics.endShape();
-    }
-    if (!this.connectedSides.includes(Side.Bottom)) {
-      this.graphics.beginShape();
-      this.drawOneSide(this.graphics, bottom);
-      this.graphics.endShape();
-    }
-    if (!this.connectedSides.includes(Side.Left)) {
-      this.graphics.beginShape();
-      this.drawOneSide(this.graphics, left);
-      this.graphics.endShape();
-    }
+    return [top, right, bottom, left].map((side) => {
+      const path = new Path2D();
+      path.moveTo(side[0].x, side[0].y);
+      traceSide(path, side);
+      return path;
+    });
   }
 
   private createOutline() {
@@ -290,14 +273,7 @@ export default class Piece implements ISerializablePiece {
     const { top, right, bottom, left } = this.sides;
     path.moveTo(top[0].x, top[0].y);
     for (const side of [top, right, bottom, left]) {
-      if (side.length === 2) {
-        path.lineTo(side[1].x, side[1].y);
-        continue;
-      }
-      for (let i = 1; i < side.length; i += 3) {
-        const [c1, c2, end] = [side[i], side[i + 1], side[i + 2]];
-        path.bezierCurveTo(c1.x, c1.y, c2.x, c2.y, end.x, end.y);
-      }
+      traceSide(path, side);
     }
     path.closePath();
     return path;
@@ -332,25 +308,6 @@ export default class Piece implements ISerializablePiece {
       p.createVector(x + width, y + height),
       p.createVector(x, y + height),
     ];
-  }
-
-  private drawOneSide(graphics: p5.Graphics, side: p5.Vector[]) {
-    const firstPoint = p5.Vector.sub(side[0], this.origin);
-
-    if (side.length === 2) {
-      const secondPoint = p5.Vector.sub(side[1], this.origin);
-      graphics.vertex(firstPoint.x, firstPoint.y);
-      graphics.vertex(secondPoint.x, secondPoint.y);
-      return;
-    }
-
-    graphics.vertex(firstPoint.x, firstPoint.y);
-    for (let i = 1; i < side.length; i += 3) {
-      const p2 = p5.Vector.sub(side[i], this.origin);
-      const p3 = p5.Vector.sub(side[(i + 1) % side.length], this.origin);
-      const p4 = p5.Vector.sub(side[(i + 2) % side.length], this.origin);
-      graphics.bezierVertex(p2.x, p2.y, p3.x, p3.y, p4.x, p4.y);
-    }
   }
 
   public getTrueCenter(): p5.Vector {
